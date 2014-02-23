@@ -1,5 +1,7 @@
 package scorena
 
+import com.doozi.QuestionController;
+
 import grails.test.mixin.TestFor
 import spock.lang.Specification
 

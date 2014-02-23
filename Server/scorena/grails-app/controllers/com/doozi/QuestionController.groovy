@@ -1,4 +1,4 @@
-package scorena
+package com.doozi
 
 
 // /v1/sports/soccer/premier/questions
