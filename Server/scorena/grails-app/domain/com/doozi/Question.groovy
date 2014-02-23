@@ -6,7 +6,7 @@ class Question {
 	
 	Pool betPool
 	QuestionContent content
-	static hasMany = [game: Game, bet: BetTransaction]
+	static hasMany = [bet: BetTransaction]
 	static belongsTo = Game
 
     static constraints = {

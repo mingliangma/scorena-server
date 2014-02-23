@@ -10,22 +10,27 @@ import grails.converters.JSON
 //eg. v1/sports/userprofile/superuser
 
 class UserController {
-	static scaffold = true
+	
+	def list(){
+		def user="this is testing user"
+		render user as JSON
+	}
+
 //    def index() {}
 	
-	def save(){
-		log.info "enter override create()"
-		def paramTemp = params
-		def acc = new Account(0,0)
-		def user = new User(params)
-		if (user.save()){
-			log.info "user successfully saved"
-			render user as JSON
-		}else{
-		log.info "user save failed"
-			render status:404
-		}
-	}
+//	def save(){
+//		log.info "enter override create()"
+//		def paramTemp = params
+//		def acc = new Account(0,0)
+//		def user = new User(params)
+//		if (user.save()){
+//			log.info "user successfully saved"
+//			render user as JSON
+//		}else{
+//		log.info "user save failed"
+//			render status:404
+//		}
+//	}
 	
 //	def show(User user){
 //		if (user == null){
@@ -40,4 +45,5 @@ class UserController {
 //	}
 //	def save() {}
 //	def update() {}
+
 }

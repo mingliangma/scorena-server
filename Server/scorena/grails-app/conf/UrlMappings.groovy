@@ -9,16 +9,23 @@ class UrlMappings {
 //	or: PUT  /expense-report/10929
 	
 	static mappings = {
-		"/$controller/$action?/$id?"{
-			constraints {
-				// apply constraints here
-			}
-		}
-//		"/user"(controller:"user") {
-//			action = [GET:"list", PUT:"update", POST:"save"]
+//		"/$controller/$action?/$id?"{
+//			constraints {
+//				// apply constraints here
+//			}
 //		}
 		
+		"/users"(controller:"user") {
+			action = [GET:"list"]
+		}
 		
+		"/users/new"(controller:"user") {
+			action = [POST:"createNewUser"]
+		}
+		
+		"/users/$userId?"(controller:"user") {
+			action = [GET:"getUserProfile", PUT:"updateUserProfile", DELETE:"deleteUserProfile" ]
+		}	
 
 
         "/"(view:"/index")
