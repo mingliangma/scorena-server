@@ -1,0 +1,11 @@
+<plugin name='create-domain-uml' version='0.5' grailsVersion='1.1.1 &gt; *'>
+  <author>Al Phillips</author>
+  <authorEmail>alphillips101@gmail.com</authorEmail>
+  <title>Create Domain UML - Create UML Class diagrams for Grails Domain Classes</title>
+  <description>\
+This is a Grails plugin that uses yUML (http://www.yuml.me/) to draw class diagrams for your Grails Domain classes.
+</description>
+  <documentation>http://grails.org/plugin/create-domain-uml</documentation>
+  <resources />
+  <dependencies />
+</plugin>
