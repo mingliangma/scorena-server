@@ -7,14 +7,14 @@ class User {
     String displayName
 	String password
 	
-	Account account
+	//Account account
 	static hasMany = [bet: BetTransaction]
 	
 
     static constraints = {
-		email blank: false, nullable:false
-		displayName blank: false, nullable:false
-		password blank: false, nullable:false
-		bet nullable: true
+//		email blank: false, nullable:false
+//		displayName blank: false, nullable:false
+//		password blank: false, nullable:false
+//		bet nullable: true
     }
 }

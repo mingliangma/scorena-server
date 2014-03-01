@@ -18,19 +18,22 @@ class UserController {
 
 //    def index() {}
 	
-//	def save(){
-//		log.info "enter override create()"
-//		def paramTemp = params
-//		def acc = new Account(0,0)
-//		def user = new User(params)
-//		if (user.save()){
-//			log.info "user successfully saved"
-//			render user as JSON
-//		}else{
-//		log.info "user save failed"
-//			render status:404
-//		}
-//	}
+	def createNewUser(){
+		System.out.println("create new user")
+		log.info "enter override create()"
+		def user = new User(email:"mingliang.ma@gmail.com", displayName: "mingma", password:"232", FID:"asdf")
+		
+//		user.account = new Account()
+		
+		if (user.save()){
+			System.out.println("user successfully saved")
+			render user as JSON
+		}else{
+			System.out.println("user save failed")
+		
+			render status:404
+		}
+	}
 	
 //	def show(User user){
 //		if (user == null){
