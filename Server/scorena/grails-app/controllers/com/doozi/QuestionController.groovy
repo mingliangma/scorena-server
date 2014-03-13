@@ -1,5 +1,7 @@
 package com.doozi
 
+import grails.converters.JSON
+
 
 // /v1/sports/soccer/premier/questions
 //GET	-gameID
@@ -7,6 +9,12 @@ package com.doozi
 
 
 class QuestionController {
-
-    def index() { }
+	
+	def questionService
+    def getQuestions() { 
+		if (params.gameId){
+			def questions = questionService.listQuestions(params.gameId)
+			render questions as JSON
+		}
+	}
 }

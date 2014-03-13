@@ -47,6 +47,13 @@ class GameController {
 		render upcomingGames as JSON
 	}
 	
+	def getGame(){
+		if (params.gameId){
+			def questions = gameService.getGame(params.gameId)
+			render questions as JSON
+		}
+	}
+	
 	def getFeatureEvents(){
 		String theDate = "12/03/2014 16:00:00";
 		def date1 = new Date().parse("d/M/yyyy H:m:s", theDate)

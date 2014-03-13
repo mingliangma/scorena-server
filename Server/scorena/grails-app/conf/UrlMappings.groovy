@@ -38,6 +38,14 @@ class UrlMappings {
 		"/v1/sports/soccer/leagues/epl/games/past"(controller:"game"){
 			action = [GET:"getPastGames"]
 		}
+		
+		"/v1/sports/soccer/leagues/epl/games/$gameId?"(controller:"game"){
+			action = [GET:"getGame"]
+		}
+		
+		"/v1/sports/soccer/leagues/epl/games/$gameId?/qs"(controller:"question"){
+			action = [GET:"getQuestions"]
+		}
 
 
         "/"(view:"/index")

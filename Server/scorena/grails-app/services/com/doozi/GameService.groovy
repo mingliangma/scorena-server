@@ -38,6 +38,28 @@ class GameService {
 		return all
 	}
 	
+	def getGame(gameId){
+		def match = Game.findAllById(gameId)
+		
+		def all = match.collect {Game game ->
+			[	id: game.id,
+				home: 	game.home,
+				away: game.away,
+				date: game.date,
+				league: game.league,
+				type: game.type,
+				event: [
+					homeScore: game.gameEvent.homeScore,
+					awayScore: game.gameEvent.awayScore
+					]
+				
+			]
+		  }
+		
+		return all
+	}
+	
+	
 	def listUpcomingGamesAndQuestions() {
 		def today = new Date();
 		def weekLater = today + 7;
