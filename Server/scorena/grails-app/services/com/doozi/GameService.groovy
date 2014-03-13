@@ -11,10 +11,28 @@ class GameService {
 		def upcomingGames = Game.findAllByDateBetween(today, weekLater)
 		
 		def all = upcomingGames.collect {Game game ->
-			[	home: 	game.home,
+			[	id: game.id,
+				home: 	game.home,
 				away: game.away,
 				date: game.date,
-				league: game.league,				
+				league: game.league,
+				type: game.type,			
+			]
+		  }
+		return all
+	}
+	
+	def listPastGames() {
+		def today = new Date();
+		def upcomingGames = Game.findAllByDateLessThan(today)
+		
+		def all = upcomingGames.collect {Game game ->
+			[	id: game.id,
+				home: 	game.home,
+				away: game.away,
+				date: game.date,
+				league: game.league,
+				type: game.type,
 			]
 		  }
 		return all

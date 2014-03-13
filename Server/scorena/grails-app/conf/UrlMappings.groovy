@@ -34,6 +34,10 @@ class UrlMappings {
 		"/v1/sports/soccer/leagues/epl/games/upcoming"(controller:"game"){
 			action = [GET:"getUpcomingGames"]
 		}
+		
+		"/v1/sports/soccer/leagues/epl/games/past"(controller:"game"){
+			action = [GET:"getPastGames"]
+		}
 
 
         "/"(view:"/index")
