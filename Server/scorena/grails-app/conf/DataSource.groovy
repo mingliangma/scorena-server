@@ -1,3 +1,5 @@
+
+
 dataSource {
     pooled = true
     driverClassName = "com.mysql.jdbc.Driver"
@@ -15,25 +17,26 @@ hibernate {
 environments {
     development {
         dataSource {
-            dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
+            dbCreate = "create" // one of 'create', 'create-drop', 'update', 'validate', ''
             url = "jdbc:mysql://localhost/scorena_dev?useUnicode=yes&characterEncoding=UTF-8"
 			username = "root"
 			password = "root"
         }
     }
-    test {
+    test { 
         dataSource {
-            dbCreate = "update"
-			url = "jdbc:mysql://localhost/scorena_dev?useUnicode=yes&characterEncoding=UTF-8"
+            dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
+            url = "jdbc:mysql://localhost/scorena_test?useUnicode=yes&characterEncoding=UTF-8"
 			username = "root"
-			password = "root"        }
+			password = "root"        
+		}
     }
     production {
         dataSource {
             dbCreate = "update"
-            url = "jdbc:mysql://localhost/scorena_dev?useUnicode=yes&characterEncoding=UTF-8"
-			username = "root"
-			password = "root"
+			url = "jdbc:mysql://54.186.28.73/scorena_test?useUnicode=yes&characterEncoding=UTF-8"
+			username = "admin"
+			password = "scorena"    
             properties {
                maxActive = -1
                minEvictableIdleTimeMillis=1800000

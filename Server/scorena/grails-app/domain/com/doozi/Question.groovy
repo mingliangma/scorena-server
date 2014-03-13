@@ -3,9 +3,13 @@ package com.doozi
 class Question {
 	String pick1
 	String pick2
+	String content
+//	int sport
+//	int type
 	
-	Pool betPool
-	QuestionContent content
+	
+	
+	static hasOne = [pool: Pool]
 	static hasMany = [bet: BetTransaction]
 	static belongsTo = Game
 

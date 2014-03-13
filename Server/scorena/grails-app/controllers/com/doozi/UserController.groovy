@@ -30,7 +30,6 @@ class UserController {
 			render user as JSON
 		}else{
 			System.out.println("user save failed")
-		
 			render status:404
 		}
 	}

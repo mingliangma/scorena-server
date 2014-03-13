@@ -26,6 +26,14 @@ class UrlMappings {
 		"/users/$userId?"(controller:"user") {
 			action = [GET:"getUserProfile", PUT:"updateUserProfile", DELETE:"deleteUserProfile" ]
 		}	
+		
+		"/v1/sports/soccer/leagues/epl/games/feature"(controller:"game"){
+			action = [GET:"getFeatureEvents"]
+		}
+		
+		"/v1/sports/soccer/leagues/epl/games/upcoming"(controller:"game"){
+			action = [GET:"getUpcomingGames"]
+		}
 
 
         "/"(view:"/index")

@@ -4,7 +4,7 @@ class GameResult {
 	int homeScore
 	int awayScore
 	
-	static belongsTo = [match: Game]
+	static belongsTo = [game: Game]
     static constraints = {
     }
 }
