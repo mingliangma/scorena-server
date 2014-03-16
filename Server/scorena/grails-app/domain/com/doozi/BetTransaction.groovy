@@ -3,7 +3,7 @@ package com.doozi
 class BetTransaction {
 	int wager
 	Date time
-	boolean pick
+	int pick
 	
 	static hasOne = [betResult: BetResult]
 	static belongsTo = [game: Game, question: Question, user: User]

@@ -7,8 +7,9 @@ class Account {
 	int previousBalance
 	//Date time
 	
-	//static belongTo = [user: User]
+	static belongsTo = [user: User]
 	
     static constraints = {
+		user unqiue: true
     }
 }

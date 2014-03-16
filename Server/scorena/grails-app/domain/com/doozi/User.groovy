@@ -8,6 +8,7 @@ class User {
 	String password
 	
 	//Account account
+	static hasOne = [account: Account]
 	static hasMany = [bet: BetTransaction]
 	
 

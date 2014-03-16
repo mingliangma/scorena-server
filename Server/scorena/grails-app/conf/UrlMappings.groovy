@@ -44,9 +44,12 @@ class UrlMappings {
 		}
 		
 		"/v1/sports/soccer/leagues/epl/games/$gameId?/qs"(controller:"question"){
-			action = [GET:"getQuestions"]
+			action = [GET:"listQuestions"]
 		}
 
+		"/v1/sports/soccer/leagues/epl/games/$gameId?/qs/$qId?"(controller:"question"){
+			action = [GET:"getQuestionDetails"]
+		}
 
         "/"(view:"/index")
         "500"(view:'/error')

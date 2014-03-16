@@ -26,6 +26,7 @@ def createGame(String _league, String _away, String _home, String _type, String 
 			}else{
 				System.out.println("game save failed")
 			}
+			
 }
 
 	

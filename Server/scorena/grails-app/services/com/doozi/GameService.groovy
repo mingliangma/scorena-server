@@ -6,10 +6,7 @@ import grails.transaction.Transactional
 class GameService {
 
 	def listUpcomingGames() {
-		def today = new Date();
-		def weekLater = today + 7;
-		def upcomingGames = Game.findAllByDateBetween(today, weekLater)
-		
+		def upcomingGames = getUpcomingGameObjects()		
 		def all = upcomingGames.collect {Game game ->
 			[	id: game.id,
 				home: 	game.home,
@@ -20,6 +17,13 @@ class GameService {
 			]
 		  }
 		return all
+	}
+	
+	def getUpcomingGameObjects(){
+		def today = new Date();
+		def weekLater = today + 7;
+		def upcomingGames = Game.findAllByDateBetween(today, weekLater)
+		return upcomingGames
 	}
 	
 	def listPastGames() {

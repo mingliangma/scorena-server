@@ -6,6 +6,8 @@ class Pool {
 	int pick2Amount
 	int pick1NumPeople
 	int pick2NumPeople
+	int minBet
+	
 	
 	static belongsTo = [question: Question]
 		
