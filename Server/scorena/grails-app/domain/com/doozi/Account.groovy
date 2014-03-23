@@ -2,14 +2,18 @@ package com.doozi
 
 
 class Account {
+	String userId
+	String username
 	int currentBalance
-	//String latestTransaction
+	
 	int previousBalance
-	//Date time
 	
-	static belongsTo = [user: User]
 	
-    static constraints = {
-		user unqiue: true
-    }
+	//static belongsTo = [user: User]
+	static hasMany = [bet: BetTransaction]
+	static constraints = {
+		username (unqiue: true)
+		bet nullable: true
+	}
+ 
 }

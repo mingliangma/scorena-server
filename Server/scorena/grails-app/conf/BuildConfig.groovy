@@ -61,6 +61,7 @@ grails.project.dependency.resolution = {
         compile ':cache:1.1.1'
         compile ":create-domain-uml:0.5"
         compile ":class-diagram:0.5.2"
+		compile ":rest-client-builder:2.0.1"
 
         // plugins needed at runtime but not for compilation
         runtime ":hibernate:3.6.10.6" // or ":hibernate4:4.1.11.6"

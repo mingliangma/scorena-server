@@ -56,11 +56,11 @@ class QuestionService {
 		for (BetTransaction betTrans: betTransactions){
 			if (betTrans.pick==0){
 				homeBettersArr.add([
-					name:betTrans.user.displayName,
+					name:betTrans.account.username,
 					wager:betTrans.wager])
 			}else{
 				awayBettersArr.add( [
-				name:betTrans.user.displayName,
+				name:betTrans.account.username,
 				wager:betTrans.wager])
 			}		
 		}

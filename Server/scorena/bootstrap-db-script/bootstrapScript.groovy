@@ -12,6 +12,7 @@ def createGame(String _league, String _away, String _home, String _type, String 
 			def newdate = new Date().parse("d/M/yyyy H:m:s", _theDate)
 			def game = new Game(league: _league, home:_home, away: _away, type:_type, country:_country, date:newdate,
 				gameResult:new GameResult(awayScore:_awayScore, homeScore:_homeScore), gameEvent:new GameEvent(awayScore:_awayScore, homeScore:_homeScore))
+			System.out.println("game: "+game.id)
 			def q1 = new Question(pick1: _home, pick2: _away, content:"who will win between the two", 
 				pool: new Pool(pick1Amount:_pick1Amount, pick1NumPeople:_pick1NumPeople, pick2Amount:_pick2Amount, pick2NumPeople:_pick2NumPeople))
 			def q2 = new Question(pick1: _home, pick2: _away, content:"who will score the first goal",
@@ -32,10 +33,10 @@ def createGame(String _league, String _away, String _home, String _type, String 
 	
 String _league = "EPL"
 String _away = "Chelsea"
-String _home ="Man Unitied"
+String _home ="Man United"
 String _type ="soccer"
 String _country = "england"
-String _theDate ="12/03/2014 16:00:00"
+String _theDate ="12/04/2014 12:00:00"
 int _awayScore =0
 int _homeScore =0
 int _pick1Amount =0

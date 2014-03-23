@@ -50,7 +50,7 @@ def simulateBet(){
 	
 	
 	Random random = new Random()
-	def users = User.findAll()
+	def accounts = Account.findAll()
 	
 	
 	
@@ -59,19 +59,19 @@ def simulateBet(){
 		System.out.println("game away: "+upcomingGame.away + "   VS   game home: "+upcomingGame.home)
 		for (Question q: upcomingGame.question){
 			System.out.println("question: "+q.content)
-			for (User user: users){
+			for (Account account: accounts){
 				
-				System.out.println("user name: "+user.displayName)
+				System.out.println("user name: "+account.username)
 				int _wager =  (random.nextInt(6)+1)*5
 				Date _time = new Date() - random.nextInt(7)
-				boolean _pick
+				int _pick
 				
 				if (random.nextInt(1)==0){
 					_pick=0
 				}else{
 					_pick=1
 				}
-				betService.saveBetTrans(_wager, _time,_pick, user, q, upcomingGame)
+				betService.saveBetTrans(_wager, _time,_pick, account, q, upcomingGame)
 			}
 		}
 	}

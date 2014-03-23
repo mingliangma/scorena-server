@@ -14,14 +14,14 @@ class QuestionController {
     def listQuestions() { 
 		if (params.gameId){
 			def questions = questionService.listQuestions(params.gameId)
-			render questions as JSON
+			render json:questions as JSON
 		}
 	}
 	
 	def getQuestionDetails(){
 		if (params.gameId && params.qId){
 			def questionDetails = questionService.getQuestion( params.qId)
-			render questionDetails as JSON
+			render json:questionDetails as JSON
 		}
 	}
 }

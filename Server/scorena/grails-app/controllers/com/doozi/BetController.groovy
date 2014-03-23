@@ -4,5 +4,8 @@ package com.doozi
 
 class BetController {
 
-    def index() { }
+    def placeBet() { 
+		
+		
+	}
 }

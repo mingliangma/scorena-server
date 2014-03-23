@@ -5,10 +5,11 @@ class BetTransaction {
 	Date time
 	int pick
 	
+	
 	static hasOne = [betResult: BetResult]
-	static belongsTo = [game: Game, question: Question, user: User]
+	static belongsTo = [game: Game, question: Question, account: Account]
 	
     static constraints = {
-		betResult unique: true
+		betResult nullable: true,unique: true
     }
 }

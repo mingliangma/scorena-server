@@ -39,18 +39,18 @@ class GameController {
 	
 	def getUpcomingGames(){
 		def upcomingGames = gameService.listUpcomingGames()
-		render upcomingGames as JSON
+		render json:upcomingGames as JSON
 	}
 	
 	def getPastGames(){
 		def upcomingGames = gameService.listPastGames()
-		render upcomingGames as JSON
+		render json:upcomingGames as JSON
 	}
 	
 	def getGame(){
 		if (params.gameId){
 			def questions = gameService.getGame(params.gameId)
-			render questions as JSON
+			render json:questions as JSON
 		}
 	}
 	
@@ -63,7 +63,7 @@ class GameController {
 		def date3 = new Date().parse("d/M/yyyy H:m:s", theDate)
 		
 		JSONBuilder jSON = new JSONBuilder ()
-		JSON json = jSON.build {
+		JSON content = jSON.build {
 			games = array {
 				unsued {
 					home = 	"Stoke City"
@@ -78,51 +78,50 @@ class GameController {
 					}
 				}
 				
-				unsued {					
-					home = 	"Aston Villa"
-					away = "Liverpool FC"
-					date = date2
-					league = "EPL"
-					type = "soccer"
-					quesiton = {
-						content = "Who will score more?"
-						pick1 = "Aston Villa"
-						pick2 = "Liverpool FC"						
-					}
-				
-				}
-				
-				unsued {
-					home = 	"Stoke City"
-					away = "Norwich City"					
-					date = date3
-					league = "EPL"
-					type = "soccer"
-					quesiton = {
-						content = "Who will win between the two?"
-						pick1 = "Stoke City"
-						pick2 = "Norwich City"
-					}				
-				}
-				
-				unsued {
-					home = 	"Success"
-					away = "Fail"
-					date = date3
-					league = "EPL"
-					type = "soccer"
-					quesiton = {
-						content = "is Scorena going to be successful"
-						pick1 = "Success"
-						pick2 = "More Success"
-					}
-				}
+//				unsued {					
+//					home = 	"Aston Villa"
+//					away = "Liverpool FC"
+//					date = date2
+//					league = "EPL"
+//					type = "soccer"
+//					quesiton = {
+//						content = "Who will score more?"
+//						pick1 = "Aston Villa"
+//						pick2 = "Liverpool FC"						
+//					}
+//				
+//				}
+//				
+//				unsued {
+//					home = 	"Stoke City"
+//					away = "Norwich City"					
+//					date = date3
+//					league = "EPL"
+//					type = "soccer"
+//					quesiton = {
+//						content = "Who will win between the two?"
+//						pick1 = "Stoke City"
+//						pick2 = "Norwich City"
+//					}				
+//				}
+//				
+//				unsued {
+//					home = 	"Success"
+//					away = "Fail"
+//					date = date3
+//					league = "EPL"
+//					type = "soccer"
+//					quesiton = {
+//						content = "is Scorena going to be successful"
+//						pick1 = "Success"
+//						pick2 = "More Success"
+//					}
+//				}
 				
 			}
 		}
 		
-		System.out.println(json.toString())
-		render json
-
+		response.status = 200
+		render json: content
 	}
 }

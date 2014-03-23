@@ -17,21 +17,18 @@ class UserController {
 	}
 
 //    def index() {}
-	
+	def userService
 	def createNewUser(){
-		System.out.println("create new user")
-		log.info "enter override create()"
-		def user = new User(email:"mingliang.ma@gmail.com", displayName: "mingma", password:"232", FID:"asdf")
-		
-//		user.account = new Account()
-		
-		if (user.save()){
-			System.out.println("user successfully saved")
-			render user as JSON
+
+		def resp = userService.createUser(request.JSON.username, request.JSON.email, request.JSON.password)
+		println resp
+		if (resp.code==201){
+			response.status = 201
+			render json: resp as JSON
 		}else{
-			System.out.println("user save failed")
-			render status:404
-		}
+			response.status =400
+			render json: resp as JSON
+		}		
 	}
 	
 //	def show(User user){

@@ -1,7 +1,7 @@
 package com.doozi
 
 class BetResult {
-	String gameResult
+	int gameResult
 	int payOut
 	
 	static belongsTo = [bet: BetTransaction]
