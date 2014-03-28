@@ -13,6 +13,13 @@ import grails.transaction.Transactional
 @Transactional
 class BetService {
 
+	def saveBetTrans(int _wager, Date _time, int _pick, String userId, int quesitonId, int gameId) {
+		def account = Account.findByUserId(userId)
+		def question = Question.findById(quesitonId)
+		def game = Game.findById(gameId)
+		return saveBetTrans(_wager, _time, _pick, account, question, game)
+		
+	}
     def saveBetTrans(int _wager, Date _time, int _pick, Account account, Question q, Game game) {
 		println "wager:"+_wager
 		println "_time:"+_time
@@ -36,18 +43,24 @@ class BetService {
 			System.out.println("---------------account successfully saved")
 		}else{
 			System.out.println("---------------account save failed")
+			return 202
 		}
 		
 		if (q.save(failOnError:true)){
-			System.out.println("---------------q successfully saved")
+			System.out.println("---------------q successfully saved")			
 		}else{
 			System.out.println("---------------q save failed")
+			return 202
 		}
 		
 		if (game.save(failOnError:true)){
 			System.out.println("---------------game successfully saved")
 		}else{
 			System.out.println("---------------game save failed")
+			return 202
 		}
+		return 201
     }
+	
+	 
 }

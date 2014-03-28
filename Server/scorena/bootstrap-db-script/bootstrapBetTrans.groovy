@@ -45,6 +45,7 @@ import com.doozi.BetResult
 
 def simulateBet(){
 	
+	
 	def gameService = ctx.getBean("gameService")
 	def betService = ctx.getBean("betService")
 	

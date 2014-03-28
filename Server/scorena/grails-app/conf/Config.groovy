@@ -86,9 +86,19 @@ grails.hibernate.cache.queries = false
 environments {
     development {
         grails.logging.jul.usebridge = true
+		parse.parseApplicationId='kEepaeRdIInsSbptLl4lZ6xiZg7nv7bEOV56ym9m'
+		parse.parseRestApiKey ='QSBmZXNUjRMtKwWcqB7jLQgtZizCSMBBeoBQHIql'
     }
+	
+	test{
+		grails.logging.jul.usebridge = true
+		parse.parseApplicationId='sxfzjYsgGiSXVwr7pj6vmaFR2f8ok9YGrnXGfx91'
+		parse.parseRestApiKey ='IQX6dOlw7KfsLmNw2tau0cGWsE4I3vBliCw67Ca3'
+	}
     production {
         grails.logging.jul.usebridge = false
+		parse.parseApplicationId='<app_id>'
+		parse.parseRestApiKey ='<api_key>'
         // TODO: grails.serverURL = "http://www.changeme.com"
     }
 }

@@ -26,9 +26,9 @@ environments {
     test { 
         dataSource {
             dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
-            url = "jdbc:mysql://localhost/scorena_test?useUnicode=yes&characterEncoding=UTF-8"
-			username = "root"
-			password = "root"        
+            url = "jdbc:mysql://aa1cnaol294hlvt.cce59dcpxmml.us-west-2.rds.amazonaws.com/ebdb?useUnicode=yes&characterEncoding=UTF-8"
+			username = "scorenaadmin"
+			password = "scorenaadmin"       
 		}
     }
     production {

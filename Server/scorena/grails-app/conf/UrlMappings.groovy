@@ -15,15 +15,19 @@ class UrlMappings {
 //			}
 //		}
 		
-		"/users"(controller:"user") {
+		"/v1/users"(controller:"user") {
 			action = [GET:"list"]
 		}
 		
-		"/users/new"(controller:"user") {
+		"/v1/users/new"(controller:"user") {
 			action = [POST:"createNewUser"]
 		}
 		
-		"/users/$userId?"(controller:"user") {
+		"/v1/login"(controller:"user"){
+			action = [GET:"login"]
+		}
+		
+		"/v1/users/$userId?"(controller:"user") {
 			action = [GET:"getUserProfile", PUT:"updateUserProfile", DELETE:"deleteUserProfile" ]
 		}	
 		
@@ -50,6 +54,11 @@ class UrlMappings {
 		"/v1/sports/soccer/leagues/epl/games/$gameId?/qs/$qId?"(controller:"question"){
 			action = [GET:"getQuestionDetails"]
 		}
+		
+		"/v1/sports/soccer/leagues/epl/wagers/new"(controller:"bet"){
+			action = [POST:"placeBet"]
+		}
+		
 
         "/"(view:"/index")
         "500"(view:'/error')
