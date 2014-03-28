@@ -25,18 +25,18 @@ environments {
     }
     test { 
         dataSource {
-            dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
-            url = "jdbc:mysql://aa1cnaol294hlvt.cce59dcpxmml.us-west-2.rds.amazonaws.com/ebdb?useUnicode=yes&characterEncoding=UTF-8"
-			username = "scorenaadmin"
-			password = "scorenaadmin"       
+            dbCreate = "create" // one of 'create', 'create-drop', 'update', 'validate', ''
+            url = "jdbc:mysql://localhost/scorena_test?useUnicode=yes&characterEncoding=UTF-8"
+			username = "root"
+			password = "root"    
 		}
     }
     production {
         dataSource {
-            dbCreate = "update"
-			url = "jdbc:mysql://54.186.28.73/scorena_test?useUnicode=yes&characterEncoding=UTF-8"
-			username = "admin"
-			password = "scorena"    
+            dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
+            url = "jdbc:mysql://aa1cnaol294hlvt.cce59dcpxmml.us-west-2.rds.amazonaws.com/ebdb?useUnicode=yes&characterEncoding=UTF-8"
+			username = "scorenaadmin"
+			password = "scorenaadmin"    
             properties {
                maxActive = -1
                minEvictableIdleTimeMillis=1800000

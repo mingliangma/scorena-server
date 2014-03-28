@@ -26,25 +26,26 @@ class UserController {
 	def createNewUser(){
 		
 		def resp = userService.createUser(request.JSON.username, request.JSON.email, request.JSON.password)
-		println resp
-		if (resp.code==201){
+		if (!resp.code){
 			response.status = 201
-			render json: resp as JSON
+			render resp as JSON
 		}else{
 			response.status =400
-			render json: resp as JSON
+			render resp as JSON
 		}		
 	}
 	
 	def login(){
 		if (!params.username||!params.password){
 			response.status = 404
-			render json: [error: "invalid parameters"] as JSON
+			def result = [error: "invalid parameters"]
+			render result as JSON
 		}
 		
 		def resp = userService.login(params.username.decodeURL(), params.password.decodeURL())
-		render json: resp as JSON
+		render resp as JSON
 	}
+	
 	
 //	def show(User user){
 //		if (user == null){

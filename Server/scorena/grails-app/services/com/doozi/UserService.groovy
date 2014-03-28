@@ -26,41 +26,48 @@ class UserService {
 		def rest = new RestBuilder()
 		def resp = parseService.createUser(rest, _username, _email, _password)
 		
-		if (resp.status == 201){
-			println "user profile created successfully"			
-			def account = new Account(userId:resp.json.objectId, username:_username, currentBalance:INITIAL_BALANCE,previousBalance:PREVIOUS_BALANCE)
-			if (!account.save()){
-
-				def delResp = parseService.deleteUser(rest, resp.json.sessionToken)
-				def result = [
-					code:202,
-					error:"account creation failed"
-				]
-				return result			
-			}
-			println "user profile and account created successfully"
+		if (resp.status != 201){
 			def result = [
-				code:201,			
-				createdAt:resp.json.createdAt,
-				username:_username,
-				currentBalance:INITIAL_BALANCE,
-				sessionToken:resp.json.sessionToken,
+				code:resp.json.code,
+				error:resp.json.error
 			]
+			println result
 			return result
-						
 		}
-		def result = [
+
+		println "user profile created successfully"		
 			
-			code:resp.json.code,
-			error:resp.json.error
+		def account = new Account(userId:resp.json.objectId, username:_username, currentBalance:INITIAL_BALANCE,previousBalance:PREVIOUS_BALANCE)
+		if (!account.save()){
+
+			def delResp = parseService.deleteUser(rest, resp.json.sessionToken)
+			def result = [
+				code:202,
+				error:"account creation failed"
+			]
+			return result			
+		}
+		
+		
+		println "user profile and account created successfully"
+		def result = [			
+			createdAt:resp.json.createdAt,
+			username:_username,
+			currentBalance:INITIAL_BALANCE,
+			sessionToken:resp.json.sessionToken,
+			objectId: resp.json.objectId,
+			createdAt: resp.json.createdAt
 		]
 		return result
+						
+		
+		
+		
 	}
 	
 	def login(String username, String password){
 		def rest = new RestBuilder()
 		def resp = parseService.loginUser(rest, username, password)
-		println resp.json
 		return resp.json
 	}
 	

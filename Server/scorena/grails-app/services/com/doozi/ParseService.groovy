@@ -45,8 +45,12 @@ class ParseService {
 	}
 	
 	
-	def deleteUser(def rest, def sessionToken){
-		def resp = rest.delete("https://api.parse.com/1/users/"+resp.json.objectId){
+	def deleteUser(def rest, def sessionToken, def objectId){
+		println "https://api.parse.com/1/users/"+objectId
+		println "X-Parse-Session-Token: "+ sessionToken
+		
+		def parseConfig = grailsApplication.config.parse
+		def resp = rest.delete("https://api.parse.com/1/users/"+objectId){
 			header 	"X-Parse-Application-Id", parseConfig.parseApplicationId
 			header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
 			header	"X-Parse-Session-Token", sessionToken
