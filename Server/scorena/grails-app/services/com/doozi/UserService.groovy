@@ -22,9 +22,12 @@ class UserService {
 	def grailsApplication
 	def parseService
 			
-	def createUser(String _username, String _email, String _password){
+	def createUser(String _username, String _email, String _password, String gender, String region, def image, String imageName){
 		def rest = new RestBuilder()
-		def resp = parseService.createUser(rest, _username, _email, _password)
+		def resp = parseService.createUser(rest, _username, _email, _password, gender, region)
+		
+		println "parse create user status:"+resp.status
+		println "parse create user content:"+resp.json
 		
 		if (resp.status != 201){
 			def result = [
@@ -34,6 +37,8 @@ class UserService {
 			println result
 			return result
 		}
+		
+		def respUpload = parseService.uploadImage(rest, image, imageName)
 
 		println "user profile created successfully"		
 			
@@ -58,11 +63,7 @@ class UserService {
 			objectId: resp.json.objectId,
 			createdAt: resp.json.createdAt
 		]
-		return result
-						
-		
-		
-		
+		return result		
 	}
 	
 	def login(String username, String password){
@@ -86,5 +87,21 @@ class UserService {
 			return result
 		}
 	}
+
 	
+	def deleteUser(String sessionToken, String userId){
+		def rest = new RestBuilder()
+		def resp = parseService.deleteUser(rest, sessionToken, userId)
+		if (resp.status != (200)){
+			println "delete user profile failed: "+resp.json
+			return resp.json
+		}
+		def account = Account.findByUserId(userId)
+		
+		if (account != null){
+			account.delete()
+		}
+		return [:]
+		
+	}
 }

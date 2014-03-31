@@ -18,7 +18,7 @@ class ParseService {
 		return resp
     }
 	
-	def createUser(def rest, String _username, String _email, String _password){
+	def createUser(def rest, String _username, String _email, String _password, String _gender, String _region){
 		def parseConfig = grailsApplication.config.parse
 		
 		def resp = rest.post("https://api.parse.com/1/users"){
@@ -29,6 +29,8 @@ class ParseService {
 				username= _username
 				password= _password
 				email=_email
+				gender=_gender
+				region=_region
 			}
 		}
 		return resp
@@ -57,4 +59,39 @@ class ParseService {
 		}
 		return resp
 	}
+	
+	def retreiveUser(def rest, def objectId){
+		def parseConfig = grailsApplication.config.parse
+		def resp = rest.get("https://api.parse.com/1/users/"+objectId){
+			header 	"X-Parse-Application-Id", parseConfig.parseApplicationId
+			header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
+		}
+		return resp
+	}	
+	
+	def uploadImage(def rest, def image, def imageName){
+		def parseConfig = grailsApplication.config.parse
+		def resp = rest.post("https://api.parse.com/1/files/"+imageName){
+			header 	"X-Parse-Application-Id", parseConfig.parseApplicationId
+			header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
+			header  "Content-Type: image/jpeg"
+			body image
+		}
+		return resp
+	}
+	
+	def associateImageWithUser(def rest, def imageName){
+		def parseConfig = grailsApplication.config.parse
+		def picture = ["name": imageName, "__type":"File"]
+		def resp = rest.post("https://api.parse.com/1/classes/user"){
+			header 	"X-Parse-Application-Id", parseConfig.parseApplicationId
+			header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
+			contentType "application/json"
+			json {
+				profilePictureMedium= picture				
+			}
+		}
+		return resp
+	}
+	
 }

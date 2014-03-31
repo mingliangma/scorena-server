@@ -13,7 +13,7 @@ class BetController {
 				code: 101,
 				error: "invalid parameters"
 				]
-			render json: resp as JSON
+			render resp as JSON
 		}
 		
 		def sessionValidation = userService.validateSession(request.JSON.sessionToken)
@@ -21,7 +21,7 @@ class BetController {
 		if (sessionValidation.code){
 			println "session code: "+sessionValidation
 			response.status = 404
-			render json: sessionValidation as JSON
+			render sessionValidation as JSON
 			
 		}else{
 			def today = new Date() 
@@ -30,14 +30,14 @@ class BetController {
 				
 				def resp = [date:today]
 				response.status = 201
-				render json: resp as JSON
+				render resp as JSON
 			}else{
 				response.status =400
 				def resp = [
 					code: 202,
 					error: "the bet transaction did not go through"
 					]
-				render json: resp as JSON
+				render resp as JSON
 			}
 		}
 	}

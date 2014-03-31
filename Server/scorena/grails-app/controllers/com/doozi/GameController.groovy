@@ -39,18 +39,18 @@ class GameController {
 	
 	def getUpcomingGames(){
 		def upcomingGames = gameService.listUpcomingGames()
-		render json:upcomingGames as JSON
+		render upcomingGames as JSON
 	}
 	
 	def getPastGames(){
 		def upcomingGames = gameService.listPastGames()
-		render json:upcomingGames as JSON
+		render upcomingGames as JSON
 	}
 	
 	def getGame(){
 		if (params.gameId){
 			def questions = gameService.getGame(params.gameId)
-			render json:questions as JSON
+			render questions as JSON
 		}
 	}
 	
@@ -122,6 +122,6 @@ class GameController {
 		}
 		
 		response.status = 200
-		render json: content
+		render  content
 	}
 }

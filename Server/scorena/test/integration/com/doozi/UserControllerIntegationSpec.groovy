@@ -25,10 +25,10 @@ class UserControllerIntegationSpec extends Specification {
 			def ranNum = random.nextInt(10000).toString()
 			def username = "testingname"+ranNum
 			def email = "testingname"+ranNum+"@gmail.com"
-			def content = '{"username":"'+username+'","password":"11111111","email":"'+email+'"}'
-			
-			println username
-			println email
+			def gender = "male"
+			def region = "Toronto"
+			def content = '{"username":"'+username+'","password":"11111111","email":"'+email+'", "gender":"'+gender+'", "region":"'+region+'"}'
+
 			println content
 		
 		when:
@@ -45,7 +45,19 @@ class UserControllerIntegationSpec extends Specification {
 			userC.response.status == 201
 			userC.response.json.username == username
 			userC.response.json.objectId != null
-			userC.response.json.sessionToken != null
+			userC.response.json.sessionToken != null			
+			
+			def account = Account.findByUserId(userC.response.json.objectId)
+			account != null
+			account.userId == userC.response.json.objectId
+			account.username == username
+			account.currentBalance == 2000
+			account.previousBalance == 2000
+			
+			def respRetreive = parseService.retreiveUser(new RestBuilder(), userC.response.json.objectId)
+			respRetreive.status == 200
+			respRetreive.json.gender == "male"
+			respRetreive.json.region == "Toronto"
 			
 		cleanup:
 			println "cleanup"
@@ -89,5 +101,44 @@ class UserControllerIntegationSpec extends Specification {
 			println "cleanup"
 			def resp = parseService.deleteUser(new RestBuilder(), userC.response.json.sessionToken,userC.response.json.objectId )
 			println resp.json
+	}
+	
+	void "deleteUser" (){
+		setup:
+			Random random = new Random()
+			def ranNum = random.nextInt(10000).toString()
+			def username = "testingname"+ranNum
+			def email = "testingname"+ranNum+"@gmail.com"
+			def password = "11111111"
+			def content = '{"username":"'+username+'","password":"'+password+'","email":"'+email+'"}'
+			println content
+			
+			def createUserResp = userService.createUser(username, email, password)
+			
+			def objectId = createUserResp.objectId
+			def sessionToken = createUserResp.sessionToken
+			println "objectId: "+objectId
+			
+			def userC = new UserController()
+			
+			
+		when:
+			
+			userC.params.sessionToken = sessionToken
+			userC.params.userId = objectId
+			userC.delete()
+			
+		then:
+			println userC.response.json
+			userC.response.status == 200
+			userC.response.json == [:]
+			
+			
+			def resp = parseService.retreiveUser(new RestBuilder(), objectId)
+			resp.status == 404
+			resp.json.code == 101
+			
+			def account = Account.findByUserId(objectId)
+			account == null
 	}
 }

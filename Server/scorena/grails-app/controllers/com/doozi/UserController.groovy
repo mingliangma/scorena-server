@@ -15,24 +15,35 @@ import grails.converters.JSON
 //curl -v -X GET  -G --data-urlencode 'username=michealLiu' --data-urlencode 'password=11111111' localhost:8080/scorena/v1/login
 
 class UserController {
+	def userService
 	
 	def list(){
 		def user="this is testing user"
 		render user as JSON
 	}
 
-//    def index() {}
-	def userService
 	def createNewUser(){
 		
-		def resp = userService.createUser(request.JSON.username, request.JSON.email, request.JSON.password)
-		if (!resp.code){
-			response.status = 201
-			render resp as JSON
-		}else{
+		println request.JSON
+		if (!request.JSON.username || !request.JSON.email|| !request.JSON.password || !request.JSON.gender|| !request.JSON.region){
+			response.status = 404
+			def result = [error: "invalid parameters"]
+			render result as JSON
+		}
+		
+		def image = request.getFile('profilePicture')
+		
+		def resp = userService.createUser(request.JSON.username, request.JSON.email, request.JSON.password, request.JSON.gender, request.JSON.region)
+		
+		if (resp.code){
 			response.status =400
 			render resp as JSON
-		}		
+		}
+		
+		
+			response.status = 201
+			render resp as JSON
+		
 	}
 	
 	def login(){
@@ -46,6 +57,17 @@ class UserController {
 		render resp as JSON
 	}
 	
+	def delete(){
+		if (!params.sessionToken||!params.userId){
+			response.status = 404
+			def result = [error: "invalid parameters"]
+			render result as JSON
+		}
+		
+		def resp = userService.deleteUser(params.sessionToken.toString(), params.userId.toString())
+		println resp
+		render resp as JSON
+	}
 	
 //	def show(User user){
 //		if (user == null){
