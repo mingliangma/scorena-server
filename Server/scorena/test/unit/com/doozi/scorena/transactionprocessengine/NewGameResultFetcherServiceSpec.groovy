@@ -1,6 +1,6 @@
-package com.doozi.scorena.transactionProcessEngine
+package com.doozi.scorena.transactionprocessengine
 
-import com.doozi.scorena.transactionProcessEngine.NewGameResultFetcherService;
+import com.doozi.scorena.transactionprocessengine.NewGameResultFetcherService;
 
 import grails.test.mixin.TestFor
 import spock.lang.Specification

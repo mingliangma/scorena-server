@@ -1,4 +1,4 @@
-package com.doozi.scorena.controllerService
+package com.doozi.scorena.controllerservice
 
 import grails.transaction.Transactional
 import grails.converters.JSON

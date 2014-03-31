@@ -1,4 +1,4 @@
-package com.doozi.scorena.controllerService
+package com.doozi.scorena.controllerservice
 
 import com.doozi.scorena.BetTransaction;
 import com.doozi.scorena.Game;

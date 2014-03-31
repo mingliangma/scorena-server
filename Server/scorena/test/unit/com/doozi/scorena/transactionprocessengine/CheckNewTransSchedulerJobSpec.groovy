@@ -1,4 +1,4 @@
-package com.doozi.scorena.transactionProcessEngine
+package com.doozi.scorena.transactionprocessengine
 
 import grails.test.mixin.TestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin

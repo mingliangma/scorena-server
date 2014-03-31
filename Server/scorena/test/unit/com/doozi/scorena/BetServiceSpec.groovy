@@ -1,6 +1,6 @@
 package com.doozi.scorena
 
-import com.doozi.scorena.controllerService.BetService;
+import com.doozi.scorena.controllerservice.BetService;
 
 import grails.test.mixin.TestFor
 import spock.lang.Specification

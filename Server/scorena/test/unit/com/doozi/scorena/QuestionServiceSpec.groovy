@@ -1,6 +1,6 @@
 package com.doozi.scorena
 
-import com.doozi.scorena.controllerService.QuestionService;
+import com.doozi.scorena.controllerservice.QuestionService;
 
 import grails.test.mixin.TestFor
 import spock.lang.Specification
