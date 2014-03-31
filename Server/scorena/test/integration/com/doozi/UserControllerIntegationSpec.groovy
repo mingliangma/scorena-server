@@ -2,6 +2,9 @@ package com.doozi
 
 
 
+import com.doozi.scorena.Account;
+import com.doozi.scorena.UserController;
+
 import grails.plugins.rest.client.RestBuilder
 import spock.lang.*
 
