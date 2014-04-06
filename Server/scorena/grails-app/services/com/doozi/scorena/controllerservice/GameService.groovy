@@ -46,7 +46,16 @@ class GameService {
 	}
 	
 	def getGame(gameId){
-		def match = Game.findAllById(gameId)
+		def match = Game.findById(gameId)
+		def gameEvent
+		if (match.gameEvent){
+			gameEvent = [
+						homeScore: match.gameEvent.homeScore,
+						awayScore: match.gameEvent.awayScore
+						]
+		}else{
+			gameEvent=[]
+		}
 		
 		def all = match.collect {Game game ->
 			[	id: game.id,
@@ -55,11 +64,7 @@ class GameService {
 				date: game.startDate,
 				league: game.league,
 				type: game.type,
-				event: [
-					homeScore: game.gameEvent.homeScore,
-					awayScore: game.gameEvent.awayScore
-					]
-				
+				event: gameEvent
 			]
 		  }
 		

@@ -22,6 +22,8 @@ class UserController {
 		render user as JSON
 	}
 
+	
+	//curl -i -v -X POST -H "Content-Type: application/json" -d '{"username":"candiceli", "email":"candi@gmail.com", "password":"asdfasdf", "gender":"female", "region":"Toronto"}' localhost:8080/scorena/v1/users/new
 	def createNewUser(){
 		
 		println request.JSON
@@ -29,15 +31,17 @@ class UserController {
 			response.status = 404
 			def result = [error: "invalid parameters"]
 			render result as JSON
+			return
 		}
 		
-		def image = request.getFile('profilePicture')
+		//def image = request.getFile('profilePicture')
 		
 		def resp = userService.createUser(request.JSON.username, request.JSON.email, request.JSON.password, request.JSON.gender, request.JSON.region)
 		
 		if (resp.code){
 			response.status =400
 			render resp as JSON
+			return
 		}
 		
 		
@@ -46,27 +50,92 @@ class UserController {
 		
 	}
 	
+	//curl -v -X GET  -G --data-urlencode 'username=candiceli' --data-urlencode 'password=asdfasdf' localhost:8080/scorena/v1/login
 	def login(){
 		if (!params.username||!params.password){
 			response.status = 404
 			def result = [error: "invalid parameters"]
 			render result as JSON
+			return
 		}
 		
 		def resp = userService.login(params.username.decodeURL(), params.password.decodeURL())
+		if (resp.code){
+			response.status =400
+			render resp as JSON
+			return
+		}
 		render resp as JSON
 	}
 	
-	def delete(){
-		if (!params.sessionToken||!params.userId){
+	def deleteUserProfile(){
+		String sessionToken = request.getHeader("sessionToken")
+		if (!sessionToken||!params.userId){
 			response.status = 404
 			def result = [error: "invalid parameters"]
 			render result as JSON
+			return
 		}
 		
-		def resp = userService.deleteUser(params.sessionToken.toString(), params.userId.toString())
-		println resp
+		def resp = userService.deleteUser(sessionToken, params.userId.toString())
+		if (resp.code){
+			response.status =400
+			render resp as JSON
+			return
+		}
 		render resp as JSON
+	}
+	
+	
+	//curl -v -X GET localhost:8080/scorena/v1/users/R3yN1lprBc
+	def getUserProfile(){
+		if (!params.userId){
+			response.status = 404
+			def result = [error: "invalid parameters"]
+			render result as JSON
+			return
+		}
+		
+		def resp = userService.getUserProfile(params.userId.toString())
+		if (resp.code){
+			response.status =400
+			render resp as JSON
+			return
+		}
+		render resp as JSON
+	}
+	
+	
+	//curl -i -v -X PUT -H "sessionToken:jqxy6cutose3wemz1ko5731hg"  -H "Content-Type: application/json" -d '{"email":"ming@gmail.com"}' localhost:8080/scorena/v1/users/tSftavHQP6
+	def updateUserProfile(){
+		
+		String sessionToken = request.getHeader("sessionToken")
+
+		
+		if (!sessionToken||!params.userId || !request.JSON){
+			response.status = 404
+			def result = [error: "invalid parameters"]
+			render result as JSON
+			return
+		}
+		
+		if (request.JSON.username){
+			response.status = 404
+			def result = [error: "username cannot be updated"]
+			render result as JSON
+			return
+		}
+		
+		def resp = userService.updateUserProfile(sessionToken, params.userId.toString(), request.JSON as JSON)
+		
+		if (resp.code){
+			response.status =400
+			render resp as JSON
+			return
+		}
+		
+		render resp as JSON
+		
 	}
 	
 //	def show(User user){
