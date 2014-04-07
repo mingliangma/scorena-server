@@ -101,14 +101,8 @@ environments {
 	}
     production {
         grails.logging.jul.usebridge = false
-<<<<<<< HEAD
-		parse.parseApplicationId='<app_id>'
-		parse.parseRestApiKey ='<api_key>'
-=======
 		parse.parseApplicationId="VtsqlRrU7SRiQVdv9TOsdAo3fbFkv2XH7tIZjnYA"
 		parse.parseRestApiKey ='Yadg67u4HqrpydNNNTjXnLTG6DOgjBjhTnbhZ3u1'
-        // TODO: grails.serverURL = "http://www.changeme.com"
->>>>>>> branch 'master' of https://github.com/mingliangma/scorena.git
     }
 }
 
