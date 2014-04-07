@@ -4,8 +4,9 @@
 package com.doozi.scorena.gamedata.testdriver;
 
 import com.doozi.scorena.gamedata.helper.GameDataConstants;
-import com.doozi.scorena.gamedata.manager.GameDataManager;
-import com.doozi.scorena.gamedata.userinput.GameDataInput;
+import com.doozi.scorena.gamedata.helper.GameDataConstantsXmlSoccer;
+import com.doozi.scorena.gamedata.manager.GameDataManagerXmlSoccer;
+import com.doozi.scorena.gamedata.userinput.GameDataInputXmlSoccer;
 import com.doozi.scorena.gamedata.useroutput.GameDataOutput;
 import com.doozi.scorena.gamedata.useroutput.GameDataSoccer;
 import com.doozi.scorena.gamedata.useroutput.GameDataTeam;
@@ -30,9 +31,20 @@ public class GameDataTestDriver {
 	 */
 	public static void main(String[] args) throws Exception 
 	{
-		GameDataManager gameDataManagerInstance = GameDataManager.get_gameDataManagerInstance();
-		GameDataInput gameDataInput = new GameDataInput();
-		GameDataOutput gameDataOutput = gameDataManagerInstance.retrieveGameData(gameDataInput);
+		testForXmlSoccer();
+		testForXmlTeam();
+	}
+	
+	public static void testForXmlTeam()
+	{
+		
+	}
+	
+	public static void testForXmlSoccer() throws Exception
+	{
+		GameDataManagerXmlSoccer gameDataManagerInstance = GameDataManagerXmlSoccer.get_gameDataManagerXmlSoccerInstance();
+		GameDataInputXmlSoccer gameDataInputXmlSoccer = new GameDataInputXmlSoccer(GameDataConstants.gameDataSourceXmlSoccer);
+		GameDataOutput gameDataOutput = gameDataManagerInstance.retrieveGameData(gameDataInputXmlSoccer);
 		//System.out.println(gameDataOutput.get_originalGameData());
 		
 		for (GameDataTeam gameDataTeam : gameDataOutput.get_teamList().values())
@@ -49,7 +61,7 @@ public class GameDataTestDriver {
 			System.out.println("Lost: " + gameDataTeam.get_lost());
 			System.out.println("Points: " + gameDataTeam.get_points());
 			
-			if (gameDataTeam.get_teamType().equalsIgnoreCase(GameDataConstants.gameType_Soccer))
+			if (gameDataTeam.get_teamType().equalsIgnoreCase(GameDataConstantsXmlSoccer.gameType_Soccer))
 			{
 				GameDataSoccer gameDataSoccer = gameDataTeam.get_gameDataSoccer();
 				System.out.println("Number of Shots: " + gameDataSoccer.get_numberOfShots());

@@ -99,7 +99,6 @@ environments {
         grails.logging.jul.usebridge = false
 		parse.parseApplicationId='<app_id>'
 		parse.parseRestApiKey ='<api_key>'
-        // TODO: grails.serverURL = "http://www.changeme.com"
     }
 }
 
