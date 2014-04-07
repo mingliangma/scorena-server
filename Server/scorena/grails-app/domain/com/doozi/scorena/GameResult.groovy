@@ -22,7 +22,7 @@ class GameResult {
 	
 	boolean transCleared
 	
-	static belongsTo = [game: Game]
+	
     static constraints = {
     }
 }
