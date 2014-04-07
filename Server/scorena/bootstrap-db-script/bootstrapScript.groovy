@@ -5,7 +5,7 @@ import com.doozi.scorena.GameResult
 import com.doozi.scorena.Pool
 import com.doozi.scorena.Question
 import com.doozi.scorena.Account
-import com.doozi.scorena.controllerService.GameService
+import com.doozi.scorena.controllerservice.GameService
 import com.doozi.scorena.BetTransaction
 import com.doozi.scorena.BetResult
 import com.doozi.scorena.User
@@ -97,20 +97,20 @@ def simulateBet(){
 	}
 }
 
-def createUser(String _username, String _email, String _password){
+def createUser(String _username, String _email, String _password, String _gender, String _region){
 	
 	def userService = ctx.getBean("userService")
-    def resp = userService.createUser(_username, _email, _password)
+    def resp = userService.createUser(_username, _email, _password, _gender, _region)
 	println resp
 	
 }
 	
-	String _league = "EPL"
-	String _away = "Chelsea"
+	String _league = "Chelsea"
+	String _away = "Liverpool FC"
 	String _home ="Man United"
 	String _type ="soccer"
 	String _country = "england"
-	String _theDate ="01/04/2014 12:00:00"
+	String _theDate ="07/04/2014 14:00:00"
 	int _awayScore =0
 	int _homeScore =0
 	int _pick1Amount =0
@@ -119,178 +119,202 @@ def createUser(String _username, String _email, String _password){
 	int _pick2NumPeople =0
 	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
 	
-//	_league = "EPL"
-//	_away = "Liverpool FC"
-//	_home ="Stoke City"
-//	_type ="soccer"
-//	_country = "england"
-//	_theDate ="28/03/2014 16:00:00"
-//	_awayScore =0
-//	_homeScore =0
-//	_pick1Amount =0
-//	_pick1NumPeople =0
-//	_pick2Amount =0
-//	_pick2NumPeople =0
-//	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
-//	
-//	_league = "EPL"
-//	_away = "Arsenal FC"
-//	_home ="Aston Villa"
-//	_type ="soccer"
-//	_country = "england"
-//	_theDate ="29/03/2014 20:00:00"
-//	_awayScore =0
-//	_homeScore =0
-//	_pick1Amount =0
-//	_pick1NumPeople =0
-//	_pick2Amount =0
-//	_pick2NumPeople =0
-//	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
-//	
-//	_league = "EPL"
-//	_away = "Norwich City"
-//	_home ="Everton FC"
-//	_type ="soccer"
-//	_country = "england"
-//	_theDate ="30/03/2014 16:00:00"
-//	_awayScore =0
-//	_homeScore =0
-//	_pick1Amount =0
-//	_pick1NumPeople =0
-//	_pick2Amount =0
-//	_pick2NumPeople =0
-//	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
-//	
-//	_league = "EPL"
-//	_away = "Sunderland AFC"
-//	_home ="Fulham FC"
-//	_type ="soccer"
-//	_country = "england"
-//	_theDate ="24/04/2014 16:00:00"
-//	_awayScore =0
-//	_homeScore =0
-//	_pick1Amount =0
-//	_pick1NumPeople =0
-//	_pick2Amount =0
-//	_pick2NumPeople =0
-//	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
-//
-//	_league = "EPL"
-//	_away = "Liverpool FC"
-//	_home ="Stoke City"
-//	_type ="soccer"
-//	_country = "england"
-//	_theDate ="14/03/2014 16:00:00"
-//	_awayScore =0
-//	_homeScore =0
-//	_pick1Amount =0
-//	_pick1NumPeople =0
-//	_pick2Amount =0
-//	_pick2NumPeople =0
-//	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
-//	
-//	_league = "EPL"
-//	_away = "Arsenal FC"
-//	_home ="Aston Villa"
-//	_type ="soccer"
-//	_country = "england"
-//	_theDate ="14/03/2014 20:00:00"
-//	_awayScore =0
-//	_homeScore =0
-//	_pick1Amount =0
-//	_pick1NumPeople =0
-//	_pick2Amount =0
-//	_pick2NumPeople =0
-//	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
-//	
-//	_league = "EPL"
-//	_away = "Norwich City"
-//	_home ="Everton FC"
-//	_type ="soccer"
-//	_country = "england"
-//	_theDate ="18/03/2014 16:00:00"
-//	_awayScore =0
-//	_homeScore =0
-//	_pick1Amount =0
-//	_pick1NumPeople =0
-//	_pick2Amount =0
-//	_pick2NumPeople =0
-//	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
-//	
-//	_league = "EPL"
-//	_away = "Sunderland AFC"
-//	_home ="Fulham FC"
-//	_type ="soccer"
-//	_country = "england"
-//	_theDate ="24/03/2014 16:00:00"
-//	_awayScore =0
-//	_homeScore =0
-//	_pick1Amount =0
-//	_pick1NumPeople =0
-//	_pick2Amount =0
-//	_pick2NumPeople =0
-//	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
-//
-//	println "create game ended"
-//	
-//	String _displayName  = "michealLiu"
-//	String _email = "micheal@gmail.com"
-//	String _password = "11111111"
-//	
-//	createUser(_displayName, _email, _password)
-//	
-//	 _displayName  = "Joey"
-//	 _email = "joey@gmail.com"
-//	 _password = "11111111"
-//	
-//	createUser(_displayName, _email, _password)
-//	
-//	 _displayName  = "Ming"
-//	 _email = "ming@gmail.com"
-//	 _password = "11111111"
-//	
-//	createUser(_displayName, _email, _password)
-//	
-//	 _displayName  = "Kyle"
-//	 _email = "kyle@gmail.com"
-//	 _password = "11111111"
-//	
-//	createUser(_displayName, _email, _password)
-//	
-//	 _displayName  = "Heng"
-//	 _email = "heng@gmail.com"
-//	 _password = "11111111"
-//	
-//	createUser(_displayName, _email, _password)
-//	
-//	_displayName  = "Heng1"
-//	_email = "heng1@gmail.com"
-//	_password = "11111111"
-//	
-//	createUser(_displayName, _email, _password)
-//	
-//	_displayName  = "Heng2"
-//	_email = "heng2@gmail.com"
-//	_password = "11111111"
-//	
-//	createUser(_displayName, _email, _password)
-//	
-//	_displayName  = "Heng3"
-//	_email = "heng3@gmail.com"
-//	_password = "11111111"
-//	
-//	createUser(_displayName, _email, _password)
-//	
-//	_displayName  = "Heng4"
-//	_email = "heng4@gmail.com"
-//	_password = "11111111"
-//	
-//	createUser(_displayName, _email, _password)
-//	
-//	println "create users ended"
-//	simulateBet()
-//	
-//	println "create transactions ended"
+	_league = "EPL"
+	_away = "Liverpool FC"
+	_home ="Stoke City"
+	_type ="soccer"
+	_country = "england"
+	_theDate ="9/04/2014 16:00:00"
+	_awayScore =0
+	_homeScore =0
+	_pick1Amount =0
+	_pick1NumPeople =0
+	_pick2Amount =0
+	_pick2NumPeople =0
+	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
+	
+	_league = "EPL"
+	_away = "Arsenal FC"
+	_home ="Aston Villa"
+	_type ="soccer"
+	_country = "england"
+	_theDate ="1/05/2014 20:00:00"
+	_awayScore =0
+	_homeScore =0
+	_pick1Amount =0
+	_pick1NumPeople =0
+	_pick2Amount =0
+	_pick2NumPeople =0
+	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
+	
+	_league = "EPL"
+	_away = "Norwich City"
+	_home ="Everton FC"
+	_type ="soccer"
+	_country = "england"
+	_theDate ="30/03/2014 16:00:00"
+	_awayScore =0
+	_homeScore =0
+	_pick1Amount =0
+	_pick1NumPeople =0
+	_pick2Amount =0
+	_pick2NumPeople =0
+	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
+	
+	_league = "EPL"
+	_away = "Sunderland AFC"
+	_home ="Fulham FC"
+	_type ="soccer"
+	_country = "england"
+	_theDate ="13/04/2014 16:00:00"
+	_awayScore =0
+	_homeScore =0
+	_pick1Amount =0
+	_pick1NumPeople =0
+	_pick2Amount =0
+	_pick2NumPeople =0
+	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
+
+	_league = "EPL"
+	_away = "Liverpool FC"
+	_home ="Stoke City"
+	_type ="soccer"
+	_country = "england"
+	_theDate ="11/04/2014 16:00:00"
+	_awayScore =0
+	_homeScore =0
+	_pick1Amount =0
+	_pick1NumPeople =0
+	_pick2Amount =0
+	_pick2NumPeople =0
+	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
+	
+	_league = "EPL"
+	_away = "Arsenal FC"
+	_home ="Aston Villa"
+	_type ="soccer"
+	_country = "england"
+	_theDate ="7/04/2014 20:00:00"
+	_awayScore =0
+	_homeScore =0
+	_pick1Amount =0
+	_pick1NumPeople =0
+	_pick2Amount =0
+	_pick2NumPeople =0
+	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
+	
+	_league = "EPL"
+	_away = "Norwich City"
+	_home ="Everton FC"
+	_type ="soccer"
+	_country = "england"
+	_theDate ="13/04/2014 16:00:00"
+	_awayScore =0
+	_homeScore =0
+	_pick1Amount =0
+	_pick1NumPeople =0
+	_pick2Amount =0
+	_pick2NumPeople =0
+	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
+	
+	_league = "EPL"
+	_away = "Sunderland AFC"
+	_home ="Fulham FC"
+	_type ="soccer"
+	_country = "england"
+	_theDate ="10/04/2014 16:00:00"
+	_awayScore =0
+	_homeScore =0
+	_pick1Amount =0
+	_pick1NumPeople =0
+	_pick2Amount =0
+	_pick2NumPeople =0
+	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
+
+	println "create game ended"
+	
+	String _displayName  = "michealLiu1"
+	String _email = "micheal1@gmail.com"
+	String _password = "11111111"
+	String _gender = "male"
+	String _region = "Japan"
+	
+	createUser(_displayName, _email, _password, _gender, _region)
+	
+	 _displayName  = "Joey"
+	 _email = "joey@gmail.com"
+	 _password = "11111111"
+	_gender = "male"
+	_region = "Toronto"
+	 
+	 createUser(_displayName, _email, _password, _gender, _region)
+	
+	 _displayName  = "Ming"
+	 _email = "ming@gmail.com"
+	 _password = "11111111"
+	_gender = "male"
+	 _region = "Toronto"
+	 
+	 createUser(_displayName, _email, _password, _gender, _region)
+
+	
+	 _displayName  = "Kyle"
+	 _email = "kyle@gmail.com"
+	 _password = "11111111"
+	 _gender = "male"
+	 _region = "Toronto"
+	 
+	 createUser(_displayName, _email, _password, _gender, _region)
+	
+	 _displayName  = "Heng"
+	 _email = "heng@gmail.com"
+	 _password = "11111111"
+	
+	 _gender = "female"
+	 _region = "Vancouver"
+	 
+	 createUser(_displayName, _email, _password, _gender, _region)
+	
+	_displayName  = "Heng1"
+	_email = "heng1@gmail.com"
+	_password = "11111111"
+	
+	_gender = "female"
+	_region = "Toronto"
+	
+	createUser(_displayName, _email, _password, _gender, _region)
+	
+	_displayName  = "Heng2"
+	_email = "heng2@gmail.com"
+	_password = "11111111"
+	
+	_gender = "male"
+	_region = "Montreal"
+	 
+	 createUser(_displayName, _email, _password, _gender, _region)
+	
+	_displayName  = "Heng3"
+	_email = "heng3@gmail.com"
+	_password = "11111111"
+	
+	_gender = "female"
+	_region = "Toronto"
+	
+	createUser(_displayName, _email, _password, _gender, _region)
+	
+	_displayName  = "Heng4"
+	_email = "heng4@gmail.com"
+	_password = "11111111"
+	
+	 _gender = "female"
+	 _region = "Montreal"
+	
+	createUser(_displayName, _email, _password, _gender, _region)
+	
+	println "create users ended"
+	simulateBet()
+	
+	println "create transactions ended"
 
 
 

@@ -63,6 +63,8 @@ grails {
         }
     }
 }
+
+
  
 grails.converters.encoding = "UTF-8"
 // scaffolding templates configuration
@@ -83,6 +85,8 @@ grails.exceptionresolver.params.exclude = ['password']
 // configure auto-caching of queries by default (if false you can cache individual queries with 'cache: true')
 grails.hibernate.cache.queries = false
 
+
+
 environments {
     development {
         grails.logging.jul.usebridge = true
@@ -97,8 +101,14 @@ environments {
 	}
     production {
         grails.logging.jul.usebridge = false
+<<<<<<< HEAD
 		parse.parseApplicationId='<app_id>'
 		parse.parseRestApiKey ='<api_key>'
+=======
+		parse.parseApplicationId="VtsqlRrU7SRiQVdv9TOsdAo3fbFkv2XH7tIZjnYA"
+		parse.parseRestApiKey ='Yadg67u4HqrpydNNNTjXnLTG6DOgjBjhTnbhZ3u1'
+        // TODO: grails.serverURL = "http://www.changeme.com"
+>>>>>>> branch 'master' of https://github.com/mingliangma/scorena.git
     }
 }
 
@@ -117,7 +127,7 @@ log4j = {
            'org.codehaus.groovy.grails.web.mapping',        // URL mapping
            'org.codehaus.groovy.grails.commons',            // core / classloading
            'org.codehaus.groovy.grails.plugins',            // plugins
-           'org.codehaus.groovy.grails.orm.hibernate',      // hibernate integration
+           'org.qcodehaus.groovy.grails.orm.hibernate',      // hibernate integration
            'org.springframework',
            'org.hibernate',
            'net.sf.ehcache.hibernate'

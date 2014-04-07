@@ -23,20 +23,23 @@ environments {
 			password = "root"
         }
     }
+	//jdbc:mysql://mydbinstance.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/scorenaT?user=scorenaadmin&password=scorenaadmin
     test { 
         dataSource {
-            dbCreate = "create" // one of 'create', 'create-drop', 'update', 'validate', ''
-            url = "jdbc:mysql://localhost/scorena_test?useUnicode=yes&characterEncoding=UTF-8"
-			username = "root"
-			password = "root"    
+            dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
+            url = System.getProperty("JDBC_CONNECTION_STRING")
+//			url = "jdbc:mysql://mydbinstance.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/scorenaT?useUnicode=yes&characterEncoding=UTF-8"
+//			username = "scorenaadmin"
+//			password = "scorenaadmin"    
 		}
     }
     production {
         dataSource {
             dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
-            url = "jdbc:mysql://aa1cnaol294hlvt.cce59dcpxmml.us-west-2.rds.amazonaws.com/ebdb?useUnicode=yes&characterEncoding=UTF-8"
-			username = "scorenaadmin"
-			password = "scorenaadmin"    
+			url =System.getProperty("JDBC_CONNECTION_STRING")
+//            url = "jdbc:mysql://aa1cnaol294hlvt.cce59dcpxmml.us-west-2.rds.amazonaws.com/ebdb?useUnicode=yes&characterEncoding=UTF-8"
+//			username = "scorenaadmin"
+//			password = "scorenaadmin"    
             properties {
                maxActive = -1
                minEvictableIdleTimeMillis=1800000

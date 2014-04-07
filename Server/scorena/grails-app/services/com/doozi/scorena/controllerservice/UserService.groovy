@@ -23,7 +23,7 @@ class UserService {
 	def grailsApplication
 	def parseService
 			
-	def createUser(String _username, String _email, String _password, String gender, String region, def image, String imageName){
+	def createUser(String _username, String _email, String _password, String gender, String region){
 		def rest = new RestBuilder()
 		def resp = parseService.createUser(rest, _username, _email, _password, gender, region)
 		
@@ -39,7 +39,7 @@ class UserService {
 			return result
 		}
 		
-		def respUpload = parseService.uploadImage(rest, image, imageName)
+		
 
 		println "user profile created successfully"		
 			
@@ -103,6 +103,39 @@ class UserService {
 			account.delete()
 		}
 		return [:]
+	}
+	
+	def getUserProfile(String userId){
+		def rest = new RestBuilder()
+		def resp = parseService.retreiveUser(rest, userId)
 		
+		println "userId:"+userId
+		def account = Account.findByUserId(userId)
+		if (account == null){
+			println "ERROR: user account does not exist"
+			def result = [
+				code:500,
+				error:"user account does not exist"
+			]
+			return result
+		}	
+		def result = [
+			createdAt:resp.json.createdAt,
+			username:resp.json.username,
+			currentBalance:account.currentBalance,
+			updatedAt:resp.json.updatedAt,,
+			userId: resp.json.objectId,
+			gender: resp.json.gender,
+			region: resp.json.region,
+			email: resp.json.email
+		]
+		return result		
+		
+	}
+	
+	def updateUserProfile(String sessionToken, String userId, JSON updateUserData){
+		def rest = new RestBuilder()
+		def resp = parseService.updateUser(rest, sessionToken, userId, updateUserData)
+		return resp.json
 	}
 }

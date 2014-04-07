@@ -22,13 +22,13 @@ class Game {
 	Date createdAt
 	
 	
-	static hasOne = [gameEvent: GameEvent, gameResult:GameResult]
+	static hasOne = [gameEvent: GameEvent]
 	static hasMany = [question: Question, bet: BetTransaction]
 	
 	
     static constraints = {
 		gameEvent nullable: true, unique: true
-		gameResult nullable: true, unique: true
+		
 		homeTeamNameLast nullable: true
 		awayTeamNameLast nullable: true
 	}

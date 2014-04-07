@@ -69,6 +69,21 @@ class ParseService {
 		return resp
 	}	
 	
+	def updateUser(def rest, def sessionToken, def objectId, def updateUserDataJSON){
+		def parseConfig = grailsApplication.config.parse
+		println updateUserDataJSON
+		
+		
+		def resp = rest.put("https://api.parse.com/1/users/"+objectId){
+			header 	"X-Parse-Application-Id", parseConfig.parseApplicationId
+			header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
+			header	"X-Parse-Session-Token", sessionToken
+			contentType "application/json"
+			json updateUserDataJSON
+		}
+		return resp
+	}
+	
 	def uploadImage(def rest, def image, def imageName){
 		def parseConfig = grailsApplication.config.parse
 		def resp = rest.post("https://api.parse.com/1/files/"+imageName){
@@ -93,5 +108,7 @@ class ParseService {
 		}
 		return resp
 	}
+	
+	
 	
 }
