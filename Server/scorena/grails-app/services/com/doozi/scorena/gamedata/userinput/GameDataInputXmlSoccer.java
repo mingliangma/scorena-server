@@ -3,14 +3,13 @@
  */
 package com.doozi.scorena.gamedata.userinput;
 
-import com.doozi.scorena.gamedata.helper.GameDataConstants;
 import com.doozi.scorena.gamedata.helper.GameDataConstantsXmlSoccer;
 
 /**
  * @author hengkuang
  *
  */
-public class GameDataInputXmlSoccer extends GameDataInput {
+public class GameDataInputXmlSoccer implements IGameDataInput {
 
 	private String _apiKeyValue;
 	private String _apiUrl;
@@ -25,10 +24,8 @@ public class GameDataInputXmlSoccer extends GameDataInput {
 	/**
 	 * 
 	 */
-	public GameDataInputXmlSoccer(String gameDataSource) 
+	public GameDataInputXmlSoccer() 
 	{
-		
-		super(GameDataConstants.gameDataSourceXmlSoccer);
 		
 		initializeGameDataInputForXmlSoccer(GameDataConstantsXmlSoccer.defaultApiUrl, 
 				GameDataConstantsXmlSoccer.defaultApiMethod, GameDataConstantsXmlSoccer.defaultApiType, 
@@ -39,9 +36,7 @@ public class GameDataInputXmlSoccer extends GameDataInput {
 	
 	public GameDataInputXmlSoccer(String apiUrl, String apiMethod, String apiKeyValue, String leagueName, String seasonDate, 
 			String queryString, String host, String apiType, String gameType)
-	{
-		super(GameDataConstants.gameDataSourceXmlSoccer);
-		
+	{	
 		initializeGameDataInputForXmlSoccer(apiUrl, apiMethod, apiKeyValue, leagueName, seasonDate, queryString, 
 				host, apiType, gameType);
 	}

@@ -10,7 +10,7 @@ import com.doozi.scorena.gamedata.useroutput.GameDataOutput;
  * @author Heng
  *
  */
-public class GameDataManagerXmlTeam extends GameDataManager {
+public class GameDataManagerXmlTeam implements IGameDataManager {
 
 	private static final GameDataManagerXmlTeam _gameDataManagerXmlTeamInstance = new GameDataManagerXmlTeam();
 	
