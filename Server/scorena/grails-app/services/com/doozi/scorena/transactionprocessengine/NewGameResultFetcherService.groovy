@@ -6,7 +6,7 @@ import grails.transaction.Transactional
 class NewGameResultFetcherService {
 
     def printNowTime(def time) {
-		println "current time is "+time
+		//println "current time is "+time
     }
 }
 

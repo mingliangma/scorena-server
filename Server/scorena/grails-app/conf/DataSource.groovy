@@ -53,4 +53,13 @@ environments {
             }
         }
     }
+	
+	heng {
+		dataSource {
+			dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
+			url = "jdbc:mysql://hengmysql.cce59dcpxmml.us-west-2.rds.amazonaws.com/HengDb?useUnicode=yes&characterEncoding=UTF-8"
+			username = "HengMySql"
+			password = "HengMySql"
+		}
+	}
 }
