@@ -36,6 +36,27 @@ class GameController {
 //		}
 	}
 	def gameService
+	def viewService
+	
+	def upcomingEplSportsDb(){
+		def upcomingGames = viewService.getUpcomingEplMatches()
+		render upcomingGames as JSON
+	}
+	
+	def upcomingChampSportsDb(){
+		def upcomingGames = viewService.getUpcomingChampMatches()
+		render upcomingGames as JSON
+	}
+	
+	def pastEplSportsDb(){
+		def pastGames = viewService.getPastEplMatches()
+		render pastGames as JSON
+	}
+	
+	def pastChampSportsDb(){
+		def pastGames = viewService.getPastChampMatches()
+		render pastGames as JSON
+	}
 	
 	def getUpcomingGames(){
 		def upcomingGames = gameService.listUpcomingGames()
