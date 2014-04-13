@@ -30,7 +30,18 @@ environments {
             url = System.getProperty("JDBC_CONNECTION_STRING")
 //			url = "jdbc:mysql://mydbinstance.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/scorenaT?useUnicode=yes&characterEncoding=UTF-8"
 //			username = "scorenaadmin"
-//			password = "scorenaadmin"    
+//			password = "scorenaadmin"
+			properties {
+				maxActive = -1
+				minEvictableIdleTimeMillis=1800000
+				timeBetweenEvictionRunsMillis=1800000
+				numTestsPerEvictionRun=3
+				testOnBorrow=true
+				testWhileIdle=true
+				testOnReturn=false
+				validationQuery="SELECT 1"
+				jdbcInterceptors="ConnectionState"
+			 }
 		}
     }
     production {

@@ -21,21 +21,39 @@ class BetService {
 		return saveBetTrans(_wager, _time, _pick, account, question, game)
 		
 	}
-    def saveBetTrans(int _wager, Date _time, int _pick, Account account, Question q, Game game) {
-		println "wager:"+_wager
-		println "_time:"+_time
-		println "_pick:"+_pick
+    def saveBetTrans(int playerWager, Date betCreatedAt, int playerPick, Account playerAccount, Question q, Game game) {
+		println "wager:"+playerWager
+		println "_time:"+betCreatedAt
+		println "_pick:"+playerPick
+		int pick1amount
+		int pick2amount 
+		int pick1num 
+		int pick2num 
 		
-
-		def bet = new BetTransaction(wager: _wager, createdAt: _time, pick: _pick,)
+		if (q.bet == null){
+			if (playerPick==1){
+				 pick1amount = playerWager
+				 pick1num = 1
+				 pick2amount = 0			 
+				 pick2num = 0
+			}else{
+				pick1amount = 0
+				pick1num = 0
+				pick2amount = playerWager
+				pick2num = 1
+			}
+			
+		}else{
+			def lastBet = q.bet.find
 		
-//		if (bet.save()){
-//			System.out.println("---------------bet successfully saved")
-//		}else{
-//			System.out.println("---------------bet save failed")
-//		}
+		}
 		
-		account.addToBet(bet)
+		def bet = new BetTransaction(wager: playerWager, createdAt: betCreatedAt, pick: playerPick, pick1Amount:pick1amount, pick1NumPeople:pick1num,
+			pick2Amount:pick2amount, pick2NumPeople:pick2num)
+		
+		
+		
+		playerAccount.addToBet(bet)
 		q.addToBet(bet)
 		game.addToBet(bet)
 		
