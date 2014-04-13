@@ -101,9 +101,15 @@ environments {
 	}
     production {
         grails.logging.jul.usebridge = false
-		parse.parseApplicationId="VtsqlRrU7SRiQVdv9TOsdAo3fbFkv2XH7tIZjnYA"
+		parse.parseApplicationId='VtsqlRrU7SRiQVdv9TOsdAo3fbFkv2XH7tIZjnYA'
 		parse.parseRestApiKey ='Yadg67u4HqrpydNNNTjXnLTG6DOgjBjhTnbhZ3u1'
     }
+	
+	heng {
+		grails.logging.jul.usebridge = false
+		parse.parseApplicationId='DtljOks86xBy35DigHgP17GoYerqBs0AW9xi0cH7'
+		parse.parseRestApiKey ='sonR9xL3BEIsBziYUlY6fw2o7QWfjusjRs9mfeUg'
+	}
 }
 
 // log4j configuration

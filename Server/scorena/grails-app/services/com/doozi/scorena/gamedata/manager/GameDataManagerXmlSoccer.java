@@ -13,7 +13,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -28,7 +27,7 @@ import com.doozi.scorena.gamedata.useroutput.GameDataTeam;
  * @author hengkuang
  *
  */
-public class GameDataManagerXmlSoccer extends GameDataManager {
+public class GameDataManagerXmlSoccer implements IGameDataManager {
 
 	private static final GameDataManagerXmlSoccer _gameDataManagerXmlSoccerInstance = new GameDataManagerXmlSoccer();
 	
@@ -64,10 +63,6 @@ public class GameDataManagerXmlSoccer extends GameDataManager {
 			
 			String originalGameData = stringBuffer.toString();
 			
-			System.out.println(originalGameData);
-			
-			getLeagueScheduleBySeason(originalGameData, gameDataInputXmlSoccer.get_gameType());
-			
 			if (gameDataInputXmlSoccer.get_apiMethod().equalsIgnoreCase(GameDataConstantsXmlSoccer.apiMethod_GetLeagueStandingsBySeason))
 			{
 				return getLeagueStandingsBySeason(originalGameData, gameDataInputXmlSoccer.get_gameType());
@@ -83,32 +78,6 @@ public class GameDataManagerXmlSoccer extends GameDataManager {
 				bufferedReader.close();
 			}
 		}
-	}
-	
-	public GameDataOutput getLeagueScheduleBySeason(String originalGameData, String gameType) throws Exception 
-	{
-		GameDataOutput gameDataOutput = new GameDataOutput(originalGameData);
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-    	DocumentBuilder db;
-    	Document doc;
-    	db = dbf.newDocumentBuilder();
-		doc = db.parse(new InputSource(new ByteArrayInputStream(originalGameData.getBytes("utf-8"))));
-		NodeList sportsEvents = doc.getElementsByTagName("sports-event");		
-				
-		for(int i =0; i<sportsEvents.getLength(); i++){
-			Node eventNode = sportsEvents.item(i);
-			Element eventElement = (Element) eventNode;
-			Node eventMetadata = eventElement.getElementsByTagName(GameDataConstantsXmlSoccer.xmlteam_xmlTag_EventMetadata).item(0);
-			if (eventMetadata.hasAttributes()){
-				NamedNodeMap metadataAttr = eventMetadata.getAttributes();
-				String eventKey = metadataAttr.getNamedItem("event-key").getNodeValue();
-				
-			}
-			
-			//GameDataEvent gameDataEvent = new GameDataEvent();
-			
-		}
-		return gameDataOutput;
 	}
 	
 	public GameDataOutput getLeagueStandingsBySeason(String originalGameData, String gameType) throws Exception

@@ -3,9 +3,8 @@
  */
 package com.doozi.scorena.gamedata.testdriver;
 
-import com.doozi.scorena.gamedata.helper.GameDataConstants;
 import com.doozi.scorena.gamedata.helper.GameDataConstantsXmlSoccer;
-import com.doozi.scorena.gamedata.manager.GameDataManagerXmlSoccer;
+import com.doozi.scorena.gamedata.manager.GameDataAdapter;
 import com.doozi.scorena.gamedata.userinput.GameDataInputXmlSoccer;
 import com.doozi.scorena.gamedata.useroutput.GameDataOutput;
 import com.doozi.scorena.gamedata.useroutput.GameDataSoccer;
@@ -31,22 +30,13 @@ public class GameDataTestDriver {
 	 */
 	public static void main(String[] args) throws Exception 
 	{
-		testForXmlSoccer();
-		testForXmlTeam();
+		GameDataInputXmlSoccer gameDataInputXmlSoccer = new GameDataInputXmlSoccer();
+		GameDataOutput gameDataOutput = GameDataAdapter.get_gameDataAdapterInstance().retrieveGameData(gameDataInputXmlSoccer);
+		printTeamStandingXmlSoccer(gameDataOutput);
 	}
 	
-	public static void testForXmlTeam()
+	public static void printTeamStandingXmlSoccer(GameDataOutput gameDataOutput)
 	{
-		
-	}
-	
-	public static void testForXmlSoccer() throws Exception
-	{
-		GameDataManagerXmlSoccer gameDataManagerInstance = GameDataManagerXmlSoccer.get_gameDataManagerXmlSoccerInstance();
-		GameDataInputXmlSoccer gameDataInputXmlSoccer = new GameDataInputXmlSoccer(GameDataConstants.gameDataSourceXmlSoccer);
-		GameDataOutput gameDataOutput = gameDataManagerInstance.retrieveGameData(gameDataInputXmlSoccer);
-		//System.out.println(gameDataOutput.get_originalGameData());
-		
 		for (GameDataTeam gameDataTeam : gameDataOutput.get_teamList().values())
 		{
 			System.out.println("************************************");

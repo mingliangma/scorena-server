@@ -40,10 +40,6 @@ public class GameDataConstantsXmlSoccer extends GameDataConstants {
 	public static String xmlTag_GoalDifference = "Goal_Difference";
 	public static String xmlTag_Points = "Points";
 	
-	public static String xmlteam_xmlTag_TeamLeagueSchedule = "schedule"
-	public static String xmlteam_xmlTag_GameEvent = "sports-event"
-	public static String xmlteam_xmlTag_EventMetadata = "event-metadata"
-	
 	public static String gameType_Soccer = "Soccer";
 	
 	/**
@@ -53,5 +49,4 @@ public class GameDataConstantsXmlSoccer extends GameDataConstants {
 	{
 		
 	}
-
 }

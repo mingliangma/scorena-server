@@ -3,7 +3,10 @@
  */
 package com.doozi.scorena.gamedata.manager;
 
+import com.doozi.scorena.gamedata.userinput.GameDataInputDeluxe;
 import com.doozi.scorena.gamedata.userinput.GameDataInputXmlSoccer;
+import com.doozi.scorena.gamedata.userinput.GameDataInputXmlTeam;
+import com.doozi.scorena.gamedata.userinput.IGameDataInput;
 import com.doozi.scorena.gamedata.useroutput.GameDataOutput;
 
 /**
@@ -13,7 +16,9 @@ import com.doozi.scorena.gamedata.useroutput.GameDataOutput;
 public class GameDataAdapter implements IGameDataAdapter {
 
 	private static final GameDataAdapter _gameDataAdapterInstance = new GameDataAdapter();
-	//private Game
+	private GameDataManagerXmlSoccer _gameDataManagerXmlSoccer = GameDataManagerXmlSoccer.get_gameDataManagerXmlSoccerInstance();
+	private GameDataManagerXmlTeam _gameDataManagerXmlTeam = GameDataManagerXmlTeam.get_gameDataManagerXmlTeamInstance();
+	private GameDataManagerDeluxe _gameDataManagerDeluxe = GameDataManagerDeluxe.get_gameDataManagerDeluxeInstance();
 	
 	/**
 	 * 
@@ -28,9 +33,24 @@ public class GameDataAdapter implements IGameDataAdapter {
 		return _gameDataAdapterInstance;
 	}
 	
-	public GameDataOutput retrieveGameData(GameDataInputXmlSoccer gameDataInput) throws Exception
+	public GameDataOutput retrieveGameData(IGameDataInput gameDataInput) throws Exception
 	{
-		return null;
+		if (gameDataInput instanceof GameDataInputXmlSoccer)
+		{
+			return _gameDataManagerXmlSoccer.retrieveGameData((GameDataInputXmlSoccer)gameDataInput);
+		}
+		else if (gameDataInput instanceof GameDataInputXmlTeam)
+		{
+			return _gameDataManagerXmlTeam.retrieveGameData((GameDataInputXmlTeam)gameDataInput);
+		}
+		else if (gameDataInput instanceof GameDataInputDeluxe)
+		{
+			return _gameDataManagerDeluxe.retrieveGameData((GameDataInputDeluxe)gameDataInput);
+		}
+		else
+		{
+			return null;
+		}
 	}
 
 }
