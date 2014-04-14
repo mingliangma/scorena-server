@@ -7,12 +7,12 @@ package com.doozi.scorena.gamedata.dboutput;
  * @author Heng
  *
  */
-public class GameDataDbOutput {
+public class GameDataDbOutputDeluxe {
 
 	/**
 	 * 
 	 */
-	public GameDataDbOutput() 
+	public GameDataDbOutputDeluxe() 
 	{
 		
 	}
