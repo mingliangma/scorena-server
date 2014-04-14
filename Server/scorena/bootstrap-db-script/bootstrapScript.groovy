@@ -43,9 +43,9 @@ def createGame(String _league, String _away, String _home, String _type, String 
 				city: "London", siteKey:_siteKey, siteName: "DW Stadium",type:_type, country:_country, startDate:newdate, createdAt: currentDate)
 			System.out.println("game: "+game.id)
 			def q1 = new Question(pick1: _home, pick2: _away, content:"who will win between the two", 
-				pool: new Pool(pick1Amount:_pick1Amount, pick1NumPeople:_pick1NumPeople, pick2Amount:_pick2Amount, pick2NumPeople:_pick2NumPeople))
+				pool: new Pool(minBet: 5)
 			def q2 = new Question(pick1: _home, pick2: _away, content:"who will score the first goal",
-				pool: new Pool(pick1Amount:_pick1Amount, pick1NumPeople:_pick1NumPeople, pick2Amount:_pick2Amount, pick2NumPeople:_pick2NumPeople))
+				pool: new Pool(minBet: 5)
 			
 			game.addToQuestion(q1);
 			game.addToQuestion(q2);
@@ -86,10 +86,10 @@ def simulateBet(){
 				Date _time = new Date() - random.nextInt(7)
 				int _pick
 				
-				if (random.nextInt(1)==0){
-					_pick=0
-				}else{
+				if (random.nextInt(2)==0){
 					_pick=1
+				}else{
+					_pick=2
 				}
 				betService.saveBetTrans(_wager, _time,_pick, account, q, upcomingGame)
 			}

@@ -4,7 +4,17 @@ dataSource
 {
     pooled = true
     driverClassName = "com.mysql.jdbc.Driver"
-	dialect = org.hibernate.dialect.MySQL5InnoDBDialect    
+	dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+}
+
+hibernate 
+{
+	dataSource_sportsData 
+	{
+		pooled = true
+		driverClassName = "com.mysql.jdbc.Driver"
+		dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+	}
 }
 
 hibernate 
@@ -27,6 +37,25 @@ environments
 			username = "root"
 			password = "root"
         }
+		
+		dataSource_sportsData 
+		{
+			dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
+			url = "jdbc:mysql://xmlinstance.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/sportsdb?user=dooziadmin&password=dooziadmin"
+			
+			properties 
+			{
+				maxActive = -1
+				minEvictableIdleTimeMillis=1800000
+				timeBetweenEvictionRunsMillis=1800000
+				numTestsPerEvictionRun=3
+				testOnBorrow=true
+				testWhileIdle=true
+				testOnReturn=false
+				validationQuery="SELECT 1"
+				jdbcInterceptors="ConnectionState"
+			 }
+		}
     }
 	
 	//jdbc:mysql://mydbinstance.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/scorenaT?user=scorenaadmin&password=scorenaadmin
@@ -37,9 +66,42 @@ environments
 		{
             dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
             url = System.getProperty("JDBC_CONNECTION_STRING")
+
 			//url = "jdbc:mysql://mydbinstance.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/scorenaT?useUnicode=yes&characterEncoding=UTF-8"
 			//username = "scorenaadmin"
 			//password = "scorenaadmin"    
+
+			properties 
+			{
+				maxActive = -1
+				minEvictableIdleTimeMillis=1800000
+				timeBetweenEvictionRunsMillis=1800000
+				numTestsPerEvictionRun=3
+				testOnBorrow=true
+				testWhileIdle=true
+				testOnReturn=false
+				validationQuery="SELECT 1"
+				jdbcInterceptors="ConnectionState"
+			 }
+		}
+		
+		dataSource_sportsData 
+		{
+			dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
+			url = "jdbc:mysql://xmlinstance.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/sportsdb?user=dooziadmin&password=dooziadmin"
+			
+			properties 
+			{
+				maxActive = -1
+				minEvictableIdleTimeMillis=1800000
+				timeBetweenEvictionRunsMillis=1800000
+				numTestsPerEvictionRun=3
+				testOnBorrow=true
+				testWhileIdle=true
+				testOnReturn=false
+				validationQuery="SELECT 1"
+				jdbcInterceptors="ConnectionState"
+			 }
 		}
     }
 	
@@ -83,6 +145,25 @@ environments
 			url = "jdbc:mysql://54.186.147.78/sportsdb?useUnicode=yes&characterEncoding=UTF-8"
 			username = "scorenaadmin"
 			password = "scorenaadmin"
+		}
+		
+		dataSource_sportsData 
+		{
+			dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
+			url = "jdbc:mysql://xmlinstance.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/sportsdb?user=dooziadmin&password=dooziadmin"
+			
+			properties 
+			{
+				maxActive = -1
+				minEvictableIdleTimeMillis=1800000
+				timeBetweenEvictionRunsMillis=1800000
+				numTestsPerEvictionRun=3
+				testOnBorrow=true
+				testWhileIdle=true
+				testOnReturn=false
+				validationQuery="SELECT 1"
+				jdbcInterceptors="ConnectionState"
+			 }
 		}
 	}
 }

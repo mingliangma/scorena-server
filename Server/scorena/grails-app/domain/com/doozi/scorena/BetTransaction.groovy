@@ -4,6 +4,10 @@ class BetTransaction {
 	int wager
 	Date createdAt
 	int pick
+	int pick1Amount
+	int pick2Amount
+	int pick1NumPeople
+	int pick2NumPeople
 	
 	
 	static hasOne = [betResult: BetResult]
