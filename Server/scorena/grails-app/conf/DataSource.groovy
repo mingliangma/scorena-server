@@ -7,15 +7,13 @@ dataSource
 	dialect = org.hibernate.dialect.MySQL5InnoDBDialect
 }
 
-hibernate 
-{
 	dataSource_sportsData 
 	{
 		pooled = true
 		driverClassName = "com.mysql.jdbc.Driver"
 		dialect = org.hibernate.dialect.MySQL5InnoDBDialect
 	}
-}
+
 
 hibernate 
 {
@@ -41,8 +39,9 @@ environments
 		dataSource_sportsData 
 		{
 			dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
-			url = "jdbc:mysql://xmlinstance.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/sportsdb?user=dooziadmin&password=dooziadmin"
 			
+			url = "jdbc:mysql://xmlinstance.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/sportsdb?user=dooziadmin&password=dooziadmin"
+
 			properties 
 			{
 				maxActive = -1
