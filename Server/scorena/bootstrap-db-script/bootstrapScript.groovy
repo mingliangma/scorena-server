@@ -26,13 +26,20 @@ import grails.plugins.rest.client.RestBuilder
 import java.util.Date;
 
 
-def createGame(String _league, String _away, String _home, String _type, String _country, String _theDate, int _awayScore, int _homeScore, int _pick1Amount,
+createGames()
+createPastGames()
+createUsers()
+simulateBet()
+
+println "create transactions ended"
+
+def createGame(String _league, String _away, String _home, String _type, String _country, Date _theDate, int _awayScore, int _homeScore, int _pick1Amount,
 	int _pick1NumPeople, int _pick2Amount, int _pick2NumPeople){
 			
 			println "create game starts..."
 			Random random = new Random()
 			
-			def newdate = new Date().parse("d/M/yyyy H:m:s", _theDate)
+			//def newdate = new Date().parse("d/M/yyyy H:m:s", _theDate)
 			String _awayTeamId = random.nextInt(10000).toString()
 			String _homeTeamId = random.nextInt(10000).toString()
 			String _gameEventId = random.nextInt(10000).toString()
@@ -40,12 +47,12 @@ def createGame(String _league, String _away, String _home, String _type, String 
 			Date currentDate = new Date()
 			
 			def game = new Game(gameEventId: _gameEventId, league: _league, homeTeamId:_homeTeamId, homeTeamNameFirst:_home, awayTeamId: _awayTeamId, awayTeamNameFirst: _away, 
-				city: "London", siteKey:_siteKey, siteName: "DW Stadium",type:_type, country:_country, startDate:newdate, createdAt: currentDate)
+				city: "London", siteKey:_siteKey, siteName: "DW Stadium",type:_type, country:_country, startDate:_theDate, createdAt: currentDate)
 			System.out.println("game: "+game.id)
 			def q1 = new Question(pick1: _home, pick2: _away, content:"who will win between the two", 
-				pool: new Pool(minBet: 5)
+				pool: new Pool(minBet: 5))
 			def q2 = new Question(pick1: _home, pick2: _away, content:"who will score the first goal",
-				pool: new Pool(minBet: 5)
+				pool: new Pool(minBet: 5))
 			
 			game.addToQuestion(q1);
 			game.addToQuestion(q2);
@@ -76,14 +83,16 @@ def simulateBet(){
 	
 	def upcomingGames = gameService.getUpcomingGameObjects()
 	for (Game upcomingGame: upcomingGames){
-		System.out.println("game away: "+upcomingGame.awayTeamNameFirst + "   VS   game home: "+upcomingGame.homeTeamNameFirst)
+		System.out.println("game away: "+upcomingGame.awayTeamNameFirst + "   VS   game home: "+upcomingGame.homeTeamNameFirst + "----- StartDate: "+upcomingGame.startDate)
+		System.out.println("quesiton : "+upcomingGame.question)
 		for (Question q: upcomingGame.question){
 			System.out.println("question: "+q.content)
+			def questionId = q.id
 			for (Account account: accounts){
 				
 				System.out.println("user name: "+account.username)
 				int _wager =  (random.nextInt(6)+1)*5
-				Date _time = new Date() - random.nextInt(7)
+				Date _time = new Date()
 				int _pick
 				
 				if (random.nextInt(2)==0){
@@ -91,7 +100,9 @@ def simulateBet(){
 				}else{
 					_pick=2
 				}
-				betService.saveBetTrans(_wager, _time,_pick, account, q, upcomingGame)
+				
+				
+				betService.saveBetTrans(_wager, _time,_pick, account.userId, q.id, upcomingGame.id)
 			}
 		}
 	}
@@ -104,13 +115,14 @@ def createUser(String _username, String _email, String _password, String _gender
 	println resp
 	
 }
-	
-	String _league = "Chelsea"
+
+def createPastGames(){
+	String _league = "EPL"
 	String _away = "Liverpool FC"
 	String _home ="Man United"
 	String _type ="soccer"
 	String _country = "england"
-	String _theDate ="07/04/2014 14:00:00"
+	Date _theDate =new Date() -2
 	int _awayScore =0
 	int _homeScore =0
 	int _pick1Amount =0
@@ -124,7 +136,39 @@ def createUser(String _username, String _email, String _password, String _gender
 	_home ="Stoke City"
 	_type ="soccer"
 	_country = "england"
-	_theDate ="9/04/2014 16:00:00"
+	_theDate =new Date() - 5
+	_awayScore =0
+	_homeScore =0
+	_pick1Amount =0
+	_pick1NumPeople =0
+	_pick2Amount =0
+	_pick2NumPeople =0
+	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
+}
+
+def createGames(){
+	Random random = new Random()
+
+	String _league = "EPL"
+	String _away = "Liverpool FC"
+	String _home ="Man United"
+	String _type ="soccer"
+	String _country = "england"
+	Date _theDate =new Date() + random.nextInt(7)
+	int _awayScore =0
+	int _homeScore =0
+	int _pick1Amount =0
+	int _pick1NumPeople =0
+	int _pick2Amount =0
+	int _pick2NumPeople =0
+	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
+	
+	_league = "EPL"
+	_away = "Liverpool FC"
+	_home ="Stoke City"
+	_type ="soccer"
+	_country = "england"
+	_theDate =new Date() + random.nextInt(7)
 	_awayScore =0
 	_homeScore =0
 	_pick1Amount =0
@@ -138,7 +182,7 @@ def createUser(String _username, String _email, String _password, String _gender
 	_home ="Aston Villa"
 	_type ="soccer"
 	_country = "england"
-	_theDate ="1/05/2014 20:00:00"
+	_theDate =new Date() + random.nextInt(7)
 	_awayScore =0
 	_homeScore =0
 	_pick1Amount =0
@@ -152,7 +196,7 @@ def createUser(String _username, String _email, String _password, String _gender
 	_home ="Everton FC"
 	_type ="soccer"
 	_country = "england"
-	_theDate ="30/03/2014 16:00:00"
+	_theDate =new Date() + random.nextInt(7)
 	_awayScore =0
 	_homeScore =0
 	_pick1Amount =0
@@ -166,7 +210,7 @@ def createUser(String _username, String _email, String _password, String _gender
 	_home ="Fulham FC"
 	_type ="soccer"
 	_country = "england"
-	_theDate ="13/04/2014 16:00:00"
+	_theDate =new Date() + random.nextInt(7)
 	_awayScore =0
 	_homeScore =0
 	_pick1Amount =0
@@ -180,7 +224,7 @@ def createUser(String _username, String _email, String _password, String _gender
 	_home ="Stoke City"
 	_type ="soccer"
 	_country = "england"
-	_theDate ="11/04/2014 16:00:00"
+	_theDate =new Date() + random.nextInt(7)
 	_awayScore =0
 	_homeScore =0
 	_pick1Amount =0
@@ -194,7 +238,7 @@ def createUser(String _username, String _email, String _password, String _gender
 	_home ="Aston Villa"
 	_type ="soccer"
 	_country = "england"
-	_theDate ="7/04/2014 20:00:00"
+	_theDate =new Date() + random.nextInt(7)
 	_awayScore =0
 	_homeScore =0
 	_pick1Amount =0
@@ -208,7 +252,7 @@ def createUser(String _username, String _email, String _password, String _gender
 	_home ="Everton FC"
 	_type ="soccer"
 	_country = "england"
-	_theDate ="13/04/2014 16:00:00"
+	_theDate =new Date() + random.nextInt(7)
 	_awayScore =0
 	_homeScore =0
 	_pick1Amount =0
@@ -222,7 +266,7 @@ def createUser(String _username, String _email, String _password, String _gender
 	_home ="Fulham FC"
 	_type ="soccer"
 	_country = "england"
-	_theDate ="10/04/2014 16:00:00"
+	_theDate =new Date() + random.nextInt(7)
 	_awayScore =0
 	_homeScore =0
 	_pick1Amount =0
@@ -232,6 +276,9 @@ def createUser(String _username, String _email, String _password, String _gender
 	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
 
 	println "create game ended"
+}
+
+def createUsers(){
 	
 	String _displayName  = "michealLiu1"
 	String _email = "micheal1@gmail.com"
@@ -312,9 +359,8 @@ def createUser(String _username, String _email, String _password, String _gender
 	createUser(_displayName, _email, _password, _gender, _region)
 	
 	println "create users ended"
-	simulateBet()
-	
-	println "create transactions ended"
+}
+
 
 
 

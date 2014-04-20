@@ -7,12 +7,12 @@ dataSource
 	dialect = org.hibernate.dialect.MySQL5InnoDBDialect
 }
 
-	dataSource_sportsData 
-	{
-		pooled = true
-		driverClassName = "com.mysql.jdbc.Driver"
-		dialect = org.hibernate.dialect.MySQL5InnoDBDialect
-	}
+dataSource_sportsData 
+{
+	pooled = true
+	driverClassName = "com.mysql.jdbc.Driver"
+	dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+}
 
 
 hibernate 
@@ -63,12 +63,14 @@ environments
 	{ 
         dataSource 
 		{
-            dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
-            url = System.getProperty("JDBC_CONNECTION_STRING")
-
-			//url = "jdbc:mysql://mydbinstance.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/scorenaT?useUnicode=yes&characterEncoding=UTF-8"
-			//username = "scorenaadmin"
-			//password = "scorenaadmin"    
+						
+			dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
+			url = "jdbc:mysql://scorenat2.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/scorenaT??useUnicode=yes&characterEncoding=UTF-8"
+			username = "scorenaadmin"
+			password = "scorenaadmin"			
+			
+//			url = System.getProperty("JDBC_CONNECTION_STRING")
+			   
 
 			properties 
 			{
@@ -86,9 +88,8 @@ environments
 		
 		dataSource_sportsData 
 		{
-			dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
+			dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''			
 			url = "jdbc:mysql://xmlinstance.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/sportsdb?user=dooziadmin&password=dooziadmin"
-			
 			properties 
 			{
 				maxActive = -1

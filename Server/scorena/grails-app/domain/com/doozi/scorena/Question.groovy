@@ -1,6 +1,8 @@
 package com.doozi.scorena
 
 class Question {
+	
+	String eventId
 	String pick1
 	String pick2
 	String content
@@ -11,7 +13,7 @@ class Question {
 	
 	static hasOne = [pool: Pool]
 	static hasMany = [bet: BetTransaction]
-	static belongsTo = Game
+	//static belongsTo = [game: Game]
 
     static constraints = {
     }

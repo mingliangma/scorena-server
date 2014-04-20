@@ -7,20 +7,26 @@ import grails.transaction.Transactional
 
 @Transactional
 class GameService {
-
-	def listUpcomingGames() {
-		def upcomingGames = getUpcomingGameObjects()		
-		def all = upcomingGames.collect {Game game ->
-			[	id: game.id,
-				home: 	game.homeTeamNameFirst,
-				away: game.awayTeamNameFirst,
-				date: game.startDate,
-				league: game.league,
-				type: game.type,			
-			]
-		  }
-		return all
+	def viewService
+	
+	def listUpcomingGames(){
+		def upcomingGames = viewService.getUpcomingEplMatches()
+		return upcomingGames
 	}
+	
+//	def listUpcomingGames() {
+//		def upcomingGames = getUpcomingGameObjects()		
+//		def all = upcomingGames.collect {Game game ->
+//			[	id: game.id,
+//				home: 	game.homeTeamNameFirst,
+//				away: game.awayTeamNameFirst,
+//				date: game.startDate,
+//				league: game.league,
+//				type: game.type,			
+//			]
+//		  }
+//		return all
+//	}
 	
 	def getUpcomingGameObjects(){
 		def today = new Date();
@@ -29,20 +35,50 @@ class GameService {
 		return upcomingGames
 	}
 	
-	def listPastGames() {
-		def today = new Date();
-		def upcomingGames = Game.findAllByStartDateLessThan(today)
-		
-		def all = upcomingGames.collect {Game game ->
-			[	id: game.id,
-				home: 	game.homeTeamNameFirst,
-				away: game.awayTeamNameFirst,
-				date: game.startDate,
-				league: game.league,
-				type: game.type,
-			]
-		  }
-		return all
+	def listPastGames(){
+		def pastGames = viewService.getPastEplMatches()		
+		return pastGames
+	}
+	
+//	def listPastGames() {
+//		def today = new Date();
+//		def upcomingGames = Game.findAllByStartDateLessThan(today)
+//		
+//		List resultList = []
+//		
+//		
+//		for (Game g: upcomingGames){
+//			def hScore
+//			def aScore
+//			if (g.id%2 == 0){				
+//				hScore= "1"
+//				aScore= "3"			
+//			}else{
+//				hScore= "2"
+//				aScore= "1"
+//			}
+//			
+//
+//			
+//			resultList.add([
+//				id: g.id,
+//				home: 	g.homeTeamNameFirst,
+//				away: g.awayTeamNameFirst,
+//				date: g.startDate,
+//				league: g.league,
+//				type: g.type,
+//				homeScore: hScore,
+//				awayScore: aScore
+//			])
+//		}
+//		
+//		
+//		return resultList
+//	}
+	
+	def getGame2(gameId){
+		def game = viewService.getEplMatch(gameId)
+		return game
 	}
 	
 	def getGame(gameId){

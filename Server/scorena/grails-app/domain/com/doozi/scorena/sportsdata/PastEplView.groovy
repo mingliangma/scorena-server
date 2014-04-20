@@ -2,13 +2,14 @@ package com.doozi.scorena.sportsdata
 
 import java.util.Date;
 
-class PastEplView {
+class PastEplView implements Serializable{
 
 	String eventKey	
 	String fullName
 	String teamKey
 	String eventStatus
 	String alignment
+	String score
 	Date startDateTime
 	Date lastUpdate
 	
@@ -20,7 +21,8 @@ class PastEplView {
 		table 'past_epl'
 		version false		
 		eventKey column : "event_key"
-		id generator: 'assigned', name: 'eventKey'
+		id composite: ['eventKey', 'teamKey']
+		//id generator: 'assigned', name: 'eventKey'
 		
 	}
 }

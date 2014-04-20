@@ -11,9 +11,16 @@ class BetTransaction {
 	
 	
 	static hasOne = [betResult: BetResult]
-	static belongsTo = [game: Game, question: Question, account: Account]
+	static belongsTo = [question: Question, account: Account]
+	//static belongsTo = [game: Game, question: Question, account: Account]
 	
     static constraints = {
 		betResult nullable: true,unique: true
     }
+	
+	static mapping = {
+		sort 'id'
+	}
+	
+
 }

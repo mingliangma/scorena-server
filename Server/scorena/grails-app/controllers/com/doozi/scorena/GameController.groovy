@@ -38,25 +38,7 @@ class GameController {
 	def gameService
 	def viewService
 	
-	def upcomingEplSportsDb(){
-		def upcomingGames = viewService.getUpcomingEplMatches()
-		render upcomingGames as JSON
-	}
-	
-	def upcomingChampSportsDb(){
-		def upcomingGames = viewService.getUpcomingChampMatches()
-		render upcomingGames as JSON
-	}
-	
-	def pastEplSportsDb(){
-		def pastGames = viewService.getPastEplMatches()
-		render pastGames as JSON
-	}
-	
-	def pastChampSportsDb(){
-		def pastGames = viewService.getPastChampMatches()
-		render pastGames as JSON
-	}
+
 	
 	def getUpcomingGames(){
 		def upcomingGames = gameService.listUpcomingGames()
@@ -69,8 +51,9 @@ class GameController {
 	}
 	
 	def getGame(){
+		println params.gameId
 		if (params.gameId){
-			def questions = gameService.getGame(params.gameId)
+			def questions = gameService.getGame2(params.gameId)
 			render questions as JSON
 		}
 	}
@@ -97,52 +80,31 @@ class GameController {
 						pick1 = "Stoke City"
 						pick2 = "Chelsea"
 					}
-				}
-				
-//				unsued {					
-//					home = 	"Aston Villa"
-//					away = "Liverpool FC"
-//					date = date2
-//					league = "EPL"
-//					type = "soccer"
-//					quesiton = {
-//						content = "Who will score more?"
-//						pick1 = "Aston Villa"
-//						pick2 = "Liverpool FC"						
-//					}
-//				
-//				}
-//				
-//				unsued {
-//					home = 	"Stoke City"
-//					away = "Norwich City"					
-//					date = date3
-//					league = "EPL"
-//					type = "soccer"
-//					quesiton = {
-//						content = "Who will win between the two?"
-//						pick1 = "Stoke City"
-//						pick2 = "Norwich City"
-//					}				
-//				}
-//				
-//				unsued {
-//					home = 	"Success"
-//					away = "Fail"
-//					date = date3
-//					league = "EPL"
-//					type = "soccer"
-//					quesiton = {
-//						content = "is Scorena going to be successful"
-//						pick1 = "Success"
-//						pick2 = "More Success"
-//					}
-//				}
-				
+				}		
 			}
 		}
 		
 		response.status = 200
 		render  content
+	}
+	
+	def upcomingEplSportsDb(){
+		def upcomingGames = viewService.getUpcomingEplMatches()
+		render upcomingGames as JSON
+	}
+	
+	def upcomingChampSportsDb(){
+		def upcomingGames = viewService.getUpcomingChampMatches()
+		render upcomingGames as JSON
+	}
+	
+	def pastEplSportsDb(){
+		def pastGames = viewService.getPastEplMatches()
+		render pastGames as JSON
+	}
+	
+	def pastChampSportsDb(){
+		def pastGames = viewService.getPastChampMatches()
+		render pastGames as JSON
 	}
 }

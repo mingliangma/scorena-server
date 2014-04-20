@@ -2,19 +2,20 @@ package com.doozi.scorena.controllerservice
 
 import java.util.Date;
 
-
 import com.doozi.scorena.Account;
 import com.doozi.scorena.BetResult;
 import com.doozi.scorena.BetTransaction;
 import com.doozi.scorena.Game;
 import com.doozi.scorena.Question;
 
+import org.hibernate.criterion.CriteriaSpecification
+
 import grails.transaction.Transactional
 
 @Transactional
 class BetService {
 
-	def saveBetTrans(int _wager, Date _time, int _pick, String userId, int quesitonId, int gameId) {
+	def saveBetTrans(int _wager, Date _time, int _pick, String userId, long quesitonId, long gameId) {
 		def account = Account.findByUserId(userId)
 		def question = Question.findById(quesitonId)
 		def game = Game.findById(gameId)
@@ -22,15 +23,12 @@ class BetService {
 		
 	}
     def saveBetTrans(int playerWager, Date betCreatedAt, int playerPick, Account playerAccount, Question q, Game game) {
-		println "wager:"+playerWager
-		println "_time:"+betCreatedAt
-		println "_pick:"+playerPick
 		int pick1amount
 		int pick2amount 
 		int pick1num 
 		int pick2num 
-		
-		if (q.bet == null){
+		def lastBet
+		if (q.bet == null || q.bet.size() == 0){
 			if (playerPick==1){
 				 pick1amount = playerWager
 				 pick1num = 1
@@ -44,21 +42,34 @@ class BetService {
 			}
 			
 		}else{
-			def lastBet = q.bet.find
 		
-		}
+			def questionId = q.id.toString()
+			lastBet = getLatestBetByQuestionId(questionId)
 		
+			if (playerPick==1){
+				 pick1amount = lastBet.pick1Amount + playerWager
+				 pick1num = lastBet.pick1NumPeople + 1
+				 pick2amount = lastBet.pick2Amount			 
+				 pick2num = lastBet.pick2NumPeople
+			}else{
+				pick1amount = lastBet.pick1Amount	
+				pick1num = lastBet.pick1NumPeople
+				pick2amount = lastBet.pick2Amount + playerWager
+				pick2num = lastBet.pick2NumPeople + 1
+			}
+				
+		}	
 		def bet = new BetTransaction(wager: playerWager, createdAt: betCreatedAt, pick: playerPick, pick1Amount:pick1amount, pick1NumPeople:pick1num,
 			pick2Amount:pick2amount, pick2NumPeople:pick2num)
-		
 		
 		
 		playerAccount.addToBet(bet)
 		q.addToBet(bet)
 		game.addToBet(bet)
 		
+		playerAccount.currentBalance -= playerWager
 		
-		if (account.save(failOnError:true)){
+		if (playerAccount.save(failOnError:true)){
 			System.out.println("---------------account successfully saved")
 		}else{
 			System.out.println("---------------account save failed")
@@ -81,5 +92,8 @@ class BetService {
 		return 201
     }
 	
-	 
+	def getLatestBetByQuestionId(String qId){
+		return BetTransaction.executeQuery("from BetTransaction WHERE id = (select max(id) from BetTransaction where question_id=?)", qId).get(0)
+		
+	}
 }

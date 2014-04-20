@@ -8,48 +8,49 @@ import grails.transaction.Transactional
 
 @Transactional
 class QuestionService {
-
+	def betService
 	def listQuestions(gameId) {
-		def Games = Game.findById(gameId)
+		def game = Game.findById(gameId, [fetch:[question:"eager"]])
+		List resultList = []
 		
-		def all = Games.collect {Game game ->
-			[	
-				question: game.question.collect{ Question q ->
-					[
-						id: q.id,
-						content: q.content,
-						pick1: q.pick1,
-						pick2: q.pick2,
-						pool: [
-							pick1Amount: q.pool.pick1Amount,
-							pick1NumPeople: q.pool.pick1NumPeople,
-							pick2Amount: q.pool.pick2Amount,							
-							pick2NumPeople: q.pool.pick1NumPeople
-						]					
+		
+			for (Question q: game.question){
+				def lastBet = betService.getLatestBetByQuestionId(q.id.toString())
+				resultList.add([
+					id: q.id,
+					content: q.content,
+					pick1: q.pick1,
+					pick2: q.pick2,
+					pool: [
+						pick1Amount: lastBet.pick1Amount,
+						pick1NumPeople: lastBet.pick1NumPeople,
+						pick2Amount:lastBet.pick2Amount,
+						pick2NumPeople: lastBet.pick2NumPeople
 					]
-				}
-			]
-		  }
-		return all
+				])
+			}
+		
+
+		return resultList
 	}
 	
 	def getQuestion(qId){
-		def question = Question.findById(qId)
+		def q = Question.findById(qId)
 		
-		def all = question.collect { Question q -> [
-				
-				content: q.content,
-				pick1: q.pick1,
-				pick2: q.pick2,
-				pool: [
-					pick1Amount: q.pool.pick1Amount,
-					pick1NumPeople: q.pool.pick1NumPeople,
-					pick2Amount: q.pool.pick2Amount,
-					pick2NumPeople: q.pool.pick1NumPeople],
-				betters: getBetters(q.bet)
-				
-			]			
-		}
+		def lastBet = betService.getLatestBetByQuestionId(qId.toString())
+		def result = [
+			id: q.id,
+			content: q.content,
+			pick1: q.pick1,
+			pick2: q.pick2,
+			pool: [
+				pick1Amount: lastBet.pick1Amount,
+				pick1NumPeople: lastBet.pick1NumPeople,
+				pick2Amount:lastBet.pick2Amount,
+				pick2NumPeople: lastBet.pick2NumPeople
+			],
+			betters: getBetters(q.bet)
+		]
 	}
 	
 	def getBetters(betTransactions){
@@ -58,7 +59,7 @@ class QuestionService {
 		
 		
 		for (BetTransaction betTrans: betTransactions){
-			if (betTrans.pick==0){
+			if (betTrans.pick==1){
 				homeBettersArr.add([
 					name:betTrans.account.username,
 					wager:betTrans.wager])
