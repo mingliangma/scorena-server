@@ -58,6 +58,18 @@ class GameController {
 		}
 	}
 	
+	def getFeatureGames(){
+		if (!params.userId){
+			response.status = 404
+			def result = [error: "invalid parameters"]
+			render result as JSON
+			return
+		}
+		
+		def featureGame = gameService.listFeatureGames()		
+		render featureGame as JSON
+	}
+	
 	def getFeatureEvents(){
 		String theDate = "12/03/2014 16:00:00";
 		def date1 = new Date().parse("d/M/yyyy H:m:s", theDate)

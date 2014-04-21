@@ -8,6 +8,7 @@ import grails.transaction.Transactional
 @Transactional
 class GameService {
 	def viewService
+	def questionService
 	
 	def listUpcomingGames(){
 		def upcomingGames = viewService.getUpcomingEplMatches()
@@ -38,6 +39,19 @@ class GameService {
 	def listPastGames(){
 		def pastGames = viewService.getPastEplMatches()		
 		return pastGames
+	}
+	
+	def listFeatureGames(userId){
+		def upcomingGames = viewService.getUpcomingEplMatches()
+		
+		for (int i = 0; i<3; i++){
+			def game = upcomingGames.get(i)
+			def questions = questionService.listQuestions(game.gameId, userId)
+			def question = questions.get(0)
+			game.question = question
+			
+		}
+		return upcomingGames
 	}
 	
 //	def listPastGames() {

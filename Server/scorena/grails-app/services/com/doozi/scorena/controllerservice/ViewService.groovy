@@ -17,7 +17,7 @@ class ViewService {
 			if (!upcomingGame){
 				def	gameInfo = [
 						"league": "EPL",
-						"id":eventKey,
+						"gameId":eventKey,
 						"type":"soccer",
 						"date":game.startDateTime,
 						(game.alignment):[
@@ -57,7 +57,7 @@ class ViewService {
 			if (!pastGame){	
 				def	gameInfo = [
 						"league": "EPL",
-						"id":eventKey,
+						"gameId":eventKey,
 						"type":"soccer",
 						"date":game.startDateTime,
 						(game.alignment):[
@@ -94,7 +94,7 @@ class ViewService {
 			if (gameInfo.empty){
 				gameInfo = [
 					"league": "EPL",
-					"id":eventKey,
+					"gameId":eventKey,
 					"type":"soccer",
 					"eventStatus":game.eventStatus,
 					"date":game.startDateTime,

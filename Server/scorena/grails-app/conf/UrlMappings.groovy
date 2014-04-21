@@ -32,7 +32,7 @@ class UrlMappings {
 		}	
 		
 		"/v1/sports/soccer/leagues/epl/games/feature"(controller:"game"){
-			action = [GET:"getFeatureEvents"]
+			action = [GET:"getFeatureGames"]
 		}
 		
 		"/v1/sports/soccer/leagues/epl/games/upcoming"(controller:"game"){

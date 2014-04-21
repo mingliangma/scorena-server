@@ -23,7 +23,7 @@ class QuestionService {
 					placedBet = true
 				}
 				resultList.add([
-					id: q.id,
+					questionId: q.id,
 					content: q.content,
 					pick1: q.pick1,
 					pick2: q.pick2,
@@ -46,7 +46,7 @@ class QuestionService {
 		
 		def lastBet = betService.getLatestBetByQuestionId(qId.toString())
 		def result = [
-			id: q.id,
+			questionId: q.id,
 			content: q.content,
 			pick1: q.pick1,
 			pick2: q.pick2,
