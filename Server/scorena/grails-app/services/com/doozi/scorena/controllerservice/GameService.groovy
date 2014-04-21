@@ -43,15 +43,16 @@ class GameService {
 	
 	def listFeatureGames(userId){
 		def upcomingGames = viewService.getUpcomingEplMatches()
-		
+		List featureGames =[]
 		for (int i = 0; i<3; i++){
 			def game = upcomingGames.get(i)
 			def questions = questionService.listQuestions(game.gameId, userId)
 			def question = questions.get(0)
 			game.question = question
+			featureGames.add(game)
 			
 		}
-		return upcomingGames
+		return featureGames
 	}
 	
 //	def listPastGames() {
