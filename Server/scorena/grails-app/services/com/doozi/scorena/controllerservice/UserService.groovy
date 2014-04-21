@@ -62,7 +62,10 @@ class UserService {
 			currentBalance:INITIAL_BALANCE,
 			sessionToken:resp.json.sessionToken,
 			objectId: resp.json.objectId,
-			createdAt: resp.json.createdAt
+			createdAt: resp.json.createdAt,
+			email: _email,
+			gender: gender,
+			region: region
 		]
 		return result		
 	}
