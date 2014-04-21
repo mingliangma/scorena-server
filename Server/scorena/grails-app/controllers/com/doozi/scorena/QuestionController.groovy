@@ -12,8 +12,17 @@ class QuestionController {
 	
 	def questionService
     def listQuestions() { 
+		println params
+		
+		if (!params.userId){
+			response.status = 404
+			def result = [error: "invalid parameters"]
+			render result as JSON
+			return
+		}
+		
 		if (params.gameId){
-			def questions = questionService.listQuestions(params.gameId)
+			def questions = questionService.listQuestions(params.gameId, params.userId)
 			render questions as JSON
 		}
 	}

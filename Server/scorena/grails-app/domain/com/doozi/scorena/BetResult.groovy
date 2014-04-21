@@ -1,7 +1,7 @@
 package com.doozi.scorena
 
 class BetResult {
-	int gameResult
+	int betResult
 	int payOut
 	
 	static belongsTo = [bet: BetTransaction]

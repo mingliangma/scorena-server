@@ -15,19 +15,25 @@ import grails.transaction.Transactional
 @Transactional
 class BetService {
 
-	def saveBetTrans(int _wager, Date _time, int _pick, String userId, long quesitonId, long gameId) {
+	def saveBetTrans(int _wager, Date _time, int _pick, String userId, long quesitonId) {
 		def account = Account.findByUserId(userId)
 		def question = Question.findById(quesitonId)
-		def game = Game.findById(gameId)
-		return saveBetTrans(_wager, _time, _pick, account, question, game)
+		return saveBetTrans(_wager, _time, _pick, account, question)
 		
 	}
-    def saveBetTrans(int playerWager, Date betCreatedAt, int playerPick, Account playerAccount, Question q, Game game) {
+    def saveBetTrans(int playerWager, Date betCreatedAt, int playerPick, Account playerAccount, Question q) {
 		int pick1amount
 		int pick2amount 
 		int pick1num 
 		int pick2num 
 		def lastBet
+		
+		def b = BetTransaction.find("from BetTransaction as b where b.question.id=? and b.account.id=?", q.id, playerAccount.id)
+		if (b){
+			System.out.println("---------------bet transaction already exists")
+			return 202
+		}
+		
 		if (q.bet == null || q.bet.size() == 0){
 			if (playerPick==1){
 				 pick1amount = playerWager
@@ -65,7 +71,7 @@ class BetService {
 		
 		playerAccount.addToBet(bet)
 		q.addToBet(bet)
-		game.addToBet(bet)
+
 		
 		playerAccount.currentBalance -= playerWager
 		
@@ -83,17 +89,15 @@ class BetService {
 			return 202
 		}
 		
-		if (game.save(failOnError:true)){
-			System.out.println("---------------game successfully saved")
-		}else{
-			System.out.println("---------------game save failed")
-			return 202
-		}
+
 		return 201
     }
 	
 	def getLatestBetByQuestionId(String qId){
-		return BetTransaction.executeQuery("from BetTransaction WHERE id = (select max(id) from BetTransaction where question_id=?)", qId).get(0)
-		
+		return BetTransaction.executeQuery("from BetTransaction WHERE id = (select max(id) from BetTransaction where question_id=?)", qId).get(0)		
+	}
+	
+	def findAllByQuestionIdAndUserId(def qId, def userId){
+		return BetTransaction.find("from BetTransaction as b where b.question.id=? and b.account.userId=?", qId, userId)
 	}
 }

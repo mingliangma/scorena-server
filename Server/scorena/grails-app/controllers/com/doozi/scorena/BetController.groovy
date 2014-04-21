@@ -7,7 +7,7 @@ class BetController {
 	def BetService
 	def userService
     def placeBet() { 
-		if (!request.JSON.wager||!request.JSON.pick|| !request.JSON.questionId|| !request.JSON.gameId||!request.JSON.sessionToken){
+		if (!request.JSON.wager||!request.JSON.pick|| !request.JSON.questionId || !request.JSON.sessionToken){
 			response.status =404
 			def resp = [
 				code: 101,
@@ -25,7 +25,7 @@ class BetController {
 			
 		}else{
 			def today = new Date() 
-			def result = betService.saveBetTrans(request.JSON.wager.toInteger(), today,request.JSON.pick.toInteger(), sessionValidation.objectId, request.JSON.questionId.toInteger(), request.JSON.gameId.toInteger())
+			def result = betService.saveBetTrans(request.JSON.wager.toInteger(), today,request.JSON.pick.toInteger(), sessionValidation.objectId, request.JSON.questionId.toInteger())
 			if (result==201){
 				
 				def resp = [date:today]

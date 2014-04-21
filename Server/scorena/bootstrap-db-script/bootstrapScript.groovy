@@ -26,48 +26,148 @@ import grails.plugins.rest.client.RestBuilder
 import java.util.Date;
 
 
-createGames()
-createPastGames()
-createUsers()
-simulateBet()
+//createGames()
+//createPastGames()
+
+createQuestions()
+//createUsers()
+simulateBetUpcoming()
+simulateBetPast()
 
 println "create transactions ended"
 
-def createGame(String _league, String _away, String _home, String _type, String _country, Date _theDate, int _awayScore, int _homeScore, int _pick1Amount,
-	int _pick1NumPeople, int _pick2Amount, int _pick2NumPeople){
-			
-			println "create game starts..."
-			Random random = new Random()
-			
-			//def newdate = new Date().parse("d/M/yyyy H:m:s", _theDate)
-			String _awayTeamId = random.nextInt(10000).toString()
-			String _homeTeamId = random.nextInt(10000).toString()
-			String _gameEventId = random.nextInt(10000).toString()
-			String _siteKey = random.nextInt(1000).toString()
-			Date currentDate = new Date()
-			
-			def game = new Game(gameEventId: _gameEventId, league: _league, homeTeamId:_homeTeamId, homeTeamNameFirst:_home, awayTeamId: _awayTeamId, awayTeamNameFirst: _away, 
-				city: "London", siteKey:_siteKey, siteName: "DW Stadium",type:_type, country:_country, startDate:_theDate, createdAt: currentDate)
-			System.out.println("game: "+game.id)
-			def q1 = new Question(pick1: _home, pick2: _away, content:"who will win between the two", 
-				pool: new Pool(minBet: 5))
-			def q2 = new Question(pick1: _home, pick2: _away, content:"who will score the first goal",
-				pool: new Pool(minBet: 5))
-			
-			game.addToQuestion(q1);
-			game.addToQuestion(q2);
+def createQuestions(){
+	println "create quesitons starts"
+	def gameService = ctx.getBean("gameService")
+	List upcomingGames = gameService.listUpcomingGames()
+	List pastGames = gameService.listPastGames()
+	
+	for (int i=0; i < upcomingGames.size(); i++){
+		def game = upcomingGames.get(i)
+		println "game id: "+game.id
+		if (Question.findByEventId(game.id) == null){
+			populateQuestions(game.away.teamname, game.home.teamname, game.id)
+		}
+	}
+	
+	for (int i=0; i < pastGames.size(); i++){
+		def game = pastGames.get(i)
+		println "game id: "+game.id
+		if (Question.findByEventId(game.id) == null){
+			populateQuestions(game.away.teamname, game.home.teamname, game.id)
+		}
+	}
+}
 
+def populateQuestions(String away, String home, String eventId){
+
+	def q1 = new Question(eventId: eventId, pick1: home, pick2: away, content:"who will win between the two",
+		pool: new Pool(minBet: 5))
+	def q2 = new Question(eventId: eventId, pick1: home, pick2: away, content:"who will score the first goal",
+		pool: new Pool(minBet: 5))	
+	if (q1.save()){
+		System.out.println("game successfully saved")
+	}else{
+		System.out.println("game save failed")
+		q1.errors.each{
+			println it
+		}
+	}
+	
+	if (q2.save()){
+		System.out.println("game successfully saved")
+	}else{
+		System.out.println("game save failed")
+		q2.errors.each{
+			println it
+		}
+	}
+	
+}
+
+
+
+
+def simulateBetUpcoming(){
+
+
+	def gameService = ctx.getBean("gameService")
+	def betService = ctx.getBean("betService")
+	
+	
+	Random random = new Random()
+	def accounts = Account.findAll()
+	def upcomingGames = gameService.listUpcomingGames()
+	for (int i=0; i < upcomingGames.size(); i++){
+		def upcomingGame = upcomingGames.get(i)				
+		System.out.println("game away: "+upcomingGame.away.teamname + "   VS   game home: "+upcomingGame.home.teamname + "----- StartDate: "+upcomingGame.date)
 		
-			if (game.save()){
-				System.out.println("game successfully saved")
-			}else{
-				System.out.println("game save failed")
-				game.errors.each{
-					println it
+		def questions = Question.findAllByEventId(upcomingGame.id)
+		
+		
+		for (Question q: questions){
+			System.out.println("question: "+q.content)
+			def questionId = q.id
+			for (Account account: accounts){
+				
+				System.out.println("user name: "+account.username)
+				int _wager =  (random.nextInt(6)+1)*5
+				Date _time = new Date()
+				int _pick
+				
+				if (random.nextInt(2)==0){
+					_pick=1
+				}else{
+					_pick=2
+				}
+				
+				
+				betService.saveBetTrans(_wager, _time,_pick, account.userId, q.id)
+			}
+		}
+	}
+}
+
+def simulateBetPast(){
+	
+	
+		def gameService = ctx.getBean("gameService")
+		def betService = ctx.getBean("betService")
+		
+		
+		Random random = new Random()
+		def accounts = Account.findAll()
+		def upcomingGames = gameService.listPastGames()
+		for (int i=0; i < upcomingGames.size(); i++){
+			def upcomingGame = upcomingGames.get(i)
+			System.out.println("game away: "+upcomingGame.away.teamname + "   VS   game home: "+upcomingGame.home.teamname + "----- StartDate: "+upcomingGame.date)
+			
+			def questions = Question.findAllByEventId(upcomingGame.id)
+			
+			
+			for (Question q: questions){
+				System.out.println("question: "+q.content)
+				def questionId = q.id
+				Date _time = new Date() - (random.nextInt(6) + 10)
+				for (Account account: accounts){
+					
+					System.out.println("user name: "+account.username)
+					int _wager =  (random.nextInt(6)+1)*5
+					_time = _time + random.nextInt(2)
+					int _pick
+					
+					if (random.nextInt(2)==0){
+						_pick=1
+					}else{
+						_pick=2
+					}
+					
+					
+					betService.saveBetTrans(_wager, _time,_pick, account.userId, q.id)
 				}
 			}
-			
-}
+		}
+	}
 	
 def simulateBet(){
 	
@@ -359,6 +459,42 @@ def createUsers(){
 	createUser(_displayName, _email, _password, _gender, _region)
 	
 	println "create users ended"
+}
+
+
+def createGame(String _league, String _away, String _home, String _type, String _country, Date _theDate, int _awayScore, int _homeScore, int _pick1Amount,
+	int _pick1NumPeople, int _pick2Amount, int _pick2NumPeople){
+			
+			println "create game starts..."
+			Random random = new Random()
+			
+			//def newdate = new Date().parse("d/M/yyyy H:m:s", _theDate)
+			String _awayTeamId = random.nextInt(10000).toString()
+			String _homeTeamId = random.nextInt(10000).toString()
+			String _gameEventId = random.nextInt(10000).toString()
+			String _siteKey = random.nextInt(1000).toString()
+			Date currentDate = new Date()
+			
+			def game = new Game(gameEventId: _gameEventId, league: _league, homeTeamId:_homeTeamId, homeTeamNameFirst:_home, awayTeamId: _awayTeamId, awayTeamNameFirst: _away,
+				city: "London", siteKey:_siteKey, siteName: "DW Stadium",type:_type, country:_country, startDate:_theDate, createdAt: currentDate)
+			System.out.println("game: "+game.id)
+			def q1 = new Question(pick1: _home, pick2: _away, content:"who will win between the two",
+				pool: new Pool(minBet: 5))
+			def q2 = new Question(pick1: _home, pick2: _away, content:"who will score the first goal",
+				pool: new Pool(minBet: 5))
+			
+			game.addToQuestion(q1);
+			game.addToQuestion(q2);
+
+		
+			if (game.save()){
+				System.out.println("game successfully saved")
+			}else{
+				System.out.println("game save failed")
+				game.errors.each{
+					println it
+				}
+			}
 }
 
 
