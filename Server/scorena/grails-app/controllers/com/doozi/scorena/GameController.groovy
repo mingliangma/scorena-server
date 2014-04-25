@@ -3,7 +3,7 @@ package com.doozi.scorena
 import grails.converters.JSON
 import grails.web.JSONBuilder
 
-
+import com.doozi.scorena.sportsdata.*
 // /v1/sports/soccer/premier/upcomingevents - current day's game information
 //		get
 
@@ -36,7 +36,7 @@ class GameController {
 //		}
 	}
 	def gameService
-	def viewService
+	def sportsDataService
 	
 
 	
@@ -53,7 +53,7 @@ class GameController {
 	def getGame(){
 		println params.gameId
 		if (params.gameId){
-			def questions = gameService.getGame2(params.gameId)
+			def questions = gameService.getGame(params.gameId)
 			render questions as JSON
 		}
 	}
@@ -100,23 +100,13 @@ class GameController {
 		render  content
 	}
 	
-	def upcomingEplSportsDb(){
-		def upcomingGames = viewService.getUpcomingEplMatches()
-		render upcomingGames as JSON
+	def processEngineManagerService
+	def processGameTesting(){
+		processEngineManagerService.startProcessEngine()
 	}
-	
-	def upcomingChampSportsDb(){
-		def upcomingGames = viewService.getUpcomingChampMatches()
-		render upcomingGames as JSON
-	}
-	
-	def pastEplSportsDb(){
-		def pastGames = viewService.getPastEplMatches()
-		render pastGames as JSON
-	}
-	
-	def pastChampSportsDb(){
-		def pastGames = viewService.getPastChampMatches()
-		render pastGames as JSON
+
+	def testGames(){
+		def games = sportsDataService.getAllUpcomingGames()
+		render games as JSON
 	}
 }

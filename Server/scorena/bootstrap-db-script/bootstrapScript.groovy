@@ -4,9 +4,10 @@ import com.doozi.scorena.GameEvent
 import com.doozi.scorena.GameResult
 import com.doozi.scorena.Pool
 import com.doozi.scorena.Question
+import com.doozi.scorena.QuestionContent
 import com.doozi.scorena.Account
 import com.doozi.scorena.controllerservice.GameService
-import com.doozi.scorena.BetTransaction
+import com.doozi.scorena.PoolTransaction
 import com.doozi.scorena.BetResult
 import com.doozi.scorena.User
 
@@ -26,15 +27,40 @@ import grails.plugins.rest.client.RestBuilder
 import java.util.Date;
 
 
-//createGames()
-//createPastGames()
 
+bootstrapQuestionContent()
 createQuestions()
-//createUsers()
+createUsers()
 simulateBetUpcoming()
 simulateBetPast()
 
 println "create transactions ended"
+
+def bootstrapQuestionContent(){
+	def qc1 = new QuestionContent(questionType: QuestionContent.WHOWIN, content: "Who will win", sport: "soccer")
+	
+	String qc2Indicator = 2.5
+	String qc2Content = "will total score be more than "+qc2Indicator+" goals"
+	def qc2 = new QuestionContent(questionType: QuestionContent.SCOREGREATERTHAN, content: qc2Content, sport: "soccer", indicator1: qc2Indicator)
+	
+	if (qc1.save()){
+		System.out.println("game successfully saved")
+	}else{
+		System.out.println("game save failed")
+		qc1.errors.each{
+			println it
+		}
+	}
+	
+	if (qc2.save()){
+		System.out.println("game successfully saved")
+	}else{
+		System.out.println("game save failed")
+		qc2.errors.each{
+			println it
+		}
+	}
+}
 
 def createQuestions(){
 	println "create quesitons starts"
@@ -44,41 +70,45 @@ def createQuestions(){
 	
 	for (int i=0; i < upcomingGames.size(); i++){
 		def game = upcomingGames.get(i)
-		println "game id: "+game.id
-		if (Question.findByEventId(game.id) == null){
-			populateQuestions(game.away.teamname, game.home.teamname, game.id)
+		println "game id: "+game.gameId
+		if (Question.findByEventKey(game.gameId) == null){
+			populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
 		}
 	}
 	
 	for (int i=0; i < pastGames.size(); i++){
 		def game = pastGames.get(i)
-		println "game id: "+game.id
-		if (Question.findByEventId(game.id) == null){
-			populateQuestions(game.away.teamname, game.home.teamname, game.id)
+		println "game id: "+game.gameId
+		if (Question.findByEventKey(game.gameId) == null){
+			populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
 		}
 	}
 }
 
 def populateQuestions(String away, String home, String eventId){
 
-	def q1 = new Question(eventId: eventId, pick1: home, pick2: away, content:"who will win between the two",
-		pool: new Pool(minBet: 5))
-	def q2 = new Question(eventId: eventId, pick1: home, pick2: away, content:"who will score the first goal",
-		pool: new Pool(minBet: 5))	
-	if (q1.save()){
+	def q1 = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
+	def q2 = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
+	
+	def questionContent1 = QuestionContent.findByQuestionType("team-0")
+	def questionContent2 = QuestionContent.findByQuestionType("truefalse-0")
+	questionContent1.addToQuestion(q1)
+	questionContent2.addToQuestion(q2)
+	
+	if (questionContent1.save()){
 		System.out.println("game successfully saved")
 	}else{
 		System.out.println("game save failed")
-		q1.errors.each{
+		questionContent1.errors.each{
 			println it
 		}
 	}
 	
-	if (q2.save()){
+	if (questionContent2.save()){
 		System.out.println("game successfully saved")
 	}else{
 		System.out.println("game save failed")
-		q2.errors.each{
+		questionContent2.errors.each{
 			println it
 		}
 	}
@@ -102,11 +132,11 @@ def simulateBetUpcoming(){
 		def upcomingGame = upcomingGames.get(i)				
 		System.out.println("game away: "+upcomingGame.away.teamname + "   VS   game home: "+upcomingGame.home.teamname + "----- StartDate: "+upcomingGame.date)
 		
-		def questions = Question.findAllByEventId(upcomingGame.id)
+		def questions = Question.findAllByEventKey(upcomingGame.gameId)
 		
 		
 		for (Question q: questions){
-			System.out.println("question: "+q.content)
+			
 			def questionId = q.id
 			for (Account account: accounts){
 				
@@ -142,11 +172,11 @@ def simulateBetPast(){
 			def upcomingGame = upcomingGames.get(i)
 			System.out.println("game away: "+upcomingGame.away.teamname + "   VS   game home: "+upcomingGame.home.teamname + "----- StartDate: "+upcomingGame.date)
 			
-			def questions = Question.findAllByEventId(upcomingGame.id)
+			def questions = Question.findAllByEventKey(upcomingGame.gameId)
 			
 			
 			for (Question q: questions){
-				System.out.println("question: "+q.content)
+				
 				def questionId = q.id
 				Date _time = new Date() - (random.nextInt(6) + 10)
 				for (Account account: accounts){

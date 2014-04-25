@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.doozi.scorena.Account;
 import com.doozi.scorena.BetResult;
-import com.doozi.scorena.BetTransaction;
+import com.doozi.scorena.PoolTransaction;
 import com.doozi.scorena.Game;
 import com.doozi.scorena.Question;
 
@@ -17,10 +17,44 @@ class BetService {
 
 	def saveBetTrans(int _wager, Date _time, int _pick, String userId, long quesitonId) {
 		def account = Account.findByUserId(userId)
+		if (!account){
+			return [code:202, message: "the userId does not exsist"]
+		}
 		def question = Question.findById(quesitonId)
+		if (!question){
+			return [code:202, message: "the questionId does not exsist"]
+		}
 		return saveBetTrans(_wager, _time, _pick, account, question)
 		
 	}
+	
+	def savePayoutTrans(Account playerAccount, Question q, int payout, int winnerPick, int potAmoutToBePaid, int numPlayersToBePaid){
+		def potAmoutToBePaidAfter = potAmoutToBePaid - payout
+		def numPlayersToBePaidAfter = numPlayersToBePaid - 1
+		int result = 0
+		if (potAmoutToBePaidAfter < 0 || numPlayersToBePaidAfter < 0){
+			println "ERROR: Total payout amount is nagative"
+			result = -1
+		} 
+		
+		def bet = new PoolTransaction(transactionAmount: payout, transactionType:PoolTransaction.PAYOUT, createdAt: new Date(), pick: winnerPick, pick1Amount:potAmoutToBePaidAfter, pick1NumPeople:numPlayersToBePaidAfter,
+			pick2Amount:0, pick2NumPeople:0)
+		
+		playerAccount.addToBet(bet)
+		q.addToBet(bet)
+		
+		if (!playerAccount.save(failOnError:true)){
+			println "ERROR: payout transaction failed to be added to player account"
+		}
+		
+		if (!q.save(failOnError:true)){
+			println "ERROR: payout transaction failed to be added to question"
+			result = -1
+		}
+		
+		return result
+	}
+	
     def saveBetTrans(int playerWager, Date betCreatedAt, int playerPick, Account playerAccount, Question q) {
 		int pick1amount
 		int pick2amount 
@@ -28,10 +62,11 @@ class BetService {
 		int pick2num 
 		def lastBet
 		
-		def b = BetTransaction.find("from BetTransaction as b where b.question.id=? and b.account.id=?", q.id, playerAccount.id)
+		def b = PoolTransaction.find("from PoolTransaction as b where (b.question.id=? and b.account.id=? and b.transactionType=?)", q.id, playerAccount.id, PoolTransaction.BUYIN)
 		if (b){
 			System.out.println("---------------bet transaction already exists")
-			return 202
+			return [code:202, message: "the bet transaction already exsists"]
+			
 		}
 		
 		if (q.bet == null || q.bet.size() == 0){
@@ -65,7 +100,7 @@ class BetService {
 			}
 				
 		}	
-		def bet = new BetTransaction(wager: playerWager, createdAt: betCreatedAt, pick: playerPick, pick1Amount:pick1amount, pick1NumPeople:pick1num,
+		def bet = new PoolTransaction(transactionAmount: playerWager, transactionType:PoolTransaction.BUYIN, createdAt: betCreatedAt, pick: playerPick, pick1Amount:pick1amount, pick1NumPeople:pick1num,
 			pick2Amount:pick2amount, pick2NumPeople:pick2num)
 		
 		
@@ -79,25 +114,43 @@ class BetService {
 			System.out.println("---------------account successfully saved")
 		}else{
 			System.out.println("---------------account save failed")
-			return 202
+			return [code:202, message: "account data is not saved"]
 		}
 		
 		if (q.save(failOnError:true)){
 			System.out.println("---------------q successfully saved")			
 		}else{
 			System.out.println("---------------q save failed")
-			return 202
+			return [code:202, message: "Question data is not saved"]
 		}
 		
 
-		return 201
+		return [code:201]
     }
 	
-	def getLatestBetByQuestionId(String qId){
-		return BetTransaction.executeQuery("from BetTransaction WHERE id = (select max(id) from BetTransaction where question_id=?)", qId).get(0)		
+	def getLatestBetByQuestionId(def qId){
+		def lastBet = PoolTransaction.executeQuery("from PoolTransaction as b WHERE id = (select max(id) from b where question_id=? and b.transactionType=?)", [qId, 0]).get(0)
+		
+		if (!lastBet){
+			def lastUpdate=new Date()
+			lastBet = [pick1Amount:0,pick2Amount:0,pick1NumPeople:0,pick2NumPeople:0, lastUpdate:lastUpdate]
+		}
+		return lastBet		
 	}
 	
-	def findAllByQuestionIdAndUserId(def qId, def userId){
-		return BetTransaction.find("from BetTransaction as b where b.question.id=? and b.account.userId=?", qId, userId)
+	def getBetByQuestionIdAndUserId(def qId, def userId){
+		return PoolTransaction.find("from PoolTransaction as b where b.question.id=? and b.account.userId=? and b.transactionType=?", [qId, userId, 0])
+	}
+	
+	def listAllBets(def qId){
+		return PoolTransaction.findAll("from PoolTransaction as b where b.question.id=? and b.transactionType=?", [qId, 0])
+	}
+	
+	def listAllBetsByPick(def qId, def pick){
+		if (pick==0){
+			return listAllBets(qId)
+		}else{
+			return PoolTransaction.findAll("from PoolTransaction as b where b.question.id=? and b.pick=? and b.transactionType=?", [qId, pick, 0])
+		}
 	}
 }

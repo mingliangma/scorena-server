@@ -1,14 +1,22 @@
 package com.doozi.scorena
 
-class BetTransaction {
-	int wager
+
+//transacitonType:
+//		0: buy in
+//		1: payout
+class PoolTransaction {
+	int transactionAmount
+	int transactionType
 	Date createdAt
 	int pick
+	
 	int pick1Amount
 	int pick2Amount
 	int pick1NumPeople
 	int pick2NumPeople
 	
+	public static final int BUYIN = 0
+	public static final int PAYOUT = 1
 	
 	static hasOne = [betResult: BetResult]
 	static belongsTo = [question: Question, account: Account]

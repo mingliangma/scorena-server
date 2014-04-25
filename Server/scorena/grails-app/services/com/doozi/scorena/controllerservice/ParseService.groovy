@@ -20,7 +20,8 @@ class ParseService {
 	
 	def createUser(def rest, String _username, String _email, String _password, String _gender, String _region){
 		def parseConfig = grailsApplication.config.parse
-		
+		println parseConfig.parseApplicationId
+		println parseConfig.parseRestApiKey
 		def resp = rest.post("https://api.parse.com/1/users"){
 			header 	"X-Parse-Application-Id", parseConfig.parseApplicationId
 			header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey

@@ -4,7 +4,7 @@ class BetResult {
 	int betResult
 	int payOut
 	
-	static belongsTo = [bet: BetTransaction]
+	static belongsTo = [bet: PoolTransaction]
 	
     static constraints = {
     }

@@ -19,8 +19,7 @@ class AllEplView implements Serializable{
 		table 'all_epl_games'
 		version false
 		eventKey column : "event_key"
-		id composite: ['eventKey', 'teamKey']		
-		
+		id composite: ['eventKey', 'teamKey']				
 	}
     static constraints = {
     }

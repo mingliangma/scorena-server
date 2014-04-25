@@ -26,7 +26,7 @@ class BetController {
 		}else{
 			def today = new Date() 
 			def result = betService.saveBetTrans(request.JSON.wager.toInteger(), today,request.JSON.pick.toInteger(), sessionValidation.objectId, request.JSON.questionId.toInteger())
-			if (result==201){
+			if (result.code==201){
 				
 				def resp = [date:today]
 				response.status = 201
@@ -34,8 +34,8 @@ class BetController {
 			}else{
 				response.status =400
 				def resp = [
-					code: 202,
-					error: "the bet transaction did not go through"
+					code: result.code,
+					error: result.message
 					]
 				render resp as JSON
 			}

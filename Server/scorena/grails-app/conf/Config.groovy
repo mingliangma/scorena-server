@@ -96,13 +96,20 @@ environments {
 	
 	test{
 		grails.logging.jul.usebridge = true
-		parse.parseApplicationId='sxfzjYsgGiSXVwr7pj6vmaFR2f8ok9YGrnXGfx91'
-		parse.parseRestApiKey ='IQX6dOlw7KfsLmNw2tau0cGWsE4I3vBliCw67Ca3'
+//		parse.parseApplicationId=System.getProperty("PARAM1")
+//		parse.parseRestApiKey =System.getProperty("PARAM2")
+		
+//		scorena real data/scorenat-env 
+		parse.parseApplicationId='b2cfHtl3JqMwg7rKfkoGJ7sh6LluiZc8RdjWCeQY'
+		parse.parseRestApiKey ='k6ybcRnaDAdfUBbLkSBfqiesECFQinEr6D0Lx8dL'
+			
+//		parse.parseApplicationId='sxfzjYsgGiSXVwr7pj6vmaFR2f8ok9YGrnXGfx91'
+//		parse.parseRestApiKey ='IQX6dOlw7KfsLmNw2tau0cGWsE4I3vBliCw67Ca3'
 	}
     production {
         grails.logging.jul.usebridge = false
 		parse.parseApplicationId='VtsqlRrU7SRiQVdv9TOsdAo3fbFkv2XH7tIZjnYA'
-		parse.parseRestApiKey ='Yadg67u4HqrpydNNNTjXnLTG6DOgjBjhTnbhZ3u1'
+		parse.parseRestApiKey ='k6ybcRnaDAdfUBbLkSBfqiesECFQinEr6D0Lx8dL'
     }
 	
 	heng {

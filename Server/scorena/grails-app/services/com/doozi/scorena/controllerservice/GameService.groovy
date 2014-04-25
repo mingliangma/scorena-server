@@ -7,11 +7,11 @@ import grails.transaction.Transactional
 
 @Transactional
 class GameService {
-	def viewService
+	def sportsDataService
 	def questionService
-	
+	public static final String POSTEVENT = "post-event"
 	def listUpcomingGames(){
-		def upcomingGames = viewService.getUpcomingEplMatches()
+		def upcomingGames = sportsDataService.getUpcomingEplMatches()
 		return upcomingGames
 	}
 	
@@ -37,16 +37,16 @@ class GameService {
 	}
 	
 	def listPastGames(){
-		def pastGames = viewService.getPastEplMatches()		
+		def pastGames = sportsDataService.getPastEplMatches()		
 		return pastGames
 	}
 	
 	def listFeatureGames(userId){
-		def upcomingGames = viewService.getUpcomingEplMatches()
+		def upcomingGames = sportsDataService.getUpcomingEplMatches()
 		List featureGames =[]
 		for (int i = 0; i<3; i++){
 			def game = upcomingGames.get(i)
-			def questions = questionService.listQuestions(game.gameId, userId)
+			def questions = questionService.listQuestionsWithPoolInfo(game.gameId, userId)
 			def question = questions.get(0)
 			game.question = question
 			featureGames.add(game)
@@ -91,36 +91,36 @@ class GameService {
 //		return resultList
 //	}
 	
-	def getGame2(gameId){
-		def game = viewService.getEplMatch(gameId)
+	def getGame(gameId){
+		def game = sportsDataService.getEplMatch(gameId)
 		return game
 	}
 	
-	def getGame(gameId){
-		def match = Game.findById(gameId)
-		def gameEvent
-		if (match.gameEvent){
-			gameEvent = [
-						homeScore: match.gameEvent.homeScore,
-						awayScore: match.gameEvent.awayScore
-						]
-		}else{
-			gameEvent=[]
-		}
-		
-		def all = match.collect {Game game ->
-			[	id: game.id,
-				home: 	game.homeTeamNameFirst,
-				away: game.awayTeamNameFirst,
-				date: game.startDate,
-				league: game.league,
-				type: game.type,
-				event: gameEvent
-			]
-		  }
-		
-		return all
-	}
+//	def getGame(gameId){
+//		def match = Game.findById(gameId)
+//		def gameEvent
+//		if (match.gameEvent){
+//			gameEvent = [
+//						homeScore: match.gameEvent.homeScore,
+//						awayScore: match.gameEvent.awayScore
+//						]
+//		}else{
+//			gameEvent=[]
+//		}
+//		
+//		def all = match.collect {Game game ->
+//			[	id: game.id,
+//				home: 	game.homeTeamNameFirst,
+//				away: game.awayTeamNameFirst,
+//				date: game.startDate,
+//				league: game.league,
+//				type: game.type,
+//				event: gameEvent
+//			]
+//		  }
+//		
+//		return all
+//	}
 	
 	
 	def listUpcomingGamesAndQuestions() {
@@ -135,7 +135,7 @@ class GameService {
 				league: game.league,
 				question: game.question.collect{ Question q ->
 					[
-						content: q.content,
+						content: q.questionContent.content,
 						pick1: q.pick1,
 						pick2: q.pick2						
 						]

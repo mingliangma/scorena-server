@@ -1,6 +1,4 @@
-package com.doozi.scorena
-
-import com.doozi.scorena.PoolTransaction;
+package com.doozi.scorena.sportsdata
 
 import grails.test.mixin.TestFor
 import spock.lang.Specification
@@ -8,8 +6,8 @@ import spock.lang.Specification
 /**
  * See the API for {@link grails.test.mixin.domain.DomainClassUnitTestMixin} for usage instructions
  */
-@TestFor(PoolTransaction)
-class BetTransactionSpec extends Specification {
+@TestFor(ScorenaAllGames)
+class ScorenaAllGamesSpec extends Specification {
 
     def setup() {
     }

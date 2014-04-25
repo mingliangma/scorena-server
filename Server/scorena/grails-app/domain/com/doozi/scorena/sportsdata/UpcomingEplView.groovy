@@ -10,13 +10,14 @@ class UpcomingEplView implements Serializable{
 	String alignment
 	Date startDateTime
 	Date lastUpdate
+	String score
 	
     static constraints = {
     }
 	
 	static mapping = {
 		datasource 'sportsData'
-		table 'upcoming_7_epl'
+		table 'upcoming_realtime_epl'
 		version false		
 		eventKey column : "event_key"
 		id composite: ['eventKey', 'teamKey']
