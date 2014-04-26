@@ -41,12 +41,22 @@ class GameController {
 
 	
 	def getUpcomingGames(){
-		def upcomingGames = gameService.listUpcomingGames()
+		def upcomingGames
+		if (params.userId){
+			upcomingGames = gameService.listUpcomingGames(params.userId)
+		}else{
+			upcomingGames = gameService.listUpcomingGames()
+		}
 		render upcomingGames as JSON
 	}
 	
 	def getPastGames(){
-		def upcomingGames = gameService.listPastGames()
+		def upcomingGames
+		if (params.userId){
+			upcomingGames = gameService.listPastGames(params.userId)
+		}else{
+			 upcomingGames = gameService.listPastGames()
+		}
 		render upcomingGames as JSON
 	}
 	

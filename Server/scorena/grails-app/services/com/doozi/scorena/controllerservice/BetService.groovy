@@ -15,18 +15,7 @@ import grails.transaction.Transactional
 @Transactional
 class BetService {
 
-	def saveBetTrans(int _wager, Date _time, int _pick, String userId, long quesitonId) {
-		def account = Account.findByUserId(userId)
-		if (!account){
-			return [code:202, message: "the userId does not exsist"]
-		}
-		def question = Question.findById(quesitonId)
-		if (!question){
-			return [code:202, message: "the questionId does not exsist"]
-		}
-		return saveBetTrans(_wager, _time, _pick, account, question)
-		
-	}
+
 	
 	def savePayoutTrans(Account playerAccount, Question q, int payout, int winnerPick, int potAmoutToBePaid, int numPlayersToBePaid, int wager){
 		def potAmoutToBePaidAfter = potAmoutToBePaid - payout
@@ -40,7 +29,7 @@ class BetService {
 //		def createdAt = new Date() - (random.nextInt(8) + 3)
 		
 		def bet = new PoolTransaction(transactionAmount: payout, transactionType:PoolTransaction.PAYOUT, createdAt: new Date(), pick: winnerPick, pick1Amount:potAmoutToBePaidAfter, pick1NumPeople:numPlayersToBePaidAfter,
-			pick2Amount:wager, pick2NumPeople:0)
+			pick2Amount:wager, pick2NumPeople:0, eventKey: eventKey)
 		
 //		def bet = new PoolTransaction(transactionAmount: payout, transactionType:PoolTransaction.PAYOUT, createdAt: createdAt, pick: winnerPick, pick1Amount:potAmoutToBePaidAfter, pick1NumPeople:numPlayersToBePaidAfter,
 //			pick2Amount:wager, pick2NumPeople:0)
@@ -58,6 +47,19 @@ class BetService {
 		}
 		
 		return result
+	}
+	
+	def saveBetTrans(int _wager, Date _time, int _pick, String userId, long quesitonId) {
+		def account = Account.findByUserId(userId)
+		if (!account){
+			return [code:202, message: "the userId does not exsist"]
+		}
+		def question = Question.findById(quesitonId)
+		if (!question){
+			return [code:202, message: "the questionId does not exsist"]
+		}
+		return saveBetTrans(_wager, _time, _pick, account, question)
+		
 	}
 	
     def saveBetTrans(int playerWager, Date betCreatedAt, int playerPick, Account playerAccount, Question q) {
@@ -105,7 +107,7 @@ class BetService {
 				
 		}	
 		def bet = new PoolTransaction(transactionAmount: playerWager, transactionType:PoolTransaction.BUYIN, createdAt: betCreatedAt, pick: playerPick, pick1Amount:pick1amount, pick1NumPeople:pick1num,
-			pick2Amount:pick2amount, pick2NumPeople:pick2num)
+			pick2Amount:pick2amount, pick2NumPeople:pick2num, eventKey: q.eventKey)
 		
 		
 		playerAccount.addToBet(bet)
@@ -176,4 +178,9 @@ class BetService {
 			return PoolTransaction.findAll("from PoolTransaction as b where b.question.id=? and b.pick=? and b.transactionType=?", [qId, pick, 0])
 		}
 	}
+	
+	def listDistinctBetEventKeyByUserId(def userId){
+		return PoolTransaction.executeQuery("SELECT DISTINCT eventKey from PoolTransaction as b where b.account.userId=? and b.transactionType=?", [userId, 0])
+	}
+
 }

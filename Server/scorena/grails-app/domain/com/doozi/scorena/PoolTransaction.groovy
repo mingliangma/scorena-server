@@ -14,6 +14,7 @@ class PoolTransaction {
 	int pick2Amount
 	int pick1NumPeople
 	int pick2NumPeople
+	String eventKey
 	
 	public static final int BUYIN = 0
 	public static final int PAYOUT = 1

@@ -9,9 +9,28 @@ import grails.transaction.Transactional
 class GameService {
 	def sportsDataService
 	def questionService
+	def betService
+	
 	public static final String POSTEVENT = "post-event"
 	def listUpcomingGames(){
 		def upcomingGames = sportsDataService.getUpcomingEplMatches()
+		return upcomingGames
+	}
+	
+	def listUpcomingGames(def userId){
+		List upcomingGames = sportsDataService.getUpcomingEplMatches()		
+		def playedGames = betService.listDistinctBetEventKeyByUserId(userId)
+		println "asdfasdf"
+		for (def upcomingGame: upcomingGames){
+			def gameId = upcomingGame.gameId
+			upcomingGame.placedBet = false
+			for (def eventKey: playedGames){
+				if (gameId == eventKey){
+					println "true"
+					upcomingGame.placedBet = true
+				}
+			}
+		}
 		return upcomingGames
 	}
 	
@@ -38,6 +57,23 @@ class GameService {
 	
 	def listPastGames(){
 		def pastGames = sportsDataService.getPastEplMatches()		
+		return pastGames
+	}
+	
+	def listPastGames(def userId){
+		List pastGames = sportsDataService.getPastEplMatches()
+		def playedGames = betService.listDistinctBetEventKeyByUserId(userId)
+
+		for (def pastGame: pastGames){
+			def gameId = pastGame.gameId
+			pastGame.placedBet = false
+			for (def eventKey: playedGames){
+				if (gameId == eventKey){
+					println "true"
+					pastGame.placedBet = true
+				}
+			}
+		}
 		return pastGames
 	}
 	
