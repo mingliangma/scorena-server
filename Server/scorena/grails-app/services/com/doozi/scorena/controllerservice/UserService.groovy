@@ -55,15 +55,14 @@ class UserService {
 			]
 			return result			
 		}
-		
-		
+				
 		println "user profile and account created successfully"
 		def result = [			
 			createdAt:resp.json.createdAt,
 			username:_username,
 			currentBalance:INITIAL_BALANCE,
 			sessionToken:resp.json.sessionToken,
-			objectId: resp.json.objectId,
+			userId: resp.json.objectId,
 			createdAt: resp.json.createdAt,
 			email: _email,
 			gender: gender,
@@ -75,7 +74,26 @@ class UserService {
 	def login(String username, String password){
 		def rest = new RestBuilder()
 		def resp = parseService.loginUser(rest, username, password)
-		return resp.json
+		if (resp.json.code)
+			return resp.json
+		
+		def account = Account.findByUserId(resp.json.objectId)
+		
+		if (!account){
+			return [code:500, error:"user account does not exist"]			
+		}
+		def result = [
+			createdAt:resp.json.createdAt,
+			username:resp.json.username,
+			currentBalance:account.currentBalance,
+			sessionToken:resp.json.sessionToken,
+			userId: resp.json.objectId,
+			createdAt: resp.json.createdAt,
+			email: resp.json.email,
+			gender: resp.json.gender,
+			region: resp.json.region
+		]
+		return result
 	}
 	
 	def validateSession (def sessionToken){
