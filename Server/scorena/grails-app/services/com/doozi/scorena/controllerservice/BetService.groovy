@@ -29,7 +29,7 @@ class BetService {
 //		def createdAt = new Date() - (random.nextInt(8) + 3)
 		
 		def bet = new PoolTransaction(transactionAmount: payout, transactionType:PoolTransaction.PAYOUT, createdAt: new Date(), pick: winnerPick, pick1Amount:potAmoutToBePaidAfter, pick1NumPeople:numPlayersToBePaidAfter,
-			pick2Amount:wager, pick2NumPeople:0, eventKey: eventKey)
+			pick2Amount:wager, pick2NumPeople:0, eventKey: q.eventKey)
 		
 //		def bet = new PoolTransaction(transactionAmount: payout, transactionType:PoolTransaction.PAYOUT, createdAt: createdAt, pick: winnerPick, pick1Amount:potAmoutToBePaidAfter, pick1NumPeople:numPlayersToBePaidAfter,
 //			pick2Amount:wager, pick2NumPeople:0)
