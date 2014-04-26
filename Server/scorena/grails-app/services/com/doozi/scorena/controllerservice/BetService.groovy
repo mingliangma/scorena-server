@@ -28,7 +28,7 @@ class BetService {
 		
 	}
 	
-	def savePayoutTrans(Account playerAccount, Question q, int payout, int winnerPick, int potAmoutToBePaid, int numPlayersToBePaid){
+	def savePayoutTrans(Account playerAccount, Question q, int payout, int winnerPick, int potAmoutToBePaid, int numPlayersToBePaid, int wager){
 		def potAmoutToBePaidAfter = potAmoutToBePaid - payout
 		def numPlayersToBePaidAfter = numPlayersToBePaid - 1
 		int result = 0
@@ -36,9 +36,14 @@ class BetService {
 			println "ERROR: Total payout amount is nagative"
 			result = -1
 		} 
+//		Random random = new Random()
+//		def createdAt = new Date() - (random.nextInt(8) + 3)
 		
 		def bet = new PoolTransaction(transactionAmount: payout, transactionType:PoolTransaction.PAYOUT, createdAt: new Date(), pick: winnerPick, pick1Amount:potAmoutToBePaidAfter, pick1NumPeople:numPlayersToBePaidAfter,
-			pick2Amount:0, pick2NumPeople:0)
+			pick2Amount:wager, pick2NumPeople:0)
+		
+//		def bet = new PoolTransaction(transactionAmount: payout, transactionType:PoolTransaction.PAYOUT, createdAt: createdAt, pick: winnerPick, pick1Amount:potAmoutToBePaidAfter, pick1NumPeople:numPlayersToBePaidAfter,
+//			pick2Amount:wager, pick2NumPeople:0)
 		
 		playerAccount.addToBet(bet)
 		q.addToBet(bet)
@@ -64,7 +69,6 @@ class BetService {
 		
 		def b = PoolTransaction.find("from PoolTransaction as b where (b.question.id=? and b.account.id=? and b.transactionType=?)", q.id, playerAccount.id, PoolTransaction.BUYIN)
 		if (b){
-			System.out.println("---------------bet transaction already exists")
 			return [code:202, message: "the bet transaction already exsists"]
 			
 		}
@@ -129,13 +133,32 @@ class BetService {
     }
 	
 	def getLatestBetByQuestionId(def qId){
-		def lastBet = PoolTransaction.executeQuery("from PoolTransaction as b WHERE id = (select max(id) from b where question_id=? and b.transactionType=?)", [qId, 0]).get(0)
+		def lastBets = PoolTransaction.findAll("from PoolTransaction as b WHERE id = (select max(id) from b where question_id=? and b.transactionType=?)", [qId, 0])
 		
-		if (!lastBet){
+		if (lastBets.size()==0){
+		
 			def lastUpdate=new Date()
-			lastBet = [pick1Amount:0,pick2Amount:0,pick1NumPeople:0,pick2NumPeople:0, lastUpdate:lastUpdate]
+			return [pick1Amount:0,pick2Amount:0,pick1NumPeople:0,pick2NumPeople:0, lastUpdate:lastUpdate]
 		}
-		return lastBet		
+				
+		return lastBets.get(0)
+				
+	}
+	def listPayoutTransByUserId(def userId){
+		return listPayoutTransByUserId(userId, 0)
+	}
+	
+	//periodOption:
+	//	0=all
+	//	1=monthly
+	//	2=weekly
+	def listPayoutTransByUserId(def userId, def periodOption){
+		if (periodOption==0)
+			return PoolTransaction.findAll("from PoolTransaction as b where b.account.userId=? and b.transactionType=?", [userId, 1])
+		if (periodOption==1)
+			return PoolTransaction.findAll("from PoolTransaction as b where b.account.userId=? and b.transactionType=? and (date between DATE_FORMAT(NOW() ,'%Y-%m-01') AND NOW())", [userId, 1])
+		if (periodOption==2)
+			return PoolTransaction.findAll("from PoolTransaction as b where b.account.userId=? and b.transactionType=? and (date between subdate(now(), INTERVAL weekday(now()) DAY) AND NOW())", [userId, 1])
 	}
 	
 	def getBetByQuestionIdAndUserId(def qId, def userId){

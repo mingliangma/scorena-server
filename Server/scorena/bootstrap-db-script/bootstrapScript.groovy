@@ -68,6 +68,9 @@ def createQuestions(){
 	List upcomingGames = gameService.listUpcomingGames()
 	List pastGames = gameService.listPastGames()
 	
+	println "upcomingGames: "+upcomingGames.size()
+	println "pastGames: "+pastGames.size()
+	
 	for (int i=0; i < upcomingGames.size(); i++){
 		def game = upcomingGames.get(i)
 		println "game id: "+game.gameId
@@ -139,7 +142,9 @@ def simulateBetUpcoming(){
 			
 			def questionId = q.id
 			for (Account account: accounts){
-				
+				if (random.nextInt(3) == 1){
+					continue
+				}
 				System.out.println("user name: "+account.username)
 				int _wager =  (random.nextInt(6)+1)*5
 				Date _time = new Date()
@@ -176,10 +181,15 @@ def simulateBetPast(){
 			
 			
 			for (Question q: questions){
-				
+				if (random.nextInt(3) == 1){
+					continue
+				}
 				def questionId = q.id
-				Date _time = new Date() - (random.nextInt(6) + 10)
+				Date _time = new Date() - (random.nextInt(6) + 18)
 				for (Account account: accounts){
+					if (random.nextInt(3) == 1){
+						continue
+					}
 					
 					System.out.println("user name: "+account.username)
 					int _wager =  (random.nextInt(6)+1)*5
@@ -412,67 +422,67 @@ def createUsers(){
 	
 	String _displayName  = "michealLiu1"
 	String _email = "micheal1@gmail.com"
-	String _password = "11111111"
+	String _password = "12345"
 	String _gender = "male"
 	String _region = "Japan"
 	
 	createUser(_displayName, _email, _password, _gender, _region)
 	
-	 _displayName  = "Joey"
+	 _displayName  = "joey"
 	 _email = "joey@gmail.com"
-	 _password = "11111111"
+	 _password = "12345"
 	_gender = "male"
 	_region = "Toronto"
 	 
 	 createUser(_displayName, _email, _password, _gender, _region)
 	
-	 _displayName  = "Ming"
+	 _displayName  = "ming"
 	 _email = "ming@gmail.com"
-	 _password = "11111111"
+	 _password = "12345"
 	_gender = "male"
 	 _region = "Toronto"
 	 
 	 createUser(_displayName, _email, _password, _gender, _region)
 
 	
-	 _displayName  = "Kyle"
+	 _displayName  = "kyle"
 	 _email = "kyle@gmail.com"
-	 _password = "11111111"
+	 _password = "12345"
 	 _gender = "male"
 	 _region = "Toronto"
 	 
 	 createUser(_displayName, _email, _password, _gender, _region)
 	
-	 _displayName  = "Heng"
+	 _displayName  = "heng"
 	 _email = "heng@gmail.com"
-	 _password = "11111111"
+	 _password = "12345"
 	
 	 _gender = "female"
 	 _region = "Vancouver"
 	 
 	 createUser(_displayName, _email, _password, _gender, _region)
 	
-	_displayName  = "Heng1"
+	_displayName  = "heng1"
 	_email = "heng1@gmail.com"
-	_password = "11111111"
+	_password = "12345"
 	
 	_gender = "female"
 	_region = "Toronto"
 	
 	createUser(_displayName, _email, _password, _gender, _region)
 	
-	_displayName  = "Heng2"
+	_displayName  = "heng2"
 	_email = "heng2@gmail.com"
-	_password = "11111111"
+	_password = "12345"
 	
 	_gender = "male"
 	_region = "Montreal"
 	 
 	 createUser(_displayName, _email, _password, _gender, _region)
 	
-	_displayName  = "Heng3"
+	_displayName  = "heng3"
 	_email = "heng3@gmail.com"
-	_password = "11111111"
+	_password = "12345"
 	
 	_gender = "female"
 	_region = "Toronto"
@@ -481,13 +491,58 @@ def createUsers(){
 	
 	_displayName  = "Heng4"
 	_email = "heng4@gmail.com"
-	_password = "11111111"
+	_password = "12345"
 	
 	 _gender = "female"
 	 _region = "Montreal"
 	
 	createUser(_displayName, _email, _password, _gender, _region)
 	
+	_displayName  = "scorena1"
+	_email = "scorena1@gmail.com"
+	_password = "12345"
+	
+	 _gender = "female"
+	 _region = "Montreal"
+	
+	createUser(_displayName, _email, _password, _gender, _region)
+
+	_displayName  = "scorena2"
+	_email = "scorena2@gmail.com"
+	_password = "12345"
+	
+	 _gender = "female"
+	 _region = "Montreal"
+	
+	createUser(_displayName, _email, _password, _gender, _region)
+	
+	_displayName  = "scorena3"
+	_email = "scorena3@gmail.com"
+	_password = "12345"
+	
+	 _gender = "female"
+	 _region = "Montreal"
+	
+	createUser(_displayName, _email, _password, _gender, _region)
+	
+	_displayName  = "scorena4"
+	_email = "scorena4@gmail.com"
+	_password = "12345"
+	
+	 _gender = "female"
+	 _region = "Montreal"
+	
+	createUser(_displayName, _email, _password, _gender, _region)
+	
+	_displayName  = "scorena5"
+	_email = "scorena5@gmail.com"
+	_password = "12345"
+	
+	 _gender = "female"
+	 _region = "Montreal"
+	
+	createUser(_displayName, _email, _password, _gender, _region)
+		
 	println "create users ended"
 }
 

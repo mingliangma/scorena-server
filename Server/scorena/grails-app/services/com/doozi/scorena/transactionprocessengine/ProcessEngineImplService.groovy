@@ -45,7 +45,8 @@ class ProcessEngineImplService {
 				return
 			}
 			
-			PoolTransaction lastTransaction = betService.getLatestBetByQuestionId(q.id.toString())
+			def lastTransaction = betService.getLatestBetByQuestionId(q.id.toString())
+						
 			
 			def denominatorPick1Mult = lastTransaction.pick1Amount
 			def denominatorPick2Mult = lastTransaction.pick2Amount
@@ -68,20 +69,21 @@ class ProcessEngineImplService {
 			int potAmoutToBePaid = lastTransaction.pick1Amount + lastTransaction.pick2Amount
 			int numPlayersToBePaid = lastTransaction.pick1NumPeople + lastTransaction.pick2NumPeople
 			
-			betTransactions = betService.listAllBetsByPick(q.id, winnerPick)
+			betTransactions = betService.listAllBets(q.id)
 			
 			int totalWager = 0
 			int totalpayout = 0
 
 			for (PoolTransaction bet: betTransactions){
 				Account account = bet.account
-				int payout =  Math.floor(bet.transactionAmount*payoutMultipleOfWager)
+				int payout = 0
+				if (winnerPick == 0 || bet.pick == winnerPick)
+					payout =  Math.floor(bet.transactionAmount*payoutMultipleOfWager)
+					
 				def newBalance = account.currentBalance + payout
-				
-				println "----------------user Id="+account.userId+ " wager="+bet.transactionAmount+" payout="+payout+" unfloor payout="	+bet.transactionAmount*payoutMultipleOfWager+ " new balance="+newBalance
-				
+
 				account.currentBalance = newBalance
-				def code = betService.savePayoutTrans(account,q, payout, winnerPick, potAmoutToBePaid, numPlayersToBePaid)
+				def code = betService.savePayoutTrans(account,q, payout, winnerPick, potAmoutToBePaid, numPlayersToBePaid, bet.transactionAmount)
 				if (code==-1){
 					processSuccess=false
 				}
