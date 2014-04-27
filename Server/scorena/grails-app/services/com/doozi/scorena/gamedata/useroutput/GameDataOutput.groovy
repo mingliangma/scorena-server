@@ -11,7 +11,7 @@ import java.util.LinkedHashMap;
  */
 public class GameDataOutput {
 
-	private LinkedHashMap<String, GameDataTeam> _teamList = new LinkedHashMap<String, GameDataTeam>();
+	private LinkedHashMap<String, GameDataTeamXmlSoccer> _teamListXmlSoccer = new LinkedHashMap<String, GameDataTeamXmlSoccer>();
 	private String _originalGameData;
 	
 	public GameDataOutput(String originalGameData)
@@ -22,23 +22,23 @@ public class GameDataOutput {
 	/**
 	 * 
 	 */
-	public GameDataOutput(LinkedHashMap<String, GameDataTeam> teamList) 
+	public GameDataOutput(LinkedHashMap<String, GameDataTeamXmlSoccer> teamList) 
 	{
 		_teamList = teamList;
 	}
 
 	/**
-	 * @return the _teamList
+	 * @return the _teamListXmlSoccer
 	 */
-	public LinkedHashMap<String, GameDataTeam> get_teamList() {
-		return _teamList;
+	public LinkedHashMap<String, GameDataTeamXmlSoccer> get_teamListXmlSoccer() {
+		return _teamListXmlSoccer;
 	}
 
 	/**
-	 * @param _teamList the _teamList to set
+	 * @param _teamListXmlSoccer the _teamListXmlSoccer to set
 	 */
-	public void set_teamList(LinkedHashMap<String, GameDataTeam> _teamList) {
-		this._teamList = _teamList;
+	public void set_teamListXmlSoccer(LinkedHashMap<String, GameDataTeamXmlSoccer> _teamListXmlSoccer) {
+		this._teamListXmlSoccer = _teamListXmlSoccer;
 	}
 
 	/**

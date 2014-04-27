@@ -7,7 +7,7 @@ package com.doozi.scorena.gamedata.useroutput;
  * @author hengkuang
  *
  */
-public class GameDataTeam {
+public class GameDataTeamXmlSoccer {
 
 	private String _teamType;
 	private String _ranking;
@@ -20,7 +20,7 @@ public class GameDataTeam {
 	private String _draw;
 	private String _lost;
 	private String _points;
-	private GameDataSoccer _gameDataSoccer;
+	private GameDataSoccerXmlSoccer _gameDataSoccer;
 	
 	/**
 	 * @return the _teamType
@@ -179,14 +179,14 @@ public class GameDataTeam {
 	/**
 	 * @return the _gameDataSoccer
 	 */
-	public GameDataSoccer get_gameDataSoccer() {
+	public GameDataSoccerXmlSoccer get_gameDataSoccer() {
 		return _gameDataSoccer;
 	}
 	
 	/**
 	 * @param _gameDataSoccer the _gameDataSoccer to set
 	 */
-	public void set_gameDataSoccer(GameDataSoccer _gameDataSoccer) {
+	public void set_gameDataSoccer(GameDataSoccerXmlSoccer _gameDataSoccer) {
 		this._gameDataSoccer = _gameDataSoccer;
 	}
 }

@@ -1,6 +1,6 @@
 package com.doozi.scorena.gamedata.useroutput;
 
-public class GameDataEvent {
+public class GameDataEventXmlTeam {
 	
 	private String gameEventId;
 	private String startDate;

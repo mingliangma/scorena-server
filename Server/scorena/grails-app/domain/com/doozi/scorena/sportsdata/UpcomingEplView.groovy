@@ -12,15 +12,14 @@ class UpcomingEplView implements Serializable{
 	Date lastUpdate
 	String score
 	
-    static constraints = {
-    }
+    static constraints = {}
 	
-	static mapping = {
+	static mapping = 
+	{
 		datasource 'sportsData'
 		table 'upcoming_realtime_epl'
 		version false		
 		eventKey column : "event_key"
 		id composite: ['eventKey', 'teamKey']
-		
 	}
 }
