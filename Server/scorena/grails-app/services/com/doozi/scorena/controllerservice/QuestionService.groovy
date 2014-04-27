@@ -109,7 +109,7 @@ class QuestionService {
 			return getPostEventQuestion(q, userId)
 		}else{
 			
-			return getPreEventQuestion(q)
+			return getPreEventQuestion(q, userId)
 		}
 		
 		
@@ -208,7 +208,8 @@ class QuestionService {
 		return result
 	}
 	
-	private def getPreEventQuestion(Question q){
+	private def getPreEventQuestion(Question q, def userId){
+		DecimalFormat df = new DecimalFormat("###.##")
 		
 		PoolTransaction lastBet = betService.getLatestBetByQuestionId(q.id)
 		PoolTransaction userBet = betService.getBetByQuestionIdAndUserId(q.id, userId)
@@ -239,6 +240,15 @@ class QuestionService {
 			userPick=userBet.pick
 		}
 		
+		
+		def currentOddsPick1=1
+		def currentOddsPick2=1
+		if (lastBet.pick1Amount > lastBet.pick2Amount){
+			currentOddsPick1=(lastBet.pick1Amount/lastBet.pick2Amount)
+		}else if (lastBet.pick1Amount < lastBet.pick2Amount){
+			currentOddsPick2 = lastBet.pick2Amount/lastBet.pick1Amount
+		}
+		
 		def result = [
 			questionId: q.id,
 			content: q.questionContent.content,
@@ -254,6 +264,8 @@ class QuestionService {
 				pick2Amount:lastBet.pick2Amount,
 				pick2NumPeople: lastBet.pick2NumPeople,
 				pick2PayoutPercent: pick2PayoutPercentage,
+				currentOddsPick1:df.format(currentOddsPick1).toDouble(),
+				currentOddsPick2:df.format(currentOddsPick2).toDouble(),
 			],
 			betters: getBetters(q.id, pick1PayoutMultiple, pick2PayoutMultiple)
 		]
