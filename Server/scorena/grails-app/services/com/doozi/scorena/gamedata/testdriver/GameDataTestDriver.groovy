@@ -7,8 +7,8 @@ import com.doozi.scorena.gamedata.helper.GameDataConstantsXmlSoccer;
 import com.doozi.scorena.gamedata.manager.GameDataAdapter;
 import com.doozi.scorena.gamedata.userinput.GameDataInputXmlSoccer;
 import com.doozi.scorena.gamedata.useroutput.GameDataOutput;
-import com.doozi.scorena.gamedata.useroutput.GameDataSoccer;
-import com.doozi.scorena.gamedata.useroutput.GameDataTeam;
+import com.doozi.scorena.gamedata.useroutput.GameDataSoccerXmlSoccer;
+import com.doozi.scorena.gamedata.useroutput.GameDataTeamXmlSoccer;
 
 /**
  * @author hengkuang
@@ -37,29 +37,29 @@ public class GameDataTestDriver {
 	
 	public static void printTeamStandingXmlSoccer(GameDataOutput gameDataOutput)
 	{
-		for (GameDataTeam gameDataTeam : gameDataOutput.get_teamList().values())
+		for (GameDataTeamXmlSoccer gameDataTeamXmlSoccer : gameDataOutput.get_teamListXmlSoccer().values())
 		{
 			System.out.println("************************************");
-			System.out.println("Ranking: " + gameDataTeam.get_ranking());
-			System.out.println("Team ID: " + gameDataTeam.get_teamId());
-			System.out.println("Team Name: " + gameDataTeam.get_teamName());
-			System.out.println("Played: " + gameDataTeam.get_played());
-			System.out.println("Played At Home: " + gameDataTeam.get_playedAtHome());
-			System.out.println("Played Away: " + gameDataTeam.get_playedAway());
-			System.out.println("Won: " + gameDataTeam.get_won());
-			System.out.println("Draw: " + gameDataTeam.get_draw());
-			System.out.println("Lost: " + gameDataTeam.get_lost());
-			System.out.println("Points: " + gameDataTeam.get_points());
+			System.out.println("Ranking: " + gameDataTeamXmlSoccer.get_ranking());
+			System.out.println("Team ID: " + gameDataTeamXmlSoccer.get_teamId());
+			System.out.println("Team Name: " + gameDataTeamXmlSoccer.get_teamName());
+			System.out.println("Played: " + gameDataTeamXmlSoccer.get_played());
+			System.out.println("Played At Home: " + gameDataTeamXmlSoccer.get_playedAtHome());
+			System.out.println("Played Away: " + gameDataTeamXmlSoccer.get_playedAway());
+			System.out.println("Won: " + gameDataTeamXmlSoccer.get_won());
+			System.out.println("Draw: " + gameDataTeamXmlSoccer.get_draw());
+			System.out.println("Lost: " + gameDataTeamXmlSoccer.get_lost());
+			System.out.println("Points: " + gameDataTeamXmlSoccer.get_points());
 			
-			if (gameDataTeam.get_teamType().equalsIgnoreCase(GameDataConstantsXmlSoccer.gameType_Soccer))
+			if (gameDataTeamXmlSoccer.get_teamType().equalsIgnoreCase(GameDataConstantsXmlSoccer.gameType_Soccer))
 			{
-				GameDataSoccer gameDataSoccer = gameDataTeam.get_gameDataSoccer();
-				System.out.println("Number of Shots: " + gameDataSoccer.get_numberOfShots());
-				System.out.println("Yellow Cards: " + gameDataSoccer.get_yellowCards());
-				System.out.println("Red Cards: " + gameDataSoccer.get_redCards());
-				System.out.println("Goals For: " + gameDataSoccer.get_goalsFor());
-				System.out.println("Goals Against: " + gameDataSoccer.get_goalsAgainst());
-				System.out.println("Goal Difference: " + gameDataSoccer.get_goalDifference());
+				GameDataSoccerXmlSoccer gameDataSoccerXmlSoccer = gameDataTeamXmlSoccer.get_gameDataSoccer();
+				System.out.println("Number of Shots: " + gameDataSoccerXmlSoccer.get_numberOfShots());
+				System.out.println("Yellow Cards: " + gameDataSoccerXmlSoccer.get_yellowCards());
+				System.out.println("Red Cards: " + gameDataSoccerXmlSoccer.get_redCards());
+				System.out.println("Goals For: " + gameDataSoccerXmlSoccer.get_goalsFor());
+				System.out.println("Goals Against: " + gameDataSoccerXmlSoccer.get_goalsAgainst());
+				System.out.println("Goal Difference: " + gameDataSoccerXmlSoccer.get_goalDifference());
 			}
 		}
 	}

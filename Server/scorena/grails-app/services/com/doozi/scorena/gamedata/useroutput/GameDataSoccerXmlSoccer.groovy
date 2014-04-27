@@ -7,7 +7,7 @@ package com.doozi.scorena.gamedata.useroutput;
  * @author hengkuang
  *
  */
-public class GameDataSoccer {
+public class GameDataSoccerXmlSoccer {
 
 	private String _numberOfShots;
 	private String _yellowCards;

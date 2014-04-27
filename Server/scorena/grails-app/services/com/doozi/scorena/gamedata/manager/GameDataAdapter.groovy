@@ -52,5 +52,11 @@ public class GameDataAdapter implements IGameDataAdapter {
 			return null;
 		}
 	}
+	
+	public GameDataOutput getUpcomingEplMatches()
+	{
+		System.out.println("got it");
+		return null;
+	}
 
 }

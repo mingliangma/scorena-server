@@ -1,6 +1,7 @@
 package com.doozi.scorena.sportsdata
 
-class UpcomingEplView {
+class UpcomingEplView 
+{
 	String eventKey	
 	String fullName
 	String teamKey
@@ -9,15 +10,14 @@ class UpcomingEplView {
 	Date startDateTime
 	Date lastUpdate
 	
-    static constraints = {
-    }
+    static constraints = {}
 	
-	static mapping = {
+	static mapping = 
+	{
 		datasource 'sportsData'
 		table 'upcoming_7_epl'
 		version false		
 		eventKey column : "event_key"
 		id generator: 'assigned', name: 'eventKey'
-		
 	}
 }

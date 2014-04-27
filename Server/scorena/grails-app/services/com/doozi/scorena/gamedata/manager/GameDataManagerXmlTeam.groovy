@@ -20,7 +20,7 @@ import org.xml.sax.InputSource;
 
 import com.doozi.scorena.gamedata.helper.GameDataConstantsXmlTeam;
 import com.doozi.scorena.gamedata.userinput.GameDataInputXmlTeam;
-import com.doozi.scorena.gamedata.useroutput.GameDataEvent;
+import com.doozi.scorena.gamedata.useroutput.GameDataEventXmlTeam;
 import com.doozi.scorena.gamedata.useroutput.GameDataOutput;
 
 /**
@@ -94,7 +94,7 @@ public class GameDataManagerXmlTeam implements IGameDataManager {
 		{
 			Node eventNode = sportsEvents.item(i);
 			Element eventElement = (Element) eventNode;
-			GameDataEvent gameDataEvent = new GameDataEvent();
+			GameDataEventXmlTeam gameDataEventXmlTeam = new GameDataEventXmlTeam();
 			
 			Node eventMetadata = 
 					eventElement.getElementsByTagName(GameDataConstantsXmlTeam.xmlTag_EventMetadata).item(0);
@@ -102,7 +102,7 @@ public class GameDataManagerXmlTeam implements IGameDataManager {
 			if (eventMetadata.hasAttributes())
 			{
 				NamedNodeMap metadataAttr = eventMetadata.getAttributes();
-				gameDataEvent.setGameEventId(metadataAttr.getNamedItem("event-key").getNodeValue());
+				gameDataEventXmlTeam.setGameEventId(metadataAttr.getNamedItem("event-key").getNodeValue());
 			}
 		}
 		
