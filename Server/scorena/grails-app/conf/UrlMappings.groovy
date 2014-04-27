@@ -59,6 +59,10 @@ class UrlMappings {
 			action = [POST:"placeBet"]
 		}
 		
+		"/v1/sports/ranking"(controller:"user"){
+			action = [GET:"getRanking"]
+		}
+		
 		"/v1/sports/processgame"(controller:"game"){
 			action = [GET:"processGameTesting"]
 		}

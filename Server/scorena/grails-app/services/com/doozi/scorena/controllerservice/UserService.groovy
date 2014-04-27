@@ -24,6 +24,37 @@ class UserService {
 	def grailsApplication
 	def parseService
 	def betService
+	
+	def processRankingData(Account user, int rank){		
+		return [username: user.username, gain: user.currentBalance, rank: rank]
+	}
+	
+	def getRanking(userId){
+		def userAccount = Account.findByUserId(userId)
+		def userBalance = userAccount.currentBalance
+		
+		def higherRankingList = Account.findAll("from Account as a where a.currentBalance > ? order by a.currentBalance", [userBalance])
+		int higherRank = higherRankingList.size()
+		int currentUserRank = higherRank + 1
+		int lowerRank = currentUserRank +1
+		List rankingResult =[]
+		
+		for (int i=0; i<5; i++){			
+			rankingResult.add(processRankingData(higherRankingList.get(i), higherRank))
+			higherRank -= 1
+		} 
+		
+		rankingResult.add(processRankingData(userAccount, currentUserRank))
+		
+		def lowerRankingList = Account.findAll("from Account as a where a.currentBalance < ? order by a.currentBalance", [userBalance])
+		
+		for (int i=0; i<5; i++){
+			rankingResult.add(processRankingData(lowerRankingList.get(i), lowerRank))
+			lowerRank +=1
+		}
+		
+		return rankingResult
+	}
 			
 	def createUser(String _username, String _email, String _password, String gender, String region){
 		def rest = new RestBuilder()

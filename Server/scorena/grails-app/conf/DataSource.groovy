@@ -65,11 +65,11 @@ environments
 		{
 						
 			dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
-			//url = System.getProperty("JDBC_CONNECTION_STRING")
-			//url = "jdbc:mysql://scorenat2.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/scorenaT?user=scorenaadmin&password=scorenaadmin"   
-			url = "jdbc:mysql://scorenarealdata.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/scorenaT?useUnicode=yes&characterEncoding=UTF-8"
-			username = "dooziadmin"
-			password = "dooziadmin"	
+			url = System.getProperty("JDBC_CONNECTION_STRING")
+//			url = "jdbc:mysql://scorenat2.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/scorenaT?user=scorenaadmin&password=scorenaadmin"   
+//			url = "jdbc:mysql://scorenarealdata.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/scorenaT?useUnicode=yes&characterEncoding=UTF-8"
+//			username = "dooziadmin"
+//			password = "dooziadmin"	
 			pooled = true
 			driverClassName = "com.mysql.jdbc.Driver"
 			dialect = org.hibernate.dialect.MySQL5InnoDBDialect

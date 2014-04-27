@@ -43,8 +43,31 @@ class QuestionService {
 				DecimalFormat df = new DecimalFormat("###.##")
 				
 				boolean placedBet = false
-				if (betService.getBetByQuestionIdAndUserId(q.id, userId)){
-					placedBet = true
+				int userPickStatus = -1
+				def userPick =-1
+				def winnerPick =-1
+				def userBet
+				if (userId!=null){
+					def game = gameService.getGame(q.eventKey)					
+					userBet = betService.getBetByQuestionIdAndUserId(q.id, userId)	
+					if (userBet){
+						placedBet = true
+						userPick=userBet.pick
+					}							
+					if (game.eventStatus.trim() == "post-event"){
+						winnerPick = processEngineImplService.getWinningPick(q.eventKey, q)
+						if (userBet){																			 
+
+							if (winnerPick==0){
+								userPickStatus = 0
+							}else if (winnerPick==userBet.pick){
+								userPickStatus = 1
+							}else{
+								userPickStatus = 2
+							}
+						}
+												
+					}
 				}
 				resultList.add([
 					questionId: q.id,
@@ -52,6 +75,9 @@ class QuestionService {
 					pick1: q.pick1,
 					pick2: q.pick2,
 					placedBet: placedBet,
+					userPickStatus: userPickStatus,
+					userPick: userPick,
+					winnerPick: winnerPick,
 					pool: [
 						pick1Amount: lastBet.pick1Amount,
 						pick1NumPeople: lastBet.pick1NumPeople,
@@ -79,10 +105,10 @@ class QuestionService {
 		def game = gameService.getGame(q.eventKey)
 
 		if (game.eventStatus.trim() == "post-event"){
-			println "postevent"
+			
 			return getPostEventQuestion(q, userId)
 		}else{
-			println "prevent"
+			
 			return getPreEventQuestion(q)
 		}
 		
@@ -93,11 +119,12 @@ class QuestionService {
 		PoolTransaction lastBet = betService.getLatestBetByQuestionId(q.id)
 		int winnerPick = processEngineImplService.getWinningPick(q.eventKey, q)
 		PoolTransaction userBet = betService.getBetByQuestionIdAndUserId(q.id, userId)
-		println "winnerPick: "+winnerPick
+		
 		def pick1PayoutPercentage 
 		def pick2PayoutPercentage 
 		def pick1PayoutMultiple 
 		def pick2PayoutMultiple 
+		DecimalFormat df = new DecimalFormat("###.##")
 		
 		def denominatorPickPerc = lastBet.pick1Amount + lastBet.pick2Amount
 		def denominatorPick1Mult = lastBet.pick1Amount
@@ -139,12 +166,22 @@ class QuestionService {
 		}
 		def userWinningAmount = 0
 		def userPayout = 0
-		
+		def userBetAmount = 0
+		def userPick =-1
 		if (userBet != null){
 			userWinningAmount = Math.floor(userBet.transactionAmount * pick1PayoutMultiple)
 			userPayout = pick1PayoutPercentage
+			userBetAmount=userBet.transactionAmount
+			userPick=userBet.pick
 		}
 		
+		def currentOddsPick1=1
+		def currentOddsPick2=1
+		if (lastBet.pick1Amount > lastBet.pick2Amount){
+			currentOddsPick1=(lastBet.pick1Amount/lastBet.pick2Amount)
+		}else if (lastBet.pick1Amount < lastBet.pick2Amount){
+			currentOddsPick2 = lastBet.pick2Amount/lastBet.pick1Amount
+		}
 		
 		def result = [
 			questionId: q.id,
@@ -154,6 +191,10 @@ class QuestionService {
 			userWinningAmount:userWinningAmount,
 			userPayoutPercent: userPayout,
 			winnerPick: winnerPick,
+			currentOddsPick1:df.format(currentOddsPick1).toDouble(),
+			currentOddsPick2:df.format(currentOddsPick2).toDouble(),
+			userWager:userBetAmount,
+			userPick:userPick,
 			pool: [
 				pick1Amount: lastBet.pick1Amount,
 				pick1NumPeople: lastBet.pick1NumPeople,
@@ -170,6 +211,7 @@ class QuestionService {
 	private def getPreEventQuestion(Question q){
 		
 		PoolTransaction lastBet = betService.getLatestBetByQuestionId(q.id)
+		PoolTransaction userBet = betService.getBetByQuestionIdAndUserId(q.id, userId)
 		
 		def denominatorPickPerc = lastBet.pick1Amount + lastBet.pick2Amount
 		def denominatorPick1Mult = lastBet.pick1Amount
@@ -189,12 +231,22 @@ class QuestionService {
 		def pick1PayoutMultiple = (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick1Mult
 		def pick2PayoutMultiple = (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick2Mult
 		
+		def userBetAmount = 0
+		def userPick =-1
+		
+		if (userBet != null){
+			userBetAmount=userBet.transactionAmount
+			userPick=userBet.pick
+		}
+		
 		def result = [
 			questionId: q.id,
 			content: q.questionContent.content,
 			pick1: q.pick1,
 			pick2: q.pick2,
 			lastUpdate: lastBet.createdAt,
+			userWager:userBetAmount,
+			userPick:userPick,
 			pool: [
 				pick1Amount: lastBet.pick1Amount,
 				pick1NumPeople: lastBet.pick1NumPeople,

@@ -139,6 +139,19 @@ class UserController {
 		
 	}
 	
+	def getRanking(){
+		if (!params.userId){
+			response.status = 404
+			def result = [error: "userId is required"]
+			render result as JSON
+			return
+		}
+		
+		def rankingResult = userService.getRanking(params.userId)
+		render rankingResult as JSON
+		return
+	}
+	
 //	def show(User user){
 //		if (user == null){
 //			render status:404

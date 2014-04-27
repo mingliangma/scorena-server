@@ -28,6 +28,7 @@ class SportsDataService {
 						"league": "EPL",
 						"gameId":eventKey,
 						"type":"soccer",
+						"gameStatus":game.eventStatus,
 						"date":game.startDateTime,
 						(game.alignment):[
 							"teamname":game.fullName,

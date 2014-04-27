@@ -69,14 +69,8 @@ class GameController {
 	}
 	
 	def getFeatureGames(){
-		if (!params.userId){
-			response.status = 404
-			def result = [error: "invalid parameters"]
-			render result as JSON
-			return
-		}
 		
-		def featureGame = gameService.listFeatureGames()		
+		def featureGame = gameService.listFeatureGames(params.userId)		
 		render featureGame as JSON
 	}
 	
