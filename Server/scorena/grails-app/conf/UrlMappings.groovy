@@ -32,7 +32,7 @@ class UrlMappings {
 		}	
 		
 		"/v1/sports/soccer/leagues/epl/games/feature"(controller:"game"){
-			action = [GET:"getFeatureEvents"]
+			action = [GET:"getFeatureGames"]
 		}
 		
 		"/v1/sports/soccer/leagues/epl/games/upcoming"(controller:"game"){
@@ -59,20 +59,16 @@ class UrlMappings {
 			action = [POST:"placeBet"]
 		}
 		
-		"/v1/sports/upcomingchamp"(controller:"game"){
-			action = [GET:"upcomingChampSportsDb"]
+		"/v1/sports/ranking"(controller:"user"){
+			action = [GET:"getRanking"]
 		}
 		
-		"/v1/sports/upcomingepl"(controller:"game"){
-			action = [GET:"upcomingEplSportsDb"]
+		"/v1/sports/processgame"(controller:"game"){
+			action = [GET:"processGameTesting"]
 		}
 		
-		"/v1/sports/pastchamp"(controller:"game"){
-			action = [GET:"pastChampSportsDb"]
-		}
-		
-		"/v1/sports/pastepl"(controller:"game"){
-			action = [GET:"pastEplSportsDb"]
+		"/v1/sports/testgame"(controller:"game"){
+			action = [GET:"testGames"]
 		}
 		
 

@@ -26,7 +26,6 @@ class UserController {
 	//curl -i -v -X POST -H "Content-Type: application/json" -d '{"username":"candiceli", "email":"candi@gmail.com", "password":"asdfasdf", "gender":"female", "region":"Toronto"}' localhost:8080/scorena/v1/users/new
 	def createNewUser(){
 		
-		println request.JSON
 		if (!request.JSON.username || !request.JSON.email|| !request.JSON.password || !request.JSON.gender|| !request.JSON.region){
 			response.status = 404
 			def result = [error: "invalid parameters"]
@@ -50,8 +49,9 @@ class UserController {
 		
 	}
 	
-	//curl -v -X GET  -G --data-urlencode 'username=candiceli' --data-urlencode 'password=asdfasdf' localhost:8080/scorena/v1/login
+	//curl -v -X GET  -G --data-urlencode 'username=Ming' --data-urlencode 'password=11111111' localhost:8080/scorena/v1/login
 	def login(){
+		println request.JSON.toString()
 		if (!params.username||!params.password){
 			response.status = 404
 			def result = [error: "invalid parameters"]
@@ -70,6 +70,7 @@ class UserController {
 	
 	def deleteUserProfile(){
 		String sessionToken = request.getHeader("sessionToken")
+		
 		if (!sessionToken||!params.userId){
 			response.status = 404
 			def result = [error: "invalid parameters"]
@@ -136,6 +137,19 @@ class UserController {
 		
 		render resp as JSON
 		
+	}
+	
+	def getRanking(){
+		if (!params.userId){
+			response.status = 404
+			def result = [error: "userId is required"]
+			render result as JSON
+			return
+		}
+		
+		def rankingResult = userService.getRanking(params.userId)
+		render rankingResult as JSON
+		return
 	}
 	
 //	def show(User user){

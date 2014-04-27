@@ -5,7 +5,7 @@ import com.doozi.Account
 import com.doozi.GameService
 import com.doozi.Question
 import com.doozi.Game
-import com.doozi.BetTransaction
+import com.doozi.PoolTransaction
 import com.doozi.BetResult
 
 //def createBetTrans(int _wager, Date _time, boolean _pick, User user, Question q, Game game){

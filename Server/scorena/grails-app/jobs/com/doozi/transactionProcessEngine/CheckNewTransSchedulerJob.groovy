@@ -3,12 +3,12 @@ package com.doozi.transactionProcessEngine
 
 
 class CheckNewTransSchedulerJob {
-    def newGameResultFetcherService
+    def processEngineManagerService
 	static triggers = {
-	  simple name: 'newGameResultTrigger', repeatInterval: 10000 // execute job once in 5 seconds
+	  simple name: 'newGameResultTrigger', repeatInterval: 60*60*1000 // execute job once in 5 seconds
 	}
 
 	def execute() {		
-		newGameResultFetcherService.printNowTime(new Date())		
+		processEngineManagerService.startProcessEngine()		
 	}
 }

@@ -75,7 +75,9 @@ class UserControllerIntegationSpec extends Specification {
 			def username = "testingname"+ranNum
 			def email = "testingname"+ranNum+"@gmail.com"
 			def password = "11111111"
-			def content = '{"username":"'+username+'","password":"'+password+'","email":"'+email+'"}'
+			def gender = "male"
+			def region = "Toronto"
+			def content = '{"username":"'+username+'","password":"11111111","email":"'+email+'", "gender":"'+gender+'", "region":"'+region+'"}'
 			println content
 			
 			def userC = new UserController()
@@ -86,6 +88,7 @@ class UserControllerIntegationSpec extends Specification {
 		
 			def objectId = userC.response.json.objectId
 			def sessionToken = userC.response.json.sessionToken
+			println userC.response.json
 			
 		when: 		
 			userC.params.username = username.encodeAsURL()
@@ -113,23 +116,26 @@ class UserControllerIntegationSpec extends Specification {
 			def username = "testingname"+ranNum
 			def email = "testingname"+ranNum+"@gmail.com"
 			def password = "11111111"
-			def content = '{"username":"'+username+'","password":"'+password+'","email":"'+email+'"}'
+			def gender = "male"
+			def region = "Toronto"
+			def content = '{"username":"'+username+'","password":"11111111","email":"'+email+'", "gender":"'+gender+'", "region":"'+region+'"}'
 			println content
 			
-			def createUserResp = userService.createUser(username, email, password)
-			
-			def objectId = createUserResp.objectId
-			def sessionToken = createUserResp.sessionToken
-			println "objectId: "+objectId
-			
 			def userC = new UserController()
+			userC.userService = userService
+			userC.request.contentType = "text/json"
+			userC.request.content = content.getBytes()						
+			userC.createNewUser()
+		
+			def objectId = userC.response.json.objectId
+			def sessionToken = userC.response.json.sessionToken
 			
 			
-		when:
 			
-			userC.params.sessionToken = sessionToken
+		when:			
+			userC.request.addHeader("sessionToken", sessionToken)
 			userC.params.userId = objectId
-			userC.delete()
+			userC.deleteUserProfile()
 			
 		then:
 			println userC.response.json

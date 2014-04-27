@@ -4,7 +4,7 @@ import grails.converters.JSON
 import grails.web.JSONBuilder
 import com.doozi.scorena.gamedata.manager.GameDataAdapter;
 
-
+import com.doozi.scorena.sportsdata.*
 // /v1/sports/soccer/premier/upcomingevents - current day's game information
 //		get
 
@@ -43,7 +43,7 @@ class GameController {
 	}
 	
 	def gameService
-	def viewService
+	def sportsDataService
 	
 	/*
 	def upcomingEplSportsDb()
@@ -76,26 +76,41 @@ class GameController {
 		def pastGames = viewService.getPastChampMatches()
 		render pastGames as JSON
 	}
-	
-	def getUpcomingGames()
-	{
-		def upcomingGames = gameService.listUpcomingGames()
+
+	def getUpcomingGames(){
+		def upcomingGames
+		if (params.userId){
+			upcomingGames = gameService.listUpcomingGames(params.userId)
+		}else{
+			upcomingGames = gameService.listUpcomingGames()
+		}
+
 		render upcomingGames as JSON
 	}
 	
-	def getPastGames()
-	{
-		def upcomingGames = gameService.listPastGames()
+	def getPastGames(){
+		def upcomingGames
+		if (params.userId){
+			upcomingGames = gameService.listPastGames(params.userId)
+		}else{
+			 upcomingGames = gameService.listPastGames()
+		}
+
 		render upcomingGames as JSON
 	}
 	
-	def getGame()
-	{
-		if (params.gameId)
-		{
+	def getGame(){
+		println params.gameId
+		if (params.gameId){
 			def questions = gameService.getGame(params.gameId)
 			render questions as JSON
 		}
+	}
+	
+	def getFeatureGames(){
+		
+		def featureGame = gameService.listFeatureGames(params.userId)		
+		render featureGame as JSON
 	}
 	
 	def getFeatureEvents()
@@ -127,11 +142,21 @@ class GameController {
 						pick1 = "Stoke City"
 						pick2 = "Chelsea"
 					}
-				}
+				}		
 			}
 		}
 		
 		response.status = 200
 		render  content
+	}
+	
+	def processEngineManagerService
+	def processGameTesting(){
+		processEngineManagerService.startProcessEngine()
+	}
+
+	def testGames(){
+		def games = sportsDataService.getAllUpcomingGames()
+		render games as JSON
 	}
 }

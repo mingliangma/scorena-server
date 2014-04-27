@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 
 import com.doozi.scorena.Account;
+import com.doozi.scorena.PoolTransaction
 
 import grails.plugins.rest.client.RestBuilder
 
@@ -22,6 +23,38 @@ class UserService {
 	def PREVIOUS_BALANCE = INITIAL_BALANCE
 	def grailsApplication
 	def parseService
+	def betService
+	
+	def processRankingData(Account user, int rank){		
+		return [username: user.username, gain: user.currentBalance, rank: rank]
+	}
+	
+	def getRanking(userId){
+		def userAccount = Account.findByUserId(userId)
+		def userBalance = userAccount.currentBalance
+		
+		def higherRankingList = Account.findAll("from Account as a where a.currentBalance > ? order by a.currentBalance", [userBalance])
+		int higherRank = higherRankingList.size()
+		int currentUserRank = higherRank + 1
+		int lowerRank = currentUserRank +1
+		List rankingResult =[]
+		
+		for (int i=0; i<5; i++){			
+			rankingResult.add(processRankingData(higherRankingList.get(i), higherRank))
+			higherRank -= 1
+		} 
+		
+		rankingResult.add(processRankingData(userAccount, currentUserRank))
+		
+		def lowerRankingList = Account.findAll("from Account as a where a.currentBalance < ? order by a.currentBalance", [userBalance])
+		
+		for (int i=0; i<5; i++){
+			rankingResult.add(processRankingData(lowerRankingList.get(i), lowerRank))
+			lowerRank +=1
+		}
+		
+		return rankingResult
+	}
 			
 	def createUser(String _username, String _email, String _password, String gender, String region){
 		def rest = new RestBuilder()
@@ -53,16 +86,18 @@ class UserService {
 			]
 			return result			
 		}
-		
-		
+				
 		println "user profile and account created successfully"
 		def result = [			
 			createdAt:resp.json.createdAt,
 			username:_username,
 			currentBalance:INITIAL_BALANCE,
 			sessionToken:resp.json.sessionToken,
-			objectId: resp.json.objectId,
-			createdAt: resp.json.createdAt
+			userId: resp.json.objectId,
+			createdAt: resp.json.createdAt,
+			email: _email,
+			gender: gender,
+			region: region
 		]
 		return result		
 	}
@@ -70,7 +105,26 @@ class UserService {
 	def login(String username, String password){
 		def rest = new RestBuilder()
 		def resp = parseService.loginUser(rest, username, password)
-		return resp.json
+		if (resp.json.code)
+			return resp.json
+		
+		def account = Account.findByUserId(resp.json.objectId)
+		
+		if (!account){
+			return [code:500, error:"user account does not exist"]			
+		}
+		def result = [
+			createdAt:resp.json.createdAt,
+			username:resp.json.username,
+			currentBalance:account.currentBalance,
+			sessionToken:resp.json.sessionToken,
+			userId: resp.json.objectId,
+			createdAt: resp.json.createdAt,
+			email: resp.json.email,
+			gender: resp.json.gender,
+			region: resp.json.region
+		]
+		return result
 	}
 	
 	def validateSession (def sessionToken){
@@ -119,6 +173,10 @@ class UserService {
 			]
 			return result
 		}	
+		
+		def userPayoutTrans = betService.listPayoutTransByUserId(userId)
+		def userStats = getBetStats(userPayoutTrans)
+		
 		def result = [
 			createdAt:resp.json.createdAt,
 			username:resp.json.username,
@@ -127,7 +185,8 @@ class UserService {
 			userId: resp.json.objectId,
 			gender: resp.json.gender,
 			region: resp.json.region,
-			email: resp.json.email
+			email: resp.json.email,
+			userStats: userStats
 		]
 		return result		
 		
@@ -137,5 +196,101 @@ class UserService {
 		def rest = new RestBuilder()
 		def resp = parseService.updateUser(rest, sessionToken, userId, updateUserData)
 		return resp.json
+	}
+	
+	def getBetStats(userPayoutTrans){
+		
+		def stats = [all:[netGain:0, wins:0, losses:0, ties:0, premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]], 
+			monthly:[netGain:0, wins:0, losses:0, ties:0,premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]], 
+			weekly:[netGain:0, wins:0, losses:0, ties:0,premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]]
+		
+		if (userPayoutTrans==null || userPayoutTrans.size()==0){
+			println "userPayoutTrans null"
+			return stats
+		}
+		
+		def firstDateOfCurrentWeek = getFirstDateOfCurrentWeek()
+		def firstDateOfCurrentMonth = getFirstDateOfCurrentMonth()
+		println "firstDateOfCurrentWeek:"+firstDateOfCurrentWeek
+		println "firstDateOfCurrentMonth:"+firstDateOfCurrentMonth
+		
+		for (PoolTransaction tran: userPayoutTrans){
+			println "netgain: "+tran.transactionAmount - tran.pick2Amount
+			println "tran.transactionAmount: "+tran.transactionAmount
+			
+			if (tran.createdAt > firstDateOfCurrentWeek){
+				if (tran.pick==0){
+					stats.all.ties+=1
+					stats.monthly.ties+=1
+					stats.weekly.ties+=1					
+				}else if(tran.transactionAmount == 0){
+					stats.all.losses+=1
+					stats.monthly.losses+=1
+					stats.weekly.losses+=1
+				}else if (tran.transactionAmount > 0){
+					stats.all.wins+=1
+					stats.monthly.wins+=1
+					stats.weekly.wins+=1					
+					stats.all.netGain += (tran.transactionAmount - tran.pick2Amount)
+					stats.monthly.netGain+=(tran.transactionAmount - tran.pick2Amount)
+					stats.weekly.netGain+=(tran.transactionAmount - tran.pick2Amount)										
+				}else{
+					println "ERROR: UserService::getBetStats(): should not go in here"
+				}
+				continue
+			}
+			
+			if (tran.createdAt > firstDateOfCurrentMonth){
+				if (tran.pick==0){					
+					stats.monthly.ties+=1
+					stats.all.ties+=1
+					continue
+				}else if(tran.transactionAmount == 0){					
+					stats.monthly.losses+=1
+					stats.all.losses+=1
+				}else if (tran.transactionAmount > 0){					
+					stats.monthly.wins+=1
+					stats.all.wins+=1										
+					stats.monthly.netGain+=(tran.transactionAmount - tran.pick2Amount)
+					stats.all.netGain+=(tran.transactionAmount - tran.pick2Amount)
+				}else{
+					println "ERROR: UserService::getBetStats(): should not go in here"
+				}
+				continue
+			}
+			
+			if (tran.pick==0){				
+				stats.all.ties+=1
+				continue
+			}else if(tran.transactionAmount == 0){
+				stats.all.losses+=1
+			}else if (tran.transactionAmount > 0){
+				stats.all.wins+=1
+				stats.all.netGain+=(tran.transactionAmount - tran.pick2Amount)
+			}else{
+				println "ERROR: UserService::getBetStats(): should not go in here"
+			}						
+		}
+		return stats
+	}
+	
+	def getFirstDateOfCurrentWeek(){
+		Calendar c1 = Calendar.getInstance();   // this takes current date
+		c1.clear(Calendar.MINUTE);
+		c1.clear(Calendar.SECOND);
+		c1.clear(Calendar.MILLISECOND);
+		c1.set(Calendar.HOUR_OF_DAY, 0);
+		c1.set(Calendar.DAY_OF_WEEK, 2);		
+		return c1.getTime();
+	}
+	
+	def getFirstDateOfCurrentMonth(){
+		Calendar c = Calendar.getInstance();   // this takes current date
+		c.clear(Calendar.MINUTE);
+		c.clear(Calendar.SECOND);
+		c.clear(Calendar.MILLISECOND);
+		c.set(Calendar.HOUR_OF_DAY, 0);
+		c.set(Calendar.DAY_OF_MONTH, 1);
+		return c.getTime();
 	}
 }

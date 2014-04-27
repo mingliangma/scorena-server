@@ -21,9 +21,9 @@ class Game {
 	
 	Date createdAt
 	
-	
+	//static hasMany = [question: Question, bet: BetTransaction]
 	static hasOne = [gameEvent: GameEvent]
-	static hasMany = [question: Question, bet: BetTransaction]
+	
 	
 	
     static constraints = {
