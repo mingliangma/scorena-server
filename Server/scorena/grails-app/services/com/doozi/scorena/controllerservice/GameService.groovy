@@ -13,14 +13,14 @@ class GameService {
 	
 	public static final String POSTEVENT = "post-event"
 	def listUpcomingGames(){
-		def upcomingGames = sportsDataService.getUpcomingEplMatches()
+		def upcomingGames = sportsDataService.getAllUpcomingGames()
 		return upcomingGames
 	}
 	
 	def listUpcomingGames(def userId){
-		List upcomingGames = sportsDataService.getUpcomingEplMatches()		
+		List upcomingGames = sportsDataService.getAllUpcomingGames()		
 		def playedGames = betService.listDistinctBetEventKeyByUserId(userId)
-		println "asdfasdf"
+		
 		for (def upcomingGame: upcomingGames){
 			def gameId = upcomingGame.gameId
 			upcomingGame.placedBet = false
@@ -34,20 +34,6 @@ class GameService {
 		return upcomingGames
 	}
 	
-//	def listUpcomingGames() {
-//		def upcomingGames = getUpcomingGameObjects()		
-//		def all = upcomingGames.collect {Game game ->
-//			[	id: game.id,
-//				home: 	game.homeTeamNameFirst,
-//				away: game.awayTeamNameFirst,
-//				date: game.startDate,
-//				league: game.league,
-//				type: game.type,			
-//			]
-//		  }
-//		return all
-//	}
-	
 	def getUpcomingGameObjects(){
 		def today = new Date();
 		def weekLater = today + 7;
@@ -56,12 +42,12 @@ class GameService {
 	}
 	
 	def listPastGames(){
-		def pastGames = sportsDataService.getPastEplMatches()		
+		def pastGames = sportsDataService.getAllPastGames()		
 		return pastGames
 	}
 	
 	def listPastGames(def userId){
-		List pastGames = sportsDataService.getPastEplMatches()
+		List pastGames = sportsDataService.getAllPastGames()
 		def playedGames = betService.listDistinctBetEventKeyByUserId(userId)
 
 		for (def pastGame: pastGames){
@@ -78,7 +64,7 @@ class GameService {
 	}
 	
 	def listFeatureGames(userId){
-		def upcomingGames = sportsDataService.getUpcomingEplMatches()
+		def upcomingGames = sportsDataService.getAllUpcomingGames()
 		List featureGames =[]
 		for (int i = 0; i<3; i++){
 			def game = upcomingGames.get(i)
@@ -128,7 +114,7 @@ class GameService {
 //	}
 	
 	def getGame(gameId){
-		def game = sportsDataService.getEplMatch(gameId)
+		def game = sportsDataService.getGame(gameId)
 		return game
 	}
 	

@@ -12,7 +12,7 @@ class NewGameResultFetcherService {
 	
 	def getUnprocessedPastGame(){
 		println "NewGameResultFetcherService::getUnprocessedPastGame(): starts"
-		def pastGames = sportsDataService.getPastEplMatches()
+		def pastGames = sportsDataService.getAllPastGames()
 		def earliestPastGameDate = pastGames.get(0).date
 		def processGameRecords = GameProcessRecord.findAllByStartDateTimeGreaterThanEquals(earliestPastGameDate)
 		def gameRecordAdded = 0
