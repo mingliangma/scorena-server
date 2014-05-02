@@ -10,8 +10,9 @@ class ProcessEngineManagerService {
 	
     def startProcessEngine() {
 		println "ProcessEngineManagerService::startProcessEngine(): starts at "+new Date()
-		newGameResultFetcherService.getUnprocessedPastGame()
-		processEngineImplService.processGamePayout()
+		def gameRecordAdded = newGameResultFetcherService.getUnprocessedPastGame()
+		def gameRecordsProcessed = processEngineImplService.processGamePayout()
 		println "ProcessEngineManagerService::startProcessEngine(): ends"
+		return [gameRecordAdded:gameRecordAdded, gameRecordsProcessed:gameRecordsProcessed]
     }
 }

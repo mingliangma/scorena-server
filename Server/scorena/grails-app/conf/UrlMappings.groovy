@@ -19,6 +19,10 @@ class UrlMappings {
 			action = [GET:"list"]
 		}
 		
+		"/v1/users/requestPasswordReset"(controller:"user") {
+			action = [POST:"passwordReset"]
+		}
+		
 		"/v1/users/new"(controller:"user") {
 			action = [POST:"createNewUser"]
 		}

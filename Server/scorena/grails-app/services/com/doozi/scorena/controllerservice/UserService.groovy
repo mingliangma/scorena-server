@@ -34,13 +34,14 @@ class UserService {
 		def userBalance = userAccount.currentBalance
 		
 		def higherRankingList = Account.findAll("from Account as a where a.currentBalance > ? order by a.currentBalance", [userBalance])
+		
 		int higherRank = higherRankingList.size()
 		int currentUserRank = higherRank + 1
 		int lowerRank = currentUserRank +1
 		List rankingResult =[]
 		
 		for (int i=0; i<5; i++){			
-			rankingResult.add(processRankingData(higherRankingList.get(i), higherRank))
+			rankingResult.add(0,processRankingData(higherRankingList.get(i), higherRank))
 			higherRank -= 1
 		} 
 		
@@ -53,7 +54,7 @@ class UserService {
 			lowerRank +=1
 		}
 		
-		return rankingResult
+		return [weekly: rankingResult, all: rankingResult]
 	}
 			
 	def createUser(String _username, String _email, String _password, String gender, String region){
@@ -105,7 +106,7 @@ class UserService {
 	def login(String username, String password){
 		def rest = new RestBuilder()
 		def resp = parseService.loginUser(rest, username, password)
-		if (resp.json.code)
+		if (resp.status != 200 ||resp.json.code)
 			return resp.json
 		
 		def account = Account.findByUserId(resp.json.objectId)
@@ -127,6 +128,16 @@ class UserService {
 		return result
 	}
 	
+	
+	def passwordReset(def email){
+		def rest = new RestBuilder()
+		def resp = parseService.passwordReset(rest, email)
+		if (resp.status != 200 ||resp.json.code)
+			return resp.json
+			
+		return resp.json
+	}
+	
 	def validateSession (def sessionToken){
 		def rest = new RestBuilder()
 		def resp = parseService.validateSession(rest, sessionToken)
@@ -142,7 +153,7 @@ class UserService {
 			return result
 		}
 	}
-
+	
 	
 	def deleteUser(String sessionToken, String userId){
 		def rest = new RestBuilder()
@@ -176,6 +187,9 @@ class UserService {
 		
 		def userPayoutTrans = betService.listPayoutTransByUserId(userId)
 		def userStats = getBetStats(userPayoutTrans)
+		userStats.weekly.netGainPercent = ((userStats.weekly.netGain / account.currentBalance)*100).toInteger()
+		userStats.monthly.netGainPercent = ((userStats.monthly.netGain / account.currentBalance)*100).toInteger()
+		userStats.all.netGainPercent = ((userStats.all.netGain / account.currentBalance)*100).toInteger()
 		
 		def result = [
 			createdAt:resp.json.createdAt,
@@ -211,12 +225,8 @@ class UserService {
 		
 		def firstDateOfCurrentWeek = getFirstDateOfCurrentWeek()
 		def firstDateOfCurrentMonth = getFirstDateOfCurrentMonth()
-		println "firstDateOfCurrentWeek:"+firstDateOfCurrentWeek
-		println "firstDateOfCurrentMonth:"+firstDateOfCurrentMonth
 		
 		for (PoolTransaction tran: userPayoutTrans){
-			println "netgain: "+tran.transactionAmount - tran.pick2Amount
-			println "tran.transactionAmount: "+tran.transactionAmount
 			
 			if (tran.createdAt > firstDateOfCurrentWeek){
 				if (tran.pick==0){
@@ -271,6 +281,8 @@ class UserService {
 				println "ERROR: UserService::getBetStats(): should not go in here"
 			}						
 		}
+		
+		
 		return stats
 	}
 	

@@ -9,6 +9,7 @@ class CheckNewTransSchedulerJob {
 	}
 
 	def execute() {		
-		processEngineManagerService.startProcessEngine()		
+		def result = processEngineManagerService.startProcessEngine()
+		println "processEngineManager result:"+result
 	}
 }

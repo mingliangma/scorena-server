@@ -68,6 +68,25 @@ class UserController {
 		render resp as JSON
 	}
 	
+	def passwordReset(){
+		println request.JSON.toString()
+		
+		if (!request.JSON.email){
+			response.status = 404
+			def result = [error: "invalid parameters"]
+			render result as JSON
+			return
+		}
+		
+		def resp = userService.passwordReset(request.JSON.email.toString())
+		if (resp.code){
+			response.status =400
+			render resp as JSON
+			return
+		}
+		render resp as JSON
+	}
+	
 	def deleteUserProfile(){
 		String sessionToken = request.getHeader("sessionToken")
 		

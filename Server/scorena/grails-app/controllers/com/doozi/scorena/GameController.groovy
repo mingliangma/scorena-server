@@ -152,7 +152,8 @@ class GameController {
 	
 	def processEngineManagerService
 	def processGameTesting(){
-		processEngineManagerService.startProcessEngine()
+		def result = processEngineManagerService.startProcessEngine()
+		render result as JSON
 	}
 
 	def testGames(){

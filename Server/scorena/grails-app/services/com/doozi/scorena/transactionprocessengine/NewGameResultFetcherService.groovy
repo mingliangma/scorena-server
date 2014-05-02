@@ -15,6 +15,7 @@ class NewGameResultFetcherService {
 		def pastGames = sportsDataService.getPastEplMatches()
 		def earliestPastGameDate = pastGames.get(0).date
 		def processGameRecords = GameProcessRecord.findAllByStartDateTimeGreaterThanEquals(earliestPastGameDate)
+		def gameRecordAdded = 0
 		for (def pastGame: pastGames){
 			def unprocessed = true
 			
@@ -28,10 +29,12 @@ class NewGameResultFetcherService {
 			if (unprocessed == true){
 				println "NewGameResultFetcherService::getUnprocessedPastGame(): Event " + pastGame.gameId + " is added to the GameProcessRecord table"
 				def newProcessRecord = new GameProcessRecord(eventKey: pastGame.gameId, transProcessStatus: 0, startDateTime: pastGame.date, lastUpdate: new Date())
-				newProcessRecord.save()				
+				newProcessRecord.save()		
+				gameRecordAdded++
 			}
 		}
 		println "NewGameResultFetcherService::getUnprocessedPastGame(): ends"
+		return gameRecordAdded
 			
 	}	
 }

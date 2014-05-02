@@ -12,8 +12,9 @@ class ProcessEngineImplService {
 	
 	def processGamePayout(){
 		println "ProcessEngineImplService::processGamePayout(): starts"
-		def gameRecords = GameProcessRecord.findAllByTransProcessStatus(0)
+		def gameRecords = GameProcessRecord.findAllByTransProcessStatus(0)		
 		def totalpayout = 0
+		def gameRecordsProcessed = 0
 		for (GameProcessRecord gameProcessRecord: gameRecords){
 			
 			def questions = questionService.listQuestions(gameProcessRecord.eventKey)
@@ -24,9 +25,11 @@ class ProcessEngineImplService {
 			gameProcessRecord.transProcessStatus = 2
 			gameProcessRecord.lastUpdate = new Date()
 			gameProcessRecord.save(flush: true)
+			gameRecordsProcessed++
 		}
 				
 		println "ProcessEngineImplService::processGamePayout(): ends"
+		return gameRecordsProcessed
 	}
 	
 	@Transactional
