@@ -35,31 +35,31 @@ class UrlMappings {
 			action = [GET:"getUserProfile", PUT:"updateUserProfile", DELETE:"deleteUserProfile" ]
 		}	
 		
-		"/v1/sports/soccer/leagues/epl/games/feature"(controller:"game"){
+		"/v1/sports/soccer/leagues/all/games/feature"(controller:"game"){
 			action = [GET:"getFeatureGames"]
 		}
 		
-		"/v1/sports/soccer/leagues/epl/games/upcoming"(controller:"game"){
+		"/v1/sports/soccer/leagues/all/games/upcoming"(controller:"game"){
 			action = [GET:"getUpcomingGames"]
 		}
 		
-		"/v1/sports/soccer/leagues/epl/games/past"(controller:"game"){
+		"/v1/sports/soccer/leagues/all/games/past"(controller:"game"){
 			action = [GET:"getPastGames"]
 		}
 		
-		"/v1/sports/soccer/leagues/epl/games/$gameId?"(controller:"game"){
+		"/v1/sports/soccer/leagues/all/games/$gameId?"(controller:"game"){
 			action = [GET:"getGame"]
 		}
 		
-		"/v1/sports/soccer/leagues/epl/games/$gameId?/qs"(controller:"question"){
+		"/v1/sports/soccer/leagues/all/games/$gameId?/qs"(controller:"question"){
 			action = [GET:"listQuestions"]
 		}
 
-		"/v1/sports/soccer/leagues/epl/games/$gameId?/qs/$qId?"(controller:"question"){
+		"/v1/sports/soccer/leagues/all/games/$gameId?/qs/$qId?"(controller:"question"){
 			action = [GET:"getQuestionDetails"]
 		}
 		
-		"/v1/sports/soccer/leagues/epl/wagers/new"(controller:"bet"){
+		"/v1/sports/soccer/leagues/all/wagers/new"(controller:"bet"){
 			action = [POST:"placeBet"]
 		}
 		

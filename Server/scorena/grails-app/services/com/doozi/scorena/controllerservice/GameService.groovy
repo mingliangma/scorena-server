@@ -52,6 +52,9 @@ class GameService {
 
 		for (def pastGame: pastGames){
 			def gameId = pastGame.gameId
+			if (pastGame.gameStatus != "post-event"){
+				println "gameService::listPastGames():wrong event: "+ pastGame
+			}
 			pastGame.placedBet = false
 			for (def eventKey: playedGames){
 				if (gameId == eventKey){					
