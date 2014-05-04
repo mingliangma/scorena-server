@@ -48,7 +48,7 @@ class SportsDataService {
 	
 	def getAllUpcomingGames(){
 		def upcomingDate = new Date() + UPCOMING_DATE_RANGE;
-		def upcomingGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime<? and g.eventStatus<>'post-event'", [upcomingDate])
+		def upcomingGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime<? and g.eventStatus<>'post-event' order by g.startDateTime", [upcomingDate])
 		def upcomingGamesMap = [:]
 		List upcomingGamesList = []
 		int dummy =0
@@ -56,17 +56,17 @@ class SportsDataService {
 			String eventKey = game.eventKey
 			def upcomingGame = upcomingGamesMap.get(eventKey)
 			
-			String dummyGameStatus
-			if (dummy==0)
-				dummyGameStatus = "mid-event"
-			else if (dummy == 1)
-				dummyGameStatus = "intermission"
-			else if (dummy==2)
-				dummyGameStatus = "mid-event"
-			else if (dummy == 3)
-				dummyGameStatus = "intermission"
-			else
-				dummyGameStatus = game.eventStatus
+//			String dummyGameStatus
+//			if (dummy==0)
+//				dummyGameStatus = "mid-event"
+//			else if (dummy == 1)
+//				dummyGameStatus = "intermission"
+//			else if (dummy==2)
+//				dummyGameStatus = "mid-event"
+//			else if (dummy == 3)
+//				dummyGameStatus = "intermission"
+//			else
+//				dummyGameStatus = game.eventStatus
 			
 			dummy++
 			if (!upcomingGame){
@@ -75,8 +75,8 @@ class SportsDataService {
 						"leagueCode": getLeagueCodeFromEventKey(eventKey),
 						"gameId":eventKey,
 						"type":"soccer",
-//						"gameStatus":game.eventStatus,
-						"gameStatus":dummyGameStatus,
+						"gameStatus":game.eventStatus,
+//						"gameStatus":dummyGameStatus,
 						"date":game.startDateTime,
 						(game.alignment):[
 							"teamname":game.fullName,

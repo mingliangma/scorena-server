@@ -39,6 +39,9 @@ class UserService {
 		int currentUserRank = higherRank + 1
 		int lowerRank = currentUserRank +1
 		List rankingResult =[]
+		int higherRankingSize = 5
+		if (higherRankingList.size()<5)
+			higherRankingSize=higherRankingList.size()
 		
 		for (int i=0; i<5; i++){			
 			rankingResult.add(0,processRankingData(higherRankingList.get(i), higherRank))
@@ -48,8 +51,11 @@ class UserService {
 		rankingResult.add(processRankingData(userAccount, currentUserRank))
 		
 		def lowerRankingList = Account.findAll("from Account as a where a.currentBalance < ? order by a.currentBalance", [userBalance])
-		
-		for (int i=0; i<5; i++){
+		int lowerRankingSize = 5
+		if (lowerRankingList.size()<5)
+			lowerRankingSize=lowerRankingList.size()
+			
+		for (int i=0; i<lowerRankingSize; i++){
 			rankingResult.add(processRankingData(lowerRankingList.get(i), lowerRank))
 			lowerRank +=1
 		}
@@ -214,9 +220,9 @@ class UserService {
 	
 	def getBetStats(userPayoutTrans){
 		
-		def stats = [all:[netGain:0, wins:0, losses:0, ties:0, premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]], 
-			monthly:[netGain:0, wins:0, losses:0, ties:0,premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]], 
-			weekly:[netGain:0, wins:0, losses:0, ties:0,premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]]
+		def stats = [all:[netGain:0, wins:0, losses:0, ties:0, leagues:[premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]], 
+			monthly:[netGain:0, wins:0, losses:0, ties:0,leagues:[premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]], 
+			weekly:[netGain:0, wins:0, losses:0, ties:0,leagues:[premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]]]
 		
 		if (userPayoutTrans==null || userPayoutTrans.size()==0){
 			println "userPayoutTrans null"

@@ -54,8 +54,7 @@ class GameService {
 			def gameId = pastGame.gameId
 			pastGame.placedBet = false
 			for (def eventKey: playedGames){
-				if (gameId == eventKey){
-					println "true"
+				if (gameId == eventKey){					
 					pastGame.placedBet = true
 				}
 			}
@@ -69,9 +68,11 @@ class GameService {
 		for (int i = 0; i<3; i++){
 			def game = upcomingGames.get(i)
 			def questions = questionService.listQuestionsWithPoolInfo(game.gameId, userId)
-			def question = questions.get(0)
-			game.question = question
-			featureGames.add(game)
+			if (questions.size()!=0){
+				def question = questions.get(0)
+				game.question = question
+				featureGames.add(game)
+			}
 			
 		}
 		return featureGames

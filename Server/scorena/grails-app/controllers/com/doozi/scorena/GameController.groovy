@@ -108,9 +108,13 @@ class GameController {
 	}
 	
 	def getFeatureGames(){
-		
-		def featureGame = gameService.listFeatureGames(params.userId)		
-		render featureGame as JSON
+		def featureGames
+		if (params.userId){
+			featureGames = gameService.listFeatureGames(params.userId)
+		}else{
+			featureGames = gameService.listFeatureGames(null)
+		}		
+		render featureGames as JSON
 	}
 	
 	def getFeatureEvents()

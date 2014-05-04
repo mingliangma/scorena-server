@@ -109,8 +109,8 @@ environments {
 	}
     production {
         grails.logging.jul.usebridge = false
-		parse.parseApplicationId='VtsqlRrU7SRiQVdv9TOsdAo3fbFkv2XH7tIZjnYA'
-		parse.parseRestApiKey ='k6ybcRnaDAdfUBbLkSBfqiesECFQinEr6D0Lx8dL'
+		parse.parseApplicationId=System.getProperty("PARAM1")
+		parse.parseRestApiKey =System.getProperty("PARAM2")
     }
 	
 	heng {

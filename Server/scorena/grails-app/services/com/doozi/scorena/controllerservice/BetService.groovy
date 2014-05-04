@@ -116,16 +116,12 @@ class BetService {
 		
 		playerAccount.currentBalance -= playerWager
 		
-		if (playerAccount.save(failOnError:true)){
-			System.out.println("---------------account successfully saved")
-		}else{
+		if (!playerAccount.save(failOnError:true)){
 			System.out.println("---------------account save failed")
 			return [code:202, message: "account data is not saved"]
 		}
 		
-		if (q.save(failOnError:true)){
-			System.out.println("---------------q successfully saved")			
-		}else{
+		if (!q.save(failOnError:true)){
 			System.out.println("---------------q save failed")
 			return [code:202, message: "Question data is not saved"]
 		}

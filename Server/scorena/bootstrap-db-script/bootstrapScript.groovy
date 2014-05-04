@@ -28,10 +28,10 @@ import java.util.Date;
 
 
 
-bootstrapQuestionContent()
-createQuestions()
-createUsers()
-simulateBetUpcoming()
+//bootstrapQuestionContent()
+//createQuestions()
+//createUsers()
+//simulateBetUpcoming()
 simulateBetPast()
 
 println "create transactions ended"
@@ -43,6 +43,10 @@ def bootstrapQuestionContent(){
 	String qc2Content = "will total score be more than "+qc2Indicator+" goals"
 	def qc2 = new QuestionContent(questionType: QuestionContent.SCOREGREATERTHAN, content: qc2Content, sport: "soccer", indicator1: qc2Indicator)
 	
+	qc2Indicator = 4.5
+	qc2Content = "will total score be more than "+qc2Indicator+" goals"
+	def qc3 = new QuestionContent(questionType: QuestionContent.SCOREGREATERTHAN, content: qc2Content, sport: "soccer", indicator1: qc2Indicator)
+	
 	if (qc1.save()){
 		System.out.println("game successfully saved")
 	}else{
@@ -53,6 +57,15 @@ def bootstrapQuestionContent(){
 	}
 	
 	if (qc2.save()){
+		System.out.println("game successfully saved")
+	}else{
+		System.out.println("game save failed")
+		qc2.errors.each{
+			println it
+		}
+	}
+	
+	if (qc3.save()){
 		System.out.println("game successfully saved")
 	}else{
 		System.out.println("game save failed")
@@ -90,32 +103,33 @@ def createQuestions(){
 
 def populateQuestions(String away, String home, String eventId){
 
-	def q1 = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
-	def q2 = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
-	
-	def questionContent1 = QuestionContent.findByQuestionType("team-0")
-	def questionContent2 = QuestionContent.findByQuestionType("truefalse-0")
-	questionContent1.addToQuestion(q1)
-	questionContent2.addToQuestion(q2)
-	
-	if (questionContent1.save()){
-		System.out.println("game successfully saved")
-	}else{
-		System.out.println("game save failed")
-		questionContent1.errors.each{
-			println it
+	def questionContent2 = QuestionContent.findAllByQuestionType("truefalse-0")
+	for (QuestionContent qc: questionContent2){
+		def q = new Question(eventKey: eventId, pick1: "Yes", pick2: "No", pool: new Pool(minBet: 5))
+		qc.addToQuestion(q)
+		if (qc.save()){
+			System.out.println("game successfully saved")
+		}else{
+			System.out.println("game save failed")
+			qc.errors.each{
+				println it
+			}
 		}
 	}
 	
-	if (questionContent2.save()){
-		System.out.println("game successfully saved")
-	}else{
-		System.out.println("game save failed")
-		questionContent2.errors.each{
-			println it
+	def questionContent1 = QuestionContent.findAllByQuestionType("team-0")
+	for (QuestionContent qc: questionContent1){
+		def q = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
+		qc.addToQuestion(q)
+		if (qc.save()){
+			System.out.println("game successfully saved")
+		}else{
+			System.out.println("game save failed")
+			qc.errors.each{
+				println it
+			}
 		}
-	}
-	
+	}	
 }
 
 
@@ -142,7 +156,7 @@ def simulateBetUpcoming(){
 			
 			def questionId = q.id
 			for (Account account: accounts){
-				if (random.nextInt(3) == 1){
+				if (random.nextInt(2) == 1){
 					continue
 				}
 				System.out.println("user name: "+account.username)
@@ -181,7 +195,7 @@ def simulateBetPast(){
 			
 			
 			for (Question q: questions){
-				if (random.nextInt(3) == 1){
+				if (random.nextInt(2) == 1){
 					continue
 				}
 				def questionId = q.id
@@ -209,44 +223,6 @@ def simulateBetPast(){
 		}
 	}
 	
-def simulateBet(){
-	
-	
-	def gameService = ctx.getBean("gameService")
-	def betService = ctx.getBean("betService")
-	
-	
-	Random random = new Random()
-	def accounts = Account.findAll()
-	
-	
-	
-	def upcomingGames = gameService.getUpcomingGameObjects()
-	for (Game upcomingGame: upcomingGames){
-		System.out.println("game away: "+upcomingGame.awayTeamNameFirst + "   VS   game home: "+upcomingGame.homeTeamNameFirst + "----- StartDate: "+upcomingGame.startDate)
-		System.out.println("quesiton : "+upcomingGame.question)
-		for (Question q: upcomingGame.question){
-			System.out.println("question: "+q.content)
-			def questionId = q.id
-			for (Account account: accounts){
-				
-				System.out.println("user name: "+account.username)
-				int _wager =  (random.nextInt(6)+1)*5
-				Date _time = new Date()
-				int _pick
-				
-				if (random.nextInt(2)==0){
-					_pick=1
-				}else{
-					_pick=2
-				}
-				
-				
-				betService.saveBetTrans(_wager, _time,_pick, account.userId, q.id, upcomingGame.id)
-			}
-		}
-	}
-}
 
 def createUser(String _username, String _email, String _password, String _gender, String _region){
 	
@@ -256,293 +232,23 @@ def createUser(String _username, String _email, String _password, String _gender
 	
 }
 
-def createPastGames(){
-	String _league = "EPL"
-	String _away = "Liverpool FC"
-	String _home ="Man United"
-	String _type ="soccer"
-	String _country = "england"
-	Date _theDate =new Date() -2
-	int _awayScore =0
-	int _homeScore =0
-	int _pick1Amount =0
-	int _pick1NumPeople =0
-	int _pick2Amount =0
-	int _pick2NumPeople =0
-	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
-	
-	_league = "EPL"
-	_away = "Liverpool FC"
-	_home ="Stoke City"
-	_type ="soccer"
-	_country = "england"
-	_theDate =new Date() - 5
-	_awayScore =0
-	_homeScore =0
-	_pick1Amount =0
-	_pick1NumPeople =0
-	_pick2Amount =0
-	_pick2NumPeople =0
-	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
-}
-
-def createGames(){
-	Random random = new Random()
-
-	String _league = "EPL"
-	String _away = "Liverpool FC"
-	String _home ="Man United"
-	String _type ="soccer"
-	String _country = "england"
-	Date _theDate =new Date() + random.nextInt(7)
-	int _awayScore =0
-	int _homeScore =0
-	int _pick1Amount =0
-	int _pick1NumPeople =0
-	int _pick2Amount =0
-	int _pick2NumPeople =0
-	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
-	
-	_league = "EPL"
-	_away = "Liverpool FC"
-	_home ="Stoke City"
-	_type ="soccer"
-	_country = "england"
-	_theDate =new Date() + random.nextInt(7)
-	_awayScore =0
-	_homeScore =0
-	_pick1Amount =0
-	_pick1NumPeople =0
-	_pick2Amount =0
-	_pick2NumPeople =0
-	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
-	
-	_league = "EPL"
-	_away = "Arsenal FC"
-	_home ="Aston Villa"
-	_type ="soccer"
-	_country = "england"
-	_theDate =new Date() + random.nextInt(7)
-	_awayScore =0
-	_homeScore =0
-	_pick1Amount =0
-	_pick1NumPeople =0
-	_pick2Amount =0
-	_pick2NumPeople =0
-	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
-	
-	_league = "EPL"
-	_away = "Norwich City"
-	_home ="Everton FC"
-	_type ="soccer"
-	_country = "england"
-	_theDate =new Date() + random.nextInt(7)
-	_awayScore =0
-	_homeScore =0
-	_pick1Amount =0
-	_pick1NumPeople =0
-	_pick2Amount =0
-	_pick2NumPeople =0
-	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
-	
-	_league = "EPL"
-	_away = "Sunderland AFC"
-	_home ="Fulham FC"
-	_type ="soccer"
-	_country = "england"
-	_theDate =new Date() + random.nextInt(7)
-	_awayScore =0
-	_homeScore =0
-	_pick1Amount =0
-	_pick1NumPeople =0
-	_pick2Amount =0
-	_pick2NumPeople =0
-	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
-
-	_league = "EPL"
-	_away = "Liverpool FC"
-	_home ="Stoke City"
-	_type ="soccer"
-	_country = "england"
-	_theDate =new Date() + random.nextInt(7)
-	_awayScore =0
-	_homeScore =0
-	_pick1Amount =0
-	_pick1NumPeople =0
-	_pick2Amount =0
-	_pick2NumPeople =0
-	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
-	
-	_league = "EPL"
-	_away = "Arsenal FC"
-	_home ="Aston Villa"
-	_type ="soccer"
-	_country = "england"
-	_theDate =new Date() + random.nextInt(7)
-	_awayScore =0
-	_homeScore =0
-	_pick1Amount =0
-	_pick1NumPeople =0
-	_pick2Amount =0
-	_pick2NumPeople =0
-	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
-	
-	_league = "EPL"
-	_away = "Norwich City"
-	_home ="Everton FC"
-	_type ="soccer"
-	_country = "england"
-	_theDate =new Date() + random.nextInt(7)
-	_awayScore =0
-	_homeScore =0
-	_pick1Amount =0
-	_pick1NumPeople =0
-	_pick2Amount =0
-	_pick2NumPeople =0
-	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
-	
-	_league = "EPL"
-	_away = "Sunderland AFC"
-	_home ="Fulham FC"
-	_type ="soccer"
-	_country = "england"
-	_theDate =new Date() + random.nextInt(7)
-	_awayScore =0
-	_homeScore =0
-	_pick1Amount =0
-	_pick1NumPeople =0
-	_pick2Amount =0
-	_pick2NumPeople =0
-	createGame( _league,  _away,  _home,  _type,  _country,  _theDate,  _awayScore,  _homeScore,  _pick1Amount, _pick1NumPeople,  _pick2Amount, _pick2NumPeople)
-
-	println "create game ended"
-}
-
 def createUsers(){
+	Random random = new Random()
+	String _displayName
+	String _emai
+	String _password
+	String _gender
+	String _region
 	
-	String _displayName  = "michealLiu1"
-	String _email = "micheal1@gmail.com"
-	String _password = "12345"
-	String _gender = "male"
-	String _region = "Japan"
-	
-	createUser(_displayName, _email, _password, _gender, _region)
-	
-	 _displayName  = "joey"
-	 _email = "joey@gmail.com"
-	 _password = "12345"
-	_gender = "male"
-	_region = "Toronto"
-	 
-	 createUser(_displayName, _email, _password, _gender, _region)
-	
-	 _displayName  = "ming"
-	 _email = "ming@gmail.com"
-	 _password = "12345"
-	_gender = "male"
-	 _region = "Toronto"
-	 
-	 createUser(_displayName, _email, _password, _gender, _region)
-
-	
-	 _displayName  = "kyle"
-	 _email = "kyle@gmail.com"
-	 _password = "12345"
-	 _gender = "male"
-	 _region = "Toronto"
-	 
-	 createUser(_displayName, _email, _password, _gender, _region)
-	
-	 _displayName  = "heng"
-	 _email = "heng@gmail.com"
-	 _password = "12345"
-	
-	 _gender = "female"
-	 _region = "Vancouver"
-	 
-	 createUser(_displayName, _email, _password, _gender, _region)
-	
-	_displayName  = "heng1"
-	_email = "heng1@gmail.com"
-	_password = "12345"
-	
-	_gender = "female"
-	_region = "Toronto"
-	
-	createUser(_displayName, _email, _password, _gender, _region)
-	
-	_displayName  = "heng2"
-	_email = "heng2@gmail.com"
-	_password = "12345"
-	
-	_gender = "male"
-	_region = "Montreal"
-	 
-	 createUser(_displayName, _email, _password, _gender, _region)
-	
-	_displayName  = "heng3"
-	_email = "heng3@gmail.com"
-	_password = "12345"
-	
-	_gender = "female"
-	_region = "Toronto"
-	
-	createUser(_displayName, _email, _password, _gender, _region)
-	
-	_displayName  = "Heng4"
-	_email = "heng4@gmail.com"
-	_password = "12345"
-	
-	 _gender = "female"
-	 _region = "Montreal"
-	
-	createUser(_displayName, _email, _password, _gender, _region)
-	
-	_displayName  = "scorena1"
-	_email = "scorena1@gmail.com"
-	_password = "12345"
-	
-	 _gender = "female"
-	 _region = "Montreal"
-	
-	createUser(_displayName, _email, _password, _gender, _region)
-
-	_displayName  = "scorena2"
-	_email = "scorena2@gmail.com"
-	_password = "12345"
-	
-	 _gender = "female"
-	 _region = "Montreal"
-	
-	createUser(_displayName, _email, _password, _gender, _region)
-	
-	_displayName  = "scorena3"
-	_email = "scorena3@gmail.com"
-	_password = "12345"
-	
-	 _gender = "female"
-	 _region = "Montreal"
-	
-	createUser(_displayName, _email, _password, _gender, _region)
-	
-	_displayName  = "scorena4"
-	_email = "scorena4@gmail.com"
-	_password = "12345"
-	
-	 _gender = "female"
-	 _region = "Montreal"
-	
-	createUser(_displayName, _email, _password, _gender, _region)
-	
-	_displayName  = "scorena5"
-	_email = "scorena5@gmail.com"
-	_password = "12345"
-	
-	 _gender = "female"
-	 _region = "Montreal"
-	
-	createUser(_displayName, _email, _password, _gender, _region)
-		
+	for (int i=0; i<10; i++){
+		def num = random.nextInt(10000)
+		 _displayName  = "scorena"+num.toString()
+		 _email = _displayName+"@gmail.com"
+		 _password = "12345"
+		 _gender = "male"
+		 _region = "Japan"	
+		createUser(_displayName, _email, _password, _gender, _region)
+	}
 	println "create users ended"
 }
 

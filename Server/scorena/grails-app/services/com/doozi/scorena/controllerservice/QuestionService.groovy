@@ -13,6 +13,10 @@ class QuestionService {
 	def gameService
 	def processEngineImplService
 	
+	def listQuestionsWithPoolInfo(eventKey){
+		listQuestionsWithPoolInfo(eventKey, null)
+	}
+	
 	def listQuestionsWithPoolInfo(eventKey, userId) {
 		//def game = Game.findById(gameId, [fetch:[question:"eager"]])
 		def questions = listQuestions(eventKey)
@@ -42,13 +46,15 @@ class QuestionService {
 				double pick2PayoutMultiple = (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick2Mult
 				DecimalFormat df = new DecimalFormat("###.##")
 				
-				boolean placedBet = false
-				int userPickStatus = -1
-				def userPick =-1
-				def winnerPick =-1
-				def userBet
+				
+				def game = gameService.getGame(q.eventKey)
+				def userInfo=[]
 				if (userId!=null){
-					def game = gameService.getGame(q.eventKey)					
+					boolean placedBet = false
+					int userPickStatus = -1
+					def userPick =-1
+					def winnerPick =-1
+					def userBet
 					userBet = betService.getBetByQuestionIdAndUserId(q.id, userId)	
 					if (userBet){
 						placedBet = true
@@ -68,16 +74,14 @@ class QuestionService {
 						}
 												
 					}
+					userInfo=[placedBet:placedBet, userPickStatus:userPickStatus, userPick:userPick,winnerPick:winnerPick]
 				}
 				resultList.add([
 					questionId: q.id,
 					content: q.questionContent.content,
 					pick1: q.pick1,
 					pick2: q.pick2,
-					placedBet: placedBet,
-					userPickStatus: userPickStatus,
-					userPick: userPick,
-					winnerPick: winnerPick,
+					userInfo:userInfo,
 					pool: [
 						pick1Amount: lastBet.pick1Amount,
 						pick1NumPeople: lastBet.pick1NumPeople,
@@ -88,6 +92,7 @@ class QuestionService {
 						pick2PayoutPercent: pick2PayoutPercentage,
 						pick2odds:  df.format(pick2PayoutMultiple).toDouble(),
 					]
+					
 				])
 			}
 		
@@ -118,7 +123,7 @@ class QuestionService {
 	private def getPostEventQuestion(Question q, String userId){
 		PoolTransaction lastBet = betService.getLatestBetByQuestionId(q.id)
 		int winnerPick = processEngineImplService.getWinningPick(q.eventKey, q)
-		PoolTransaction userBet = betService.getBetByQuestionIdAndUserId(q.id, userId)
+		
 		
 		def pick1PayoutPercentage 
 		def pick2PayoutPercentage 
@@ -164,15 +169,22 @@ class QuestionService {
 				println "ERROR: winner pick error"
 				break
 		}
-		def userWinningAmount = 0
-		def userPayout = 0
-		def userBetAmount = 0
-		def userPick =-1
-		if (userBet != null){
-			userWinningAmount = Math.floor(userBet.transactionAmount * pick1PayoutMultiple)
-			userPayout = pick1PayoutPercentage
-			userBetAmount=userBet.transactionAmount
-			userPick=userBet.pick
+
+		def userInfo = []
+		if (userId != null){
+			def userWinningAmount = 0
+			def userPayoutPercent = 0
+			def userBetAmount = 0
+			def userPick =-1
+			
+			PoolTransaction userBet = betService.getBetByQuestionIdAndUserId(q.id, userId)
+			if (userBet!= null){
+				userWinningAmount = Math.floor(userBet.transactionAmount * pick1PayoutMultiple)
+				userPayoutPercent = pick1PayoutPercentage
+				userBetAmount=userBet.transactionAmount
+				userPick=userBet.pick								
+			}
+			userInfo=[userWinningAmount:userWinningAmount, userPayoutPercent:userPayoutPercent, userBetAmount:userBetAmount, userPick:userPick]
 		}
 		
 		def currentOddsPick1=1
@@ -188,13 +200,10 @@ class QuestionService {
 			content: q.questionContent.content,
 			pick1: q.pick1,
 			pick2: q.pick2,
-			userWinningAmount:userWinningAmount,
-			userPayoutPercent: userPayout,
 			winnerPick: winnerPick,
 			currentOddsPick1:df.format(currentOddsPick1).toDouble(),
 			currentOddsPick2:df.format(currentOddsPick2).toDouble(),
-			userWager:userBetAmount,
-			userPick:userPick,
+			userInfo: userInfo,
 			pool: [
 				pick1Amount: lastBet.pick1Amount,
 				pick1NumPeople: lastBet.pick1NumPeople,
@@ -212,7 +221,7 @@ class QuestionService {
 		DecimalFormat df = new DecimalFormat("###.##")
 		
 		PoolTransaction lastBet = betService.getLatestBetByQuestionId(q.id)
-		PoolTransaction userBet = betService.getBetByQuestionIdAndUserId(q.id, userId)
+		
 		
 		def denominatorPickPerc = lastBet.pick1Amount + lastBet.pick2Amount
 		def denominatorPick1Mult = lastBet.pick1Amount
@@ -232,12 +241,17 @@ class QuestionService {
 		def pick1PayoutMultiple = (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick1Mult
 		def pick2PayoutMultiple = (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick2Mult
 		
-		def userBetAmount = 0
-		def userPick =-1
 		
-		if (userBet != null){
-			userBetAmount=userBet.transactionAmount
-			userPick=userBet.pick
+		def userInfo = []
+		if (userId != null){
+			def userBetAmount = 0
+			def userPick =-1
+			PoolTransaction userBet = betService.getBetByQuestionIdAndUserId(q.id, userId)
+			if (userBet){
+				userBetAmount=userBet.transactionAmount
+				userPick=userBet.pick
+			}
+			userInfo=[userWager:userBetAmount, userPick:userPick]
 		}
 		
 		
@@ -255,8 +269,7 @@ class QuestionService {
 			pick1: q.pick1,
 			pick2: q.pick2,
 			lastUpdate: lastBet.createdAt,
-			userWager:userBetAmount,
-			userPick:userPick,
+			userInfo:userInfo,
 			pool: [
 				pick1Amount: lastBet.pick1Amount,
 				pick1NumPeople: lastBet.pick1NumPeople,
@@ -300,8 +313,8 @@ class QuestionService {
 		
 		
 		def betters=[
-			homeBetters: homeBettersArr,
-			awayBetters: awayBettersArr			
+			pick1Betters: homeBettersArr,
+			pick2Betters: awayBettersArr			
 		]
 		
 		return betters
