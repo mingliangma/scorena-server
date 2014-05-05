@@ -21,9 +21,22 @@ import grails.plugins.rest.client.RestBuilder
 class UserService {
 	def INITIAL_BALANCE = 2000
 	def PREVIOUS_BALANCE = INITIAL_BALANCE
+	def FREE_COIN_BALANCE_THRESHOLD = 50
 	def grailsApplication
 	def parseService
 	def betService
+	
+	def getCoins(userId){
+		def userAccount = Account.findByUserId(userId)
+		if (!userAccount)
+			return [code: 400, error:"userId is invalid"]
+		
+		if (userAccount.currentBalance >=FREE_COIN_BALANCE_THRESHOLD)
+			return [code: 400, error:"Balance above "+FREE_COIN_BALANCE_THRESHOLD+" cannot get free coins"]
+			
+		userAccount.currentBalance = userAccount.currentBalance + INITIAL_BALANCE
+		return [username: userAccount.username, userId: userAccount.userId, currentBalance: userAccount.currentBalance]
+	}
 	
 	def processRankingData(Account user, int rank){		
 		return [username: user.username, gain: user.currentBalance, rank: rank]

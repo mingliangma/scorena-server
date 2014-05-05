@@ -47,28 +47,16 @@ class SportsDataService {
 	}
 	
 	def getAllUpcomingGames(){
-		def upcomingDate = new Date() + UPCOMING_DATE_RANGE;
-		def upcomingGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime<? and g.eventStatus<>'post-event' order by g.startDateTime", [upcomingDate])
+		def todayDate = new Date()
+		def upcomingDate = todayDate + UPCOMING_DATE_RANGE;
+		def upcomingGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime<? and g.startDateTime>? and g.eventStatus<>'post-event' order by g.startDateTime", [upcomingDate, todayDate], [cache: true])
 		def upcomingGamesMap = [:]
 		List upcomingGamesList = []
-		int dummy =0
+		
 		for (ScorenaAllGames game: upcomingGames){
 			String eventKey = game.eventKey
 			def upcomingGame = upcomingGamesMap.get(eventKey)
 			
-//			String dummyGameStatus
-//			if (dummy==0)
-//				dummyGameStatus = "mid-event"
-//			else if (dummy == 1)
-//				dummyGameStatus = "intermission"
-//			else if (dummy==2)
-//				dummyGameStatus = "mid-event"
-//			else if (dummy == 3)
-//				dummyGameStatus = "intermission"
-//			else
-//				dummyGameStatus = game.eventStatus
-			
-			dummy++
 			if (!upcomingGame){
 				def	gameInfo = [
 						"leagueName": getLeagueNameFromEventKey(eventKey),
@@ -76,7 +64,6 @@ class SportsDataService {
 						"gameId":eventKey,
 						"type":"soccer",
 						"gameStatus":game.eventStatus,
-//						"gameStatus":dummyGameStatus,
 						"date":game.startDateTime,
 						(game.alignment):[
 							"teamname":game.fullName,
@@ -100,8 +87,9 @@ class SportsDataService {
 	}
 	
 	def getAllPastGames(){
-		def pastDate = new Date() - PAST_DATE_RANGE;
-		def pastGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime>? and g.eventStatus='post-event'", [pastDate])
+		def todayDate = new Date()
+		def pastDate = todayDate - PAST_DATE_RANGE;
+		def pastGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime>? and g.startDateTime<?and g.eventStatus='post-event'", [pastDate, todayDate+1])
 		def pastGamesMap = [:]
 		List upcomingGamesList = []
 		for (ScorenaAllGames game: pastGames){

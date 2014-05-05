@@ -23,6 +23,7 @@ class UserController {
 	}
 
 	
+	
 	//curl -i -v -X POST -H "Content-Type: application/json" -d '{"username":"candiceli", "email":"candi@gmail.com", "password":"asdfasdf", "gender":"female", "region":"Toronto"}' localhost:8080/scorena/v1/users/new
 	def createNewUser(){
 		
@@ -168,6 +169,24 @@ class UserController {
 		
 		def rankingResult = userService.getRanking(params.userId)
 		render rankingResult as JSON
+		return
+	}
+	
+	def getCoins(){
+		if (!params.userId){
+			response.status = 404
+			def result = [error: "userId is required"]
+			render result as JSON
+			return
+		}
+		
+		def getCoinsResult = userService.getCoins(params.userId)
+		if (getCoinsResult.code){
+			response.status = 404
+			render getCoinsResult as JSON
+			return
+		}
+		render getCoinsResult as JSON
 		return
 	}
 	
