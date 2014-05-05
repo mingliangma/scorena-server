@@ -13,6 +13,10 @@ class QuestionService {
 	def gameService
 	def processEngineImplService
 	
+	def listPreGameQuestions(){
+		
+	}
+	
 	def listQuestionsWithPoolInfo(eventKey){
 		listQuestionsWithPoolInfo(eventKey, null)
 	}
@@ -48,22 +52,23 @@ class QuestionService {
 				
 				
 				def game = gameService.getGame(q.eventKey)
+				def winnerPick =-1
+				if (game.eventStatus.trim() == "post-event"){
+					winnerPick = processEngineImplService.getWinningPick(q.eventKey, q)
+				}
 				def userInfo=[]
 				if (userId!=null){
 					boolean placedBet = false
 					int userPickStatus = -1
 					def userPick =-1
-					def winnerPick =-1
+					
 					def userBet
 					userBet = betService.getBetByQuestionIdAndUserId(q.id, userId)	
 					if (userBet){
 						placedBet = true
 						userPick=userBet.pick
-					}							
-					if (game.eventStatus.trim() == "post-event"){
-						winnerPick = processEngineImplService.getWinningPick(q.eventKey, q)
-						if (userBet){																			 
-
+						if (winnerPick!=-1){
+							
 							if (winnerPick==0){
 								userPickStatus = 0
 							}else if (winnerPick==userBet.pick){
@@ -72,9 +77,12 @@ class QuestionService {
 								userPickStatus = 2
 							}
 						}
+					}							
+				
+					
 												
-					}
-					userInfo=[placedBet:placedBet, userPickStatus:userPickStatus, userPick:userPick,winnerPick:winnerPick]
+					
+					userInfo=[placedBet:placedBet, userPickStatus:userPickStatus, userPick:userPick]
 				}
 				resultList.add([
 					questionId: q.id,
@@ -82,6 +90,7 @@ class QuestionService {
 					pick1: q.pick1,
 					pick2: q.pick2,
 					userInfo:userInfo,
+					winnerPick:winnerPick,
 					pool: [
 						pick1Amount: lastBet.pick1Amount,
 						pick1NumPeople: lastBet.pick1NumPeople,
@@ -171,6 +180,7 @@ class QuestionService {
 		}
 
 		def userInfo = []
+		def username=""
 		if (userId != null){
 			def userWinningAmount = 0
 			def userPayoutPercent = 0
@@ -182,9 +192,10 @@ class QuestionService {
 				userWinningAmount = Math.floor(userBet.transactionAmount * pick1PayoutMultiple)
 				userPayoutPercent = pick1PayoutPercentage
 				userBetAmount=userBet.transactionAmount
-				userPick=userBet.pick								
+				userPick=userBet.pick	
+				username=userBet.account.username				
 			}
-			userInfo=[userWinningAmount:userWinningAmount, userPayoutPercent:userPayoutPercent, userBetAmount:userBetAmount, userPick:userPick]
+			userInfo=[userWinningAmount:userWinningAmount, userPayoutPercent:userPayoutPercent, userWager:userBetAmount, userPick:userPick]
 		}
 		
 		def currentOddsPick1=1
@@ -212,7 +223,7 @@ class QuestionService {
 				pick2NumPeople: lastBet.pick2NumPeople,
 				pick2PayoutPercent: pick2PayoutPercentage,
 			],
-			betters: getBetters(q.id, pick1PayoutMultiple, pick2PayoutMultiple)
+			betters: getBetters(q.id, pick1PayoutMultiple, pick2PayoutMultiple, userInfo, username)
 		]
 		return result
 	}
@@ -243,6 +254,7 @@ class QuestionService {
 		
 		
 		def userInfo = []
+		def username = ""
 		if (userId != null){
 			def userBetAmount = 0
 			def userPick =-1
@@ -250,6 +262,7 @@ class QuestionService {
 			if (userBet){
 				userBetAmount=userBet.transactionAmount
 				userPick=userBet.pick
+				username=userBet.account.username
 			}
 			userInfo=[userWager:userBetAmount, userPick:userPick]
 		}
@@ -280,29 +293,35 @@ class QuestionService {
 				currentOddsPick1:df.format(currentOddsPick1).toDouble(),
 				currentOddsPick2:df.format(currentOddsPick2).toDouble(),
 			],
-			betters: getBetters(q.id, pick1PayoutMultiple, pick2PayoutMultiple)
+			betters: getBetters(q.id, pick1PayoutMultiple, pick2PayoutMultiple, userInfo, username)
 		]
 		return result
 	}
 
 	
-	def getBetters(qId, pick1PayoutMultiple, pick2PayoutMultiple){
+	def getBetters(qId, pick1PayoutMultiple, pick2PayoutMultiple, userInfo, username){
 		def homeBettersArr = []
 		def awayBettersArr = []
-
+		def currentUserAdded = false
 		
 		def betTransactions = betService.listAllBets(qId)
 		
 		for (PoolTransaction betTrans: betTransactions){
 			if (betTrans.pick==1){
 				if (homeBettersArr.size() <=10){
+					if (betTrans.account.username == username){
+						currentUserAdded=true
+					}
 					homeBettersArr.add([
 						name:betTrans.account.username,
 						wager:betTrans.transactionAmount,
 						expectedWinning: Math.round(pick1PayoutMultiple * betTrans.transactionAmount)])
 				}
 			}else{
-				if (awayBettersArr.size() <=10){				
+				if (awayBettersArr.size() <=10){	
+					if (betTrans.account.username == username){
+						currentUserAdded=true
+					}
 					awayBettersArr.add( [
 					name:betTrans.account.username,
 					wager:betTrans.transactionAmount,
@@ -312,6 +331,14 @@ class QuestionService {
 		}
 		
 		
+		if ( currentUserAdded == false && userInfo!=[]){
+			println userInfo
+			if (userInfo.userPick==1){
+				homeBettersArr.add(0,[name:username, wager:userInfo.userWager,expectedWinning: Math.round(pick1PayoutMultiple * userInfo.userWager)])
+			}else{
+				awayBettersArr.add(0,[name:username, wager:userInfo.userWager,expectedWinning: Math.round(pick2PayoutMultiple * userInfo.userWager)])
+			}
+		}
 		def betters=[
 			pick1Betters: homeBettersArr,
 			pick2Betters: awayBettersArr			

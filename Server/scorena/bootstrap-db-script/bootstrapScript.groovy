@@ -31,7 +31,7 @@ import java.util.Date;
 //bootstrapQuestionContent()
 //createQuestions()
 //createUsers()
-//simulateBetUpcoming()
+simulateBetUpcoming()
 simulateBetPast()
 
 println "create transactions ended"

@@ -22,6 +22,7 @@ class UserService {
 	def INITIAL_BALANCE = 2000
 	def PREVIOUS_BALANCE = INITIAL_BALANCE
 	def FREE_COIN_BALANCE_THRESHOLD = 50
+	def FREE_COIN_AMOUNT = 1000
 	def grailsApplication
 	def parseService
 	def betService
@@ -31,11 +32,11 @@ class UserService {
 		if (!userAccount)
 			return [code: 400, error:"userId is invalid"]
 		
-		if (userAccount.currentBalance >=FREE_COIN_BALANCE_THRESHOLD)
-			return [code: 400, error:"Balance above "+FREE_COIN_BALANCE_THRESHOLD+" cannot get free coins"]
+//		if (userAccount.currentBalance >=FREE_COIN_BALANCE_THRESHOLD)
+//			return [code: 400, error:"Balance above "+FREE_COIN_BALANCE_THRESHOLD+" cannot get free coins"]
 			
-		userAccount.currentBalance = userAccount.currentBalance + INITIAL_BALANCE
-		return [username: userAccount.username, userId: userAccount.userId, currentBalance: userAccount.currentBalance]
+		userAccount.currentBalance = userAccount.currentBalance + FREE_COIN_AMOUNT
+		return [username: userAccount.username, userId: userAccount.userId, currentBalance: userAccount.currentBalance, newCoinsAmount: FREE_COIN_AMOUNT]
 	}
 	
 	def processRankingData(Account user, int rank){		
@@ -206,9 +207,9 @@ class UserService {
 		
 		def userPayoutTrans = betService.listPayoutTransByUserId(userId)
 		def userStats = getBetStats(userPayoutTrans)
-		userStats.weekly.netGainPercent = ((userStats.weekly.netGain / account.currentBalance)*100).toInteger()
-		userStats.monthly.netGainPercent = ((userStats.monthly.netGain / account.currentBalance)*100).toInteger()
-		userStats.all.netGainPercent = ((userStats.all.netGain / account.currentBalance)*100).toInteger()
+		userStats.weekly.netGainPercent = ((userStats.weekly.netGain / (account.currentBalance-userStats.weekly.netGain))*100).toInteger()
+		userStats.monthly.netGainPercent = ((userStats.monthly.netGain / (account.currentBalance-userStats.monthly.netGain))*100).toInteger()
+		userStats.all.netGainPercent = ((userStats.all.netGain / (account.currentBalance-userStats.all.netGain))*100).toInteger()
 		
 		def result = [
 			createdAt:resp.json.createdAt,
