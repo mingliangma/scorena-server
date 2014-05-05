@@ -255,7 +255,7 @@ class QuestionService {
 		
 		def userInfo = []
 		def username = ""
-		if (userId != null){
+		if (userId != null && userId!=""){
 			def userBetAmount = 0
 			def userPick =-1
 			PoolTransaction userBet = betService.getBetByQuestionIdAndUserId(q.id, userId)
@@ -267,13 +267,12 @@ class QuestionService {
 			userInfo=[userWager:userBetAmount, userPick:userPick]
 		}
 		
-		
 		def currentOddsPick1=1
 		def currentOddsPick2=1
 		if (lastBet.pick1Amount > lastBet.pick2Amount){
-			currentOddsPick1=(lastBet.pick1Amount/lastBet.pick2Amount)
+			currentOddsPick1=(lastBet.pick1Amount/denominatorPick2Mult)
 		}else if (lastBet.pick1Amount < lastBet.pick2Amount){
-			currentOddsPick2 = lastBet.pick2Amount/lastBet.pick1Amount
+			currentOddsPick2 = lastBet.pick2Amount/denominatorPick1Mult
 		}
 		
 		def result = [
@@ -309,29 +308,32 @@ class QuestionService {
 		for (PoolTransaction betTrans: betTransactions){
 			if (betTrans.pick==1){
 				if (homeBettersArr.size() <=10){
-					if (betTrans.account.username == username){
-						currentUserAdded=true
+					if (betTrans.account.username != username){
+						
+						homeBettersArr.add([
+							name:betTrans.account.username,
+							wager:betTrans.transactionAmount,
+							expectedWinning: Math.round(pick1PayoutMultiple * betTrans.transactionAmount)])
 					}
-					homeBettersArr.add([
-						name:betTrans.account.username,
-						wager:betTrans.transactionAmount,
-						expectedWinning: Math.round(pick1PayoutMultiple * betTrans.transactionAmount)])
 				}
 			}else{
 				if (awayBettersArr.size() <=10){	
-					if (betTrans.account.username == username){
-						currentUserAdded=true
+					if (betTrans.account.username != username){
+					
+						awayBettersArr.add( [
+							name:betTrans.account.username,
+							wager:betTrans.transactionAmount,
+							expectedWinning: Math.round(pick2PayoutMultiple * betTrans.transactionAmount)])
+				
 					}
-					awayBettersArr.add( [
-					name:betTrans.account.username,
-					wager:betTrans.transactionAmount,
-					expectedWinning: Math.round(pick2PayoutMultiple * betTrans.transactionAmount)])
 				}
-			}		
+			}
+			if (awayBettersArr.size() >10 && homeBettersArr.size() >10)
+				break
 		}
 		
 		
-		if ( currentUserAdded == false && userInfo!=[]){
+		if ( currentUserAdded == false && userInfo!=[] && username!=""){
 			println userInfo
 			if (userInfo.userPick==1){
 				homeBettersArr.add(0,[name:username, wager:userInfo.userWager,expectedWinning: Math.round(pick1PayoutMultiple * userInfo.userWager)])
