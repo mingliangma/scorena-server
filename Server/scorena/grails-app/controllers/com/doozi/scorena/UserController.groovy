@@ -27,7 +27,7 @@ class UserController {
 	//curl -i -v -X POST -H "Content-Type: application/json" -d '{"username":"candiceli", "email":"candi@gmail.com", "password":"asdfasdf", "gender":"female", "region":"Toronto"}' localhost:8080/scorena/v1/users/new
 	def createNewUser(){
 		
-		if (!request.JSON.username || !request.JSON.email|| !request.JSON.password || !request.JSON.gender|| !request.JSON.region){
+		if (!request.JSON.username || !request.JSON.email|| !request.JSON.password){
 			response.status = 404
 			def result = [error: "invalid parameters"]
 			render result as JSON
@@ -52,10 +52,11 @@ class UserController {
 	
 	//curl -v -X GET  -G --data-urlencode 'username=Ming' --data-urlencode 'password=11111111' localhost:8080/scorena/v1/login
 	def login(){
-		println request.JSON.toString()
+		
+		response.setHeader('Access-Control-Allow-Origin', '*')
 		if (!params.username||!params.password){
 			response.status = 404
-			def result = [error: "invalid parameters"]
+			def result = [error: "invalid parameters"]			
 			render result as JSON
 			return
 		}

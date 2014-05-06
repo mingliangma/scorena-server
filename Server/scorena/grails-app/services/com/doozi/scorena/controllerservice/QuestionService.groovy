@@ -12,10 +12,64 @@ class QuestionService {
 	def betService
 	def gameService
 	def processEngineImplService
+	def questionService
 	
-	def listPreGameQuestions(){
+	def listFeatureQuestions(userId){
+		def questionList = listUpcomingQuesitonsByMostPeopleBetOn()
+		def featureQuestions = getUnpickMostBetQuestions(questionList, userId, 3)
+		return constructFeatureGameData(featureQuestions)
 		
 	}
+	
+	private def constructFeatureGameData(featureQuestions){
+		List featureQuestionResponse = []
+		for (int i=0; i<featureQuestions.size(); i++){
+			def gameIdAndQuestionIdArray = featureQuestions.get(i)
+			def game = gameService.getGame(gameIdAndQuestionIdArray[0])
+			game.question = questionService.getQuestionWithPoolInfo(gameIdAndQuestionIdArray[0], gameIdAndQuestionIdArray[1])
+			featureQuestionResponse.add(game)
+		}
+		return featureQuestionResponse
+	}
+	
+	//return list of [(eventKey),(quesitonId), (transactionTypeSum), (BetCount)]
+	private def listUpcomingQuesitonsByMostPeopleBetOn(){
+		return PoolTransaction.executeQuery("select eventKey, question.id ,sum(transactionType) as type1, count(*) as betCount "+
+			"from PoolTransaction as t1 group by 1,2 order by betCount desc limit 100")
+	}
+	
+	private def getUnpickMostBetQuestions(def questions, String userId, int limit){
+		int i = 0
+		int numUsersBet = 0
+		List qList = []
+		for (def q: questions){
+			if (q.getAt(2) == 0){
+				if (userId!=null && userId!=""){
+					def userBet = betService.getBetByQuestionIdAndUserId(q[1], userId)
+					if (userBet != null){
+						continue
+					}
+				}
+				qList.add([q[0], q[1]])
+				i++
+				if (i>=limit){
+					break
+				}
+			}
+		}		
+		return qList
+	}
+	
+	def getQuestionWithPoolInfo(eventKey, qId){
+		List questions = listQuestionsWithPoolInfo(eventKey)
+		for (def q: questions){
+			if (q.questionId == qId){
+				return q
+			}
+		}
+		return []		
+	}
+	
 	
 	def listQuestionsWithPoolInfo(eventKey){
 		listQuestionsWithPoolInfo(eventKey, null)
@@ -189,8 +243,14 @@ class QuestionService {
 			
 			PoolTransaction userBet = betService.getBetByQuestionIdAndUserId(q.id, userId)
 			if (userBet!= null){
-				userWinningAmount = Math.floor(userBet.transactionAmount * pick1PayoutMultiple)
-				userPayoutPercent = pick1PayoutPercentage
+				if (userBet.pick==1){
+					userWinningAmount = Math.floor(userBet.transactionAmount * pick1PayoutMultiple)
+					userPayoutPercent = pick1PayoutPercentage
+				}else{
+					userWinningAmount = Math.floor(userBet.transactionAmount * pick2PayoutMultiple)
+					userPayoutPercent = pick2PayoutPercentage
+				}
+				
 				userBetAmount=userBet.transactionAmount
 				userPick=userBet.pick	
 				username=userBet.account.username				
@@ -334,7 +394,6 @@ class QuestionService {
 		
 		
 		if ( currentUserAdded == false && userInfo!=[] && username!=""){
-			println userInfo
 			if (userInfo.userPick==1){
 				homeBettersArr.add(0,[name:username, wager:userInfo.userWager,expectedWinning: Math.round(pick1PayoutMultiple * userInfo.userWager)])
 			}else{

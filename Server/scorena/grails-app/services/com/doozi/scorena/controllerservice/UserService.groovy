@@ -81,9 +81,6 @@ class UserService {
 		def rest = new RestBuilder()
 		def resp = parseService.createUser(rest, _username, _email, _password, gender, region)
 		
-		println "parse create user status:"+resp.status
-		println "parse create user content:"+resp.json
-		
 		if (resp.status != 201){
 			def result = [
 				code:resp.json.code,
@@ -234,9 +231,13 @@ class UserService {
 	
 	def getBetStats(userPayoutTrans){
 		
-		def stats = [all:[netGain:0, wins:0, losses:0, ties:0, leagues:[premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]], 
-			monthly:[netGain:0, wins:0, losses:0, ties:0,leagues:[premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]], 
-			weekly:[netGain:0, wins:0, losses:0, ties:0,leagues:[premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]]]
+//		def stats = [all:[netGain:0, wins:0, losses:0, ties:0, leagues:[premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]], 
+//			monthly:[netGain:0, wins:0, losses:0, ties:0,leagues:[premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]], 
+//			weekly:[netGain:0, wins:0, losses:0, ties:0,leagues:[premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]]]
+		
+		def stats = [all:[netGain:0, wins:0, losses:0, ties:0, leagues:[All_Leagues:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]],
+			monthly:[netGain:0, wins:0, losses:0, ties:0,leagues:[All_Leagues:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]],
+			weekly:[netGain:0, wins:0, losses:0, ties:0,leagues:[All_Leagues:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]]]
 		
 		if (userPayoutTrans==null || userPayoutTrans.size()==0){
 			println "userPayoutTrans null"

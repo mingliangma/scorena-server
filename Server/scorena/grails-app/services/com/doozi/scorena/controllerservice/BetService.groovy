@@ -15,7 +15,7 @@ import grails.transaction.Transactional
 @Transactional
 class BetService {
 
-
+	
 	
 	def savePayoutTrans(Account playerAccount, Question q, int payout, int winnerPick, int potAmoutToBePaid, int numPlayersToBePaid, int wager){
 		def potAmoutToBePaidAfter = potAmoutToBePaid - payout

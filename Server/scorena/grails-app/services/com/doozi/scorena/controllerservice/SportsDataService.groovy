@@ -15,6 +15,9 @@ class SportsDataService {
 	static int UPCOMING_DATE_RANGE = 7
 	static int PAST_DATE_RANGE = 7
 	
+
+	
+		
 	private String getLeagueNameFromEventKey(String eventKey){
 		
 		if (eventKey.startsWith(PREMIER_LEAGUE))
@@ -45,6 +48,8 @@ class SportsDataService {
 		else if (eventKey.startsWith(MLS))
 			return MLS
 	}
+	
+
 	
 	def getAllUpcomingGames(){
 		def todayDate = new Date()
@@ -129,7 +134,7 @@ class SportsDataService {
 	}
 	
 	def getGame(def eventKey){
-		def games = ScorenaAllGames.findAllByEventKey(eventKey)
+		def games = ScorenaAllGames.findAllByEventKey(eventKey,[cache: true])
 		
 		def gameInfo = []
 		for (ScorenaAllGames game: games){

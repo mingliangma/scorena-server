@@ -34,6 +34,7 @@ class GameService {
 		return upcomingGames
 	}
 	
+	//deprecated
 	def getUpcomingGameObjects(){
 		def today = new Date();
 		def weekLater = today + 7;
@@ -66,18 +67,20 @@ class GameService {
 	}
 	
 	def listFeatureGames(userId){
-		def upcomingGames = sportsDataService.getAllUpcomingGames()
-		List featureGames =[]
-		for (int i = 0; i<3; i++){
-			def game = upcomingGames.get(i)
-			def questions = questionService.listQuestionsWithPoolInfo(game.gameId, userId)
-			if (questions.size()!=0){
-				def question = questions.get(0)
-				game.question = question
-				featureGames.add(game)
-			}
-			
-		}
+		List featureGames = questionService.listFeatureQuestions(userId)
+		
+//		def upcomingGames = sportsDataService.getAllUpcomingGames()
+//		List featureGames =[]
+//		for (int i = 0; i<3; i++){
+//			def game = upcomingGames.get(i)
+//			def questions = questionService.listQuestionsWithPoolInfo(game.gameId, userId)
+//			if (questions.size()!=0){
+//				def question = questions.get(i)
+//				game.question = question
+//				featureGames.add(game)
+//			}
+//			
+//		}
 		return featureGames
 	}
 	
