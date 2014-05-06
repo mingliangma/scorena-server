@@ -187,11 +187,13 @@ class QuestionService {
 		PoolTransaction lastBet = betService.getLatestBetByQuestionId(q.id)
 		int winnerPick = processEngineImplService.getWinningPick(q.eventKey, q)
 		
-		
-		def pick1PayoutPercentage 
-		def pick2PayoutPercentage 
+		def pick1PayoutPercentage
+		def pick2PayoutPercentage
+		def pick1WinningPayoutPercentage 
+		def pick2WinningPayoutPercentage 
 		def pick1PayoutMultiple 
-		def pick2PayoutMultiple 
+		def pick2PayoutMultiple
+		 
 		DecimalFormat df = new DecimalFormat("###.##")
 		
 		def denominatorPickPerc = lastBet.pick1Amount + lastBet.pick2Amount
@@ -206,24 +208,27 @@ class QuestionService {
 			
 		if (denominatorPick2Mult==0)
 			denominatorPick2Mult=1
+			
+		pick1PayoutPercentage = Math.round(100 * lastBet.pick1Amount/denominatorPickPerc)
+		pick2PayoutPercentage =  Math.round(100 * lastBet.pick2Amount/denominatorPickPerc)
 		
 		switch (winnerPick){
 			case 1:
 
-				pick1PayoutPercentage = Math.round(100 * lastBet.pick1Amount / denominatorPickPerc)				
+				pick1WinningPayoutPercentage = Math.round(100 * lastBet.pick1Amount / denominatorPickPerc)				
 				pick1PayoutMultiple =  (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick1Mult		
-				pick2PayoutPercentage = 0
+				pick2WinningPayoutPercentage = 0
 				pick2PayoutMultiple = -1
 				break
 			case 2: 
-				pick1PayoutPercentage = 0
-				pick2PayoutPercentage = Math.round(100 * lastBet.pick2Amount/denominatorPickPerc)
+				pick1WinningPayoutPercentage = 0
+				pick2WinningPayoutPercentage = Math.round(100 * lastBet.pick2Amount/denominatorPickPerc)
 				pick1PayoutMultiple =  -1
 				pick2PayoutMultiple = (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick2Mult
 				break
 			case 0:
-				pick1PayoutPercentage = 0
-				pick2PayoutPercentage = 0
+				pick1WinningPayoutPercentage = 0
+				pick2WinningPayoutPercentage = 0
 				pick1PayoutMultiple =  1
 				pick2PayoutMultiple = 1
 				break
@@ -232,7 +237,7 @@ class QuestionService {
 				println "ERROR: winner pick error"
 				break
 		}
-
+		
 		def userInfo = []
 		def username=""
 		if (userId != null){
@@ -245,10 +250,10 @@ class QuestionService {
 			if (userBet!= null){
 				if (userBet.pick==1){
 					userWinningAmount = Math.floor(userBet.transactionAmount * pick1PayoutMultiple)
-					userPayoutPercent = pick1PayoutPercentage
+					userPayoutPercent = pick1WinningPayoutPercentage
 				}else{
 					userWinningAmount = Math.floor(userBet.transactionAmount * pick2PayoutMultiple)
-					userPayoutPercent = pick2PayoutPercentage
+					userPayoutPercent = pick2WinningPayoutPercentage
 				}
 				
 				userBetAmount=userBet.transactionAmount
