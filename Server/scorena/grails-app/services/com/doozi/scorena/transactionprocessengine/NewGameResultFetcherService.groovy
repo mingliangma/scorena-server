@@ -6,6 +6,7 @@ import com.doozi.scorena.*
 @Transactional
 class NewGameResultFetcherService {
 	def sportsDataService
+	def helperService
     def printNowTime(def time) {
 		//println "current time is "+time
     }
@@ -13,7 +14,7 @@ class NewGameResultFetcherService {
 	def getUnprocessedPastGame(){
 		println "NewGameResultFetcherService::getUnprocessedPastGame(): starts"
 		def pastGames = sportsDataService.getAllPastGames()
-		def earliestPastGameDate = pastGames.get(pastGames.size()-1).date
+		def earliestPastGameDate = helperService.parseDateFromString(pastGames.get(pastGames.size()-1).date)
 		def processGameRecords = GameProcessRecord.findAllByStartDateTimeGreaterThanEquals(earliestPastGameDate)
 		def gameRecordAdded = 0
 		for (def pastGame: pastGames){
@@ -28,7 +29,7 @@ class NewGameResultFetcherService {
 			
 			if (unprocessed == true){
 				println "NewGameResultFetcherService::getUnprocessedPastGame(): Event " + pastGame.gameId + " is added to the GameProcessRecord table"
-				def newProcessRecord = new GameProcessRecord(eventKey: pastGame.gameId, transProcessStatus: 0, startDateTime: pastGame.date, lastUpdate: new Date())
+				def newProcessRecord = new GameProcessRecord(eventKey: pastGame.gameId, transProcessStatus: 0, startDateTime: helperService.parseDateFromString(pastGame.date), lastUpdate: new Date())
 				newProcessRecord.save()		
 				gameRecordAdded++
 			}

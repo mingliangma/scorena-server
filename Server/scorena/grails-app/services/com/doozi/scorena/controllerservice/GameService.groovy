@@ -10,6 +10,7 @@ class GameService {
 	def sportsDataService
 	def questionService
 	def betService
+	def helperService
 	
 	public static final String POSTEVENT = "post-event"
 	def listUpcomingGames(){
@@ -35,12 +36,12 @@ class GameService {
 	}
 	
 	//deprecated
-	def getUpcomingGameObjects(){
-		def today = new Date();
-		def weekLater = today + 7;
-		def upcomingGames = Game.findAllByStartDateBetween(today, weekLater)
-		return upcomingGames
-	}
+//	def getUpcomingGameObjects(){
+//		def today = new Date();
+//		def weekLater = today + 7;
+//		def upcomingGames = Game.findAllByStartDateBetween(today, weekLater)
+//		return upcomingGames
+//	}
 	
 	def listPastGames(){
 		def pastGames = sportsDataService.getAllPastGames()		

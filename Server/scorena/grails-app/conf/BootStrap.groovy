@@ -5,15 +5,16 @@ class BootStrap {
 
     def init = { servletContext ->
 		println "bootstrap starts..."
-//		if (!QuestionContent.count()) {
-//			bootstrapQuestionContent()
-//		}
-//		if (!Question.count() && !Account.count()) {
-//			createQuestions()			
+		
+		if (!QuestionContent.count()) {
+			bootstrapQuestionContent()
+		}
+		if (!Question.count()) {
+			createQuestions()			
 //			createUsers()
 //			simulateBetUpcoming()
 //			simulateBetPast()
-//		}
+		}
 		println "bootstrap ended"
     }
     def destroy = {

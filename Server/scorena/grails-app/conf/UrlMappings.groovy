@@ -39,6 +39,10 @@ class UrlMappings {
 			action = [GET:"getCoins"]
 		}
 		
+		"/v1/users/$userId?/balance"(controller:"user") {
+			action = [GET:"getBalance"]
+		}
+		
 		"/v1/sports/soccer/leagues/all/games/feature"(controller:"game"){
 			action = [GET:"getFeatureGames"]
 		}

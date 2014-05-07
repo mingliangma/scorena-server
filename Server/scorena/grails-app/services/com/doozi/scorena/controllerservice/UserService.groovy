@@ -44,6 +44,18 @@ class UserService {
 	}
 	
 	def getRanking(userId){
+		
+		def rest = new RestBuilder()
+		def resp = parseService.retreiveUser(rest, userId)
+		
+		if (resp.status != 200){
+			println "ERROR: UserService::getUserProfile(): user account does not exist in parse"
+			def result = [
+				code:500,
+				error:"user account does not exist"
+			]
+			return result
+		}
 		def userAccount = Account.findByUserId(userId)
 		def userBalance = userAccount.currentBalance
 		
@@ -57,7 +69,7 @@ class UserService {
 		if (higherRankingList.size()<5)
 			higherRankingSize=higherRankingList.size()
 		
-		for (int i=0; i<5; i++){			
+		for (int i=0; i<higherRankingSize; i++){			
 			rankingResult.add(0,processRankingData(higherRankingList.get(i), higherRank))
 			higherRank -= 1
 		} 
@@ -79,7 +91,8 @@ class UserService {
 			
 	def createUser(String _username, String _email, String _password, String gender, String region){
 		def rest = new RestBuilder()
-		def resp = parseService.createUser(rest, _username, _email, _password, gender, region)
+		_username = _username.toLowerCase()
+		def resp = parseService.createUser(rest, _username.toLowerCase(), _email, _password, gender, region)
 		
 		if (resp.status != 201){
 			def result = [
@@ -191,6 +204,15 @@ class UserService {
 		def rest = new RestBuilder()
 		def resp = parseService.retreiveUser(rest, userId)
 		
+		if (resp.status != 200){
+			println "ERROR: UserService::getUserProfile(): user account does not exist in parse"			
+			def result = [
+				code:500,
+				error:"user account does not exist"
+			]
+			return result
+		}
+		
 		println "userId:"+userId
 		def account = Account.findByUserId(userId)
 		if (account == null){
@@ -217,9 +239,29 @@ class UserService {
 			gender: resp.json.gender,
 			region: resp.json.region,
 			email: resp.json.email,
-			userStats: userStats
+			userStats: userStats,
+			level: 1,
+			levelName: "novice"
 		]
 		return result		
+		
+	}
+	
+	def getUserBalance(String userId){
+		def rest = new RestBuilder()
+		def resp = parseService.retreiveUser(rest, userId)
+		
+		println "userId:"+userId
+		def account = Account.findByUserId(userId)
+		if (account == null){
+			println "ERROR: user account does not exist"
+			def result = [
+				code:500,
+				error:"user account does not exist"
+			]
+			return result
+		}
+		return[currentBalance:account.currentBalance]
 		
 	}
 	
@@ -235,9 +277,9 @@ class UserService {
 //			monthly:[netGain:0, wins:0, losses:0, ties:0,leagues:[premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]], 
 //			weekly:[netGain:0, wins:0, losses:0, ties:0,leagues:[premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]]]
 		
-		def stats = [all:[netGain:0, wins:0, losses:0, ties:0, leagues:[All_Leagues:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]],
-			monthly:[netGain:0, wins:0, losses:0, ties:0,leagues:[All_Leagues:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]],
-			weekly:[netGain:0, wins:0, losses:0, ties:0,leagues:[All_Leagues:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]]]
+		def stats = [all:[netGain:0, wins:0, losses:0, ties:0, leagues:[All_Leagues:[netGain:4,wins:2,netLose:2,losses:7,ties:3]]],
+			monthly:[netGain:0, wins:0, losses:0, ties:0,leagues:[All_Leagues:[netGain:0,wins:5,netLose:2,losses:3,ties:0]]],
+			weekly:[netGain:0, wins:0, losses:0, ties:0,leagues:[All_Leagues:[netGain:0,wins:3,netLose:2,losses:0,ties:0]]]]
 		
 		if (userPayoutTrans==null || userPayoutTrans.size()==0){
 			println "userPayoutTrans null"

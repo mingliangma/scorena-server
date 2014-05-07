@@ -45,6 +45,12 @@ class QuestionService {
 		for (def q: questions){
 			if (q.getAt(2) == 0){
 				if (userId!=null && userId!=""){
+					def game = gameService.getGame(q[0])
+					//todo
+//					if (game.gameStatus != SportsDataService.PREEVENT || game.date < (new Date()-1))
+					if (game.gameStatus != SportsDataService.PREEVENT)
+						continue
+						
 					def userBet = betService.getBetByQuestionIdAndUserId(q[1], userId)
 					if (userBet != null){
 						continue
@@ -107,7 +113,7 @@ class QuestionService {
 				
 				def game = gameService.getGame(q.eventKey)
 				def winnerPick =-1
-				if (game.eventStatus.trim() == "post-event"){
+				if (game.gameStatus.trim() == "post-event"){
 					winnerPick = processEngineImplService.getWinningPick(q.eventKey, q)
 				}
 				def userInfo=[]
@@ -172,7 +178,7 @@ class QuestionService {
 		Question q = Question.findById(qId)
 		def game = gameService.getGame(q.eventKey)
 
-		if (game.eventStatus.trim() == "post-event"){
+		if (game.gameStatus.trim() == "post-event"){
 			
 			return getPostEventQuestion(q, userId)
 		}else{
@@ -266,9 +272,9 @@ class QuestionService {
 		def currentOddsPick1=1
 		def currentOddsPick2=1
 		if (lastBet.pick1Amount > lastBet.pick2Amount){
-			currentOddsPick1=(lastBet.pick1Amount/lastBet.pick2Amount)
+			currentOddsPick1=(lastBet.pick1Amount/denominatorPick2Mult)
 		}else if (lastBet.pick1Amount < lastBet.pick2Amount){
-			currentOddsPick2 = lastBet.pick2Amount/lastBet.pick1Amount
+			currentOddsPick2 = lastBet.pick2Amount/denominatorPick1Mult
 		}
 		
 		def result = [

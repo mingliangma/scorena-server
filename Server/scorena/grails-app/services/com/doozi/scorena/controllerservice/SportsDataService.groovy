@@ -12,10 +12,15 @@ class SportsDataService {
 	static String LA_LIGA= "l.lfp.es.primera"
 	static String MLS = "l.mlsnet.com"
 	
+	static String PREEVENT = "pre-event"
+	static String MIDEVENT = "mid-event"
+	static String POSTEVENT = "post-event"
+	static String INTERMISSION = "intermission"
+	
 	static int UPCOMING_DATE_RANGE = 7
 	static int PAST_DATE_RANGE = 7
 	
-
+	def helperService
 	
 		
 	private String getLeagueNameFromEventKey(String eventKey){
@@ -52,15 +57,27 @@ class SportsDataService {
 
 	
 	def getAllUpcomingGames(){
-		def todayDate = new Date()
+		def todayDate = new Date()		
 		def upcomingDate = todayDate + UPCOMING_DATE_RANGE;
-		def upcomingGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime<? and g.startDateTime>? and g.eventStatus<>'post-event' order by g.startDateTime", [upcomingDate, todayDate], [cache: true])
+		def upcomingGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime<? and g.startDateTime>? and g.eventStatus<>'post-event' order by g.startDateTime", [upcomingDate, todayDate-1], [cache: true])
 		def upcomingGamesMap = [:]
 		List upcomingGamesList = []
-		
 		for (ScorenaAllGames game: upcomingGames){
 			String eventKey = game.eventKey
 			def upcomingGame = upcomingGamesMap.get(eventKey)
+			
+			if (eventKey == "l.premierleague.com-2013-e.1785034"){				
+				String matchDateString = helperService.setUTCFormat(game.startDateTime)				
+				def matchDate = helperService.parseDateFromString(matchDateString)				
+				if (todayDate > matchDate){
+					if (game.eventStatus == "pre-event"){
+						println "ERROR: SportsDataService::getAllUpcomingGames(): gameStatus should not be pre-event!"
+						println "gameEvent: "+ game.eventKey
+						println "score: "+ game.score
+					}
+				}
+			}						
+			
 			
 			if (!upcomingGame){
 				def	gameInfo = [
@@ -69,7 +86,7 @@ class SportsDataService {
 						"gameId":eventKey,
 						"type":"soccer",
 						"gameStatus":game.eventStatus,
-						"date":game.startDateTime,
+						"date": helperService.setUTCFormat(game.startDateTime) ,
 						(game.alignment):[
 							"teamname":game.fullName,
 							"score":game.score
@@ -77,6 +94,12 @@ class SportsDataService {
 				]
 				upcomingGamesMap.putAt(eventKey, gameInfo)
 			}else{
+			
+				if (upcomingGame.gameStatus != game.eventStatus){
+					println "ERROR: SportsDataService::getAllUpcomingGames(): gameStatus does not match!"
+					println "First set data: "+upcomingGame
+					println "second set data: "+ game.eventStatus
+				}
 			
 				if (!upcomingGame.away){
 					upcomingGame.away = ["teamname":game.fullName, "score":game.score]
@@ -112,7 +135,7 @@ class SportsDataService {
 						"gameId":eventKey,
 						"type":"soccer",
 						"gameStatus":game.eventStatus,
-						"date":game.startDateTime,
+						"date":helperService.setUTCFormat(game.startDateTime),
 						(game.alignment):[
 							"teamname":game.fullName,
 							"score":game.score
@@ -144,8 +167,8 @@ class SportsDataService {
 					"leagueCode": getLeagueCodeFromEventKey(eventKey),
 					"gameId":eventKey,
 					"type":"soccer",
-					"eventStatus":game.eventStatus,
-					"date":game.startDateTime,
+					"gameStatus":game.eventStatus,
+					"date":helperService.setUTCFormat(game.startDateTime),
 					(game.alignment):[
 						"teamname":game.fullName,
 						"score":game.score

@@ -161,7 +161,8 @@ class UserController {
 	}
 	
 	def getRanking(){
-		if (!params.userId){
+		println params
+		if (!params.userId || params.userId==""){
 			response.status = 404
 			def result = [error: "userId is required"]
 			render result as JSON
@@ -169,6 +170,11 @@ class UserController {
 		}
 		
 		def rankingResult = userService.getRanking(params.userId)
+		if (rankingResult.code){
+			response.status = 404
+			render rankingResult as JSON
+			return
+		}
 		render rankingResult as JSON
 		return
 	}
@@ -189,6 +195,17 @@ class UserController {
 		}
 		render getCoinsResult as JSON
 		return
+	}
+	
+	def getBalance(){
+		if (!params.userId){
+			response.status = 404
+			def result = [error: "userId is required"]
+			render result as JSON
+			return
+		}
+		def balanceResult = userService.getUserBalance(params.userId)
+		render balanceResult as JSON
 	}
 	
 //	def show(User user){
