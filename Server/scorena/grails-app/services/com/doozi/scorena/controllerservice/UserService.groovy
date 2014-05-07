@@ -213,7 +213,6 @@ class UserService {
 			return result
 		}
 		
-		println "userId:"+userId
 		def account = Account.findByUserId(userId)
 		if (account == null){
 			println "ERROR: user account does not exist"
@@ -251,7 +250,6 @@ class UserService {
 		def rest = new RestBuilder()
 		def resp = parseService.retreiveUser(rest, userId)
 		
-		println "userId:"+userId
 		def account = Account.findByUserId(userId)
 		if (account == null){
 			println "ERROR: user account does not exist"

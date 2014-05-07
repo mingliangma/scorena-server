@@ -27,7 +27,6 @@ class GameService {
 			upcomingGame.placedBet = false
 			for (def eventKey: playedGames){
 				if (gameId == eventKey){
-					println "true"
 					upcomingGame.placedBet = true
 				}
 			}

@@ -104,10 +104,11 @@ class QuestionService {
 				if (denominatorPick2Mult==0)
 					denominatorPick2Mult=1
 				
-				def pick1PayoutPercentage = Math.round(100 * lastBet.pick1Amount/denominatorPickPerc)
-				def pick2PayoutPercentage =  Math.round(100 * lastBet.pick2Amount/denominatorPickPerc)
-				double pick1PayoutMultiple =  (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick1Mult
-				double pick2PayoutMultiple = (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick2Mult
+			
+				def pick1PayoutMultiple =  (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick1Mult
+				def pick2PayoutMultiple = (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick2Mult
+				def pick1PayoutPercentage = Math.round(100 * (pick1PayoutMultiple-1))
+				def pick2PayoutPercentage =  Math.round(100 * (pick2PayoutMultiple-1))
 				DecimalFormat df = new DecimalFormat("###.##")
 				
 				
@@ -195,6 +196,8 @@ class QuestionService {
 		
 		def pick1PayoutPercentage
 		def pick2PayoutPercentage
+		def pick1WinningPayoutMultiple
+		def pick2WinningPayoutMultiple
 		def pick1WinningPayoutPercentage 
 		def pick2WinningPayoutPercentage 
 		def pick1PayoutMultiple 
@@ -215,28 +218,34 @@ class QuestionService {
 		if (denominatorPick2Mult==0)
 			denominatorPick2Mult=1
 			
-		pick1PayoutPercentage = Math.round(100 * lastBet.pick1Amount/denominatorPickPerc)
-		pick2PayoutPercentage =  Math.round(100 * lastBet.pick2Amount/denominatorPickPerc)
+		pick1PayoutMultiple =  (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick1Mult
+		pick2PayoutMultiple = (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick2Mult
+		
+		
+		pick1PayoutPercentage = Math.round(100 * (pick1PayoutMultiple-1))
+		pick2PayoutPercentage =  Math.round(100 * (pick2PayoutMultiple-1))
 		
 		switch (winnerPick){
 			case 1:
-
-				pick1WinningPayoutPercentage = Math.round(100 * lastBet.pick1Amount / denominatorPickPerc)				
-				pick1PayoutMultiple =  (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick1Mult		
+				pick1WinningPayoutMultiple =  pick1PayoutMultiple
+				pick2WinningPayoutMultiple = -1
+				pick1WinningPayoutPercentage = pick1PayoutPercentage							
 				pick2WinningPayoutPercentage = 0
-				pick2PayoutMultiple = -1
+				
 				break
 			case 2: 
-				pick1WinningPayoutPercentage = 0
-				pick2WinningPayoutPercentage = Math.round(100 * lastBet.pick2Amount/denominatorPickPerc)
 				pick1PayoutMultiple =  -1
-				pick2PayoutMultiple = (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick2Mult
+				pick2PayoutMultiple = pick2PayoutMultiple
+				pick1WinningPayoutPercentage = 0
+				pick2WinningPayoutPercentage = pick2PayoutPercentage
+				
 				break
 			case 0:
-				pick1WinningPayoutPercentage = 0
-				pick2WinningPayoutPercentage = 0
 				pick1PayoutMultiple =  1
 				pick2PayoutMultiple = 1
+				pick1WinningPayoutPercentage = 0
+				pick2WinningPayoutPercentage = 0
+				
 				break
 			case -1:
 				println "QuestionService::getPastEventQuestion()"
@@ -317,11 +326,12 @@ class QuestionService {
 			
 		if (denominatorPick2Mult==0)
 			denominatorPick2Mult=1
-		
-		def pick1PayoutPercentage = Math.round(100 * lastBet.pick1Amount/denominatorPickPerc)
-		def pick2PayoutPercentage =  Math.round(100 * lastBet.pick2Amount/denominatorPickPerc)
+			
+			
 		def pick1PayoutMultiple = (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick1Mult
 		def pick2PayoutMultiple = (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick2Mult
+		def pick1PayoutPercentage = Math.round(100 * (pick1PayoutMultiple-1))
+		def pick2PayoutPercentage =  Math.round(100 * (pick2PayoutMultiple-1))
 		
 		
 		def userInfo = []
