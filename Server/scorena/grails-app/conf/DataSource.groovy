@@ -117,9 +117,6 @@ environments
 		{
             dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
 			url =System.getProperty("JDBC_CONNECTION_STRING")
-			//url = "jdbc:mysql://aa1cnaol294hlvt.cce59dcpxmml.us-west-2.rds.amazonaws.com/ebdb?useUnicode=yes&characterEncoding=UTF-8"
-			//username = "scorenaadmin"
-			//password = "scorenaadmin"    
 			
             properties 
 			{

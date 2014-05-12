@@ -9,8 +9,7 @@ class CheckNewTransSchedulerJob {
 	}
 
 	def execute() {		
-		println "new game result trigged"
-		
+		println "new game result trigged at " + new Date()		
 		def result = processEngineManagerService.startProcessEngine()
 		println "processEngineManager result:"+result
 	}

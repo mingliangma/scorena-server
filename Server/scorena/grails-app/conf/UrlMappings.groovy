@@ -27,6 +27,10 @@ class UrlMappings {
 			action = [POST:"createNewUser"]
 		}
 		
+		"/v1/users/new/fb"(controller:"user") {
+			action = [POST:"socialNetworkUserPostSetup"]
+		}
+		
 		"/v1/login"(controller:"user"){
 			action = [GET:"login"]
 		}

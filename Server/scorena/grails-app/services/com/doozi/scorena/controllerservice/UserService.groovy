@@ -125,7 +125,6 @@ class UserService {
 			currentBalance:INITIAL_BALANCE,
 			sessionToken:resp.json.sessionToken,
 			userId: resp.json.objectId,
-			createdAt: resp.json.createdAt,
 			email: _email,
 			gender: gender,
 			region: region

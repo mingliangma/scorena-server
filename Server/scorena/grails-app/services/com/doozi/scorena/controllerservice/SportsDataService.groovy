@@ -13,9 +13,10 @@ class SportsDataService {
 	static String MLS = "l.mlsnet.com"
 	
 	static String PREEVENT = "pre-event"
-	static String MIDEVENT = "mid-event"
 	static String POSTEVENT = "post-event"
 	static String INTERMISSION = "intermission"
+	static String MIDEVENT = "mid-event"
+	
 	
 	static int UPCOMING_DATE_RANGE = 7
 	static int PAST_DATE_RANGE = 7

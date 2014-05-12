@@ -10,7 +10,7 @@ class BootStrap {
 			bootstrapQuestionContent()
 		}
 		if (!Question.count()) {
-			createQuestions()			
+//			createQuestions()			
 //			createUsers()
 //			simulateBetUpcoming()
 //			simulateBetPast()

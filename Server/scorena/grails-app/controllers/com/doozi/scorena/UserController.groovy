@@ -22,7 +22,28 @@ class UserController {
 		render user as JSON
 	}
 
-	
+	def socialNetworkUserPostSetup(){
+		
+		println request.JSON
+		if ( !request.JSON.objectId ){
+			response.status = 404
+			def result = [error: "invalid parameters"]
+			render result as JSON
+			return
+		}
+		def result = [
+			createdAt:request.JSON.createdAt,
+			username:request.JSON.username,
+			currentBalance:INITIAL_BALANCE,
+			sessionToken:request.JSON.sessionToken,
+			userId: request.JSON.objectId,
+			email: request.JSON.email,
+			gender: request.JSON.gender,
+			region: request.JSON.email
+		]
+		response.status = 201
+		render result as JSON
+	}
 	
 	//curl -i -v -X POST -H "Content-Type: application/json" -d '{"username":"candiceli", "email":"candi@gmail.com", "password":"asdfasdf", "gender":"female", "region":"Toronto"}' localhost:8080/scorena/v1/users/new
 	def createNewUser(){

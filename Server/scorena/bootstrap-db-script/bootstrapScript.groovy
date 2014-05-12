@@ -29,10 +29,10 @@ import java.util.Date;
 
 
 //bootstrapQuestionContent()
-//createQuestions()
+createQuestions()
 //createUsers()
-simulateBetUpcoming()
-simulateBetPast()
+//simulateBetUpcoming()
+//simulateBetPast()
 
 println "create transactions ended"
 
