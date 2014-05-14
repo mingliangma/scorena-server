@@ -8,6 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
+
+/**
+ Utility static class that provides convenience methods for screen size detection, re-used UI component loading code etc.
+ */
+
 @interface MUtil : NSObject
 
 

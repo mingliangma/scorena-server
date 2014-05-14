@@ -8,6 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
+/**
+    Global object that holds the user information
+    All global information persists on the device by writing to and reading from NSUserDefaults
+ */
+
 #define FUserKey @"F_UserKey"
 #define FGenderKey @"F_GenderKey"
 #define FRegionKey @"F_RegionKey"

@@ -118,7 +118,6 @@
 		BC1B7942186E2CFE006EB68C /* manunited.jpg in Resources */ = {isa = PBXBuildFile; fileRef = BC1B7934186E2CFE006EB68C /* manunited.jpg */; };
 		BC1B794A186E51D7006EB68C /* Bar_Top@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = BC1B7949186E51D7006EB68C /* Bar_Top@2x.png */; };
 		BC1B794E186E5D2E006EB68C /* geo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BC1B794B186E5D2E006EB68C /* geo.plist */; };
-		BC1B794F186E5D2E006EB68C /* MGeo.m in Sources */ = {isa = PBXBuildFile; fileRef = BC1B794D186E5D2E006EB68C /* MGeo.m */; };
 		BC2B2CCE186507AD00E64F70 /* FMoreTableController.m in Sources */ = {isa = PBXBuildFile; fileRef = BC2B2CCC186507AD00E64F70 /* FMoreTableController.m */; };
 		BC2B2CCF186507AD00E64F70 /* FMoreTableController.xib in Resources */ = {isa = PBXBuildFile; fileRef = BC2B2CCD186507AD00E64F70 /* FMoreTableController.xib */; };
 		BC2B2CD318650BC500E64F70 /* FHistoryVC.m in Sources */ = {isa = PBXBuildFile; fileRef = BC2B2CD118650BC500E64F70 /* FHistoryVC.m */; };
@@ -386,8 +385,6 @@
 		BC1B7934186E2CFE006EB68C /* manunited.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = manunited.jpg; sourceTree = "<group>"; };
 		BC1B7949186E51D7006EB68C /* Bar_Top@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Bar_Top@2x.png"; sourceTree = "<group>"; };
 		BC1B794B186E5D2E006EB68C /* geo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = geo.plist; sourceTree = "<group>"; };
-		BC1B794C186E5D2E006EB68C /* MGeo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MGeo.h; sourceTree = "<group>"; };
-		BC1B794D186E5D2E006EB68C /* MGeo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MGeo.m; sourceTree = "<group>"; };
 		BC2B2CCB186507AD00E64F70 /* FMoreTableController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMoreTableController.h; sourceTree = "<group>"; };
 		BC2B2CCC186507AD00E64F70 /* FMoreTableController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMoreTableController.m; sourceTree = "<group>"; };
 		BC2B2CCD186507AD00E64F70 /* FMoreTableController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FMoreTableController.xib; sourceTree = "<group>"; };
@@ -1026,8 +1023,6 @@
 				2724B1E6190B369E004FDA4F /* FRam.h */,
 				2724B1E7190B369E004FDA4F /* FRam.m */,
 				BC1B794B186E5D2E006EB68C /* geo.plist */,
-				BC1B794C186E5D2E006EB68C /* MGeo.h */,
-				BC1B794D186E5D2E006EB68C /* MGeo.m */,
 				BC82721E184E80D5007BF61D /* FData */,
 				BC82721D184E80CE007BF61D /* FNetwork */,
 				BCDBC1AE184E88F6002D25BD /* MUtil.h */,
@@ -1425,7 +1420,6 @@
 				275F650E18770C7A002169FA /* FDoneBetVC.m in Sources */,
 				2724B1E5190B2B1D004FDA4F /* FCoinRow.m in Sources */,
 				BCDBC1DE184E9AFB002D25BD /* MData.m in Sources */,
-				BC1B794F186E5D2E006EB68C /* MGeo.m in Sources */,
 				270F9D76190320AD00D98875 /* UIScrollView+Scrolling.m in Sources */,
 				27C6EEA2190C75AF00987D0D /* FScreen.m in Sources */,
 				27100F741875FB4800071505 /* XYPieChart.m in Sources */,
@@ -1562,7 +1556,7 @@
 					armv7s,
 					armv7,
 				);
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-1";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1589,7 +1583,7 @@
 					armv7s,
 					armv7,
 				);
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon-1";
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (

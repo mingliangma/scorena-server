@@ -11,6 +11,11 @@
 #import "FTPastCell.h"
 #import "FReloadView.h"
 
+/**
+    Future & past tables are placed in the same frame, depending on the state of the buttons they
+    will be shown & hidden accordingly.
+ */
+
 @interface FGameController : UIViewController <UITableViewDataSource,UITableViewDelegate,FBetButtonProtocol,UIScrollViewDelegate>{
     
     NSInteger pastSection;

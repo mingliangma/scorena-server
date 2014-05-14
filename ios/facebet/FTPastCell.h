@@ -13,6 +13,10 @@
 #import "FPayoutView.h"
 #import "FTeamButtons.h"
 
+/**
+    The Cell that displays a past game where user can only view but can't click to bet
+ */
+
 @interface FTPastCell : UIView<FTeamButtonProtocol>{
     NSArray* homePayout;
     NSArray* awayPayout;

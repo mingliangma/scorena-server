@@ -10,6 +10,12 @@
 
 #import "FReloadView.h"
 
+/**
+    The User Ranking View controller
+ 
+ */
+
+
 @interface FHistoryVC : UIViewController<UITableViewDataSource,UITableViewDelegate>{
     id rankObj;
     BOOL isWeek;

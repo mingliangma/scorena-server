@@ -9,6 +9,10 @@
 #import <UIKit/UIKit.h>
 #import "XYPieChart.h"
 
+/**
+    Used in v1, can be deleted since we used pointers instead
+ */
+
 @interface FCharts : UIView <XYPieChartDataSource>
 
 @property(nonatomic,strong) XYPieChart* amountChart;

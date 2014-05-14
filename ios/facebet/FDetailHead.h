@@ -8,6 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
+/**
+    UI components for a game, eg: "Arsenal vs LiverPool"
+    - Used in FGameController, FBettingVC & FResultVC
+ */
+
+
 @interface FDetailHead : UIView
 
 IBElement UILabel* statusLB;

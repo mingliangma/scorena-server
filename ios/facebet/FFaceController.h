@@ -11,6 +11,10 @@
 #import "FUserStatVC.h"
 #import "FLoginVC.h"
 
+/**
+    The user account controller that's the base view controller for the user account tab
+ */
+
 @interface FFaceController : UINavigationController{
     FAccountController * account;
     FUserStatVC* stat;

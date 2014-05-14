@@ -8,6 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
+/**
+    All model objects have some init methods that takes JSON objects 
+    and conver them to a Model object for easy manipulation
+ */
+
 typedef enum{
     FUserPickStatusNone=-1,
     FUserPickStatusTie=0,
@@ -34,6 +39,8 @@ typedef enum{
     FGameStatusMidEvent,
     FGameStatusIntermission
 } FGameStatus;
+
+
 
 @interface FGame : NSObject<NSCopying>
 

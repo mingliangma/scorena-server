@@ -10,6 +10,12 @@
 #import "FWagerScroll.h"
 #import "FPickPanel.h"
 
+
+/**
+    Re-usable UI Panel that includes the odds & wager scroll in the middle, the betting chips are also in here.
+    Used in FBettingVC
+ */
+
 @interface FBetPanel : UIView{
     NSInteger poolA;
     NSInteger poolB;

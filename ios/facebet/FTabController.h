@@ -8,6 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
+/**
+ The base class for tab bar controllers
+ */
+
 @interface FTabController : UITabBarController<UITabBarControllerDelegate>
 
 @end

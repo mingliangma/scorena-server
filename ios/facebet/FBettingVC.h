@@ -21,6 +21,11 @@
 #import "FReloadView.h"
 #import "FAppDelegate.h"
 
+/**
+ The VC that's displayed when user clicked an upcoming game to view the game details
+ Users can view odds and place bet in here
+ */
+
 
 @interface FBettingVC : UIViewController<FBetButtonProtocol,FTeamButtonProtocol,UIScrollViewDelegate,UIAlertViewDelegate>{
     NSMutableArray* homePayout;
@@ -37,29 +42,30 @@
 @property(nonatomic,strong) UIView* payoutBg;
 @property(strong,nonatomic) UIScrollView* betScroll;
 
+//Game model object
 @property(nonatomic,copy) FGame* myBet;
 
 @property(nonatomic,strong) FDetailHead* detailHead;
 
-//Date UI at left top corner
+//Date UI at the left top corner
 @property(nonatomic,strong) FDateSlash* dateSlash;
 
-//Game Question Header
+//Game Question Header, eg:"Who will win?"
 @property(strong,nonatomic) FUGameType* gameTypeHead;
 
-//Buttons to bet
+//The red and blue team buttons in the middle, with number of plays and also odds
 @property(strong,nonatomic) FBetButtons* betButtons;
 
-//Panel that includes the odds & wager scroll in the middle
+//Panel that includes the odds & wager scroll in the middle, the betting chips are also in here
 @property(strong,nonatomic) FBetPanel* betPanel;
 
-//Buttons to select team payouts
+//Buttons to view the team payout tables
 @property(strong,nonatomic) FTeamButtons* teamButtons;
 
 //Area to show the list of users & payouts
 @property(nonatomic,strong) FPayoutView* payoutTable;
 
-//Betting button at the bottom
+//Betting button at the bottom with countdown
 @property(nonatomic,strong) FFloatBet* floatBet;
 
 -(void)setupContent;

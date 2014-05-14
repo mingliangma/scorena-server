@@ -16,6 +16,8 @@
 
 @end
 
+
+
 @implementation FBettingVC
 
 @synthesize myBet,betScroll;

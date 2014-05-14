@@ -8,6 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
+
+/**
+    The payout table for home & away teams in FBettingVC & FResultVC
+ */
+
 @interface FPayoutView : UIView{
     NSArray* list;
     NSUInteger shown;

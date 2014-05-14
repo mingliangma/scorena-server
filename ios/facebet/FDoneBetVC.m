@@ -6,6 +6,12 @@
 //  Copyright (c) 2014 Doozi Entertainment Company Inc. All rights reserved.
 //
 
+
+
+/**
+    The View Controller that's displayed after a user has successfully placed a bet 
+ */
+
 #import "FDoneBetVC.h"
 
 @interface FDoneBetVC ()

@@ -19,6 +19,15 @@
 
 @end
 
+
+/**
+ The bet buttons in the middle with red & blue backgrounds where users
+ can select a team to bet on when viewing upcoming games and just view details
+ when viewing past games.
+ 
+ This UI component is reused in many places, FGameController, FBettingVC & FResultVC
+ */
+
 @interface FBetButtons : UIView
 
 @property(nonatomic,strong) FGame* myGame;

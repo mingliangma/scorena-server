@@ -8,6 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
+/**
+    Team buttons to select which payout table the user wants to see at the bottom of FBettingVC & FResultVC
+ */
+
 @protocol FTeamButtonProtocol <NSObject>
 
 @optional

@@ -8,6 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
+
+/**
+    The UI component for a question, eg:"who will win?"
+    - Used in FBettingVC, FResultVC & FGameController
+ */
+
+
 @interface FUGameType : UIView
 
 @property(strong,nonatomic) UILabel* gameTypeLB;

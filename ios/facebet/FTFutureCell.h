@@ -10,6 +10,11 @@
 #import "FUGameType.h"
 #import "FBetButtons.h"
 
+/**
+ The Cell that displays an upcoming game where user can choose a team that redirects 
+ them to the game detail screen
+ */
+
 @interface FTFutureCell : UIView
 
 

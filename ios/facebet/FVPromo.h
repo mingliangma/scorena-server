@@ -8,6 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
+/**
+    One single page view of a featured game that's added to the featured vc
+ */
+
 @interface FVPromo : UIView{
     FGame* myPromo;
 }

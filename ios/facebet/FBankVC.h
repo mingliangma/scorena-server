@@ -8,6 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
+/**
+    The user's bank balance
+ */
+
 @interface FBankVC : UIViewController
 
 IBElement UILabel* balanceLB;

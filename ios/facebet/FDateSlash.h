@@ -8,6 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
+
+/**
+    The date UI to display month, date & year & time for a game, used in many places
+ */
+
 @interface FDateSlash : UIView
 
 - (id)initWithFrame:(CGRect)frame game:(FGame*)myGame;

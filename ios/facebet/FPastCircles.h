@@ -8,6 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
+/**
+    UI for past game details, used in FResultVC
+ */
+
 @interface FPastCircles : UIView
 
 IBElement UIImageView* percentCircle;

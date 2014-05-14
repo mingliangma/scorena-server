@@ -9,6 +9,10 @@
 #import <UIKit/UIKit.h>
 #import "FTimeLabel.h"
 
+/**
+    The betting UI at the bottom of FBettingVC
+ */
+
 @interface FFloatBet : UIView
 
 //Bottom floating bet button

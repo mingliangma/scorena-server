@@ -8,6 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
+/**
+    The base nav controller for the games tab
+ */
+
 @interface FBetsController : UINavigationController
 
 @end

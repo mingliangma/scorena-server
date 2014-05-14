@@ -8,6 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
+/**
+    The reusable UI that shows which team the user has picked in the betting & result viewing screen
+    - Used in FBettingVC & FResultVC
+ */
+
 @interface FPickPanel : UIView
 
 @property(nonatomic,strong) UILabel* decideLB;

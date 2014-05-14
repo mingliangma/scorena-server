@@ -8,6 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
+/**
+    The reuable scroll view UI where users can click on different wager amount chips
+    - Used in FBettingVC, made clickable etc.
+    - Used in FResultVC, disabled to just show how much users have bet
+ */
+
 @interface FWagerScroll : UIScrollView
 
 @property(assign,nonatomic) NSInteger price;

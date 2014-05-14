@@ -9,6 +9,12 @@
 #import <UIKit/UIKit.h>
 #import "FDateSlash.h"
 
+/**
+    The reusable UI that shows the game info, eg: "Arsenal vs Liverpool" 
+    - Used as a header in the upcoming & past game table views
+    - Used as a top UI in the game detail screen, FBettingVC & FResultVC
+ */
+
 @interface FSectionHead : UIView
 
 -(id)initWithFrame:(CGRect)frame game:(FGame*)myGame;

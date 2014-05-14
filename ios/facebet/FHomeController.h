@@ -8,6 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
+/**
+ The base controller for the featured games tab
+ */
+
 @interface FHomeController : UINavigationController
 
 @end

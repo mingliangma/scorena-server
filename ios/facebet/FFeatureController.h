@@ -10,6 +10,11 @@
 
 #import "FVPromo.h"
 
+
+/**
+    The featured games view controller
+ */
+
 @interface FFeatureController : UIViewController<UIScrollViewDelegate>{
     NSMutableArray* games;
 }

@@ -8,6 +8,11 @@
 
 #import <UIKit/UIKit.h>
 
+/**
+    The reload spinner when user pulls down
+    Can be replaced with UIRefreshControl if no customized style is needed
+ */
+
 @interface FReloadView : UIView
 
 

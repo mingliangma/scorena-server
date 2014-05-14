@@ -9,6 +9,10 @@
 #import <Foundation/Foundation.h>
 
 
+/**
+    Static object to hold configuration arrays for UI display
+ */
+
 #define IAPImageKey @"IAPImageKey"
 #define IAPCoinKey @"IAPCoinKey"
 #define IAPDescKey @"IAPDescKey"

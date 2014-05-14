@@ -6,6 +6,12 @@
 //  Copyright (c) 2013 Doozi Entertainment Company Inc. All rights reserved.
 //
 
+/**
+    Categories are very useful & makes the code cleaner.
+    It's good to read up on it if you are not sure what it is.
+ */
+
+
 #ifndef facebet_MCategories_h
 #define facebet_MCategories_h
 

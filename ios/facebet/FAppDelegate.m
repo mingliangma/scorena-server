@@ -72,8 +72,8 @@
     tabItem3.title = @"Profile";
     tabItem4.title = @"More";
     
-    //Icon_Tab_Profile_Down@2x.png
     
+    //The tab bar images at the bottom
     [tabItem1 setFinishedSelectedImage:[UIImage imageNamed:@"Icon_Tab_Home_Down.png"] withFinishedUnselectedImage:[UIImage imageNamed:@"Icon_Tab_Home_Up.png"]];
     [tabItem2 setFinishedSelectedImage:[UIImage imageNamed:@"Icon_Tab_Game_Down.png"] withFinishedUnselectedImage:[UIImage imageNamed:@"Icon_Tab_Game_Up.png"]];
     [tabItem3 setFinishedSelectedImage:[UIImage imageNamed:@"Icon_Tab_Profile_Down.png"] withFinishedUnselectedImage:[UIImage imageNamed:@"Icon_Tab_Profile_Up.png"]];
