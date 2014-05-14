@@ -141,7 +141,7 @@ def simulateBetUpcoming(){
 	def gameService = ctx.getBean("gameService")
 	def betService = ctx.getBean("betService")
 	
-	
+
 	Random random = new Random()
 	def accounts = Account.findAll()
 	def upcomingGames = gameService.listUpcomingGames()
