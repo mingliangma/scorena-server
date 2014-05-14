@@ -32,8 +32,8 @@ class UserService {
 		if (!userAccount)
 			return [code: 400, error:"userId is invalid"]
 		
-//		if (userAccount.currentBalance >=FREE_COIN_BALANCE_THRESHOLD)
-//			return [code: 400, error:"Balance above "+FREE_COIN_BALANCE_THRESHOLD+" cannot get free coins"]
+		if (userAccount.currentBalance >=FREE_COIN_BALANCE_THRESHOLD)
+			return [code: 400, error:"Balance above "+FREE_COIN_BALANCE_THRESHOLD+" cannot get free coins"]
 			
 		userAccount.currentBalance = userAccount.currentBalance + FREE_COIN_AMOUNT
 		return [username: userAccount.username, userId: userAccount.userId, currentBalance: userAccount.currentBalance, newCoinsAmount: FREE_COIN_AMOUNT]
