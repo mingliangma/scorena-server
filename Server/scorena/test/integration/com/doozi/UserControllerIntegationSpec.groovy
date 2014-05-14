@@ -38,7 +38,7 @@ class UserControllerIntegationSpec extends Specification {
 			println "when"
 			def userC = new UserController()
 			userC.userService = userService			
-			userC.request.contentType = "text/json"
+			userC.request.contentType = "application/json"
 			userC.request.content = content.getBytes()
 						
 			userC.createNewUser()
