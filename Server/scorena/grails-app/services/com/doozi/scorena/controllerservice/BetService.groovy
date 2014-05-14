@@ -164,7 +164,7 @@ class BetService {
 	}
 	
 	def listAllBets(def qId){
-		return PoolTransaction.findAll("from PoolTransaction as b where b.question.id=? and b.transactionType=?", [qId, 0])
+		return PoolTransaction.findAll("from PoolTransaction as b where b.question.id=? and b.transactionType=?", [qId, 0], [cache: true])
 	}
 	
 	def listAllBetsByPick(def qId, def pick){

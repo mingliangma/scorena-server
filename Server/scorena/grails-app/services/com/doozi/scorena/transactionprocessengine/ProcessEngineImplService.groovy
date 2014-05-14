@@ -82,7 +82,6 @@ class ProcessEngineImplService {
 				int payout = 0
 				if (winnerPick == 0 || bet.pick == winnerPick)
 					payout =  Math.floor(bet.transactionAmount*payoutMultipleOfWager)
-					
 				def newBalance = account.currentBalance + payout
 
 				account.currentBalance = newBalance
@@ -107,21 +106,23 @@ class ProcessEngineImplService {
 	def getWinningPick(eventKey, Question question){
 		
 		int winnerPick = -1
-		def questionType = question.questionContent.questionType		
+		def questionContent = question.questionContent
+		def questionType = questionContent.questionType		
 		switch ( questionType ) {
 			case QuestionContent.WHOWIN:
 				winnerPick = getWhoWinWinnerPick(eventKey, question)
 				break;
 			case QuestionContent.SCOREGREATERTHAN:
-				winnerPick = getScoreGreaterThanWinnerPick(eventKey, question)
+				winnerPick = getScoreGreaterThanWinnerPick(eventKey, question, questionContent.indicator1)
 				break;
 		}
 	}
 	
 	@Transactional
-	int getScoreGreaterThanWinnerPick(eventKey, question){
+	int getScoreGreaterThanWinnerPick(eventKey, question, indicator){
+		
 		def game = gameService.getGame(eventKey)
-		if ((game.home.score.toInteger() + game.away.score.toInteger()) > 2.5){			
+		if ((game.home.score.toInteger() + game.away.score.toInteger()) > new BigDecimal( indicator ) ){			
 			return 1
 		}else{
 			return 2
