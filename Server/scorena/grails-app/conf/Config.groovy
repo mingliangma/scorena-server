@@ -118,6 +118,12 @@ environments {
 		parse.parseApplicationId='DtljOks86xBy35DigHgP17GoYerqBs0AW9xi0cH7'
 		parse.parseRestApiKey ='sonR9xL3BEIsBziYUlY6fw2o7QWfjusjRs9mfeUg'
 	}
+	
+	james {
+		grails.logging.jul.usebridge = true
+		parse.parseApplicationId='fTRyi6N1Mbiguvr5MnpUgbyfoz0mOUF5YomNHDlj'
+		parse.parseRestApiKey ='7vZeox8CEOLh8RSBw7E7SbOtBmdxDIoLjL8e5gus'
+	}
 }
 
 // log4j configuration
