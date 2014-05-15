@@ -38,7 +38,7 @@ class UserControllerIntegationSpec extends Specification {
 			println "when"
 			def userC = new UserController()
 			userC.userService = userService			
-			userC.request.contentType = "text/json"
+			userC.request.contentType = "application/json"
 			userC.request.content = content.getBytes()
 						
 			userC.createNewUser()
@@ -47,24 +47,24 @@ class UserControllerIntegationSpec extends Specification {
 			println "then"
 			userC.response.status == 201
 			userC.response.json.username == username
-			userC.response.json.objectId != null
+			userC.response.json.userId != null
 			userC.response.json.sessionToken != null			
 			
-			def account = Account.findByUserId(userC.response.json.objectId)
+			def account = Account.findByUserId(userC.response.json.userId)
 			account != null
-			account.userId == userC.response.json.objectId
+			account.userId == userC.response.json.userId
 			account.username == username
 			account.currentBalance == 2000
 			account.previousBalance == 2000
 			
-			def respRetreive = parseService.retreiveUser(new RestBuilder(), userC.response.json.objectId)
+			def respRetreive = parseService.retreiveUser(new RestBuilder(), userC.response.json.userId)
 			respRetreive.status == 200
 			respRetreive.json.gender == "male"
 			respRetreive.json.region == "Toronto"
 			
 		cleanup:
 			println "cleanup"
-			def resp = parseService.deleteUser(new RestBuilder(), userC.response.json.sessionToken,userC.response.json.objectId )
+			def resp = parseService.deleteUser(new RestBuilder(), userC.response.json.sessionToken,userC.response.json.userId)
 			println resp.json
     }
 	
@@ -82,11 +82,11 @@ class UserControllerIntegationSpec extends Specification {
 			
 			def userC = new UserController()
 			userC.userService = userService
-			userC.request.contentType = "text/json"
+			userC.request.contentType = "application/json"
 			userC.request.content = content.getBytes()						
 			userC.createNewUser()
 		
-			def objectId = userC.response.json.objectId
+			def userId = userC.response.json.userId
 			def sessionToken = userC.response.json.sessionToken
 			println userC.response.json
 			
@@ -98,14 +98,14 @@ class UserControllerIntegationSpec extends Specification {
 		then:
 			userC.response.status == 201
 			userC.response.json.username == username
-			userC.response.json.objectId != null
+			userC.response.json.userId != null
 			userC.response.json.sessionToken != null
 			userC.response.json.currentBalance == 2000
 			println userC.response.json
 		
 		cleanup:
 			println "cleanup"
-			def resp = parseService.deleteUser(new RestBuilder(), userC.response.json.sessionToken,userC.response.json.objectId )
+			def resp = parseService.deleteUser(new RestBuilder(), userC.response.json.sessionToken,userC.response.json.userId)
 			println resp.json
 	}
 	
@@ -123,31 +123,26 @@ class UserControllerIntegationSpec extends Specification {
 			
 			def userC = new UserController()
 			userC.userService = userService
-			userC.request.contentType = "text/json"
+			
+			userC.request.contentType = "application/json"
 			userC.request.content = content.getBytes()						
 			userC.createNewUser()
 		
-			def objectId = userC.response.json.objectId
+			def userId = userC.response.json.userId
 			def sessionToken = userC.response.json.sessionToken
-			
-			
 			
 		when:			
 			userC.request.addHeader("sessionToken", sessionToken)
-			userC.params.userId = objectId
+			userC.params.userId = userId
 			userC.deleteUserProfile()
-			
+
 		then:
-			println userC.response.json
-			userC.response.status == 200
-			userC.response.json == [:]
-			
-			
-			def resp = parseService.retreiveUser(new RestBuilder(), objectId)
+			userC.response.status == 201
+			def resp = parseService.retreiveUser(new RestBuilder(), userId)
 			resp.status == 404
 			resp.json.code == 101
 			
-			def account = Account.findByUserId(objectId)
+			def account = Account.findByUserId(userId)
 			account == null
 	}
 }
