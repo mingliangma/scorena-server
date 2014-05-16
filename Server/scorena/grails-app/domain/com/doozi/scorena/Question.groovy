@@ -12,4 +12,8 @@ class Question {
 
     static constraints = {
     }
+	
+	static mapping = {
+		bet lazy: false
+	}
 }
