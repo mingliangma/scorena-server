@@ -234,15 +234,15 @@ class QuestionService {
 				
 				break
 			case 2: 
-				pick1PayoutMultiple =  -1
-				pick2PayoutMultiple = pick2PayoutMultiple
+				pick1WinningPayoutMultiple =  -1
+				pick2WinningPayoutMultiple = pick2PayoutMultiple
 				pick1WinningPayoutPercentage = 0
 				pick2WinningPayoutPercentage = pick2PayoutPercentage
 				
 				break
 			case 0:
-				pick1PayoutMultiple =  1
-				pick2PayoutMultiple = 1
+				pick1WinningPayoutMultiple =  1
+				pick2WinningPayoutMultiple = 1
 				pick1WinningPayoutPercentage = 0
 				pick2WinningPayoutPercentage = 0
 				
@@ -264,10 +264,10 @@ class QuestionService {
 			PoolTransaction userBet = betService.getBetByQuestionIdAndUserId(q.id, userId)
 			if (userBet!= null){
 				if (userBet.pick==1){
-					userWinningAmount = Math.floor(userBet.transactionAmount * pick1PayoutMultiple)
+					userWinningAmount = Math.floor(userBet.transactionAmount * pick1WinningPayoutMultiple)
 					userPayoutPercent = pick1WinningPayoutPercentage
 				}else{
-					userWinningAmount = Math.floor(userBet.transactionAmount * pick2PayoutMultiple)
+					userWinningAmount = Math.floor(userBet.transactionAmount * pick2WinningPayoutMultiple)
 					userPayoutPercent = pick2WinningPayoutPercentage
 				}
 				
@@ -303,7 +303,7 @@ class QuestionService {
 				pick2NumPeople: lastBet.pick2NumPeople,
 				pick2PayoutPercent: pick2PayoutPercentage,
 			],
-			betters: getBetters(q.id, pick1PayoutMultiple, pick2PayoutMultiple, userInfo, username)
+			betters: getBetters(q.id, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple, userInfo, username)
 		]
 		return result
 	}
