@@ -224,9 +224,10 @@ class UserService {
 		
 		def userPayoutTrans = betService.listPayoutTransByUserId(userId)
 		def userStats = getBetStats(userPayoutTrans)
-		userStats.weekly.netGainPercent = ((userStats.weekly.netGain / (account.currentBalance-userStats.weekly.netGain))*100).toInteger()
-		userStats.monthly.netGainPercent = ((userStats.monthly.netGain / (account.currentBalance-userStats.monthly.netGain))*100).toInteger()
-		userStats.all.netGainPercent = ((userStats.all.netGain / (account.currentBalance-userStats.all.netGain))*100).toInteger()
+		//todo netgain/total wager in type 1
+		userStats.weekly.netGainPercent = ((userStats.weekly.netGain / (account.currentBalance))*100).toInteger()
+		userStats.monthly.netGainPercent = ((userStats.monthly.netGain / (account.currentBalance))*100).toInteger()
+		userStats.all.netGainPercent = ((userStats.all.netGain / (account.currentBalance))*100).toInteger()
 		
 		def result = [
 			createdAt:resp.json.createdAt,
@@ -289,6 +290,9 @@ class UserService {
 		for (PoolTransaction tran: userPayoutTrans){
 			
 			if (tran.createdAt > firstDateOfCurrentWeek){
+				stats.all.netGain += (tran.transactionAmount - tran.pick2Amount)
+				stats.monthly.netGain+=(tran.transactionAmount - tran.pick2Amount)
+				stats.weekly.netGain+=(tran.transactionAmount - tran.pick2Amount)
 				if (tran.pick==0){
 					stats.all.ties+=1
 					stats.monthly.ties+=1
@@ -301,9 +305,7 @@ class UserService {
 					stats.all.wins+=1
 					stats.monthly.wins+=1
 					stats.weekly.wins+=1					
-					stats.all.netGain += (tran.transactionAmount - tran.pick2Amount)
-					stats.monthly.netGain+=(tran.transactionAmount - tran.pick2Amount)
-					stats.weekly.netGain+=(tran.transactionAmount - tran.pick2Amount)										
+									
 				}else{
 					println "ERROR: UserService::getBetStats(): should not go in here"
 				}
@@ -311,6 +313,8 @@ class UserService {
 			}
 			
 			if (tran.createdAt > firstDateOfCurrentMonth){
+				stats.monthly.netGain+=(tran.transactionAmount - tran.pick2Amount)
+				stats.all.netGain+=(tran.transactionAmount - tran.pick2Amount)
 				if (tran.pick==0){					
 					stats.monthly.ties+=1
 					stats.all.ties+=1
@@ -321,14 +325,13 @@ class UserService {
 				}else if (tran.transactionAmount > 0){					
 					stats.monthly.wins+=1
 					stats.all.wins+=1										
-					stats.monthly.netGain+=(tran.transactionAmount - tran.pick2Amount)
-					stats.all.netGain+=(tran.transactionAmount - tran.pick2Amount)
+
 				}else{
 					println "ERROR: UserService::getBetStats(): should not go in here"
 				}
 				continue
 			}
-			
+			stats.all.netGain+=(tran.transactionAmount - tran.pick2Amount)
 			if (tran.pick==0){				
 				stats.all.ties+=1
 				continue
@@ -336,7 +339,7 @@ class UserService {
 				stats.all.losses+=1
 			}else if (tran.transactionAmount > 0){
 				stats.all.wins+=1
-				stats.all.netGain+=(tran.transactionAmount - tran.pick2Amount)
+
 			}else{
 				println "ERROR: UserService::getBetStats(): should not go in here"
 			}						
