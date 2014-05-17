@@ -87,6 +87,9 @@ class UrlMappings {
 			action = [GET:"testGames"]
 		}
 		
+		"/v1/admin/game/customquestion"(controller:"customQuestion"){
+			action = [POST:"createCustomQuestion"]
+		}
 
         "/"(view:"/index")
         "500"(view:'/error')
