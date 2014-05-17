@@ -117,7 +117,14 @@ class ProcessEngineImplService {
 			case QuestionContent.SCOREGREATERTHAN:
                 winnerPick = getScoreGreaterThanWinnerPick(eventKey, question, questionContent.indicator1)
 				break;
+			case QuestionContent.CUSTOM:
+				winnerPick = getScoreGreaterThanWinnerPick(eventKey, question, questionContent.indicator1)
+				break;
 		}
+	}
+	
+	int getCustomQuestionWinnerPick(eventKey, question){
+		
 	}
 	
 	@Transactional
