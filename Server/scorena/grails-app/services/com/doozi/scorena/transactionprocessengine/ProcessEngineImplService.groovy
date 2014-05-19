@@ -35,8 +35,9 @@ class ProcessEngineImplService {
 			def questions = questionService.listQuestions(gameProcessRecord.eventKey)
 			
 			for (Question q:questions){
-				
-				if (payoutCleared(q)){
+				def clearTransResult = payoutCleared(q)
+				println "clearTransResult: "+clearTransResult
+				if (clearTransResult){
 					continue
 				}
 				

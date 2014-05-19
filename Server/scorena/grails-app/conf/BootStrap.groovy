@@ -11,11 +11,11 @@ class BootStrap {
 			bootstrapQuestionContent()
 		}
 		if (!Question.count()) {
-//			createQuestions()
+			createQuestions()
 //			createCustomQuestions()
-//			createUsers()
-//			simulateBetUpcoming()
-//			simulateBetPast()
+			createUsers()
+			simulateBetUpcoming()
+			simulateBetPast()
 		}
 		println "bootstrap ended"
     }
@@ -76,7 +76,7 @@ class BootStrap {
 	
 	def createQuestions(){
 		println "create quesitons starts"
-//		def gameService = ctx.getBean("gameService")
+		
 		List upcomingGames = gameService.listUpcomingGames()
 		List pastGames = gameService.listPastGames()
 		

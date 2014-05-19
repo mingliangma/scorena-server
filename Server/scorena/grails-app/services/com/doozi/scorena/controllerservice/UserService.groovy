@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 
 import com.doozi.scorena.Account;
+import com.doozi.scorena.*;
 import com.doozi.scorena.PoolTransaction
 
 import grails.plugins.rest.client.RestBuilder
@@ -39,55 +40,80 @@ class UserService {
 		return [username: userAccount.username, userId: userAccount.userId, currentBalance: userAccount.currentBalance, newCoinsAmount: FREE_COIN_AMOUNT]
 	}
 	
-	def processRankingData(Account user, int rank){		
-		return [username: user.username, gain: user.currentBalance, rank: rank]
+	def constructRankingData(def username, def netgain, def rank){		
+		return [username: username, gain: netgain, rank: rank]
 	}
 	
+//	def processRankingData(Account user, int rank){		
+//		return [username: user.username, gain: user.currentBalance, rank: rank]
+//	}
+	
 	def getRanking(userId){
+		def userRankingAll = UserRankingAll.findAll()
+		def userRankingWk = UserRankingWk.findAll()
+		List rankingResultAll =[]
+		List rankingResultWk =[]
 		
-		def rest = new RestBuilder()
-		def resp = parseService.retreiveUser(rest, userId)
-		
-		if (resp.status != 200){
-			println "ERROR: UserService::getUserProfile(): user account does not exist in parse"
-			def result = [
-				code:500,
-				error:"user account does not exist"
-			]
-			return result
-		}
-		def userAccount = Account.findByUserId(userId)
-		def userBalance = userAccount.currentBalance
-		
-		def higherRankingList = Account.findAll("from Account as a where a.currentBalance > ? order by a.currentBalance", [userBalance])
-		
-		int higherRank = higherRankingList.size()
-		int currentUserRank = higherRank + 1
-		int lowerRank = currentUserRank +1
-		List rankingResult =[]
-		int higherRankingSize = 5
-		if (higherRankingList.size()<5)
-			higherRankingSize=higherRankingList.size()
-		
-		for (int i=0; i<higherRankingSize; i++){			
-			rankingResult.add(0,processRankingData(higherRankingList.get(i), higherRank))
-			higherRank -= 1
-		} 
-		
-		rankingResult.add(processRankingData(userAccount, currentUserRank))
-		
-		def lowerRankingList = Account.findAll("from Account as a where a.currentBalance < ? order by a.currentBalance", [userBalance])
-		int lowerRankingSize = 5
-		if (lowerRankingList.size()<5)
-			lowerRankingSize=lowerRankingList.size()
-			
-		for (int i=0; i<lowerRankingSize; i++){
-			rankingResult.add(processRankingData(lowerRankingList.get(i), lowerRank))
-			lowerRank +=1
+		for (int i=0; i<userRankingAll.size(); i++){
+			UserRankingAll rankEntry = userRankingAll.getAt(i)
+			def userAccount = Account.get(rankEntry.id)
+			rankingResultAll.add(constructRankingData(userAccount.username, rankEntry.netGain,i+1))
 		}
 		
-		return [weekly: rankingResult, all: rankingResult]
+		for (int i=0; i<userRankingWk.size(); i++){
+			UserRankingWk rankEntry = userRankingWk.getAt(i)
+			def userAccount = Account.get(rankEntry.id)
+			rankingResultWk.add(constructRankingData(userAccount.username, rankEntry.netGain,i+1))
+		}
+		
+		return [weekly: rankingResultWk, all: rankingResultAll]
 	}
+	
+//	def getRanking1(userId){
+//		
+//		def rest = new RestBuilder()
+//		def resp = parseService.retreiveUser(rest, userId)
+//		
+//		if (resp.status != 200){
+//			println "ERROR: UserService::getUserProfile(): user account does not exist in parse"
+//			def result = [
+//				code:500,
+//				error:"user account does not exist"
+//			]
+//			return result
+//		}
+//		def userAccount = Account.findByUserId(userId)
+//		def userBalance = userAccount.currentBalance
+//		
+//		def higherRankingList = Account.findAll("from Account as a where a.currentBalance > ? order by a.currentBalance", [userBalance])
+//		
+//		int higherRank = higherRankingList.size()
+//		int currentUserRank = higherRank + 1
+//		int lowerRank = currentUserRank +1
+//		List rankingResult =[]
+//		int higherRankingSize = 5
+//		if (higherRankingList.size()<5)
+//			higherRankingSize=higherRankingList.size()
+//		
+//		for (int i=0; i<higherRankingSize; i++){			
+//			rankingResult.add(0,processRankingData(higherRankingList.get(i), higherRank))
+//			higherRank -= 1
+//		} 
+//		
+//		rankingResult.add(processRankingData(userAccount, currentUserRank))
+//		
+//		def lowerRankingList = Account.findAll("from Account as a where a.currentBalance < ? order by a.currentBalance", [userBalance])
+//		int lowerRankingSize = 5
+//		if (lowerRankingList.size()<5)
+//			lowerRankingSize=lowerRankingList.size()
+//			
+//		for (int i=0; i<lowerRankingSize; i++){
+//			rankingResult.add(processRankingData(lowerRankingList.get(i), lowerRank))
+//			lowerRank +=1
+//		}
+//		
+//		return [weekly: rankingResult, all: rankingResult]
+//	}
 			
 	def createUser(String _username, String _email, String _password, String gender, String region){
 		def rest = new RestBuilder()
