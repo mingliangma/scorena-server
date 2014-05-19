@@ -1,4 +1,5 @@
 import com.doozi.scorena.*
+import com.doozi.scorena.sportsdata.ScorenaAllGames
 import java.util.Date;
 
 class BootStrap {
@@ -10,7 +11,8 @@ class BootStrap {
 			bootstrapQuestionContent()
 		}
 		if (!Question.count()) {
-//			createQuestions()			
+//			createQuestions()
+//			createCustomQuestions()
 //			createUsers()
 //			simulateBetUpcoming()
 //			simulateBetPast()
@@ -23,6 +25,15 @@ class BootStrap {
 	def gameService
 	def betService
 	def userService
+	def customQuestionService
+	
+	def createCustomQuestions(){
+		List pastGames = gameService.listPastGames()
+		println "createCustomQuestions()::pastGames: "+pastGames.size()
+		for (def game: pastGames){
+			customQuestionService.createCustomQuestion(game.gameId, "Joseph will be naked at the party?", "hell yes", "of course")
+		}
+	}
 	
 	def bootstrapQuestionContent(){
 		def qc1 = new QuestionContent(questionType: QuestionContent.WHOWIN, content: "Who will win", sport: "soccer")
@@ -135,7 +146,7 @@ class BootStrap {
 		def upcomingGames = gameService.listUpcomingGames()
 		for (int i=0; i < upcomingGames.size(); i++){
 			def upcomingGame = upcomingGames.get(i)
-//			System.out.println("game away: "+upcomingGame.away.teamname + "   VS   game home: "+upcomingGame.home.teamname + "----- StartDate: "+upcomingGame.date)
+			System.out.println("game away: "+upcomingGame.away.teamname + "   VS   game home: "+upcomingGame.home.teamname + "----- StartDate: "+upcomingGame.date)
 			
 			def questions = Question.findAllByEventKey(upcomingGame.gameId)
 			
@@ -179,7 +190,7 @@ class BootStrap {
 			def upcomingGames = gameService.listPastGames()
 			for (int i=0; i < upcomingGames.size(); i++){
 				def upcomingGame = upcomingGames.get(i)
-//				System.out.println("game away: "+upcomingGame.away.teamname + "   VS   game home: "+upcomingGame.home.teamname + "----- StartDate: "+upcomingGame.date)
+				System.out.println("game away: "+upcomingGame.away.teamname + "   VS   game home: "+upcomingGame.home.teamname + "----- StartDate: "+upcomingGame.date)
 				
 				def questions = Question.findAllByEventKey(upcomingGame.gameId)
 				
@@ -230,7 +241,7 @@ class BootStrap {
 		String _gender
 		String _region
 		
-		for (int i=0; i<50; i++){
+		for (int i=0; i<10; i++){
 			def num = random.nextInt(100000)
 			 _displayName  = "scorena"+num.toString()
 			 _email = _displayName+"@gmail.com"

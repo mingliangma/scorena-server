@@ -9,9 +9,6 @@ class Question {
 	static hasOne = [pool: Pool]
 	static hasMany = [bet: PoolTransaction]
 	static belongsTo = [questionContent:QuestionContent]
-
-    static constraints = {
-    }
 	
 	static mapping = {
 		bet lazy: false

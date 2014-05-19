@@ -92,13 +92,13 @@ def createQuestions(){
 		}
 	}
 	
-	for (int i=0; i < pastGames.size(); i++){
-		def game = pastGames.get(i)
-		println "game id: "+game.gameId
-		if (Question.findByEventKey(game.gameId) == null){
-			populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
-		}
-	}
+//	for (int i=0; i < pastGames.size(); i++){
+//		def game = pastGames.get(i)
+//		println "game id: "+game.gameId
+//		if (Question.findByEventKey(game.gameId) == null){
+//			populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
+//		}
+//	}
 }
 
 def populateQuestions(String away, String home, String eventId){

@@ -22,6 +22,13 @@ class CustomQuestionService {
 	}
 	
     def createCustomQuestionContent(String content) {
+		
+		def qc = QuestionContent.findByContent(content)
+		if (qc){
+			println "question content already exists. return existing one"
+			return qc
+		}
+		
 		def qc1 = new QuestionContent(questionType: QuestionContent.CUSTOM, content:content, sport: "soccer")
 		if (qc1.save()){
 			System.out.println("Custom Question Content Created successfully saved")

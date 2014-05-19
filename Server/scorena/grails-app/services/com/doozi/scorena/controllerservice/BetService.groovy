@@ -15,6 +15,9 @@ import grails.transaction.Transactional
 @Transactional
 class BetService {
 
+	def getPayoutTransByQuestion(Question q){
+		def result = PoolTransaction.find("from PoolTransaction as t where (t.transactionType=1 and t.question.id=?)",[q.id])
+	}
 	
 	
 	def savePayoutTrans(Account playerAccount, Question q, int payout, int winnerPick, int potAmoutToBePaid, int numPlayersToBePaid, int wager){
