@@ -11,15 +11,24 @@ class GameService {
 	def questionService
 	def betService
 	def helperService
+	def customGameService
 	
 	public static final String POSTEVENT = "post-event"
+	public static final String PREEVENT = "pre-event"
+	public static final String INTERMISSION = "intermission"
+	public static final String MIDEVENT = "mid-event"
+	
 	def listUpcomingGames(){
-		def upcomingGames = sportsDataService.getAllUpcomingGames()
+		List upcomingGames = sportsDataService.getAllUpcomingGames()
+		List upcomingCustomGames = 	customGameService.getAllUpcomingGames()
+		upcomingGames.addAll(upcomingCustomGames)
 		return upcomingGames
 	}
 	
 	def listUpcomingGames(def userId){
-		List upcomingGames = sportsDataService.getAllUpcomingGames()		
+		List upcomingGames = sportsDataService.getAllUpcomingGames()	
+		List upcomingCustomGames = 	customGameService.getAllUpcomingGames()		
+		upcomingGames.addAll(upcomingCustomGames)
 		def playedGames = betService.listDistinctBetEventKeyByUserId(userId)
 		
 		for (def upcomingGame: upcomingGames){
@@ -120,9 +129,12 @@ class GameService {
 //		return resultList
 //	}
 	
-	def getGame(gameId){
-		def game = sportsDataService.getGame(gameId)
-		return game
+	def getGame(String gameId){
+		if (gameId.startsWith(customGameService.CUSTOM_EVENT_PREFIX))
+			return customGameService.getGame(gameId)
+		else	
+			return sportsDataService.getGame(gameId)
+		
 	}
 	
 //	def getGame(gameId){

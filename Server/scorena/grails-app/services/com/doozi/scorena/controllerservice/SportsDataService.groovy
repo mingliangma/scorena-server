@@ -67,17 +67,17 @@ class SportsDataService {
 			String eventKey = game.eventKey
 			def upcomingGame = upcomingGamesMap.get(eventKey)
 			
-			if (eventKey == "l.premierleague.com-2013-e.1785034"){				
-				String matchDateString = helperService.setUTCFormat(game.startDateTime)				
-				def matchDate = helperService.parseDateFromString(matchDateString)				
-				if (todayDate > matchDate){
-					if (game.eventStatus == "pre-event"){
-						println "ERROR: SportsDataService::getAllUpcomingGames(): gameStatus should not be pre-event!"
-						println "gameEvent: "+ game.eventKey
-						println "score: "+ game.score
-					}
+			String matchDateString = helperService.setUTCFormat(game.startDateTime)				
+			def matchDate = helperService.parseDateFromString(matchDateString)				
+			if (todayDate > matchDate){
+				if (game.eventStatus == "pre-event"){
+					println "ERROR: SportsDataService::getAllUpcomingGames(): gameStatus should not be pre-event!"
+					println "gameEvent: "+ game.eventKey
+					println "score: "+ game.score
+					continue
 				}
-			}						
+			}
+						
 			
 			
 			if (!upcomingGame){
