@@ -20,18 +20,22 @@ class GameService {
 	
 	def listUpcomingGames(){
 		List upcomingGames = sportsDataService.getAllUpcomingGames()
-		List upcomingCustomGames = 	customGameService.getAllUpcomingGames()
-		upcomingGames.addAll(upcomingCustomGames)
-		return upcomingGames
+		List upcomingCustomGames = customGameService.getAllUpcomingGames()
+		List upcomingGamesResult=[]		
+		upcomingGamesResult.addAll(upcomingCustomGames)
+		upcomingGamesResult.addAll(upcomingGames)
+		return upcomingGamesResult
 	}
 	
 	def listUpcomingGames(def userId){
 		List upcomingGames = sportsDataService.getAllUpcomingGames()	
 		List upcomingCustomGames = 	customGameService.getAllUpcomingGames()		
-		upcomingGames.addAll(upcomingCustomGames)
+		List upcomingGamesResult=[]			
+		upcomingGamesResult.addAll(upcomingCustomGames)
+		upcomingGamesResult.addAll(upcomingGames)
 		def playedGames = betService.listDistinctBetEventKeyByUserId(userId)
 		
-		for (def upcomingGame: upcomingGames){
+		for (def upcomingGame: upcomingGamesResult){
 			def gameId = upcomingGame.gameId
 			upcomingGame.placedBet = false
 			for (def eventKey: playedGames){
@@ -40,7 +44,7 @@ class GameService {
 				}
 			}
 		}
-		return upcomingGames
+		return upcomingGamesResult
 	}
 	
 	//deprecated
@@ -52,15 +56,23 @@ class GameService {
 //	}
 	
 	def listPastGames(){
-		def pastGames = sportsDataService.getAllPastGames()		
-		return pastGames
+		List pastGames = sportsDataService.getAllPastGames()	
+		List pastCustomGames = 	customGameService.getAllPastGames()
+		List pastGamesResult=[]	
+		pastGamesResult.addAll(pastCustomGames)
+		pastGamesResult.addAll(pastGames)
+		return pastGamesResult
 	}
 	
 	def listPastGames(def userId){
 		List pastGames = sportsDataService.getAllPastGames()
+		List pastCustomGames = 	customGameService.getAllPastGames()
+		List pastGamesResult=[]	
+		pastGamesResult.addAll(pastCustomGames)
+		pastGamesResult.addAll(pastGames)
 		def playedGames = betService.listDistinctBetEventKeyByUserId(userId)
 
-		for (def pastGame: pastGames){
+		for (def pastGame: pastGamesResult){
 			def gameId = pastGame.gameId
 			if (pastGame.gameStatus != "post-event"){
 				println "gameService::listPastGames():wrong event: "+ pastGame
@@ -72,7 +84,7 @@ class GameService {
 				}
 			}
 		}
-		return pastGames
+		return pastGamesResult
 	}
 	
 	def listFeatureGames(userId){

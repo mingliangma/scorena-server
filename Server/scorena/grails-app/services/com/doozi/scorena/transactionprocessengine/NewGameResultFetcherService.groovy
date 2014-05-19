@@ -6,6 +6,7 @@ import com.doozi.scorena.*
 @Transactional
 class NewGameResultFetcherService {
 	def sportsDataService
+	def customGameService
 	def helperService
     def printNowTime(def time) {
 		//println "current time is "+time
@@ -13,7 +14,9 @@ class NewGameResultFetcherService {
 	
 	def getUnprocessedPastGame(){
 		println "NewGameResultFetcherService::getUnprocessedPastGame(): starts"
-		def pastGames = sportsDataService.getAllPastGames()
+		List pastGames = sportsDataService.getAllPastGames()
+		List pastCustomGames = customGameService.getAllPastGames()
+		pastGames.addAll(pastCustomGames)
 		def earliestPastGameDate = helperService.parseDateFromString(pastGames.get(pastGames.size()-1).date)
 		def processGameRecords = GameProcessRecord.findAllByStartDateTimeGreaterThanEquals(earliestPastGameDate)
 		def gameRecordAdded = 0

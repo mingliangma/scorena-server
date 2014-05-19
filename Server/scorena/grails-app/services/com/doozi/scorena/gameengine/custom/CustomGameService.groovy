@@ -1,6 +1,8 @@
 package com.doozi.scorena.gameengine.custom
 
 import com.doozi.scorena.CustomGame
+import com.doozi.scorena.controllerservice.GameService;
+
 import grails.transaction.Transactional
 
 @Transactional
@@ -103,6 +105,49 @@ class CustomGameService {
 		return upcomingGamesList
 	}
 	
+	def getAllPastGames(){
+		def todayDate = new Date()
+		def pastDate = todayDate - PAST_DATE_RANGE;
+		def pastGames = CustomGame.findAll("from CustomGame as g where g.eventStatus='post-event'")
+		def pastGamesMap = [:]
+		List pastGamesList = []
+		for (CustomGame game: pastGames){
+			if (game.eventStatus != "post-event"){
+				println "SportsDataService::getAllPastGames():wrong event: "+ game.eventKey
+			}
+			
+			String eventKey = game.eventKey
+			def pastGame = pastGamesMap.get(eventKey)
+			
+			if (!pastGame){
+				def	gameInfo = [
+						"leagueName": "",
+						"leagueCode": "",
+						"gameId":eventKey,
+						"type":"soccer",
+						"gameStatus":game.eventStatus,
+						"date":helperService.setUTCFormat(game.startDateTime),
+						(game.alignment):[
+							"teamname":game.fullName,
+							"score":game.score
+						]
+				]
+				pastGamesMap.putAt(eventKey, gameInfo)
+			}else{
+			
+				if (!pastGame.away){
+					pastGame.away = ["teamname":game.fullName, "score":game.score]
+				}else{
+					pastGame.home = ["teamname":game.fullName, "score":game.score]
+				}
+				pastGamesList.add(pastGame)
+				
+			}
+		}
+		
+		return pastGamesList
+	}
+	
     def createCustomGameByName(String awayTeamName, String homeTeamName, String eventName, String startDateTimeInput) {
 		Random random = new Random()
 		
@@ -143,6 +188,21 @@ class CustomGameService {
 		}
 		
     }
+	
+//	def changeStatus(String status, String eventKey, int questionId, String homeScore, String awayScore ){
+//		
+//		def question = Question.findById(questionId)
+//		if (!question)
+//			return [error: "There is no question with given question ID"]
+//		
+//		if (question.eventKey != eventKey)
+//			return [error: "The event does not contain the given question ID"]
+//			
+//		
+//		if (status!=null && status!="" && (status==gameService.PREEVENT ||status==gameService.POSTEVENT ||status==gameService.MIDEVENT ||status==gameService.INTERMISSION)){
+//			
+//		}
+//	}
 	
 //	def createCustomGameByKey(String awayTeamKey, String homeTeamKey, String eventKey, String startDateTime){
 //		

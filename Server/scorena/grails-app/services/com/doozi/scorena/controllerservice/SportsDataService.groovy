@@ -120,7 +120,7 @@ class SportsDataService {
 		def pastDate = todayDate - PAST_DATE_RANGE;
 		def pastGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime>? and g.startDateTime<?and g.eventStatus='post-event'", [pastDate, todayDate+1])
 		def pastGamesMap = [:]
-		List upcomingGamesList = []
+		List pastGamesList = []
 		for (ScorenaAllGames game: pastGames){
 			if (game.eventStatus != "post-event"){
 				println "SportsDataService::getAllPastGames():wrong event: "+ game.eventKey
@@ -150,11 +150,11 @@ class SportsDataService {
 				}else{
 					pastGame.home = ["teamname":game.fullName, "score":game.score]
 				}
-				upcomingGamesList.add(pastGame)
+				pastGamesList.add(pastGame)
 				
 			}
 		}
-		return upcomingGamesList
+		return pastGamesList
 	}
 	
 	def getGame(def eventKey){
