@@ -8,14 +8,13 @@ class BootStrap {
 		println "bootstrap starts..."
 		
 		if (!QuestionContent.count()) {
-			bootstrapQuestionContent()
+//			bootstrapQuestionContent()
 		}
 		if (!Question.count()) {
-			createQuestions()
-//			createCustomQuestions()
-			createUsers()
-			simulateBetUpcoming()
-			simulateBetPast()
+//			createQuestions()
+//			createUsers()
+//			simulateBetUpcoming()
+//			simulateBetPast()
 		}
 		println "bootstrap ended"
     }

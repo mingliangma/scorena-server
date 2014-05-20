@@ -27,6 +27,7 @@ class UserService {
 	def grailsApplication
 	def parseService
 	def betService
+	def sportsDataService
 	
 	def getCoins(userId){
 		def userAccount = Account.findByUserId(userId)
@@ -40,8 +41,14 @@ class UserService {
 		return [username: userAccount.username, userId: userAccount.userId, currentBalance: userAccount.currentBalance, newCoinsAmount: FREE_COIN_AMOUNT]
 	}
 	
-	def constructRankingData(def username, def netgain, def rank){		
-		return [username: username, gain: netgain, rank: rank]
+	def constructRankingData(def username, def netgain, def rank){	
+		String netGain = ""
+		if (netgain>0)
+			netGain="+"+netgain.toString()
+		else
+			netGain=netgain.toString()
+			
+		return [username: username, gain: netGain, rank: rank]
 	}
 	
 //	def processRankingData(Account user, int rank){		
@@ -249,7 +256,7 @@ class UserService {
 		}	
 		
 		def userPayoutTrans = betService.listPayoutTransByUserId(userId)
-		def userStats = getBetStats(userPayoutTrans)
+		def userStats = getBetStats(userPayoutTrans, account.id)
 		//todo netgain/total wager in type 1
 		userStats.weekly.netGainPercent = ((userStats.weekly.netGain / (account.currentBalance))*100).toInteger()
 		userStats.monthly.netGainPercent = ((userStats.monthly.netGain / (account.currentBalance))*100).toInteger()
@@ -295,15 +302,55 @@ class UserService {
 		return resp.json
 	}
 	
-	def getBetStats(userPayoutTrans){
+	def getLeagueStats(accountId){
+		def leagues=[:]
+		def userStats = UserLeagueStats.findAllByAccountId(accountId)
+		for (UserLeagueStats userStat : userStats){
+			def leagueName = sportsDataService.getLeagueNameFromEventKey(userStat.league)
+			def leagueMap = [:] 
+			leagueMap = leagues.get(leagueName)
+			if (leagueMap==null){
+				leagueMap = [netGain:"0",wins:0,netLose:"0",losses:0,ties:0]
+				leagues.put(leagueName, leagueMap)
+			}
+			if (userStat.gameResult=="loss"){
+				String netGain = ""
+				if (userStat.netGain>0)
+					netGain="+"+userStat.netGain.toString()
+				else
+					netGain=userStat.netGain.toString()
+					
+				leagueMap.netLose=netGain
+				leagueMap.losses=userStat.numGames
+			}
+			
+			if (userStat.gameResult=="win"){
+				String netGain = ""
+				if (userStat.netGain>0)
+					netGain="+"+userStat.netGain.toString()
+				else
+					netGain=userStat.netGain.toString()
+					
+				leagueMap.netGain=netGain
+				leagueMap.wins=userStat.numGames
+			}
+			
+			if (userStat.gameResult=="tie"){					
+				leagueMap.ties=userStat.numGames
+			}			
+		}
+		return leagues
+	}
+	
+	def getBetStats(userPayoutTrans, accountId){
 		
 //		def stats = [all:[netGain:0, wins:0, losses:0, ties:0, leagues:[premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]], 
 //			monthly:[netGain:0, wins:0, losses:0, ties:0,leagues:[premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]], 
 //			weekly:[netGain:0, wins:0, losses:0, ties:0,leagues:[premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]]]
 		
-		def stats = [all:[netGain:0, wins:0, losses:0, ties:0, leagues:[All_Leagues:[netGain:4,wins:2,netLose:2,losses:7,ties:3]]],
-			monthly:[netGain:0, wins:0, losses:0, ties:0,leagues:[All_Leagues:[netGain:0,wins:5,netLose:2,losses:3,ties:0]]],
-			weekly:[netGain:0, wins:0, losses:0, ties:0,leagues:[All_Leagues:[netGain:0,wins:3,netLose:2,losses:0,ties:0]]]]
+		def stats = [all:[netGain:0, wins:0, losses:0, ties:0, leagues:getLeagueStats(accountId)],
+			monthly:[netGain:0, wins:0, losses:0, ties:0,leagues:getLeagueStats(accountId)],
+			weekly:[netGain:0, wins:0, losses:0, ties:0,leagues:getLeagueStats(accountId)]]
 		
 		if (userPayoutTrans==null || userPayoutTrans.size()==0){
 			println "userPayoutTrans null"

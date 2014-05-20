@@ -5,11 +5,11 @@ import grails.transaction.Transactional
 
 @Transactional
 class SportsDataService {
-	static String PREMIER_LEAGUE = "l.premierleague.com"
-	static String CHAMP_LEAGUE = "l.uefa.org.champions"
-	static String BRAZIL_SERIES_A = "l.cbf.br.seriea"
-	static String CALCIO_SERIES_A = "l.lega-calcio.it.seriea"
-	static String LA_LIGA= "l.lfp.es.primera"
+	static String PREMIER_LEAGUE = "l.premierlea"
+	static String CHAMP_LEAGUE = "l.uefa.org."
+	static String BRAZIL_SERIES_A = "l.cbf.br.ser"
+	static String CALCIO_SERIES_A = "l.lega-calci"
+	static String LA_LIGA= "l.lfp.es.pri"
 	static String MLS = "l.mlsnet.com"
 	
 	static String PREEVENT = "pre-event"
@@ -22,7 +22,7 @@ class SportsDataService {
 	static int PAST_DATE_RANGE = 7
 	
 	def helperService
-	
+	def customGameService
 		
 	private String getLeagueNameFromEventKey(String eventKey){
 		
@@ -38,6 +38,8 @@ class SportsDataService {
 			return "La Liga"
 		else if (eventKey.startsWith(MLS))
 			return "Major League Soccer"
+		else if (eventKey.startsWith(customGameService.CUSTOM_EVENT_PREFIX))
+			return "Custom Games"
 	}
 	
 	private String getLeagueCodeFromEventKey(String eventKey){
@@ -53,6 +55,8 @@ class SportsDataService {
 			return LA_LIGA
 		else if (eventKey.startsWith(MLS))
 			return MLS
+		else if (eventKey.startsWith(customGameService.CUSTOM_EVENT_PREFIX))
+			return customGameService.CUSTOM_EVENT_PREFIX
 	}
 	
 
