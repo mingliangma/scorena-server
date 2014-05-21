@@ -39,7 +39,7 @@ class SportsDataService {
 		else if (eventKey.startsWith(MLS))
 			return "Major League Soccer"
 		else if (eventKey.startsWith(customGameService.CUSTOM_EVENT_PREFIX))
-			return "Custom Games"
+			return "Launch Party"
 	}
 	
 	private String getLeagueCodeFromEventKey(String eventKey){

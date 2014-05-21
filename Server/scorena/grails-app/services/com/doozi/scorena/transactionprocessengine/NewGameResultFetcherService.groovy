@@ -16,11 +16,24 @@ class NewGameResultFetcherService {
 		println "NewGameResultFetcherService::getUnprocessedPastGame(): starts"
 		List pastGames = sportsDataService.getAllPastGames()
 		List pastCustomGames = customGameService.getAllPastGames()
-		pastGames.addAll(pastCustomGames)
+		List allPastGames = []
+		allPastGames.addAll(pastCustomGames)
+		
 		def earliestPastGameDate = helperService.parseDateFromString(pastGames.get(pastGames.size()-1).date)
-		def processGameRecords = GameProcessRecord.findAllByStartDateTimeGreaterThanEquals(earliestPastGameDate)
+		
+		//todo: need to find the earliest custom games
+		def earliestPastCustomGameDate = helperService.parseDateFromString(pastCustomGames.get(pastCustomGames.size()-1).date)
+		def ealiestGameDate
+		if (earliestPastGameDate > earliestPastCustomGameDate){
+			ealiestGameDate = earliestPastCustomGameDate
+		}else{
+			ealiestGameDate = earliestPastGameDate
+		}
+		
+		def processGameRecords = GameProcessRecord.findAllByStartDateTimeGreaterThanEquals(ealiestGameDate)
+		
 		def gameRecordAdded = 0
-		for (def pastGame: pastGames){
+		for (def pastGame: allPastGames){
 			def unprocessed = true
 			
 			for (def gameRecord: processGameRecords){
