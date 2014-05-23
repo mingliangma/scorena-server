@@ -114,6 +114,50 @@ class UserControllerIntegationSpec extends Specification {
 			createNewUserCall == null
 	}
 	
+	
+	/**
+	 *  Integration test on createNewUser() by passing in an email address with spaces and no "@" sign.
+	 *
+	 *  @author Chih-Hong (James) Pang
+	 *  @version 1.0
+	 *
+	 */
+	void "signupUser_Failure_InvalidEmailFormat" () {
+		setup:
+			Random random = new Random()
+			def ranNum = random.nextInt(10000).toString()
+			def username = "testingname"+ranNum
+			def email = "This is an invalid email" //This email should be in an invalid format (i.e with spaces)
+			def gender = "male"
+			def region = "Toronto"
+			def content = '{"username":"'+username+'","password":"11111111","email":"'+email+'", "gender":"'+gender+'", "region":"'+region+'"}'
+
+			println content
+		
+		when:
+			println "when"
+			def userC = new UserController()
+			userC.userService = userService
+			userC.request.contentType = "application/json"
+			userC.request.content = content.getBytes()
+						
+			userC.createNewUser()
+			
+			def sessionTokenCopy = userC.response.json.sessionToken
+			def userIdCopy = userC.response.json.userId
+			
+		then:
+			println "then"
+			userC.response.status == 400
+			userC.response.json.error == "invalid email " + email
+			userC.response.json.code == 125
+			
+		cleanup:
+			println "cleanup"
+			def resp = parseService.deleteUser(new RestBuilder(), sessionTokenCopy, userIdCopy)
+			println resp.json
+	}
+	
 	/**
 	 *  Integration test on createNewUser() by not passing in any password.
 	 *
@@ -419,6 +463,7 @@ class UserControllerIntegationSpec extends Specification {
 			println resp.json
 	}
 	
+	
 //	/**
 //	 *  Integration test on deleteUserProfile() by creating a dummy user and deleting this user. (NOT DONE YET)
 //	 *
@@ -567,41 +612,100 @@ class UserControllerIntegationSpec extends Specification {
 			userC.response.json.error == "user account does not exist"
 	}
 	
-//	//!!!!NOT DONE YET!!!! Can't get the then part to go to incorrect output
-//	void "passwordReset_Failure_InvalidEmail" () {
-//		setup:
-//			Random random = new Random()
-//			def ranNum = random.nextInt(10000).toString()
-//			def username = "testingname"+ranNum
-//			def email = "testingname"+ranNum+"@gmail.com"
-//			def password = "11111111"
-//			def gender = "male"
-//			def region = "Toronto"
-//			def content = '{"username":"'+username+'","password":"11111111", "email":"'+email+'", "gender":"'+gender+'", "region":"'+region+'"}'
-//			println content
-//			
-//			def userC = new UserController()
-//			userC.userService = userService
-//			userC.request.contentType = "application/json"
-//			userC.request.content = content.getBytes()
-//			userC.createNewUser()
+	
+	
+	/**
+	 *  Integration test on passwordReset() by creating a dummy user and requesting a password reset email to be sent to the dummy email address.
+	 *
+	 *  @author Chih-Hong (James) Pang
+	 *  @version 1.0
+	 */
+	void "passwordReset_Success" () {
+		setup:
+			Random random = new Random()
+			def ranNum = random.nextInt(10000).toString()
+			def username = "testingname"+ranNum
+			def email = "testingname"+ranNum+"@gmail.com" //If you use a valid email address, there should be an email sent to this address.
+			def password = "11111111"
+			def gender = "male"
+			def region = "Toronto"
+			def content = '{"username":"'+username+'","password":"11111111", "email":"'+email+'", "gender":"'+gender+'", "region":"'+region+'"}'
+			println content
+			
+			def userC = new UserController()
+			userC.userService = userService
+			userC.request.contentType = "application/json"
+			userC.request.content = content.getBytes()
+			userC.createNewUser()
+		
+			def userId = userC.response.json.userId
+			def sessionToken = userC.response.json.sessionToken
+			println userC.response.json
+			
+			userC.response.reset()
+		
+		when:
+			userC.passwordReset()
+			
+		then:
+			userC.response.status == 200
+			userC.response.json == [:]
+			
+		cleanup:
+			println "cleanup"
+			def resp = parseService.deleteUser(new RestBuilder(), sessionToken, userId)
+			println resp.json
+	}
+	
+	/**
+	 *  Integration test on passwordReset() by having no request for any email.
+	 *	
+	 *  @author Chih-Hong (James) Pang
+	 *  @version 1.0
+	 */
+	void "passwordReset_Failure_RequestFoundNoEmail" () {
+		setup:	
+			def userC = new UserController()
+			userC.userService = userService
+	
+		when:
+			userC.passwordReset()
+			
+		then:
+			userC.response.status == 404
+			userC.response.json.error == "invalid parameters"
+	}
+	
+	/**
+	 *  Integration test on passwordReset() by passing in an non-exsisting email in the request.
+	 *
+	 *  @author Chih-Hong (James) Pang
+	 *  @version 1.0
+	 */
+	void "passwordReset_Failure_NoUserFoundWithEmail" () {
+		setup:
+			def invalidEmail = "ThisEmailIs@not.valid"	
+			def content = '{"email":"'+invalidEmail+'"}'
+			println content
+			
+			def userC = new UserController()
+			userC.userService = userService
+			
+			userC.request.contentType = "application/json"
+			userC.request.content = content.getBytes()
+			
+		when:
+			userC.passwordReset()
+		
+		then:
+			userC.response.status == 400
+			userC.response.json.error == "no user found with email " + invalidEmail
+			userC.response.json.code == 205 
+	}
+
+//	void "getUserProfile_Success" () {
 //		
-//			def userId = userC.response.json.userId
-//			def sessionToken = userC.response.json.sessionToken
-//			println userC.response.json
-//			
-//			userC.response.reset()
-//		
-//		when:
-//			userC.passwordReset()
-//			
-//		then:
-//			userC.response.status == 404
-//			userC.response.json.error == "invalid parameters"
-//			
-//		cleanup:
-//			println "cleanup"
-//			def resp = parseService.deleteUser(new RestBuilder(), sessionToken, userId)
-//			println resp.json
 //	}
+	
+	
 }
