@@ -4,6 +4,7 @@ package com.doozi
 
 import com.doozi.scorena.Account;
 import com.doozi.scorena.UserController;
+import com.doozi.scorena.controllerservice.HelperService;
 
 import grails.plugins.rest.client.RestBuilder
 import spock.lang.*
@@ -15,6 +16,7 @@ import org.apache.commons.lang.*
 class UserControllerIntegationSpec extends Specification {
 	def parseService
 	def userService
+	def helperService
 	def _sessionToken
     def setup() {
     }
@@ -703,9 +705,165 @@ class UserControllerIntegationSpec extends Specification {
 			userC.response.json.code == 205 
 	}
 
-//	void "getUserProfile_Success" () {
-//		
-//	}
+	
+	/**
+	 *  Integration test on getUserProfile() by creating a dummy user.
+	 *  
+	 *  <p>
+	 *  Note that the level and levelName were hardcoded as "1" and "novice" so no test conditions were written until further implementation.
+	 *  Also, the testing condition on date is not implemented because the system time may be different from Parse server time.
+	 *  </p>
+	 *  
+	 *
+	 *  @author Chih-Hong (James) Pang
+	 *  @version 1.0
+	 */
+	void "getUserProfile_Success" () {
+		setup:
+			def Date1 = new Date()
+			Random random = new Random()
+			def ranNum = random.nextInt(10000).toString()
+			def username = "testingname"+ranNum
+			def email = "testingname"+ranNum+"@gmail.com"
+			def password = "11111111"
+			def gender = "male"
+			def region = "Toronto"
+			def content = '{"username":"'+username+'","password":"11111111","email":"'+email+'", "gender":"'+gender+'", "region":"'+region+'"}'
+			println content
+			
+			def userC = new UserController()
+			userC.userService = userService
+			userC.request.contentType = "application/json"
+			userC.request.content = content.getBytes()
+			userC.createNewUser()
+		
+			def userId = userC.response.json.userId
+			def sessionToken = userC.response.json.sessionToken
+			def createdAt = helperService.parseDateFromStringT(userC.response.json.createdAt.toString())
+			
+			userC.response.reset()
+			
+		when:
+			userC.params.userId = userId
+			userC.getUserProfile()
+			def updatedAt = helperService.parseDateFromStringT(userC.response.json.updatedAt.toString())
+			println "Response after calling getUserProfile(): " + userC.response.json
+			println "Response of updatedAt after calling getUserProfile(): " + updatedAt
+			
+			
+		then:
+			userC.response.status == 200
+			userC.response.json.username == username
+			userC.response.json.currentBalance == Account.findByUserId(userId).currentBalance
+			userC.response.json.userId == userId
+			userC.response.json.gender == gender
+			userC.response.json.region == region
+			userC.response.json.email == email
+			userC.response.json.userStats == 
+				[weekly:[leagues:[:], ties:0, losses:0, netGain:0, netGainPercent:0, wins:0],
+					 monthly:[leagues:[:], ties:0, losses:0, netGain:0, netGainPercent:0, wins:0],
+					 all:[leagues:[:], ties:0, losses:0, netGain:0, netGainPercent:0, wins:0]]
+			
+			//The testing condition below will be written after further implementation
+			//userC.response.json.level ==
+			//userC.response.json.levelName == 
+		
+		cleanup:
+			println "cleanup"
+			def resp = parseService.deleteUser(new RestBuilder(), sessionToken, userId)
+			println resp.json
+			
+	}
 	
 	
+	/**
+	 *  Integration test on getUserProfile() by not setting any userId in the params.
+	 *
+	 *  @author Chih-Hong (James) Pang
+	 *  @version 1.0
+	 */
+	void "getUserProfile_Failure_RequestFoundNoUserId" () {
+		setup:
+			def userC = new UserController()
+			userC.userService = userService
+
+		when:
+			userC.getUserProfile()
+		
+		then:
+			userC.response.status == 404
+			userC.response.json.error == "invalid parameters"
+	}
+	
+	
+	/**
+	 *  Integration test on getUserProfile() by giving an invalid userId as the param. 
+	 *  <p>
+	 *  This is the first case that will fail when retrieving user profile from Parse.
+	 *  </p>
+	 *
+	 *  @author Chih-Hong (James) Pang
+	 *  @version 1.0
+	 */
+	void "getUserProfile_Failure_UserAccountDoesNotExist_Parse" () {
+		setup:
+			def userC = new UserController()
+			userC.userService = userService
+			def invalidUserId = "ThisIdShouldNotExist"
+			
+		when:
+			userC.params.userId = invalidUserId
+			userC.getUserProfile()
+			
+		then:
+			userC.response.status == 400
+			userC.response.json.error == "user account does not exist"
+			userC.response.json.code == 500		
+	}
+	
+	
+	/**
+	 *  Integration test on getUserProfile() by only creating a dummy user on Parse but not on the MySQL database.
+	 *  <p>
+	 *  This is the second case that will fail when retrieving user profile from MySQL database.
+	 *  </p>
+	 *
+	 *  @author Chih-Hong (James) Pang
+	 *  @version 1.0
+	 */
+	void "getUserProfile_Failure_UserAccountDoesNotExist_MySQL" () {
+		setup:
+			Random random = new Random()
+			def ranNum = random.nextInt(10000).toString()
+			def username = "testingname"+ranNum
+			def email = "testingname"+ranNum+"@gmail.com"
+			def password = "11111111"
+			def gender = "male"
+			def region = "Toronto"
+			def content = '{"username":"'+username+'","password":"11111111","email":"'+email+'", "gender":"'+gender+'", "region":"'+region+'"}'
+			println content
+			
+			def userC = new UserController()
+			userC.userService = userService
+			
+			def rest = new RestBuilder()
+			def resp = parseService.createUser(rest, username.toLowerCase(), email, password, gender, region)
+			
+			def userId = resp.json.objectId //This userId should exist in Parse, but not in the MySQL database.
+			def sessionToken = resp.json.sessionToken
+		
+		when:
+			userC.params.userId = userId
+			userC.getUserProfile()
+		
+		then:
+			userC.response.status == 400
+			userC.response.json.error == "user account does not exist"
+			userC.response.json.code == 500
+		
+		cleanup:
+			println "cleanup"
+			def resp2 = parseService.deleteUser(new RestBuilder(), sessionToken, userId)
+			println resp2.json
+	}
 }
