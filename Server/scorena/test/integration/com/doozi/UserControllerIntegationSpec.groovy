@@ -746,9 +746,9 @@ class UserControllerIntegationSpec extends Specification {
 		when:
 			userC.params.userId = userId
 			userC.getUserProfile()
-			def updatedAt = helperService.parseDateFromStringT(userC.response.json.updatedAt.toString())
-			println "Response after calling getUserProfile(): " + userC.response.json
-			println "Response of updatedAt after calling getUserProfile(): " + updatedAt
+			//def updatedAt = helperService.parseDateFromStringT(userC.response.json.updatedAt.toString())
+			//println "Response after calling getUserProfile(): " + userC.response.json
+			//println "Response of updatedAt after calling getUserProfile(): " + updatedAt
 			
 			
 		then:
