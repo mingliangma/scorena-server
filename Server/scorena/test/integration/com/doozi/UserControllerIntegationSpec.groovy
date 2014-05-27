@@ -116,7 +116,6 @@ class UserControllerIntegationSpec extends Specification {
 			createNewUserCall == null
 	}
 	
-	
 	/**
 	 *  Integration test on createNewUser() by passing in an email address with spaces and no "@" sign.
 	 *
@@ -370,6 +369,7 @@ class UserControllerIntegationSpec extends Specification {
 			def resp = parseService.deleteUser(new RestBuilder(), sessionToken, userId)
 			println resp.json
 	}
+	
 	/**
 	 *  Integration test on login() by creating a dummy user and log in without passing in any password.
 	 *
@@ -465,60 +465,145 @@ class UserControllerIntegationSpec extends Specification {
 			println resp.json
 	}
 	
+	/**
+	 *  Integration test on deleteUserProfile() by creating a dummy user and deleting this user.
+	 *
+	 *  @author Chih-Hong (James) Pang
+	 *  @version 1.1
+	 *
+	 *	@author Mingliang Ma
+	 *	@version 1.0
+	 */
+	void "deleteUserProfile_Success" (){
+		setup:
+			Random random = new Random()
+			def ranNum = random.nextInt(10000).toString()
+			def username = "testingname"+ranNum
+			def email = "testingname"+ranNum+"@gmail.com"
+			def password = "11111111"
+			def gender = "male"
+			def region = "Toronto"
+			def content = '{"username":"'+username+'","password":"11111111","email":"'+email+'", "gender":"'+gender+'", "region":"'+region+'"}'
+			println content
+			
+			def userC = new UserController()
+			userC.userService = userService
+			
+			userC.request.contentType = "application/json"
+			userC.request.content = content.getBytes()						
+			userC.createNewUser()
+		
+			def userId = userC.response.json.userId
+			def sessionToken = userC.response.json.sessionToken
+			
+			userC.response.reset() //a reset is necessary to clear the response because somehow it would not be overwritten
+			
+		when:			
+			userC.request.addHeader("sessionToken", sessionToken)
+			userC.params.userId = userId
+			userC.deleteUserProfile()
+
+		then:
+			userC.response.status == 200
+			userC.response.json == [:]
+			Account.findByUserId(userId) == null
+			
+		cleanup:
+			println "cleanup"
+			if (userC.response.status != 200){ //In case the test failed, the dummy account will still be deleted.
+				def resp = parseService.deleteUser(new RestBuilder(), sessionToken, userId)
+			}
+	}
 	
-//	/**
-//	 *  Integration test on deleteUserProfile() by creating a dummy user and deleting this user. (NOT DONE YET)
-//	 *
-//	 *  @author Chih-Hong (James) Pang
-//	 *  @version 1.1
-//	 *
-//	 *	@author Mingliang Ma
-//	 *	@version 1.0
-//	 */
-//	//!!!!!!!!!!!!NOT DONE YET!!!!!!!!!!!!!!
-//	void "deleteUser" (){
-//		setup:
-//			Random random = new Random()
-//			def ranNum = random.nextInt(10000).toString()
-//			def username = "testingname"+ranNum
-//			def email = "testingname"+ranNum+"@gmail.com"
-//			def password = "11111111"
-//			def gender = "male"
-//			def region = "Toronto"
-//			def content = '{"username":"'+username+'","password":"11111111","email":"'+email+'", "gender":"'+gender+'", "region":"'+region+'"}'
-//			println content
-//			
-//			def userC = new UserController()
-//			userC.userService = userService
-//			
-//			userC.request.contentType = "application/json"
-//			userC.request.content = content.getBytes()						
-//			userC.createNewUser()
-//		
-//			def userId = userC.response.json.userId
-//			def sessionToken = userC.response.json.sessionToken
-//			
-//			userC.response.reset() //a reset is necessary to clear the response because somehow it would not be overwritten
-//			
-//			def userC2 = new UserController() 
-//			userC2.userService = userService
-//			
-//		when:			
-//			userC2.request.addHeader("sessionToken", sessionToken)
-//			userC2.params.userId = userId
-//			userC2.deleteUserProfile()
-//
-//		then:
-//			userC2.response.status == 200
-//			userC2.response.json == [:]
-//			def resp = parseService.retreiveUser(new RestBuilder(), userId)
-//			resp.status == 404
-//			resp.json.code == 101
-//
-//			
-//			def account = Account.findByUserId(userId)
-//			account == null
-//	}
+	/**
+	 *  Integration test on deleteUserProfile() by not setting any sessionToken for the header.
+	 *
+	 *  @author Chih-Hong (James) Pang
+	 *  @version 1.1
+	 *
+	 */
+	void "deleteUserProfile_Failure_RequestFoundNoSessionToken" () {
+		setup:
+			def userC = new UserController()
+			userC.userService = userService
+
+		when:
+			userC.params.userId = "ThisIsDummyUserId"
+			userC.deleteUserProfile()
+		
+		then:
+			userC.response.status == 404
+			userC.response.json.error == "invalid parameters"
+	}
+	
+	/**
+	 *  Integration test on deleteUserProfile() by not setting any userId in the params.
+	 *
+	 *  @author Chih-Hong (James) Pang
+	 *  @version 1.1
+	 *
+	 */
+	void "deleteUserProfile_Failure_RequestFoundNoUserId" () {
+		setup:
+			def userC = new UserController()
+			userC.userService = userService
+
+		when:
+			userC.request.addHeader("sessionToken", "ThisIsDummySessionToken")
+			userC.deleteUserProfile()
+		
+		then:
+			userC.response.status == 404
+			userC.response.json.error == "invalid parameters"
+	}
+	
+	/**
+	 *  Integration test on deleteUserProfile() by giving a userId that does not exist in database.
+	 *
+	 *  @author Chih-Hong (James) Pang
+	 *  @version 1.1
+	 *
+	 */
+	void "deleteUserProfile_Failure_AccountNotExsisted" () {
+		setup:
+			Random random = new Random()
+			def ranNum = random.nextInt(10000).toString()
+			def username = "testingname"+ranNum
+			def email = "testingname"+ranNum+"@gmail.com"
+			def password = "11111111"
+			def gender = "male"
+			def region = "Toronto"
+			def content = '{"username":"'+username+'","password":"11111111","email":"'+email+'", "gender":"'+gender+'", "region":"'+region+'"}'
+			println content
+			
+			def userC = new UserController()
+			userC.userService = userService
+			
+			userC.request.contentType = "application/json"
+			userC.request.content = content.getBytes()						
+			userC.createNewUser()
+		
+			def userId = userC.response.json.userId
+			def sessionToken = userC.response.json.sessionToken
+			
+			userC.response.reset()
+
+		when:
+			userC.request.addHeader("sessionToken", sessionToken)
+			userC.params.userId = "ThisIdShouldNotExist"
+			userC.deleteUserProfile()
+		
+		then:
+			userC.response.status == 400
+			userC.response.json.error == "Parse::UserCannotBeAlteredWithoutSessionError"
+			userC.response.json.code == 206
+			Account.findByUserId(userId) != null
+		
+		cleanup:
+			println "cleanup"
+			def resp = parseService.deleteUser(new RestBuilder(), sessionToken, userId)
+			println resp.json
+	}
 	
 	/**
 	 *  Integration test on getBalance() by getting the initial balance of a newly created user.
@@ -614,8 +699,6 @@ class UserControllerIntegationSpec extends Specification {
 			userC.response.json.error == "user account does not exist"
 	}
 	
-	
-	
 	/**
 	 *  Integration test on passwordReset() by creating a dummy user and requesting a password reset email to be sent to the dummy email address.
 	 *
@@ -705,7 +788,6 @@ class UserControllerIntegationSpec extends Specification {
 			userC.response.json.code == 205 
 	}
 
-	
 	/**
 	 *  Integration test on getUserProfile() by creating a dummy user.
 	 *  
@@ -775,7 +857,6 @@ class UserControllerIntegationSpec extends Specification {
 			
 	}
 	
-	
 	/**
 	 *  Integration test on getUserProfile() by not setting any userId in the params.
 	 *
@@ -794,7 +875,6 @@ class UserControllerIntegationSpec extends Specification {
 			userC.response.status == 404
 			userC.response.json.error == "invalid parameters"
 	}
-	
 	
 	/**
 	 *  Integration test on getUserProfile() by giving an invalid userId as the param. 
@@ -820,7 +900,6 @@ class UserControllerIntegationSpec extends Specification {
 			userC.response.json.error == "user account does not exist"
 			userC.response.json.code == 500		
 	}
-	
 	
 	/**
 	 *  Integration test on getUserProfile() by only creating a dummy user on Parse but not on the MySQL database.
@@ -866,4 +945,236 @@ class UserControllerIntegationSpec extends Specification {
 			def resp2 = parseService.deleteUser(new RestBuilder(), sessionToken, userId)
 			println resp2.json
 	}
+	
+	/**
+	 *  Integration test on getCoins() by creating a dummy user, setting the current balance (2000)
+	 *  below the FREE_COIN_BALANCE_THRESHOLD (50).
+	 *  
+	 *  <p> Note that this test sets the current balance less the
+	 *   	FREE_COIN_BALANCE_THRESHOLD (50) directly in the Account Domain and adds FREE_COIN_AMOUNT (1000)
+	 *   	to the current balance.
+	 * 	 	This test should be rewritten once encapsulation is implemented. 
+	 *	</p>
+	 *
+	 *  @author Chih-Hong (James) Pang
+	 *  @version 1.0
+	 */
+	void "getCoins_Success" () {
+		setup:
+			Random random = new Random()
+			def ranNum = random.nextInt(10000).toString()
+			def username = "testingname"+ranNum
+			def email = "testingname"+ranNum+"@gmail.com"
+			def password = "11111111"
+			def gender = "male"
+			def region = "Toronto"
+			def content = '{"username":"'+username+'","password":"11111111","email":"'+email+'", "gender":"'+gender+'", "region":"'+region+'"}'
+			println content
+			
+			def userC = new UserController()
+			userC.userService = userService
+			userC.request.contentType = "application/json"
+			userC.request.content = content.getBytes()
+			userC.createNewUser()
+		
+			def userId = userC.response.json.userId
+			def sessionToken = userC.response.json.sessionToken
+			println userC.response.json
+			
+			userC.response.reset()
+	
+		when:
+			userC.params.userId = userId
+			Account.findByUserId(userId).currentBalance = userC.userService.FREE_COIN_BALANCE_THRESHOLD - 1 //setting the current balance to be 1 less than the threshold
+			def currentBalance = Account.findByUserId(userId).currentBalance
+			userC.getCoins()
+			
+		then:
+			userC.response.status == 200
+			userC.response.json.username == username
+			userC.response.json.userId == userId
+			userC.response.json.currentBalance == currentBalance + userC.userService.FREE_COIN_AMOUNT
+			userC.response.json.newCoinsAmount == userC.userService.FREE_COIN_AMOUNT
+			
+		cleanup:
+			println "cleanup"
+			def resp = parseService.deleteUser(new RestBuilder(), sessionToken, userId)
+			println resp.json
+	}
+	
+	/**
+	 *  Integration test on getCoins() by not setting any userId in the params.
+	 *
+	 *  @author Chih-Hong (James) Pang
+	 *  @version 1.0
+	 */
+	void "getCoins_Failure_RequestFoundNoUserId" () {
+		setup:
+			def userC = new UserController()
+			userC.userService = userService
+
+		when:
+			userC.getCoins()
+		
+		then:
+			userC.response.status == 404
+			userC.response.json.error == "userId is required"
+	}
+	
+	/**
+	 *  Integration test on getCoins() by giving an invalid userId as the param.
+	 *
+	 *  @author Chih-Hong (James) Pang
+	 *  @version 1.0
+	 */
+	void "getCoins_Failure_UserAccountDoesNotExist" () {
+		setup:
+			def userC = new UserController()
+			userC.userService = userService
+			def invalidUserId = "ThisIdShouldNotExist"
+		
+		when:
+			userC.params.userId = invalidUserId
+			userC.getCoins()
+			
+		then:
+			userC.response.status == 404
+			userC.response.json.error == "userId is invalid"
+			userC.response.json.code == 400
+	}
+	
+	/**
+	 *  Integration test on getCoins() by creating a dummy user whose current balance (2000) is above the 
+	 *  FREE_COIN_BALANCE_THRESHOLD (50).
+	 *
+	 *  @author Chih-Hong (James) Pang
+	 *  @version 1.0
+	 */
+	void "getCoins_Failure_AboveFreeCoinThreshold" () {
+		setup:
+			Random random = new Random()
+			def ranNum = random.nextInt(10000).toString()
+			def username = "testingname"+ranNum
+			def email = "testingname"+ranNum+"@gmail.com"
+			def password = "11111111"
+			def gender = "male"
+			def region = "Toronto"
+			def content = '{"username":"'+username+'","password":"11111111","email":"'+email+'", "gender":"'+gender+'", "region":"'+region+'"}'
+			println content
+			
+			def userC = new UserController()
+			userC.userService = userService
+			userC.request.contentType = "application/json"
+			userC.request.content = content.getBytes()
+			userC.createNewUser()
+		
+			def userId = userC.response.json.userId
+			def sessionToken = userC.response.json.sessionToken
+			println userC.response.json
+			
+			userC.response.reset()
+		
+		when:
+			userC.params.userId = userId
+			userC.getCoins()
+			
+		then:
+			userC.response.status == 404
+			userC.response.json.code == 400
+			userC.response.json.error == "Balance above "+userC.userService.FREE_COIN_BALANCE_THRESHOLD+" cannot get free coins"
+			
+		cleanup:
+			println "cleanup"
+			def resp = parseService.deleteUser(new RestBuilder(), sessionToken, userId)
+			println resp.json
+	}
+	
+	/**
+	 *  Integration test on getRanking() by creating a dummy user.
+	 *  
+	 *  <p> Note: This test case is only temporarily due to known issues. 
+	 *  If the user does not have any processed transactions, it should still return user's ranking.
+	 *  This test should be rewritten after the issuse(s) are fixed and/or after encapsulation is implemented.
+	 *  </p>
+	 *
+	 *  @author Chih-Hong (James) Pang
+	 *  @version 1.0
+	 */
+	void "getRanking_Success" () {
+		setup:
+			Random random = new Random()
+			def ranNum = random.nextInt(10000).toString()
+			def username = "testingname"+ranNum
+			def email = "testingname"+ranNum+"@gmail.com"
+			def password = "11111111"
+			def gender = "male"
+			def region = "Toronto"
+			def content = '{"username":"'+username+'","password":"'+password+'","email":"'+email+'", "gender":"'+gender+'", "region":"'+region+'"}'
+			println content
+			
+			def userC = new UserController()
+			userC.userService = userService
+			userC.request.contentType = "application/json"
+			userC.request.content = content.getBytes()	
+			userC.createNewUser()
+		
+			def userId = userC.response.json.userId
+			def sessionToken = userC.response.json.sessionToken
+			println userC.response.json
+
+		when:
+			userC.params.userId = userId
+			userC.getRanking()
+			println userC.response.json
+		
+		then:
+			userC.response.status == 200
+			userC.response.json.weekly != null
+			userC.response.json.all != null
+			
+		cleanup:
+			println "cleanup"
+			def resp = parseService.deleteUser(new RestBuilder(), sessionToken, userId)
+			println resp.json
+	}
+	
+	/**
+	 *  Integration test on getRanking() by not setting any userId in the params.
+	 *
+	 *  @author Chih-Hong (James) Pang
+	 *  @version 1.0
+	 */
+	void "getRanking_Failure_RequestFoundNoUserId" () {
+		setup:
+			def userC = new UserController()
+			userC.userService = userService
+
+		when:
+			userC.getRanking()
+		
+		then:
+			userC.response.status == 404
+			userC.response.json.error == "userId is required"
+	}
+	
+	/**
+	 *  Integration test on getRanking() by setting the param userId to be empty string. 
+	 *
+	 *  @author Chih-Hong (James) Pang
+	 *  @version 1.0
+	 */
+	void "getRanking_Failure_userIdIsEmptyString" () {
+		setup:
+			def userC = new UserController()
+			userC.userService = userService
+
+		when:
+			userC.params.userId = ""
+			userC.getRanking()
+		
+		then:
+			userC.response.status == 404
+			userC.response.json.error == "userId is required"
+	}
+	
 }
