@@ -35,19 +35,25 @@ class ProcessEngineImplService {
 			def questions = questionService.listQuestions(gameProcessRecord.eventKey)
 			
 			for (Question q:questions){
+				
+				// non-custom questions are not processed
+				if (q.questionContent.questionType != QuestionContent.CUSTOM){
+					continue
+				}
+				
+				// Check if the payout are already exist. 
 				def clearTransResult = payoutCleared(q)
-				println "clearTransResult: "+clearTransResult
+				println "QuesitonID = "+q.id+" - clearTransResult: "+clearTransResult
 				if (clearTransResult){
 					continue
 				}
 				
-				if (q.questionContent.questionType == QuestionContent.CUSTOM){
-					if (!customQuestionResultService.recordExist(q.id)){
-						//customQuestionsResultNotExist=true
-						continue
-					}
+				// check if custom question result exists
+				if (!customQuestionResultService.recordExist(q.id)){
+					println "QuesitonID = "+q.id+" - custom question result does not exists"
+					continue
 				}
-				
+								
 				processPayout(gameProcessRecord, q)
 				fixed = true
 			}
@@ -75,20 +81,22 @@ class ProcessEngineImplService {
 		def gameRecordsProcessed = 0
 		
 		for (GameProcessRecord gameProcessRecord: gameRecords){
-			println "processing game: "+gameProcessRecord.eventKey
-			gameProcessRecord.transProcessStatus = 1
-			def customQuestionsResultNotExist = false
+
+			gameProcessRecord.transProcessStatus = 1			
+			def customQuestionsResultExists = true
 			def questions = questionService.listQuestions(gameProcessRecord.eventKey)
+			
 			for (Question q:questions){
 				if (q.questionContent.questionType == QuestionContent.CUSTOM){
 					if (!customQuestionResultService.recordExist(q.id)){
-						customQuestionsResultNotExist=true
+						customQuestionsResultExists=false
 						continue
 					}
 				}
 				processPayout(gameProcessRecord, q)
 			}
-			if (customQuestionsResultNotExist){
+			
+			if (!customQuestionsResultExists){
 				if (gameProcessRecord.transProcessStatus==1){
 					gameProcessRecord.transProcessStatus = 3
 				}else if (gameProcessRecord.transProcessStatus==-1){
@@ -99,7 +107,6 @@ class ProcessEngineImplService {
 						gameProcessRecord.transProcessStatus = 2
 				}
 			}
-
 			gameProcessRecord.lastUpdate = new Date()
 			gameProcessRecord.save(flush: true)
 			gameRecordsProcessed++
@@ -108,6 +115,7 @@ class ProcessEngineImplService {
 		println "ProcessEngineImplService::processGamePayout(): ends"
 		return gameRecordsProcessed
 	}
+	
 	
 	@Transactional
     def processPayout(GameProcessRecord gameProcessRecord, Question q) {

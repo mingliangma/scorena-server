@@ -61,13 +61,22 @@ class UserService {
 		List rankingResultAll =[]
 		List rankingResultWk =[]
 		
-		for (int i=0; i<userRankingAll.size(); i++){
+		int rankingAllSize = 50
+		if (userRankingAll.size() < 50)
+			rankingAllSize=userRankingAll.size()
+		
+		
+		for (int i=0; i<rankingAllSize; i++){
 			UserRankingAll rankEntry = userRankingAll.getAt(i)
 			def userAccount = Account.get(rankEntry.id)
 			rankingResultAll.add(constructRankingData(userAccount.username, rankEntry.netGain,i+1))
 		}
 		
-		for (int i=0; i<userRankingWk.size(); i++){
+		int rankingWkSize = 50
+		if (userRankingAll.size() < 50)
+			rankingWkSize=userRankingAll.size()
+		
+		for (int i=0; i<rankingWkSize; i++){
 			UserRankingWk rankEntry = userRankingWk.getAt(i)
 			def userAccount = Account.get(rankEntry.id)
 			rankingResultWk.add(constructRankingData(userAccount.username, rankEntry.netGain,i+1))

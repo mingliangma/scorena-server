@@ -17,12 +17,19 @@ class NewGameResultFetcherService {
 		List pastGames = sportsDataService.getAllPastGames()
 		List pastCustomGames = customGameService.getAllPastGames()
 		List allPastGames = []
+		def earliestPastGameDate = new Date()
+		def earliestPastCustomGameDate = new Date()
+		
 		allPastGames.addAll(pastCustomGames)
+		allPastGames.addAll(pastGames)
+
+		if (pastGames.size()>0)
+			earliestPastGameDate = helperService.parseDateFromString(pastGames.get(pastGames.size()-1).date)		
 		
-		def earliestPastGameDate = helperService.parseDateFromString(pastGames.get(pastGames.size()-1).date)
+		//todo: need to find the earliest custom games by date
+		if (pastCustomGames.size()>0)	
+			earliestPastCustomGameDate = helperService.parseDateFromString(pastCustomGames.get(pastCustomGames.size()-1).date)	
 		
-		//todo: need to find the earliest custom games
-		def earliestPastCustomGameDate = helperService.parseDateFromString(pastCustomGames.get(pastCustomGames.size()-1).date)
 		def ealiestGameDate
 		if (earliestPastGameDate > earliestPastCustomGameDate){
 			ealiestGameDate = earliestPastCustomGameDate
