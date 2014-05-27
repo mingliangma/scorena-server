@@ -1121,6 +1121,8 @@ class UserControllerIntegationSpec extends Specification {
 			def userId = userC.response.json.userId
 			def sessionToken = userC.response.json.sessionToken
 			println userC.response.json
+			
+			userC.response.reset()
 
 		when:
 			userC.params.userId = userId
