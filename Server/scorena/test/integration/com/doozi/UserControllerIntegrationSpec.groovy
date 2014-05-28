@@ -13,7 +13,7 @@ import org.apache.commons.lang.*
 /**
  *
  */
-class UserControllerIntegationSpec extends Specification {
+class UserControllerIntegrationSpec extends Specification {
 	def parseService
 	def userService
 	def helperService
