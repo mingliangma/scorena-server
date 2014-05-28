@@ -1,10 +1,13 @@
 package com.doozi.scorena.controllerservice
 
+import com.doozi.scorena.Pool
 import com.doozi.scorena.PoolTransaction;
 import com.doozi.scorena.Game;
 import com.doozi.scorena.Question;
+import com.doozi.scorena.QuestionContent
 
 import grails.transaction.Transactional
+
 import java.text.DecimalFormat
 
 @Transactional
@@ -21,50 +24,6 @@ class QuestionService {
 		
 	}
 	
-	private def constructFeatureGameData(featureQuestions){
-		List featureQuestionResponse = []
-		for (int i=0; i<featureQuestions.size(); i++){
-			def gameIdAndQuestionIdArray = featureQuestions.get(i)
-			def game = gameService.getGame(gameIdAndQuestionIdArray[0])
-			game.question = questionService.getQuestionWithPoolInfo(gameIdAndQuestionIdArray[0], gameIdAndQuestionIdArray[1])
-			featureQuestionResponse.add(game)
-		}
-		return featureQuestionResponse
-	}
-	
-	//return list of [(eventKey),(quesitonId), (transactionTypeSum), (BetCount)]
-	private def listUpcomingQuesitonsByMostPeopleBetOn(){
-		return PoolTransaction.executeQuery("select eventKey, question.id ,sum(transactionType) as type1, count(*) as betCount "+
-			"from PoolTransaction as t1 group by 1,2 order by betCount desc limit 100")
-	}
-	
-	private def getUnpickMostBetQuestions(def questions, String userId, int limit){
-		int i = 0
-		int numUsersBet = 0
-		List qList = []
-		for (def q: questions){
-			if (q.getAt(2) == 0){
-				if (userId!=null && userId!=""){
-					def game = gameService.getGame(q[0])
-					//todo
-//					if (game.gameStatus != SportsDataService.PREEVENT || game.date < (new Date()-1))
-					if (game.gameStatus != SportsDataService.PREEVENT)
-						continue
-						
-					def userBet = betService.getBetByQuestionIdAndUserId(q[1], userId)
-					if (userBet != null){
-						continue
-					}
-				}
-				qList.add([q[0], q[1]])
-				i++
-				if (i>=limit){
-					break
-				}
-			}
-		}		
-		return qList
-	}
 	
 	def getQuestionWithPoolInfo(eventKey, qId){
 		List questions = listQuestionsWithPoolInfo(eventKey)
@@ -189,6 +148,103 @@ class QuestionService {
 		
 		
 	}
+	
+	def getBetters(qId, pick1PayoutMultiple, pick2PayoutMultiple, userInfo, username){
+		def homeBettersArr = []
+		def awayBettersArr = []
+		def currentUserAdded = false
+		
+		def betTransactions = betService.listAllBets(qId)
+		
+		for (PoolTransaction betTrans: betTransactions){
+			if (betTrans.pick==1){
+				if (homeBettersArr.size() <=10){
+					if (betTrans.account.username != username){
+						
+						homeBettersArr.add([
+							name:betTrans.account.username,
+							wager:betTrans.transactionAmount,
+							expectedWinning: Math.round(pick1PayoutMultiple * betTrans.transactionAmount)])
+					}
+				}
+			}else{
+				if (awayBettersArr.size() <=10){
+					if (betTrans.account.username != username){
+					
+						awayBettersArr.add( [
+							name:betTrans.account.username,
+							wager:betTrans.transactionAmount,
+							expectedWinning: Math.round(pick2PayoutMultiple * betTrans.transactionAmount)])
+				
+					}
+				}
+			}
+			if (awayBettersArr.size() >10 && homeBettersArr.size() >10)
+				break
+		}
+		
+		
+		if ( currentUserAdded == false && userInfo!=[] && username!=""){
+			if (userInfo.userPick==1){
+				homeBettersArr.add(0,[name:username, wager:userInfo.userWager,expectedWinning: Math.round(pick1PayoutMultiple * userInfo.userWager)])
+			}else{
+				awayBettersArr.add(0,[name:username, wager:userInfo.userWager,expectedWinning: Math.round(pick2PayoutMultiple * userInfo.userWager)])
+			}
+		}
+		def betters=[
+			pick1Betters: homeBettersArr,
+			pick2Betters: awayBettersArr
+		]
+		
+		return betters
+	}
+	
+	def createQuestions(){
+		println "QuestionService::createQuesitons(): starts at "+new Date()
+		
+		List upcomingGames = gameService.listUpcomingGames()
+		
+		for (int i=0; i < upcomingGames.size(); i++){
+			def game = upcomingGames.get(i)
+			println "game id: "+game.gameId
+			
+			if (Question.findByEventKey(game.gameId) == null){
+				populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
+			}
+		}
+	}
+	
+	def populateQuestions(String away, String home, String eventId){
+	
+		def questionContent2 = QuestionContent.findAllByQuestionType("truefalse-0")
+		for (QuestionContent qc: questionContent2){
+			def q = new Question(eventKey: eventId, pick1: "Yes", pick2: "No", pool: new Pool(minBet: 5))
+			qc.addToQuestion(q)
+			if (qc.save()){
+				System.out.println("game successfully saved")
+			}else{
+				System.out.println("game save failed")
+				qc.errors.each{
+					println it
+				}
+			}
+		}
+		
+		def questionContent1 = QuestionContent.findAllByQuestionType("team-0")
+		for (QuestionContent qc: questionContent1){
+			def q = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
+			qc.addToQuestion(q)
+			if (qc.save()){
+				System.out.println("game successfully saved")
+			}else{
+				System.out.println("game save failed")
+				qc.errors.each{
+					println it
+				}
+			}
+		}
+	}
+
 	
 	private def getPostEventQuestion(Question q, String userId){
 		PoolTransaction lastBet = betService.getLatestBetByQuestionId(q.id)
@@ -378,55 +434,51 @@ class QuestionService {
 		return result
 	}
 
-	
-	def getBetters(qId, pick1PayoutMultiple, pick2PayoutMultiple, userInfo, username){
-		def homeBettersArr = []
-		def awayBettersArr = []
-		def currentUserAdded = false
-		
-		def betTransactions = betService.listAllBets(qId)
-		
-		for (PoolTransaction betTrans: betTransactions){
-			if (betTrans.pick==1){
-				if (homeBettersArr.size() <=10){
-					if (betTrans.account.username != username){
-						
-						homeBettersArr.add([
-							name:betTrans.account.username,
-							wager:betTrans.transactionAmount,
-							expectedWinning: Math.round(pick1PayoutMultiple * betTrans.transactionAmount)])
-					}
-				}
-			}else{
-				if (awayBettersArr.size() <=10){	
-					if (betTrans.account.username != username){
-					
-						awayBettersArr.add( [
-							name:betTrans.account.username,
-							wager:betTrans.transactionAmount,
-							expectedWinning: Math.round(pick2PayoutMultiple * betTrans.transactionAmount)])
-				
-					}
-				}
-			}
-			if (awayBettersArr.size() >10 && homeBettersArr.size() >10)
-				break
+	private def constructFeatureGameData(featureQuestions){
+		List featureQuestionResponse = []
+		for (int i=0; i<featureQuestions.size(); i++){
+			def gameIdAndQuestionIdArray = featureQuestions.get(i)
+			def game = gameService.getGame(gameIdAndQuestionIdArray[0])
+			game.question = questionService.getQuestionWithPoolInfo(gameIdAndQuestionIdArray[0], gameIdAndQuestionIdArray[1])
+			featureQuestionResponse.add(game)
 		}
-		
-		
-		if ( currentUserAdded == false && userInfo!=[] && username!=""){
-			if (userInfo.userPick==1){
-				homeBettersArr.add(0,[name:username, wager:userInfo.userWager,expectedWinning: Math.round(pick1PayoutMultiple * userInfo.userWager)])
-			}else{
-				awayBettersArr.add(0,[name:username, wager:userInfo.userWager,expectedWinning: Math.round(pick2PayoutMultiple * userInfo.userWager)])
-			}
-		}
-		def betters=[
-			pick1Betters: homeBettersArr,
-			pick2Betters: awayBettersArr			
-		]
-		
-		return betters
+		return featureQuestionResponse
 	}
+	
+	//return list of [(eventKey),(quesitonId), (transactionTypeSum), (BetCount)]
+	private def listUpcomingQuesitonsByMostPeopleBetOn(){
+		return PoolTransaction.executeQuery("select eventKey, question.id ,sum(transactionType) as type1, count(*) as betCount "+
+			"from PoolTransaction as t1 group by 1,2 order by betCount desc limit 100")
+	}
+	
+	private def getUnpickMostBetQuestions(def questions, String userId, int limit){
+		int i = 0
+		int numUsersBet = 0
+		List qList = []
+		for (def q: questions){
+			if (q.getAt(2) == 0){
+				def game = gameService.getGame(q[0])
+				if (game.gameStatus != SportsDataService.PREEVENT)
+					continue
+					
+				if (userId!=null && userId!=""){			
+					def userBet = betService.getBetByQuestionIdAndUserId(q[1], userId)
+					if (userBet != null){
+						continue
+					}
+				}
+				
+				List value = [q[0], q[1]]
+				qList.add(value)
+				i++
+				if (i>=limit){
+					break
+				}
+			}
+		}
+		return qList
+	}
+	
+
 }
 
