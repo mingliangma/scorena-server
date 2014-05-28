@@ -112,7 +112,7 @@ class GameController {
 		if (params.userId){
 			featureGames = gameService.listFeatureGames(params.userId)
 		}else{
-			featureGames = gameService.listFeatureGames(null)
+			featureGames = gameService.listFeatureGames()
 		}		
 		render featureGames as JSON
 	}

@@ -10,6 +10,7 @@ import grails.transaction.Transactional
 
 import java.text.DecimalFormat
 
+
 @Transactional
 class QuestionService {
 	def betService
@@ -17,11 +18,18 @@ class QuestionService {
 	def processEngineImplService
 	def questionService
 	
+	public static final int FEATURE_QUESTION_SIZE = 3
+	
 	def listFeatureQuestions(userId){
 		def questionList = listUpcomingQuesitonsByMostPeopleBetOn()
-		def featureQuestions = getUnpickMostBetQuestions(questionList, userId, 3)
+		def featureQuestions = getUnpickMostBetQuestions(questionList, userId, FEATURE_QUESTION_SIZE)
+		return constructFeatureGameData(featureQuestions)		
+	}
+	
+	def listFeatureQuestions(){
+		def questionList = listUpcomingQuesitonsByMostPeopleBetOn()		
+		def featureQuestions = getMostBetQuestions(questionList, FEATURE_QUESTION_SIZE)
 		return constructFeatureGameData(featureQuestions)
-		
 	}
 	
 	
@@ -434,49 +442,80 @@ class QuestionService {
 		return result
 	}
 
-	private def constructFeatureGameData(featureQuestions){
+	private def constructFeatureGameData(List featureQuestions){
 		List featureQuestionResponse = []
-		for (int i=0; i<featureQuestions.size(); i++){
-			def gameIdAndQuestionIdArray = featureQuestions.get(i)
-			def game = gameService.getGame(gameIdAndQuestionIdArray[0])
-			game.question = questionService.getQuestionWithPoolInfo(gameIdAndQuestionIdArray[0], gameIdAndQuestionIdArray[1])
+		
+		for (Map questionMap: featureQuestions){
+			String gameId = questionMap.get("gameId")
+			String questionId = questionMap.get("questionId")
+			def game = gameService.getGame(gameId)
+			game.question = questionService.getQuestionWithPoolInfo(gameId, questionId)
 			featureQuestionResponse.add(game)
 		}
 		return featureQuestionResponse
 	}
 	
-	//return list of [(eventKey),(quesitonId), (transactionTypeSum), (BetCount)]
-	private def listUpcomingQuesitonsByMostPeopleBetOn(){
-		return PoolTransaction.executeQuery("select eventKey, question.id ,sum(transactionType) as type1, count(*) as betCount "+
-			"from PoolTransaction as t1 group by 1,2 order by betCount desc limit 100")
-	}
 	
-	private def getUnpickMostBetQuestions(def questions, String userId, int limit){
-		int i = 0
-		int numUsersBet = 0
-		List qList = []
-		for (def q: questions){
-			if (q.getAt(2) == 0){
-				def game = gameService.getGame(q[0])
-				if (game.gameStatus != SportsDataService.PREEVENT)
-					continue
-					
-				if (userId!=null && userId!=""){			
-					def userBet = betService.getBetByQuestionIdAndUserId(q[1], userId)
-					if (userBet != null){
-						continue
-					}
-				}
+	/**
+	 * returns list of [gameId:"",questionId:""] that are prevent
+	 */
+	private def listUpcomingQuesitonsByMostPeopleBetOn(){
+		int eventKeyIndex = 0
+		int quesitonIdIndex = 1
+		int transactionTypeSumIndex = 2
+		
+		List preeventQuestions=[]
+		
+		//The questionList data structure is list of [(eventKey),(quesitonId), (transactionTypeSum), (BetCount)]
+		def questionList = PoolTransaction.executeQuery("select eventKey, question.id ,sum(transactionType) as type1, count(*) as betCount "+
+			"from PoolTransaction as t1 group by 1,2 order by betCount desc limit 100")
+							
+		for (List question: questionList){
+			
+			//get the questions that have no process transaction 
+			if (question[transactionTypeSumIndex]==0){
 				
-				List value = [q[0], q[1]]
-				qList.add(value)
-				i++
-				if (i>=limit){
-					break
-				}
+				def game = gameService.getGame(question[eventKeyIndex])				
+				if (game.gameStatus == SportsDataService.PREEVENT){
+					preeventQuestions.add([gameId:question[eventKeyIndex], questionId: question[quesitonIdIndex]])
+				}					
 			}
 		}
-		return qList
+		return preeventQuestions
+	}
+	
+
+	/**
+	 * get a list of unpicked questions that have most player bet on with size=limit
+	 * 
+	 * @param questions: a list of [gameId:"",questionId:""]
+	 * @return a list of [gameId:"",questionId:""] that have size=limit
+	 */
+	private def getUnpickMostBetQuestions(List questions, String userId, int limit){
+		List unpickedQuestionList = []
+		for (Map q: questions){
+							
+			def userBet = betService.getBetByQuestionIdAndUserId(q.get("questionId"), userId)
+			if (userBet == null){
+				unpickedQuestionList.add(q)
+			}
+			
+			if (unpickedQuestionList.size()>limit){
+				break
+			}
+		}
+		return unpickedQuestionList
+	}
+	
+	private def getMostBetQuestions(List questions, int limit){
+		List unpickedQuestionList = []
+		for (Map q: questions){		
+			unpickedQuestionList.add(q) 
+			if (unpickedQuestionList.size()>limit){
+				break
+			}
+		}
+		return unpickedQuestionList
 	}
 	
 

@@ -89,19 +89,11 @@ class GameService {
 	
 	def listFeatureGames(userId){
 		List featureGames = questionService.listFeatureQuestions(userId)
-		
-//		def upcomingGames = sportsDataService.getAllUpcomingGames()
-//		List featureGames =[]
-//		for (int i = 0; i<3; i++){
-//			def game = upcomingGames.get(i)
-//			def questions = questionService.listQuestionsWithPoolInfo(game.gameId, userId)
-//			if (questions.size()!=0){
-//				def question = questions.get(i)
-//				game.question = question
-//				featureGames.add(game)
-//			}
-//			
-//		}
+		return featureGames
+	}
+	
+	def listFeatureGames(){
+		List featureGames = questionService.listFeatureQuestions()
 		return featureGames
 	}
 	
@@ -142,6 +134,7 @@ class GameService {
 //	}
 	
 	def getGame(String gameId){
+		
 		if (gameId.startsWith(customGameService.CUSTOM_EVENT_PREFIX))
 			return customGameService.getGame(gameId)
 		else	
