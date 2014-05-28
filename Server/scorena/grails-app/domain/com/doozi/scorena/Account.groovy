@@ -11,7 +11,7 @@ class Account {
 	//static belongsTo = [user: User]
 	static hasMany = [bet: PoolTransaction]
 	static constraints = {
-		username (unqiue: true)
+		userId unqiue: true
 		bet nullable: true
 	}
 	

@@ -25,22 +25,20 @@ class UserController {
 	def socialNetworkUserPostSetup(){
 		
 		println request.JSON
-		if ( !request.JSON.objectId ){
+		if ( !request.JSON.sessionToken ){
 			response.status = 404
 			def result = [error: "invalid parameters"]
 			render result as JSON
 			return
 		}
-		def result = [
-			createdAt:request.JSON.createdAt,
-			username:request.JSON.username,
-			currentBalance:INITIAL_BALANCE,
-			sessionToken:request.JSON.sessionToken,
-			userId: request.JSON.objectId,
-			email: request.JSON.email,
-			gender: request.JSON.gender,
-			region: request.JSON.email
-		]
+		
+		Map result = userService.createSocialNetworkUser(request.JSON.sessionToken)
+
+		if (result.code){
+			response.status = 404
+			render result as JSON
+			return 
+		}
 		response.status = 201
 		render result as JSON
 	}
@@ -64,10 +62,9 @@ class UserController {
 			render resp as JSON
 			return
 		}
-		
-		
-			response.status = 201
-			render resp as JSON
+
+		response.status = 201
+		render resp as JSON
 		
 	}
 	

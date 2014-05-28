@@ -24,6 +24,7 @@ class UserService {
 	def PREVIOUS_BALANCE = INITIAL_BALANCE
 	def FREE_COIN_BALANCE_THRESHOLD = 50
 	def FREE_COIN_AMOUNT = 1000
+	
 	def grailsApplication
 	def parseService
 	def betService
@@ -130,44 +131,108 @@ class UserService {
 //		
 //		return [weekly: rankingResult, all: rankingResult]
 //	}
+	
+	private Map createUserAccount(RestBuilder rest, String userId, String username, int initialBalance, int previousBalance, String sessionToken){
+		def userAccount = Account.findByUserId(userId)
+		if (userAccount){
+			def result = [
+				code:202,
+				error:"account already exists"
+			]
+			return result
+		}
+		def account = new Account(userId:userId, username:username, currentBalance:initialBalance,previousBalance:previousBalance)
+		if (!account.save()){
+			account.errors.each{
+				println it
+			}
+			def delResp = parseService.deleteUser(rest, sessionToken, userId)
+			def result = [
+				code:202,
+				error:"account creation failed"
+			]
+			return result
+		}
+		return [:]
+	}
+	
+	private Map createUserProfile(RestBuilder rest, String username, String email, String password, String gender, String region){
 			
-	def createUser(String _username, String _email, String _password, String gender, String region){
-		def rest = new RestBuilder()
-		_username = _username.toLowerCase()
-		def resp = parseService.createUser(rest, _username.toLowerCase(), _email, _password, gender, region)
+		def resp = parseService.createUser(rest, username, email, password, gender, region)
 		
 		if (resp.status != 201){
 			def result = [
 				code:resp.json.code,
 				error:resp.json.error
 			]
-			println result
 			return result
 		}
+		return resp.json
+	}
+	
+	private Map getUserProfileBySessionToken(RestBuilder rest, String sessionToken){
+		def resp = parseService.validateSession(rest, sessionToken)
+		if (resp.status != 200){
+			def result = [
+				code:resp.json.code,
+				error:resp.json.error
+			]
+			return result
+		}
+		return resp.json
+	}
+	
+	def createSocialNetworkUser(String sessionToken){
+		RestBuilder rest = new RestBuilder()
+		Map userProfile = getUserProfileBySessionToken(rest, sessionToken)
+		if (userProfile.code){
+			return userProfile
+		}
+		println userProfile
+		Map accountCreationResult = createUserAccount(rest, userProfile.objectId, userProfile.profile.name, INITIAL_BALANCE, PREVIOUS_BALANCE, userProfile.sessionToken)
+		if (accountCreationResult!=[:]){
+			return accountCreationResult
+		}
 		
+		def result = [
+			createdAt:userProfile.createdAt,
+			username:userProfile.profile.name,
+			currentBalance:INITIAL_BALANCE,
+			sessionToken:userProfile.sessionToken,
+			userId: userProfile.objectId,			
+			gender: userProfile.profile.gender,
+			region: userProfile.profile.location,
+			pictureURL:userProfile.profile.pictureURL
+		]
+		return result
+	}
+			
+	def createUser(String username, String email, String password, String gender, String region){
+		println "UserService::createUser(): username="+username+"  username="+email
+		String usernameLowerCase = username.toLowerCase()
+		RestBuilder rest = new RestBuilder()
 		
-
+		Map userProfileCreationResult =  createUserProfile(rest, usernameLowerCase, email, password, gender, region)
+		if (userProfileCreationResult.code){
+			return userProfileCreationResult
+		}
+		
 		println "user profile created successfully"		
 			
-		def account = new Account(userId:resp.json.objectId, username:_username, currentBalance:INITIAL_BALANCE,previousBalance:PREVIOUS_BALANCE)
-		if (!account.save()){
-
-			def delResp = parseService.deleteUser(rest, resp.json.sessionToken)
-			def result = [
-				code:202,
-				error:"account creation failed"
-			]
-			return result			
+		Map accountCreationResult = createUserAccount(rest, userProfileCreationResult.objectId, username, INITIAL_BALANCE, PREVIOUS_BALANCE, userProfileCreationResult.sessionToken)
+		if (accountCreationResult!=[:]){
+			return accountCreationResult
 		}
-				
+		
 		println "user profile and account created successfully"
+		
 		def result = [			
-			createdAt:resp.json.createdAt,
-			username:_username,
+			createdAt:userProfileCreationResult.createdAt,
+			username:username,
 			currentBalance:INITIAL_BALANCE,
-			sessionToken:resp.json.sessionToken,
-			userId: resp.json.objectId,
-			email: _email,
+			sessionToken:userProfileCreationResult.sessionToken,
+			userId: userProfileCreationResult.objectId,
+			email: email,
 			gender: gender,
 			region: region
 		]
