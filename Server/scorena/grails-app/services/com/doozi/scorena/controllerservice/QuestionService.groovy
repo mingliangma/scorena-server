@@ -511,7 +511,7 @@ class QuestionService {
 		List unpickedQuestionList = []
 		for (Map q: questions){		
 			unpickedQuestionList.add(q) 
-			if (unpickedQuestionList.size()>limit){
+			if (unpickedQuestionList.size()>=limit){
 				break
 			}
 		}
