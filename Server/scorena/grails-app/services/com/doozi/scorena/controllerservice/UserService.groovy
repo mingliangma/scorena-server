@@ -189,20 +189,20 @@ class UserService {
 			return userProfile
 		}
 		println userProfile
-		Map accountCreationResult = createUserAccount(rest, userProfile.objectId, userProfile.profile.name, INITIAL_BALANCE, PREVIOUS_BALANCE, userProfile.sessionToken)
+		Map accountCreationResult = createUserAccount(rest, userProfile.objectId, userProfile.username, INITIAL_BALANCE, PREVIOUS_BALANCE, userProfile.sessionToken)
 		if (accountCreationResult!=[:]){
 			return accountCreationResult
 		}
 		
 		def result = [
 			createdAt:userProfile.createdAt,
-			username:userProfile.profile.name,
+			username:userProfile.username,
 			currentBalance:INITIAL_BALANCE,
 			sessionToken:userProfile.sessionToken,
 			userId: userProfile.objectId,			
-			gender: userProfile.profile.gender,
-			region: userProfile.profile.location,
-			pictureURL:userProfile.profile.pictureURL
+			gender: userProfile.gender,
+			region: userProfile.location,
+			displayName: userProfile.display_name
 		]
 		return result
 	}
