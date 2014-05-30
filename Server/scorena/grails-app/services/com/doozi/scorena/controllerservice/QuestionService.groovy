@@ -33,9 +33,9 @@ class QuestionService {
 	}
 	
 	
-	def getQuestionWithPoolInfo(eventKey, qId){
+	def getQuestionWithPoolInfo(String eventKey, int qId){
 		List questions = listQuestionsWithPoolInfo(eventKey)
-		for (def q: questions){
+		for (Map q: questions){
 			if (q.questionId == qId){
 				return q
 			}
@@ -447,7 +447,7 @@ class QuestionService {
 		
 		for (Map questionMap: featureQuestions){
 			String gameId = questionMap.get("gameId")
-			String questionId = questionMap.get("questionId")
+			int questionId = questionMap.get("questionId")
 			def game = gameService.getGame(gameId)
 			game.question = questionService.getQuestionWithPoolInfo(gameId, questionId)
 			featureQuestionResponse.add(game)
