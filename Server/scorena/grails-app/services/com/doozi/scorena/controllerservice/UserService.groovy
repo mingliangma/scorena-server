@@ -86,52 +86,6 @@ class UserService {
 		return [weekly: rankingResultWk, all: rankingResultAll]
 	}
 	
-//	def getRanking1(userId){
-//		
-//		def rest = new RestBuilder()
-//		def resp = parseService.retreiveUser(rest, userId)
-//		
-//		if (resp.status != 200){
-//			println "ERROR: UserService::getUserProfile(): user account does not exist in parse"
-//			def result = [
-//				code:500,
-//				error:"user account does not exist"
-//			]
-//			return result
-//		}
-//		def userAccount = Account.findByUserId(userId)
-//		def userBalance = userAccount.currentBalance
-//		
-//		def higherRankingList = Account.findAll("from Account as a where a.currentBalance > ? order by a.currentBalance", [userBalance])
-//		
-//		int higherRank = higherRankingList.size()
-//		int currentUserRank = higherRank + 1
-//		int lowerRank = currentUserRank +1
-//		List rankingResult =[]
-//		int higherRankingSize = 5
-//		if (higherRankingList.size()<5)
-//			higherRankingSize=higherRankingList.size()
-//		
-//		for (int i=0; i<higherRankingSize; i++){			
-//			rankingResult.add(0,processRankingData(higherRankingList.get(i), higherRank))
-//			higherRank -= 1
-//		} 
-//		
-//		rankingResult.add(processRankingData(userAccount, currentUserRank))
-//		
-//		def lowerRankingList = Account.findAll("from Account as a where a.currentBalance < ? order by a.currentBalance", [userBalance])
-//		int lowerRankingSize = 5
-//		if (lowerRankingList.size()<5)
-//			lowerRankingSize=lowerRankingList.size()
-//			
-//		for (int i=0; i<lowerRankingSize; i++){
-//			rankingResult.add(processRankingData(lowerRankingList.get(i), lowerRank))
-//			lowerRank +=1
-//		}
-//		
-//		return [weekly: rankingResult, all: rankingResult]
-//	}
-	
 	private Map createUserAccount(RestBuilder rest, String userId, String username, int initialBalance, int previousBalance, String sessionToken){
 		def userAccount = Account.findByUserId(userId)
 		if (userAccount){
@@ -188,21 +142,53 @@ class UserService {
 		if (userProfile.code){
 			return userProfile
 		}
-		println userProfile
-		Map accountCreationResult = createUserAccount(rest, userProfile.objectId, userProfile.username, INITIAL_BALANCE, PREVIOUS_BALANCE, userProfile.sessionToken)
-		if (accountCreationResult!=[:]){
-			return accountCreationResult
+		
+		int currentBalance = INITIAL_BALANCE
+		String createdAt = ""
+		String username = "testUsername"
+		String userId = ""
+		String gender = ""
+		String region = ""
+		String email = ""
+		
+		def account = Account.findByUserId(userProfile.objectId)
+		
+		if (account == null){
+			Map accountCreationResult = createUserAccount(rest, userProfile.objectId, userProfile.username, INITIAL_BALANCE, PREVIOUS_BALANCE, userProfile.sessionToken)
+			if (accountCreationResult!=[:]){
+				return accountCreationResult
+			}
+		}else{
+			currentBalance = account.currentBalance
 		}
 		
+		if (userProfile.createdAt != null)
+			createdAt = userProfile.createdAt
+		
+		if (userProfile.objectId != null)
+			userId = userProfile.objectId
+		
+		if (userProfile.username != null)
+			username = userProfile.username
+		
+		if (userProfile.gender != null)
+			gender = userProfile.gender
+		
+		if (userProfile.region != null)
+			region = userProfile.region
+			
+		if (userProfile.email != null)
+			email = userProfile.email
+						
 		def result = [
-			createdAt:userProfile.createdAt,
-			username:userProfile.username,
-			currentBalance:INITIAL_BALANCE,
-			sessionToken:userProfile.sessionToken,
-			userId: userProfile.objectId,			
-			gender: userProfile.gender,
-			region: userProfile.location,
-			displayName: userProfile.display_name
+			createdAt:createdAt,
+			username:username,
+			currentBalance:currentBalance,
+			sessionToken:sessionToken,
+			userId: userId,			
+			gender: gender,
+			region: region,
+			email: email
 		]
 		return result
 	}
