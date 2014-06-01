@@ -18,6 +18,13 @@ class GameService {
 	public static final String INTERMISSION = "intermission"
 	public static final String MIDEVENT = "mid-event"
 	
+	List listUpcomingNonCustomGames(){
+		List upcomingGames = sportsDataService.getAllUpcomingGames()
+		List upcomingGamesResult=[]
+		upcomingGamesResult.addAll(upcomingGames)
+		return upcomingGamesResult
+	}
+	
 	List listUpcomingGames(){
 		List upcomingGames = sportsDataService.getAllUpcomingGames()
 		List upcomingCustomGames = customGameService.getAllUpcomingGames()

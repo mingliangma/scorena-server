@@ -145,15 +145,15 @@ class QuestionService {
 	}
 	
 	def createQuestions(){
-		println "QuestionService::createQuesitons(): starts at "+new Date()
 		
-		List upcomingGames = gameService.listUpcomingGames()
+		
+		List upcomingGames = gameService.listUpcomingNonCustomGames()
 		
 		for (int i=0; i < upcomingGames.size(); i++){
-			def game = upcomingGames.get(i)
-			println "game id: "+game.gameId
+			def game = upcomingGames.get(i)			
 			
 			if (Question.findByEventKey(game.gameId) == null){
+				println "createQuestions(): game id is "+game.gameId
 				populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
 			}
 		}

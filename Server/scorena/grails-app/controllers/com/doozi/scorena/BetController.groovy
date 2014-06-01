@@ -15,11 +15,9 @@ class BetController {
 				]
 			render resp as JSON
 		}
-		
 		def sessionValidation = userService.validateSession(request.JSON.sessionToken)
 		//println "session code: "+sessionValidation.code
 		if (sessionValidation.code){
-			println "session code: "+sessionValidation
 			response.status = 404
 			render sessionValidation as JSON
 			
