@@ -144,13 +144,15 @@ class QuestionService {
 	
 	def getQuestion(qId, userId){
 		Question q = Question.findById(qId)
+		
+		if (q==null){
+			return [message: "invalid question ID"]
+		}
+		
 		def game = gameService.getGame(q.eventKey)
-
-		if (game.gameStatus.trim() == "post-event"){
-			
+		if (game.gameStatus.trim() == "post-event"){			
 			return getPostEventQuestion(q, userId)
-		}else{
-			
+		}else{			
 			return getPreEventQuestion(q, userId)
 		}
 		
