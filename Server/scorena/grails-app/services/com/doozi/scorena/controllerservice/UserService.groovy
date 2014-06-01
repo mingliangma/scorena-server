@@ -501,4 +501,19 @@ class UserService {
 		c.set(Calendar.DAY_OF_MONTH, 1);
 		return c.getTime();
 	}
+	
+	Boolean accountExists(String userId){
+		def account = Account.findByUserId(userId)
+		if (account){
+			return true
+		}else{
+			return false
+		}
+	}
+	
+	String getUserDisplayName(String userId){
+		def account = Account.findByUserId(userId)
+		return account.username
+	
+	}
 }
