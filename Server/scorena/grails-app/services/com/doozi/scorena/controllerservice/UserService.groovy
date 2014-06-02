@@ -242,7 +242,6 @@ class UserService {
 			currentBalance:account.currentBalance,
 			sessionToken:resp.json.sessionToken,
 			userId: resp.json.objectId,
-			createdAt: resp.json.createdAt,
 			email: resp.json.email,
 			gender: resp.json.gender,
 			region: resp.json.region
