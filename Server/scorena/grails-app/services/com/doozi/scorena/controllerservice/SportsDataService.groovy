@@ -119,7 +119,7 @@ class SportsDataService {
 		return upcomingGamesList
 	}
 	
-	def getAllPastGames(){
+	List getAllPastGames(){
 		def todayDate = new Date()
 		def pastDate = todayDate - PAST_DATE_RANGE;
 		def pastGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime>? and g.startDateTime<?and g.eventStatus='post-event'", [pastDate, todayDate+1])

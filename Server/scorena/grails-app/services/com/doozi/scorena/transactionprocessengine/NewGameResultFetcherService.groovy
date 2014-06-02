@@ -17,8 +17,9 @@ class NewGameResultFetcherService {
 		List pastGames = sportsDataService.getAllPastGames()
 		List pastCustomGames = customGameService.getAllPastGames()
 		List allPastGames = []
-		def earliestPastGameDate = new Date()
-		def earliestPastCustomGameDate = new Date()
+		Date earliestPastGameDate = new Date()
+		Date earliestPastCustomGameDate = new Date()
+		Date ealiestGameDate
 		
 		allPastGames.addAll(pastCustomGames)
 		allPastGames.addAll(pastGames)
@@ -28,22 +29,23 @@ class NewGameResultFetcherService {
 		
 		//todo: need to find the earliest custom games by date
 		if (pastCustomGames.size()>0)	
-			earliestPastCustomGameDate = helperService.parseDateFromString(pastCustomGames.get(pastCustomGames.size()-1).date)	
+			earliestPastCustomGameDate = helperService.parseDateFromString(pastCustomGames.get(0).date)	
 		
-		def ealiestGameDate
 		if (earliestPastGameDate > earliestPastCustomGameDate){
 			ealiestGameDate = earliestPastCustomGameDate
 		}else{
 			ealiestGameDate = earliestPastGameDate
 		}
 		
-		def processGameRecords = GameProcessRecord.findAllByStartDateTimeGreaterThanEquals(ealiestGameDate)
+		println "ealiestGameDate: "+ealiestGameDate
 		
+		List processGameRecords = GameProcessRecord.findAllByStartDateTimeGreaterThanEquals(ealiestGameDate-2)
+
 		def gameRecordAdded = 0
-		for (def pastGame: allPastGames){
-			def unprocessed = true
+		for (Map pastGame: allPastGames){
+			boolean unprocessed = true
 			
-			for (def gameRecord: processGameRecords){
+			for (GameProcessRecord gameRecord: processGameRecords){
 				if (gameRecord.eventKey == pastGame.gameId){
 					unprocessed = false
 					break	
