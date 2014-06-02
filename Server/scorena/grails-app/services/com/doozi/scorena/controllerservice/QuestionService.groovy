@@ -216,7 +216,8 @@ class QuestionService {
 		return [placedBet:placedBet, userPickStatus:userPickStatus, userPick:userPick]
 	}
 	
-	private Map getPostEventQuestionUserInfo(String userId, long questionId){
+	private Map getPostEventQuestionUserInfo(String userId, long questionId, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple,
+		pick1WinningPayoutPercentage,pick2WinningPayoutPercentage){
 		
 		def userWinningAmount = 0
 		def userPayoutPercent = 0
@@ -308,7 +309,8 @@ class QuestionService {
 		Map betters = [:]
 		
 		if (userService.accountExists(userId)){
-			userInfo = getPostEventQuestionUserInfo(userId, q.id)
+			userInfo = getPostEventQuestionUserInfo(userId, q.id, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple,
+		pick1WinningPayoutPercentage,pick2WinningPayoutPercentage)
 			betters = getBetters(q.id, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple, userInfo, userId)
 		}else{
 			betters = getBetters(q.id, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple, userInfo)
@@ -344,11 +346,11 @@ class QuestionService {
 		return result
 	}
 	
-	private Map getPreEventQuestionUserInfo(String userId){
+	private Map getPreEventQuestionUserInfo(String userId, long questionId){
 		
 		def userBetAmount = 0
 		def userPick =-1
-		PoolTransaction userBet = betService.getBetByQuestionIdAndUserId(q.id, userId)
+		PoolTransaction userBet = betService.getBetByQuestionIdAndUserId(questionId, userId)
 		if (userBet){
 			userBetAmount=userBet.transactionAmount
 			userPick=userBet.pick
@@ -385,7 +387,7 @@ class QuestionService {
 		def pick2PayoutPercentage =  Math.round(100 * (pick2PayoutMultiple-1))
 		
 		if (userService.accountExists(userId)){
-			userInfo = getPostEventQuestionUserInfo(userId, q.id)
+			userInfo = getPreEventQuestionUserInfo(userId, q.id)
 			betters = getBetters(q.id, pick1PayoutMultiple, pick2PayoutMultiple, userInfo, userId)
 		}else{
 			betters = getBetters(q.id, pick1PayoutMultiple, pick2PayoutMultiple, userInfo)
@@ -539,13 +541,12 @@ class QuestionService {
 			}
 			if (awayBettersArr.size() >10 && homeBettersArr.size() >10)
 				break
-		}
+		}		
 		
-		
-		if ( currentUserAdded == false && userInfo!=[] && username!=""){
+		if ( currentUserAdded == false && userInfo!=[:] && username!="" ){
 			if (userInfo.userPick==1){
 				homeBettersArr.add(0,[name:username, wager:userInfo.userWager,expectedWinning: Math.round(pick1PayoutMultiple * userInfo.userWager)])
-			}else{
+			}else if (userInfo.userPick==2){
 				awayBettersArr.add(0,[name:username, wager:userInfo.userWager,expectedWinning: Math.round(pick2PayoutMultiple * userInfo.userWager)])
 			}
 		}
