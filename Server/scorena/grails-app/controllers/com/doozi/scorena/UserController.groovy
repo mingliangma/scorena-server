@@ -223,6 +223,11 @@ class UserController {
 			return
 		}
 		def balanceResult = userService.getUserBalance(params.userId)
+		if (balanceResult.code){
+			response.status = 404
+			render balanceResult as JSON
+			return
+		}
 		render balanceResult as JSON
 	}
 	

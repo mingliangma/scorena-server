@@ -694,7 +694,7 @@ class UserControllerIntegrationSpec extends Specification {
 			def getBalanceCall = userC.getBalance()
 			
 		then:
-			userC.response.status == 200
+			userC.response.status == 404
 			userC.response.json.code == 500
 			userC.response.json.error == "user account does not exist"
 	}
