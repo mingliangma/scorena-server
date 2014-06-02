@@ -24,8 +24,6 @@ class GameControllerIntegrationSpec extends Specification {
 	def helperService
 	
     def setup() {
-		Integer.metaClass.mixin TimeCategory //these two lines made it easier for doing operations on Date Objects.
-		Date.metaClass.mixin TimeCategory
     }
 
     def cleanup() {
@@ -54,8 +52,12 @@ class GameControllerIntegrationSpec extends Specification {
 		when:
 			userC.getFeatureGames()
 			def currentDate = new Date()
-			def timeInterval = 3.seconds
-			def currentTimeLowerBound = currentDate - timeInterval
+			def timeInterval
+			def currentTimeLowerBound
+			use (TimeCategory) {
+				timeInterval = 3.seconds
+				currentTimeLowerBound = currentDate - timeInterval
+			}
 			def resp = userC.response.json
 			def gameIdList = userC.response.json.gameId
 			def questionIdList = userC.response.json.question.questionId
@@ -185,9 +187,14 @@ class GameControllerIntegrationSpec extends Specification {
 		when:
 			userC.getUpcomingGames()
 			def currentDate = new Date()
-			def timeInterval = 3.seconds
-			def currentTimeLowerBound = currentDate - timeInterval
-			def currentTimeUpperBound = currentDate + timeInterval
+			def timeInterval
+			def currentTimeLowerBound
+			def currentTimeUpperBound
+			use (TimeCategory) {
+				timeInterval = 3.seconds
+				currentTimeLowerBound = currentDate - timeInterval
+				currentTimeUpperBound = currentDate + timeInterval
+			}
 			def resp = userC.response.json
 			def gameIdList = userC.response.json.gameId
 			def numberOfUpcomingGames = userC.response.json.size()
@@ -409,8 +416,12 @@ class GameControllerIntegrationSpec extends Specification {
 		when:
 			userC.getPastGames()
 			def currentDate = new Date()
-			def timeInterval = 3.seconds
-			def currentTimeUpperBound = currentDate + timeInterval
+			def timeInterval
+			def currentTimeUpperBound
+			use (TimeCategory) {
+				timeInterval = 3.seconds
+				currentTimeUpperBound = currentDate + timeInterval
+			}
 			def resp = userC.response.json
 			def gameIdList = userC.response.json.gameId
 			def numberOfPastGames = userC.response.json.size()
