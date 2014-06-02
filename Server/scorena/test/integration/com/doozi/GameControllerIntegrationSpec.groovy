@@ -58,6 +58,7 @@ class GameControllerIntegrationSpec extends Specification {
 			def currentTimeLowerBound = currentDate - timeInterval
 			def resp = userC.response.json
 			def gameIdList = userC.response.json.gameId
+			def questionIdList = userC.response.json.question.questionId
 			println "Complete JSON response after calling getFeatureGames(): " + resp
 			
 		then:
@@ -80,13 +81,6 @@ class GameControllerIntegrationSpec extends Specification {
 			for (eachGameId in gameIdList) {
 				assert eachGameId.getClass() == String
 				assert eachGameId.length() > 0
-			}
-			
-			//check for duplicate games by using two pointers, i and j. i will iterate the entire list and every time j will iterate the rest of the list.
-			for (int i = 0; i < gameIdList.size() - 1; i++) {
-				for (int j = i + 1; j < gameIdList.size(); j++) {
-					assert gameIdList[i] != gameIdList[j]
-				}
 			}
 			
 			resp.type.size() == numberOfFeatureGames
@@ -161,6 +155,13 @@ class GameControllerIntegrationSpec extends Specification {
 				assert eachQuestion.pool.pick1odds >= 1
 				assert eachQuestion.pool.pick2odds.getClass() == Double
 				assert eachQuestion.pool.pick2odds >= 1
+			}
+			
+			//check for duplicate games by using two pointers, i and j. i will iterate the entire list and every time j will iterate the rest of the list.
+			for (int i = 0; i < numberOfFeatureGames - 1; i++) {
+				for (int j = i + 1; j < numberOfFeatureGames; j++) {
+					assert questionIdList[i] != questionIdList[j] //their questionId must not be the same, or this will be a duplicate result.
+				}
 			}
     }
 
