@@ -56,7 +56,7 @@ class QuestionService {
 		def questions = listQuestions(eventKey)
 		boolean isValidUserId = false
 		
-		if (userId != null && userService.accountExists(userId)){
+		if (userId != null){
 			isValidUserId = true
 		}
 		
