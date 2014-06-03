@@ -31,7 +31,7 @@ class SportsDataService {
 		else if (eventKey.startsWith(CHAMP_LEAGUE)) 
 			return "UEFA Champions League"
 		else if (eventKey.startsWith(BRAZIL_SERIES_A))
-			return "Brazil league Serie A"
+			return "Brazil league Series A"
 		else if (eventKey.startsWith(CALCIO_SERIES_A))
 			return "Calcio Series A"
 		else if (eventKey.startsWith(LA_LIGA))
