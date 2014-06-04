@@ -15,8 +15,7 @@ class Account {
 		bet nullable: true
 	}
 	
-	static mapping = {
-		bet lazy: false		
+	static mapping = {	
 	}
  
 }
