@@ -106,10 +106,7 @@ class QuestionService {
 							}
 						}
 					}							
-				
-					
-												
-					
+		
 					userInfo=[placedBet:placedBet, userPickStatus:userPickStatus, userPick:userPick]
 				}
 				resultList.add([
