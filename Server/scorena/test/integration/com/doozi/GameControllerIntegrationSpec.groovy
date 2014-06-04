@@ -141,8 +141,7 @@ class GameControllerIntegrationSpec extends Specification {
 				assert eachQuestion.pick2.getClass() == String
 				assert eachQuestion.pick2.length() > 0
 				assert eachQuestion.userInfo == []
-				assert (eachQuestion.winnerPick == -1 || eachQuestion.winnerPick == 0 
-						|| eachQuestion.winnerPick == 1 || eachQuestion.winnerPick == 2)
+				assert eachQuestion.winnerPick == -1
 				assert eachQuestion.pool.pick1Amount.getClass() == Integer
 				assert eachQuestion.pool.pick1Amount >= 0
 				assert eachQuestion.pool.pick2Amount.getClass() == Integer
