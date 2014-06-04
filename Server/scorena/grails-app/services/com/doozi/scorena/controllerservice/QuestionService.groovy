@@ -1,5 +1,6 @@
 package com.doozi.scorena.controllerservice
 
+import com.doozi.scorena.Account
 import com.doozi.scorena.Pool
 import com.doozi.scorena.PoolTransaction;
 import com.doozi.scorena.Game;
@@ -145,8 +146,7 @@ class QuestionService {
 	}
 	
 	def createQuestions(){
-		
-		
+
 		List upcomingGames = gameService.listUpcomingNonCustomGames()
 		
 		for (int i=0; i < upcomingGames.size(); i++){
@@ -157,6 +157,7 @@ class QuestionService {
 				populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
 			}
 		}
+		return upcomingGames
 	}
 	
 	def populateQuestions(String away, String home, String eventId){
@@ -582,13 +583,16 @@ class QuestionService {
 		def betTransactions = betService.listAllBets(qId)
 		
 		for (PoolTransaction betTrans: betTransactions){
-			String betterUsername = betTrans.account.username
+			Account betterAccount = betTrans.account
+			String betterUsername = Account.username
+			String betterUserId =  Account.userId
 			if (betTrans.pick==1){
 				
 				if (homeBettersArr.size() <=10){
 					if ( betterUsername != username){
 						homeBettersArr.add([
 							name:betterUsername,
+							userId:betterUserId,
 							wager:betTrans.transactionAmount,
 							expectedWinning: Math.round(pick1PayoutMultiple * betTrans.transactionAmount)])
 					}
@@ -598,9 +602,9 @@ class QuestionService {
 					if (betterUsername != username){
 						awayBettersArr.add( [
 							name:betterUsername,
+							userId:betterUserId,
 							wager:betTrans.transactionAmount,
-							expectedWinning: Math.round(pick2PayoutMultiple * betTrans.transactionAmount)])
-				
+							expectedWinning: Math.round(pick2PayoutMultiple * betTrans.transactionAmount)])				
 					}
 				}
 			}
