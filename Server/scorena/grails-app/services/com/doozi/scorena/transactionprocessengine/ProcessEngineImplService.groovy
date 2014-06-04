@@ -186,7 +186,15 @@ class ProcessEngineImplService {
 			println "ProcessEngineImplService::processPayout(): ends"
     }
 	
-	//returns pick1 or pick2
+	/**
+	 * @param eventKey
+	 * @param question
+	 * @return 
+	 * 			- 1 if pick1 wins
+	 * 			- 2 if pick2 wins
+	 * 			- 0 if ties
+	 * 			- -1 if not winning result
+	 */
 	@Transactional
 	def getWinningPick(eventKey, Question question){
 		
@@ -205,6 +213,7 @@ class ProcessEngineImplService {
 				winnerPick = getCustomQuestionWinnerPick(eventKey, question)
 				break;
 		}
+		return winnerPick
 	}
 	
 	int getCustomQuestionWinnerPick(eventKey, question){

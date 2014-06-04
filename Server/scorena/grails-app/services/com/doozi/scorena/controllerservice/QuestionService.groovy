@@ -242,6 +242,40 @@ class QuestionService {
 	
 	}
 	
+	/**
+	 * @param q: Question Object that is being requested
+	 * @param userId: the userId that user made the request
+	 * @return: Result map that contains question data, pool data, and social data
+	 *
+			questionId: The question Id of the question that is returned
+			content: The Question content. Eg. who will win?
+			pick1: The name of pick1 option. It could be a teamname or yes/now
+			pick2: The name of pick1 option.
+			winnerPick: The winning result which indicate a tie or winner pick option. 0 is tie, 1 indicates pick1 wins, 2 indicates pick2 wins
+			currentOddsPick1: The odds that shows in the question preview of each question in the question list page
+			currentOddsPick2: The odds that shows in the question preview of each question in the question list page
+			userInfo: [
+				userWinningAmount: The amount of money that the user win,
+				userPayoutPercent: The user's payout on investment in percentage. (Total payout / initial wager) * 100.
+									if a user lost the bet, the userPayoutPercent is 0%
+				userWager: User's initial wager,
+				userPick: the pick option a user selected
+			],
+			pool: [
+				pick1Amount: The total amount of money that users have put into pick1,
+				pick1NumPeople: The number of users that bet on pick1,
+				pick1PayoutPercent: the payout on investment in percentage assuming pick 1 wins,
+				pick2Amount: The total amount of money that users have put into pick2,
+				pick2NumPeople: The number of users that bet on pick1,
+				pick2PayoutPercent: the payout on investment in percentage assuming pick 2 wins,
+			],
+			betters: [
+				name: the user's display name,
+				wager: the user's initial wager,
+				expectedWinning: The user's winning amount
+			]
+	 */
+	
 	private def getPostEventQuestion(Question q, String userId){
 		PoolTransaction lastBet = betService.getLatestBetByQuestionId(q.id)
 		int winnerPick = processEngineImplService.getWinningPick(q.eventKey, q)
@@ -357,7 +391,38 @@ class QuestionService {
 		}
 		return [userWager:userBetAmount, userPick:userPick]
 		
-	}
+	}		
+	
+/**
+	 * @param q: Question Object that is being requested
+	 * @param userId: the userId that user made the request
+	 * @return: Result map that contains question data, pool data, and social data
+	 * 
+			questionId: The question Id of the question that is returned
+			content: The Question content. Eg. who will win?
+			pick1: The name of pick1 option. It could be a teamname or yes/now
+			pick2: The name of pick1 option.
+			lastUpdate: The date and time that the last user made the bet,
+			userInfo: [
+				userWager: User's initial wager,
+				userPick: the pick option a user selected
+			],
+			pool: [
+				pick1Amount: The total amount of money that users have put into pick1,
+				pick1NumPeople: The number of users that bet on pick1,
+				pick1PayoutPercent: the payout on investment in percentage assuming pick 1 wins,
+				pick2Amount: The total amount of money that users have put into pick2,
+				pick2NumPeople: The number of users that bet on pick1,
+				pick2PayoutPercent: the payout on investment in percentage assuming pick 2 wins,
+				currentOddsPick1: The odds that shows in the question preview of each question in the question list page
+				currentOddsPick2: The odds that shows in the question preview of each question in the question list page
+			],
+			betters: [
+				name: the user's display name,
+				wager: the user's initial wager,
+				expectedWinning: The expected winning amount
+			]
+	 */
 	
 	private def getPreEventQuestion(Question q, def userId){
 		DecimalFormat df = new DecimalFormat("###.##")
