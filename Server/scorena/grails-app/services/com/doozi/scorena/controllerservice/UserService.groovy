@@ -136,20 +136,93 @@ class UserService {
 		return resp.json
 	}
 	
+	private Map userLogin(RestBuilder rest, String username, String password){
+		
+		def resp = parseService.loginUser(rest, username, password)
+		
+		if (resp.status != 200){
+			def result = [
+				code:resp.json.code,
+				error:resp.json.error
+			]
+			return result
+		}
+		return resp.json
+	}
+	
+	private Map userRetreive(RestBuilder rest, String userId){
+		def resp = parseService.retreiveUser(rest, userId)
+		
+		if (resp.status != 200){
+			println "ERROR: UserService::getUserProfile(): user account does not exist in parse"
+			def result = [
+				code:500,
+				error:"user account does not exist"
+			]
+			return result
+		}
+		return resp.json
+	}
+	
+	private Map userRegisterAndLoginMapRender(String sessionToken, int currentBalance, String createdAt, String username, 
+		String userId, String gender, String region, String email, String pictureURL){
+		
+		int currentBalanceResp = INITIAL_BALANCE
+		String createdAtResp = ""
+		String usernameResp = ""
+		String userIdResp = ""
+		String genderResp = ""
+		String regionResp = ""
+		String emailResp = ""
+		String pictureURLResp = ""
+		String sessionTokenResp = ""
+		
+		if (sessionToken != null)
+			sessionTokenResp = sessionToken
+		
+		if (createdAt != null)
+			createdAtResp = createdAt
+	
+		if (userId != null)
+			userIdResp = userId
+		
+		if (username != null)
+			usernameResp = username
+		
+		if (gender != null)
+			genderResp = gender
+		
+		if (region != null)
+			regionResp = region
+			
+		if (email != null)
+			emailResp = email
+			
+		if (pictureURL != null)
+			pictureURLResp = pictureURL
+		
+		def result = [
+			createdAt:createdAtResp,
+			username:usernameResp,
+			currentBalance:currentBalanceResp,
+			sessionToken:sessionTokenResp,
+			userId: userIdResp,
+			gender: genderResp,
+			region: regionResp,
+			email: emailResp,
+			pictureUrl: pictureURLResp
+		]
+		return result
+	}
+	
 	def createSocialNetworkUser(String sessionToken){
+		int currentBalance = INITIAL_BALANCE
 		RestBuilder rest = new RestBuilder()
+		
 		Map userProfile = getUserProfileBySessionToken(rest, sessionToken)
 		if (userProfile.code){
 			return userProfile
 		}
-		
-		int currentBalance = INITIAL_BALANCE
-		String createdAt = ""
-		String username = "testUsername"
-		String userId = ""
-		String gender = ""
-		String region = ""
-		String email = ""
 		
 		def account = Account.findByUserId(userProfile.objectId)
 		
@@ -161,91 +234,58 @@ class UserService {
 		}else{
 			currentBalance = account.currentBalance
 		}
-		
-		if (userProfile.createdAt != null)
-			createdAt = userProfile.createdAt
-		
-		if (userProfile.objectId != null)
-			userId = userProfile.objectId
-		
-		if (userProfile.username != null)
-			username = userProfile.username
-		
-		if (userProfile.gender != null)
-			gender = userProfile.gender
-		
-		if (userProfile.region != null)
-			region = userProfile.region
-			
-		if (userProfile.email != null)
-			email = userProfile.email
 						
-		def result = [
-			createdAt:createdAt,
-			username:username,
-			currentBalance:currentBalance,
-			sessionToken:sessionToken,
-			userId: userId,			
-			gender: gender,
-			region: region,
-			email: email
-		]
+		def result = userRegisterAndLoginMapRender(sessionToken, currentBalance, userProfile.createdAt, userProfile.display_name, 
+		userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
+		
 		return result
 	}
 			
 	def createUser(String username, String email, String password, String gender, String region){
 		println "UserService::createUser(): username="+username+"  username="+email
+		
+		int currentBalance = INITIAL_BALANCE
 		String usernameLowerCase = username.toLowerCase()
 		RestBuilder rest = new RestBuilder()
 		
-		Map userProfileCreationResult =  createUserProfile(rest, usernameLowerCase, email, password, gender, region)
-		if (userProfileCreationResult.code){
-			return userProfileCreationResult
+		Map userProfile =  createUserProfile(rest, usernameLowerCase, email, password, gender, region)
+		if (userProfile.code){
+			return userProfile
 		}
 		
 		println "user profile created successfully"		
 			
-		Map accountCreationResult = createUserAccount(rest, userProfileCreationResult.objectId, username, INITIAL_BALANCE, PREVIOUS_BALANCE, userProfileCreationResult.sessionToken)
+		Map accountCreationResult = createUserAccount(rest, userProfile.objectId, username, INITIAL_BALANCE, PREVIOUS_BALANCE, userProfile.sessionToken)
 		if (accountCreationResult!=[:]){
 			return accountCreationResult
 		}
 		
 		println "user profile and account created successfully"
+
 		
-		def result = [			
-			createdAt:userProfileCreationResult.createdAt,
-			username:username,
-			currentBalance:INITIAL_BALANCE,
-			sessionToken:userProfileCreationResult.sessionToken,
-			userId: userProfileCreationResult.objectId,
-			email: email,
-			gender: gender,
-			region: region
-		]
+		def result = userRegisterAndLoginMapRender(userProfile.sessionToken, currentBalance, userProfile.createdAt, username, 
+		userProfile.objectId, gender, region, email, userProfile.pictureURL)
+		
 		return result		
 	}
 	
 	def login(String username, String password){
 		def rest = new RestBuilder()
-		def resp = parseService.loginUser(rest, username, password)
-		if (resp.status != 200 ||resp.json.code)
-			return resp.json
 		
-		def account = Account.findByUserId(resp.json.objectId)
+		Map userProfile = userLogin(rest, username, password)
+		if (userProfile.code){
+			return userProfile
+		}
+		
+		def account = Account.findByUserId(userProfile.objectId)
 		
 		if (!account){
 			return [code:500, error:"user account does not exist"]			
 		}
-		def result = [
-			createdAt:resp.json.createdAt,
-			username:resp.json.username,
-			currentBalance:account.currentBalance,
-			sessionToken:resp.json.sessionToken,
-			userId: resp.json.objectId,
-			email: resp.json.email,
-			gender: resp.json.gender,
-			region: resp.json.region
-		]
+		
+		def result = userRegisterAndLoginMapRender(userProfile.sessionToken, account.currentBalance, userProfile.createdAt, userProfile.username, 
+				userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
+		
 		return result
 	}
 	
@@ -293,15 +333,10 @@ class UserService {
 	
 	def getUserProfile(String userId){
 		def rest = new RestBuilder()
-		def resp = parseService.retreiveUser(rest, userId)
 		
-		if (resp.status != 200){
-			println "ERROR: UserService::getUserProfile(): user account does not exist in parse"			
-			def result = [
-				code:500,
-				error:"user account does not exist"
-			]
-			return result
+		def userProfile = userRetreive(rest, userId)
+		if (userProfile.code){
+			return userProfile
 		}
 		
 		def account = Account.findByUserId(userId)
@@ -321,19 +356,13 @@ class UserService {
 		userStats.monthly.netGainPercent = ((userStats.monthly.netGain / (account.currentBalance))*100).toInteger()
 		userStats.all.netGainPercent = ((userStats.all.netGain / (account.currentBalance))*100).toInteger()
 		
-		def result = [
-			createdAt:resp.json.createdAt,
-			username:resp.json.username,
-			currentBalance:account.currentBalance,
-			updatedAt:resp.json.updatedAt,,
-			userId: resp.json.objectId,
-			gender: resp.json.gender,
-			region: resp.json.region,
-			email: resp.json.email,
-			userStats: userStats,
-			level: 1,
-			levelName: "novice"
-		]
+		def result = userRegisterAndLoginMapRender("", account.currentBalance, userProfile.createdAt, userProfile.username,
+			userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
+		
+		result.userStats = userStats
+		result.level = 1
+		result.levelName = "novice"
+		
 		return result		
 		
 	}
