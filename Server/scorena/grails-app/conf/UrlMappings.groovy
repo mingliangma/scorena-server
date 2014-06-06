@@ -98,6 +98,10 @@ class UrlMappings {
 		"/v1/admin/game/customgame"(controller:"customGame"){
 			action = [POST:"createCustomGame"]
 		}
+		
+		"/v1/admin/game/autocreatequestions"(controller:"question"){
+			action = [get:"createQuestions"]
+		}
 
 //        "/"(view:"/index")
         "500"(view:'/error')

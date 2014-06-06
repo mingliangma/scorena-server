@@ -65,6 +65,14 @@ class SportsDataService {
 		def todayDate = new Date()		
 		def upcomingDate = todayDate + UPCOMING_DATE_RANGE;
 		def upcomingGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime<? and g.startDateTime>? and g.eventStatus<>'post-event' order by g.startDateTime", [upcomingDate, todayDate-1], [cache: true])
+		
+//		def c = ScorenaAllGames.createCriteria()
+//		def upcomingGames = c.list {
+//			between("startDateTime", todayDate-1, upcomingDate)
+//			ne("eventStatus", "post-event")
+//		    order("startDateTime", "asc")
+//		}		
+		
 		def upcomingGamesMap = [:]
 		List upcomingGamesList = []
 		for (ScorenaAllGames game: upcomingGames){

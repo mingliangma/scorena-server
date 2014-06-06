@@ -146,7 +146,7 @@ class QuestionService {
 	}
 	
 	def createQuestions(){
-
+		int questionsCreated = 0
 		List upcomingGames = gameService.listUpcomingNonCustomGames()
 		
 		for (int i=0; i < upcomingGames.size(); i++){
@@ -154,19 +154,20 @@ class QuestionService {
 			
 			if (Question.findByEventKey(game.gameId) == null){
 				println "createQuestions(): game id is "+game.gameId
-				populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
+				questionsCreated = questionsCreated + populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
 			}
 		}
-		return upcomingGames
+		return questionsCreated
 	}
 	
-	def populateQuestions(String away, String home, String eventId){
-	
+	int populateQuestions(String away, String home, String eventId){
+		int questionCreated = 0
 		def questionContent2 = QuestionContent.findAllByQuestionType("truefalse-0")
 		for (QuestionContent qc: questionContent2){
 			def q = new Question(eventKey: eventId, pick1: "Yes", pick2: "No", pool: new Pool(minBet: 5))
 			qc.addToQuestion(q)
 			if (qc.save()){
+				questionCreated++
 				System.out.println("game successfully saved")
 			}else{
 				System.out.println("game save failed")
@@ -181,6 +182,7 @@ class QuestionService {
 			def q = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
 			qc.addToQuestion(q)
 			if (qc.save()){
+				questionCreated++
 				System.out.println("game successfully saved")
 			}else{
 				System.out.println("game save failed")
@@ -189,6 +191,7 @@ class QuestionService {
 				}
 			}
 		}
+		return questionCreated
 	}
 	
 	private Map getQuestionsUserInfo(String userId, long questionId, int winnerPick){

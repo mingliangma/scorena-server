@@ -54,4 +54,9 @@ class QuestionController {
 			render questionDetails as JSON
 		}
 	}
+	
+	def createQuestions(){
+		def questionCreationResult = questionService.createQuestions()
+		render questionCreationResult as JSON
+	}
 }
