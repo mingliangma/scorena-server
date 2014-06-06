@@ -94,6 +94,12 @@ environments {
 		parse.parseRestApiKey ='QSBmZXNUjRMtKwWcqB7jLQgtZizCSMBBeoBQHIql'
     }
 	
+	prodtesting {
+		grails.logging.jul.usebridge = true
+		parse.parseApplicationId='kEepaeRdIInsSbptLl4lZ6xiZg7nv7bEOV56ym9m'
+		parse.parseRestApiKey ='QSBmZXNUjRMtKwWcqB7jLQgtZizCSMBBeoBQHIql'
+	}
+	
 	test{
 		grails.logging.jul.usebridge = true
 		parse.parseApplicationId=System.getProperty("PARAM1")

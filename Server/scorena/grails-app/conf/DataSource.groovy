@@ -57,6 +57,37 @@ environments
 		}
     }
 	
+	prodtesting
+	{
+		dataSource
+		{
+			dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
+			url = "jdbc:mysql://prodtestinginstance.cce59dcpxmml.us-west-2.rds.amazonaws.com/scorenaproductiondb?useUnicode=yes&characterEncoding=UTF-8"
+			username = "scorenauser"
+			password = "scorenauser"
+		}
+		
+		dataSource_sportsData
+		{
+			dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
+			
+			url = "jdbc:mysql://xmlinstance.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/sportsdb?user=dooziadmin&password=dooziadmin"
+
+			properties
+			{
+				maxActive = -1
+				minEvictableIdleTimeMillis=1800000
+				timeBetweenEvictionRunsMillis=1800000
+				numTestsPerEvictionRun=3
+				testOnBorrow=true
+				testWhileIdle=true
+				testOnReturn=false
+				validationQuery="SELECT 1"
+				jdbcInterceptors="ConnectionState"
+			 }
+		}
+	}
+	
 	//jdbc:mysql://mydbinstance.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/scorenaT?user=scorenaadmin&password=scorenaadmin
 	
     test 
