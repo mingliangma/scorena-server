@@ -110,9 +110,9 @@ class UserService {
 		return [:]
 	}
 	
-	private Map createUserProfile(RestBuilder rest, String username, String email, String password, String gender, String region){
+	private Map createUserProfile(RestBuilder rest, String username, String email, String password, String gender, String region, String displayName){
 			
-		def resp = parseService.createUser(rest, username, email, password, gender, region)
+		def resp = parseService.createUser(rest, username, email, password, gender, region, displayName)
 		
 		if (resp.status != 201){
 			def result = [
@@ -164,7 +164,7 @@ class UserService {
 		return resp.json
 	}
 	
-	private Map userRegisterAndLoginMapRender(String sessionToken, int currentBalance, String createdAt, String username, 
+	private Map userProfileMapRender(String sessionToken, int currentBalance, String createdAt, String username, String displayName,
 		String userId, String gender, String region, String email, String pictureURL){
 		
 		int currentBalanceResp = INITIAL_BALANCE
@@ -186,9 +186,12 @@ class UserService {
 		if (userId != null)
 			userIdResp = userId
 		
-		if (username != null)
+		if (displayName != null && displayName!="")
+			usernameResp = displayName
+		else if(username != null)
 			usernameResp = username
-		
+			
+			
 		if (gender != null)
 			genderResp = gender
 		
@@ -235,20 +238,21 @@ class UserService {
 			currentBalance = account.currentBalance
 		}
 						
-		def result = userRegisterAndLoginMapRender(sessionToken, currentBalance, userProfile.createdAt, userProfile.display_name, 
+		def result = userProfileMapRender(sessionToken, currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name, 
 		userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
 		
 		return result
 	}
 			
 	def createUser(String username, String email, String password, String gender, String region){
-		println "UserService::createUser(): username="+username+"  username="+email
+		println "UserService::createUser(): username="+username+"  email="+email
 		
 		int currentBalance = INITIAL_BALANCE
 		String usernameLowerCase = username.toLowerCase()
+		String displayName = usernameLowerCase
 		RestBuilder rest = new RestBuilder()
 		
-		Map userProfile =  createUserProfile(rest, usernameLowerCase, email, password, gender, region)
+		Map userProfile =  createUserProfile(rest, usernameLowerCase, email, password, gender, region, displayName)
 		if (userProfile.code){
 			return userProfile
 		}
@@ -263,7 +267,7 @@ class UserService {
 		println "user profile and account created successfully"
 
 		
-		def result = userRegisterAndLoginMapRender(userProfile.sessionToken, currentBalance, userProfile.createdAt, username, 
+		def result = userProfileMapRender(userProfile.sessionToken, currentBalance, userProfile.createdAt, userProfile.username, displayName, 
 		userProfile.objectId, gender, region, email, userProfile.pictureURL)
 		
 		return result		
@@ -283,7 +287,7 @@ class UserService {
 			return [code:500, error:"user account does not exist"]			
 		}
 		
-		def result = userRegisterAndLoginMapRender(userProfile.sessionToken, account.currentBalance, userProfile.createdAt, userProfile.username, 
+		def result = userProfileMapRender(userProfile.sessionToken, account.currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name, 
 				userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
 		
 		return result
@@ -356,7 +360,7 @@ class UserService {
 		userStats.monthly.netGainPercent = ((userStats.monthly.netGain / (account.currentBalance))*100).toInteger()
 		userStats.all.netGainPercent = ((userStats.all.netGain / (account.currentBalance))*100).toInteger()
 		
-		def result = userRegisterAndLoginMapRender("", account.currentBalance, userProfile.createdAt, userProfile.username,
+		def result = userProfileMapRender("", account.currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name,
 			userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
 		
 		result.userStats = userStats
