@@ -157,6 +157,7 @@ class QuestionService {
 				questionsCreated = questionsCreated + populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
 			}
 		}
+		println "questionsCreated: " + questionsCreated
 		return questionsCreated
 	}
 	
@@ -165,8 +166,8 @@ class QuestionService {
 		def questionContent2 = QuestionContent.findAllByQuestionType("truefalse-0")
 		for (QuestionContent qc: questionContent2){
 			def q = new Question(eventKey: eventId, pick1: "Yes", pick2: "No", pool: new Pool(minBet: 5))
-			qc.addToQuestion(q)
-			if (qc.save()){
+			qc.addToQuestion(q)			
+			if (qc.save(failOnError:true)){
 				questionCreated++
 				System.out.println("game successfully saved")
 			}else{
@@ -179,9 +180,9 @@ class QuestionService {
 		
 		def questionContent1 = QuestionContent.findAllByQuestionType("team-0")
 		for (QuestionContent qc: questionContent1){
-			def q = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
+			def q = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))			
 			qc.addToQuestion(q)
-			if (qc.save()){
+			if (qc.save(failOnError:true)){
 				questionCreated++
 				System.out.println("game successfully saved")
 			}else{

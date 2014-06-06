@@ -11,6 +11,6 @@ class Question {
 	static belongsTo = [questionContent:QuestionContent]
 	
 	static mapping = {
-		bet lazy: false
+		//bet lazy: false
 	}
 }

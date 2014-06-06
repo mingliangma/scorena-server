@@ -100,7 +100,7 @@ class UrlMappings {
 		}
 		
 		"/v1/admin/game/autocreatequestions"(controller:"question"){
-			action = [get:"createQuestions"]
+			action = [GET:"createQuestions"]
 		}
 
 //        "/"(view:"/index")

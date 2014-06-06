@@ -57,6 +57,7 @@ class QuestionController {
 	
 	def createQuestions(){
 		def questionCreationResult = questionService.createQuestions()
-		render questionCreationResult as JSON
+		Map result = [questionCreated: questionCreationResult]
+		render result as JSON
 	}
 }
