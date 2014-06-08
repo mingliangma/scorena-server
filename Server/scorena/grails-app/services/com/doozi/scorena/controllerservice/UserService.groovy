@@ -1,5 +1,8 @@
 package com.doozi.scorena.controllerservice
 
+import java.util.List;
+import java.util.Map;
+
 import grails.transaction.Transactional
 import grails.converters.JSON
 import grails.web.JSONBuilder
@@ -12,9 +15,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 
-import com.doozi.scorena.Account;
 import com.doozi.scorena.*;
-import com.doozi.scorena.PoolTransaction
 
 import grails.plugins.rest.client.RestBuilder
 
@@ -151,7 +152,7 @@ class UserService {
 	}
 	
 	private Map userRetreive(RestBuilder rest, String userId){
-		def resp = parseService.retreiveUser(rest, userId)
+		def resp = parseService.retrieveUser(rest, userId)
 		
 		if (resp.status != 200){
 			println "ERROR: UserService::getUserProfile(): user account does not exist in parse"
@@ -373,7 +374,7 @@ class UserService {
 	
 	def getUserBalance(String userId){
 		def rest = new RestBuilder()
-		def resp = parseService.retreiveUser(rest, userId)
+		def resp = parseService.retrieveUser(rest, userId)
 		
 		def account = Account.findByUserId(userId)
 		if (account == null){

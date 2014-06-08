@@ -1,7 +1,18 @@
 package com.doozi.scorena.controllerservice
 
+import java.net.URLEncoder;
+
 import grails.transaction.Transactional
+import grails.converters.JSON
 import grails.plugins.rest.client.RestBuilder
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
+import org.codehaus.groovy.grails.web.json.JSONArray
+import org.codehaus.groovy.grails.web.json.JSONObject
 
 
 @Transactional
@@ -61,7 +72,7 @@ class ParseService {
 		return resp
 	}
 	
-	def retreiveUser(def rest, def objectId){
+	def retrieveUser(def rest, def objectId){
 		def parseConfig = grailsApplication.config.parse
 		def resp = rest.get("https://api.parse.com/1/users/"+objectId){
 			header 	"X-Parse-Application-Id", parseConfig.parseApplicationId
@@ -69,6 +80,69 @@ class ParseService {
 		}
 		return resp
 	}	
+	
+	
+// There is an issue by using RestBuilder that pass in a JSON object into the URL parameter.
+	 
+//	def retreiveUserList(def rest, List objectIds){
+//		def parseConfig = grailsApplication.config.parse		
+//		JSONArray objectIdsJson = retreiveUserListParamsRender(objectIds)
+//		String orOperatorMap = ([$or:objectIdsJson] as JSON).toString()
+//
+//		String url = "https://api.parse.com/1/users?where=" + URLEncoder.encode(orOperatorMap, "UTF-8");
+//
+//		def resp = rest.get(url){
+//			header 	"X-Parse-Application-Id", parseConfig.parseApplicationId
+//			header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
+//			accept "application/json"
+//		}
+//		println resp
+//		return resp
+//	}
+	
+	
+	/**
+	 * There is an issue by using RestBuilder that pass in a JSON object into the URL parameter.
+	 * Therefore, The Java httpclient and httpcore library are used for this method
+	 * 
+	 * @param objectIds: a list of userIds (called objectIds in parse)  
+	 * 					
+	 * @return a Map object that contains a list of Parse users' profile
+	 */
+	Map retrieveUserList(List objectIds){
+		def parseConfig = grailsApplication.config.parse
+		if (objectIds.size() == 0){
+			return [:]
+		}				
+		
+		String url = "https://api.parse.com/1/users?where=" + getJSONWhereConstraints(objectIds);
+		
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpGet httpget = new HttpGet(url);
+				
+		httpget.addHeader("X-Parse-Application-Id", parseConfig.parseApplicationId);
+		httpget.addHeader("X-Parse-REST-API-Key", parseConfig.parseRestApiKey);
+
+		HttpResponse httpResponse = httpclient.execute(httpget);
+		JSONObject resultJson = new JSONObject(EntityUtils.toString(httpResponse.getEntity()));
+
+		return (resultJson as Map)
+	}
+	
+	private String getJSONWhereConstraints(List objectIds){
+		JSONArray objectIdArray = new JSONArray()
+		JSONObject whereContraintsJson = new JSONObject();
+
+		for (String objectId: objectIds){
+			JSONObject objectIdJson = new JSONObject()
+			objectIdJson.put("objectId", objectId)			
+			objectIdArray.add(objectIdJson)
+		}
+		
+		whereContraintsJson.put('$or',objectIdArray);
+		String whereContraintsString = URLEncoder.encode(whereContraintsJson.toString(), "UTF-8")
+		return whereContraintsString
+	}
 	
 	def updateUser(def rest, def sessionToken, def objectId, def updateUserDataJSON){
 		def parseConfig = grailsApplication.config.parse		

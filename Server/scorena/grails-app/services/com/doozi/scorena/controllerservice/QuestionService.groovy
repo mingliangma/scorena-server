@@ -7,15 +7,18 @@ import com.doozi.scorena.Game;
 import com.doozi.scorena.Question;
 import com.doozi.scorena.QuestionContent
 
+import grails.plugins.rest.client.RestBuilder
 import grails.transaction.Transactional
 
 import java.text.DecimalFormat
+import java.util.Map;
 
 
 @Transactional
 class QuestionService {
 	def betService
 	def gameService
+	def parseService
 	def processEngineImplService
 	def questionService
 	def userService
@@ -576,8 +579,8 @@ class QuestionService {
 	}
 	
 	private Map getBetters(qId, pick1PayoutMultiple, pick2PayoutMultiple, userInfo, userId){
-		def homeBettersArr = []
-		def awayBettersArr = []
+		Map pick1BettersMap = [:]
+		Map pick2BettersMap = [:]
 		def currentUserAdded = false
 		
 		String username = ""
@@ -587,14 +590,16 @@ class QuestionService {
 		def betTransactions = betService.listAllBets(qId)
 		
 		for (PoolTransaction betTrans: betTransactions){
+
 			Account betterAccount = betTrans.account
-			String betterUsername = Account.username
-			String betterUserId =  Account.userId
+		
+			String betterUsername = betterAccount.username
+			String betterUserId =  betterAccount.userId
 			if (betTrans.pick==1){
 				
-				if (homeBettersArr.size() <=10){
+				if (pick1BettersMap.size() <=10){
 					if ( betterUsername != username){
-						homeBettersArr.add([
+						pick1BettersMap.put(betterUserId,[
 							name:betterUsername,
 							userId:betterUserId,
 							wager:betTrans.transactionAmount,
@@ -602,9 +607,9 @@ class QuestionService {
 					}
 				}
 			}else{
-				if (awayBettersArr.size() <=10){
+				if (pick2BettersMap.size() <=10){
 					if (betterUsername != username){
-						awayBettersArr.add( [
+						pick2BettersMap.put(betterUserId, [
 							name:betterUsername,
 							userId:betterUserId,
 							wager:betTrans.transactionAmount,
@@ -612,17 +617,21 @@ class QuestionService {
 					}
 				}
 			}
-			if (awayBettersArr.size() >10 && homeBettersArr.size() >10)
+			if (pick2BettersMap.size() >10 && pick1BettersMap.size() >10)
 				break
 		}		
 		
 		if ( currentUserAdded == false && userInfo!=[:] && username!="" ){
 			if (userInfo.userPick==1){
-				homeBettersArr.add(0,[name:username, wager:userInfo.userWager,expectedWinning: Math.round(pick1PayoutMultiple * userInfo.userWager)])
+				pick1BettersMap.put(userId,[name:username, userId:userId, wager:userInfo.userWager,expectedWinning: Math.round(pick2PayoutMultiple * userInfo.userWager)])
 			}else if (userInfo.userPick==2){
-				awayBettersArr.add(0,[name:username, wager:userInfo.userWager,expectedWinning: Math.round(pick2PayoutMultiple * userInfo.userWager)])
+				pick2BettersMap.put(userId,[name:username, userId:userId, wager:userInfo.userWager,expectedWinning: Math.round(pick1PayoutMultiple * userInfo.userWager)])			
 			}
 		}
+		
+		def homeBettersArr = getBettersProfile(pick1BettersMap)
+		def awayBettersArr = getBettersProfile(pick2BettersMap)
+		
 		def betters=[
 			pick1Betters: homeBettersArr,
 			pick2Betters: awayBettersArr
@@ -630,6 +639,42 @@ class QuestionService {
 		
 		return betters
 	}
+	
+	private List getBettersProfile(Map bettersMap){
+		def rest = new RestBuilder()
+		List userIdList = []
+		Map test = [:]
+		List bettersProfileList = []
+		
+		bettersMap.each{
+			it -> userIdList.add(it.key)
+		}
+				
+		Map userProfileResults = parseService.retrieveUserList(userIdList)
 
+		if (userProfileResults.error){
+			println "Error: QuestionService::getBettersProfile(): in retrieving user "+userProfileResults.error
+			return []
+		}
+
+		List userProfileList = userProfileResults.results	
+		
+		for (Map userProfile: userProfileList){
+			
+			Map betterData = bettersMap.get(userProfile.objectId)
+			betterData.pictureURL = ""
+			
+			if (userProfile.display_name != null && userProfile.display_name != "")
+				betterData.name = userProfile.display_name
+			
+			if (userProfile.pictureURL != null && userProfile.pictureURL != "")
+				betterData.pictureURL = userProfile.pictureURL
+	
+				
+			bettersProfileList.add(betterData)
+		}
+		
+		return bettersProfileList
+	}	
 }
 
