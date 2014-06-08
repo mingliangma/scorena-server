@@ -159,13 +159,7 @@ class GameControllerIntegrationSpec extends Specification {
 				assert eachQuestion.pool.pick2odds.getClass() == Double
 				assert eachQuestion.pool.pick2odds >= 1
 			}
-			
-			//check for duplicate games by using two pointers, i and j. i will iterate the entire list and every time j will iterate the rest of the list.
-			for (int i = 0; i < numberOfFeatureGames - 1; i++) {
-				for (int j = i + 1; j < numberOfFeatureGames; j++) {
-					assert questionIdList[i] != questionIdList[j] //their questionId must not be the same, or this will be a duplicate result.
-				}
-			}
+			assert questionIdList == questionIdList.unique(false)
     }
 
 	/**
@@ -223,11 +217,11 @@ class GameControllerIntegrationSpec extends Specification {
 			}
 			
 			//check for duplicate games by using two pointers, i and j. i will iterate the entire list and every time j will iterate the rest of the list.
-			for (int i = 0; i < gameIdList.size() - 1; i++) {
-				for (int j = i + 1; j < gameIdList.size(); j++) {
-					assert gameIdList[i] != gameIdList[j]
-				}
-			}
+//			for (int i = 0; i < gameIdList.size() - 1; i++) {
+//				for (int j = i + 1; j < gameIdList.size(); j++) {
+//					assert gameIdList[i] != gameIdList[j]
+//				}
+//			}
 			
 			resp.type.size() == numberOfUpcomingGames
 			for (eachType in resp.type) {
@@ -268,11 +262,14 @@ class GameControllerIntegrationSpec extends Specification {
 			
 			resp.home.score.size() == numberOfUpcomingGames
 			for (eachHomeScore in resp.home.score) {
-				assert (eachHomeScore.toString() == null.toString() || eachHomeScore.getClass() == Integer)
+				assert (eachHomeScore.toString() == null.toString() || eachHomeScore.getClass() == String)
 				if (eachHomeScore.getClass() == Integer) {
 					assert eachHomeScore >= 0
 				}
 			}
+			
+			assert gameIdList == gameIdList.unique(false)
+			
 	}
 	
 	
@@ -360,11 +357,11 @@ class GameControllerIntegrationSpec extends Specification {
 			}
 			
 			//check for duplicate games by using two pointers, i and j. i will iterate the entire list and every time j will iterate the rest of the list.
-			for (int i = 0; i < gameIdList.size() - 1; i++) {
-				for (int j = i + 1; j < gameIdList.size(); j++) {
-					assert gameIdList[i] != gameIdList[j]
-				}
-			}
+//			for (int i = 0; i < gameIdList.size() - 1; i++) {
+//				for (int j = i + 1; j < gameIdList.size(); j++) {
+//					assert gameIdList[i] != gameIdList[j]
+//				}
+//			}
 			
 			resp.type.size() == numberOfUpcomingGames
 			for (eachType in resp.type) {
@@ -405,7 +402,7 @@ class GameControllerIntegrationSpec extends Specification {
 			
 			resp.home.score.size() == numberOfUpcomingGames
 			for (eachHomeScore in resp.home.score) {
-				assert (eachHomeScore.toString() == null.toString() || eachHomeScore.getClass() == Integer)
+				assert (eachHomeScore.toString() == null.toString() || eachHomeScore.getClass() == String)
 				if (eachHomeScore.getClass() == Integer) {
 					assert eachHomeScore >= 0
 				}
@@ -416,6 +413,8 @@ class GameControllerIntegrationSpec extends Specification {
 				assert eachPlacedBet.getClass() == Boolean
 				assert (eachPlacedBet == false || eachPlacedBet == true)
 			}
+			
+			assert gameIdList == gameIdList.unique(false)
 		
 		cleanup:
 			def respCleanup = parseService.deleteUser(new RestBuilder(), sessionTokenCopy, userIdCopy)
@@ -477,11 +476,11 @@ class GameControllerIntegrationSpec extends Specification {
 			}
 			
 			//check for duplicate games by using two pointers, i and j. i will iterate the entire list and every time j will iterate the rest of the list.
-			for (int i = 0; i < gameIdList.size() - 1; i++) {
-				for (int j = i + 1; j < gameIdList.size(); j++) {
-					assert gameIdList[i] != gameIdList[j]
-				}
-			}
+//			for (int i = 0; i < gameIdList.size() - 1; i++) {
+//				for (int j = i + 1; j < gameIdList.size(); j++) {
+//					assert gameIdList[i] != gameIdList[j]
+//				}
+//			}
 			
 			resp.type.size() == numberOfPastGames
 			for (eachType in resp.type) {
@@ -528,6 +527,9 @@ class GameControllerIntegrationSpec extends Specification {
 				assert eachHomeScore.length() > 0
 				assert eachHomeScore.toInteger() >= 0
 			}
+			
+			assert gameIdList == gameIdList.unique(false)
+			
 	}
 	
 	/**
@@ -608,12 +610,12 @@ class GameControllerIntegrationSpec extends Specification {
 			}
 			
 			//check for duplicate games by using two pointers, i and j. i will iterate the entire list and every time j will iterate the rest of the list.
-			for (int i = 0; i < gameIdList.size() - 1; i++) {
-				for (int j = i + 1; j < gameIdList.size(); j++) {
-					assert gameIdList[i] != gameIdList[j]
-				}
-			}
-			
+//			for (int i = 0; i < gameIdList.size() - 1; i++) {
+//				for (int j = i + 1; j < gameIdList.size(); j++) {
+//					assert gameIdList[i] != gameIdList[j]
+//				}
+//			}
+
 			resp.type.size() == numberOfPastGames
 			for (eachType in resp.type) {
 				assert eachType.getClass() == String
@@ -665,6 +667,8 @@ class GameControllerIntegrationSpec extends Specification {
 				assert eachPlacedBet.getClass() == Boolean
 				assert (eachPlacedBet == false || eachPlacedBet == true)
 			}
+			
+			assert gameIdList == gameIdList.unique(false)
 		
 		cleanup:
 			def respCleanup = parseService.deleteUser(new RestBuilder(), sessionTokenCopy, userIdCopy)
