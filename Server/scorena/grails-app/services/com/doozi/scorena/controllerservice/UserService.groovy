@@ -21,10 +21,14 @@ import grails.plugins.rest.client.RestBuilder
 
 @Transactional
 class UserService {
-	def INITIAL_BALANCE = 2000
-	def PREVIOUS_BALANCE = INITIAL_BALANCE
-	def FREE_COIN_BALANCE_THRESHOLD = 50
-	def FREE_COIN_AMOUNT = 1000
+	int INITIAL_BALANCE = 2000
+	int PREVIOUS_BALANCE = INITIAL_BALANCE
+	int FREE_COIN_BALANCE_THRESHOLD = 50
+	int FREE_COIN_AMOUNT = 1000
+	int RANKING_SIZE = 50
+	String RANK_TYPE_WEEKLY = "weekly"
+	String RANK_TYPE_ALL = "all"
+	
 	
 	def grailsApplication
 	def parseService
@@ -43,48 +47,90 @@ class UserService {
 		return [username: userAccount.username, userId: userAccount.userId, currentBalance: userAccount.currentBalance, newCoinsAmount: FREE_COIN_AMOUNT]
 	}
 	
-	def constructRankingData(def username, def netgain, def rank){	
+	private Map getAccountInfoMap(String userId, String username, int netgain, int rank){	
 		String netGain = ""
 		if (netgain>0)
 			netGain="+"+netgain.toString()
 		else
 			netGain=netgain.toString()
 			
-		return [username: username, gain: netGain, rank: rank]
+		return [userId: userId, username: username, gain: netGain, rank: rank]
 	}
 	
-//	def processRankingData(Account user, int rank){		
-//		return [username: user.username, gain: user.currentBalance, rank: rank]
-//	}
-	
-	def getRanking(userId){
-		def userRankingAll = UserRankingAll.findAll()
-		def userRankingWk = UserRankingWk.findAll()
+	Map getRanking(userId){
+		def userRankingAll = UserRankingAll.findAll("from UserRankingAll", [max: 55])
+		def userRankingWk = UserRankingWk.findAll("from UserRankingWk", [max: 55])
 		List rankingResultAll =[]
 		List rankingResultWk =[]
 		
-		int rankingAllSize = 50
-		if (userRankingAll.size() < 50)
-			rankingAllSize=userRankingAll.size()
+		int rankingAllSize = userRankingAll.size()
+		int rankingWkSize = userRankingWk.size()
+		List userIdList = []
+		Map userIdMap = [:]
 		
 		
 		for (int i=0; i<rankingAllSize; i++){
-			UserRankingAll rankEntry = userRankingAll.getAt(i)
-			def userAccount = Account.get(rankEntry.id)
-			rankingResultAll.add(constructRankingData(userAccount.username, rankEntry.netGain,i+1))
+			UserRankingAll rankEntry = userRankingAll.get(i)
+			Account userAccount = Account.get(rankEntry.id)
+			rankingResultAll.add(getAccountInfoMap(userAccount.userId, userAccount.username, rankEntry.netGain,i+1))
+			if (!userIdMap.containsKey(userAccount.userId)){
+				userIdMap.put(userAccount.userId, "")
+				userIdList
+			}
 		}
-		
-		int rankingWkSize = 50
-		if (userRankingAll.size() < 50)
-			rankingWkSize=userRankingAll.size()
+
 		
 		for (int i=0; i<rankingWkSize; i++){
-			UserRankingWk rankEntry = userRankingWk.getAt(i)
-			def userAccount = Account.get(rankEntry.id)
-			rankingResultWk.add(constructRankingData(userAccount.username, rankEntry.netGain,i+1))
+			UserRankingWk rankEntry = userRankingWk.get(i)
+			Account userAccount = Account.get(rankEntry.id)
+			rankingResultWk.add(getAccountInfoMap(userAccount.userId, userAccount.username, rankEntry.netGain,i+1))
+			if (!userIdMap.containsKey(userAccount.userId)){
+				userIdMap.put(userAccount.userId, "")
+			}
+		}
+		
+		Map userProfileResults = parseService.retrieveUserList(userIdMap)
+		Map UserProfileUserIdAsKeyMap = getUserProfileUserIdAsKeyMap(userProfileResults.results)
+		
+		for (Map rankingAllEntry: rankingResultAll){
+			String accountUserId = rankingAllEntry.userId
+			Map userProfile = UserProfileUserIdAsKeyMap.get(accountUserId)
+
+			rankingAllEntry.pictureURL = ""
+			
+			if (userProfile != null){
+				if (userProfile.display_name != null && userProfile.display_name != "")
+					rankingAllEntry.username = userProfile.display_name
+			
+				if (userProfile.pictureURL != null && userProfile.pictureURL != "")
+					rankingAllEntry.pictureURL = userProfile.pictureURL					
+			}
+			
+		}
+		
+		for (Map rankingWkEntry: rankingResultWk){
+			String accountUserId = rankingWkEntry.userId
+			Map userProfile = UserProfileUserIdAsKeyMap.get(accountUserId)
+					
+			rankingWkEntry.pictureURL = ""
+			if (userProfile != null){
+				if (userProfile.display_name != null && userProfile.display_name != "")
+					rankingWkEntry.username = userProfile.display_name
+			
+				if (userProfile.pictureURL != null && userProfile.pictureURL != "")
+					rankingWkEntry.pictureURL = userProfile.pictureURL
+			}
 		}
 		
 		return [weekly: rankingResultWk, all: rankingResultAll]
+	}
+	
+	private Map getUserProfileUserIdAsKeyMap(List userProfileList){
+		Map UserProfileUserIdAsKeyMap = [:]
+		for (Map userProfile: userProfileList){
+			UserProfileUserIdAsKeyMap.put(userProfile.objectId, userProfile)
+		}
+		return UserProfileUserIdAsKeyMap
 	}
 	
 	private Map createUserAccount(RestBuilder rest, String userId, String username, int initialBalance, int previousBalance, String sessionToken){

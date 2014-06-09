@@ -187,7 +187,7 @@ class UserController {
 			return
 		}
 		
-		def rankingResult = userService.getRanking(params.userId)
+		Map rankingResult = userService.getRanking(params.userId)
 		if (rankingResult.code){
 			response.status = 404
 			render rankingResult as JSON

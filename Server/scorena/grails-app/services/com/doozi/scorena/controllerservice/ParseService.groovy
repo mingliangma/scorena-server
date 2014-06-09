@@ -109,7 +109,7 @@ class ParseService {
 	 * 					
 	 * @return a Map object that contains a list of Parse users' profile
 	 */
-	Map retrieveUserList(List objectIds){
+	Map retrieveUserList(def objectIds){
 		def parseConfig = grailsApplication.config.parse
 		if (objectIds.size() == 0){
 			return [:]
@@ -125,7 +125,7 @@ class ParseService {
 
 		HttpResponse httpResponse = httpclient.execute(httpget);
 		JSONObject resultJson = new JSONObject(EntityUtils.toString(httpResponse.getEntity()));
-
+		
 		return (resultJson as Map)
 	}
 	
@@ -140,6 +140,25 @@ class ParseService {
 		}
 		
 		whereContraintsJson.put('$or',objectIdArray);
+		
+		
+		String whereContraintsString = URLEncoder.encode(whereContraintsJson.toString(), "UTF-8")
+		return whereContraintsString
+	}
+	
+	private String getJSONWhereConstraints(Map objectIds){
+		JSONArray objectIdArray = new JSONArray()
+		JSONObject whereContraintsJson = new JSONObject();
+		
+		objectIds.each{
+			it -> 
+				JSONObject objectIdJson = new JSONObject()
+				objectIdJson.put("objectId", it.key)
+				objectIdArray.add(objectIdJson)
+		}
+		
+		whereContraintsJson.put('$or',objectIdArray);
+
 		String whereContraintsString = URLEncoder.encode(whereContraintsJson.toString(), "UTF-8")
 		return whereContraintsString
 	}
