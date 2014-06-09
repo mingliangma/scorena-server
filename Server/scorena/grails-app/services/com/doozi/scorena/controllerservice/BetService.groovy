@@ -57,6 +57,10 @@ class BetService {
 		if (!account){
 			return [code:202, message: "the userId does not exsist"]
 		}
+		
+		if (account.currentBalance < _wager){
+			return [code:202, message: "The user does not have enough coins to make a bet"]
+		}
 		def question = Question.findById(quesitonId)
 		if (!question){
 			return [code:202, message: "the questionId does not exsist"]
