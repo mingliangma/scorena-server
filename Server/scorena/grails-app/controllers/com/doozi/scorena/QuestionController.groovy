@@ -32,7 +32,6 @@ class QuestionController {
 			}
 			
 			questions = questionService.listQuestionsWithPoolInfo(params.gameId, params.userId)
-			render questions as JSON
 		}else{
 			questions = questionService.listQuestionsWithPoolInfo(params.gameId)
 		
@@ -42,17 +41,29 @@ class QuestionController {
 	
 	def getQuestionDetails(){
 		
-		if (!params.gameId){
+		if (!params.qId){
 			response.status = 404
-			def result = [error: "invalid game ID parameter"]
+			def result = [error: "invalid question ID parameter"]
 			render result as JSON
 			return
 		}
+		def questionDetails = ""
+		if (params.userId){
+			
+			if (!userService.accountExists(params.userId)){
+				response.status = 404
+				def errorMap = [code: 102, error: "User Id does not exists"]
+				render errorMap as JSON
+				return
+			}
+			
+			questionDetails = questionService.getQuestion(params.qId, params.userId)
+
+		}else{
+			questionDetails = questionService.getQuestion(params.qId)
 		
-		if (params.qId){
-			def questionDetails = questionService.getQuestion( params.qId, params.userId)
-			render questionDetails as JSON
 		}
+		render questionDetails as JSON
 	}
 	
 	def createQuestions(){
