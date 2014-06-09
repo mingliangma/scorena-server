@@ -72,7 +72,7 @@ class UserControllerIntegrationSpec extends Specification {
 			account.currentBalance == userC.userService.INITIAL_BALANCE
 			account.previousBalance == userC.userService.PREVIOUS_BALANCE
 			
-			def respRetreive = parseService.retreiveUser(new RestBuilder(), userC.response.json.userId)
+			def respRetreive = parseService.retrieveUser(new RestBuilder(), userC.response.json.userId)
 			respRetreive.status == 200
 			respRetreive.json.gender == "male"
 			respRetreive.json.region == "Toronto"
@@ -919,6 +919,7 @@ class UserControllerIntegrationSpec extends Specification {
 			def password = "11111111"
 			def gender = "male"
 			def region = "Toronto"
+			def displayName = username.toLowerCase()
 			def content = '{"username":"'+username+'","password":"11111111","email":"'+email+'", "gender":"'+gender+'", "region":"'+region+'"}'
 			println content
 			
@@ -926,7 +927,7 @@ class UserControllerIntegrationSpec extends Specification {
 			userC.userService = userService
 			
 			def rest = new RestBuilder()
-			def resp = parseService.createUser(rest, username.toLowerCase(), email, password, gender, region)
+			def resp = parseService.createUser(rest, username.toLowerCase(), email, password, gender, region, displayName)
 			
 			def userId = resp.json.objectId //This userId should exist in Parse, but not in the MySQL database.
 			def sessionToken = resp.json.sessionToken
