@@ -214,7 +214,7 @@ class UserService {
 	private Map userProfileMapRender(String sessionToken, int currentBalance, String createdAt, String username, String displayName,
 		String userId, String gender, String region, String email, String pictureURL){
 		
-		int currentBalanceResp = INITIAL_BALANCE
+		int currentBalanceResp = currentBalance
 		String createdAtResp = ""
 		String usernameResp = ""
 		String userIdResp = ""
@@ -284,7 +284,7 @@ class UserService {
 		}else{
 			currentBalance = account.currentBalance
 		}
-						
+		println currentBalance
 		def result = userProfileMapRender(sessionToken, currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name, 
 		userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
 		
