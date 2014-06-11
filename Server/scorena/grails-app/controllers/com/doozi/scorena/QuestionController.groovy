@@ -22,7 +22,7 @@ class QuestionController {
 			return
 		}
 		def questions = ""
-		if (params.userId){
+		if (params.userId && params.userId!=null){
 			
 			if (!userService.accountExists(params.userId)){
 				response.status = 404
