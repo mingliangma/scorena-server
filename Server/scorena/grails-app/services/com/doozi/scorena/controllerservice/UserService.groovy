@@ -284,7 +284,7 @@ class UserService {
 		}else{
 			currentBalance = account.currentBalance
 		}
-		println currentBalance
+
 		def result = userProfileMapRender(sessionToken, currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name, 
 		userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
 		

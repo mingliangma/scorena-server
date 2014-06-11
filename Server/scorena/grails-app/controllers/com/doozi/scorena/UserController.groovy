@@ -179,7 +179,7 @@ class UserController {
 	}
 	
 	def getRanking(){
-		println params
+
 		if (!params.userId || params.userId==""){
 			response.status = 404
 			def result = [error: "userId is required"]
@@ -194,7 +194,7 @@ class UserController {
 			return
 		}
 		render rankingResult as JSON
-		return
+		
 	}
 	
 	def getCoins(){

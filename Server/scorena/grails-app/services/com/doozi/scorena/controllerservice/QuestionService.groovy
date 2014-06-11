@@ -6,6 +6,7 @@ import com.doozi.scorena.PoolTransaction;
 import com.doozi.scorena.Game;
 import com.doozi.scorena.Question;
 import com.doozi.scorena.QuestionContent
+import com.doozi.scorena.gamedata.*
 
 import grails.plugins.rest.client.RestBuilder
 import grails.transaction.Transactional
@@ -22,6 +23,7 @@ class QuestionService {
 	def processEngineImplService
 	def questionService
 	def userService
+	def teamLogoService
 	
 	public static final int FEATURE_QUESTION_SIZE = 3
 	
@@ -101,6 +103,8 @@ class QuestionService {
 				content: q.questionContent.content,
 				pick1: q.pick1,
 				pick2: q.pick2,
+				pick1LogoUrl: teamLogoService.getTeamLogo(q.pick1.trim()),
+				pick2LogoUrl: teamLogoService.getTeamLogo(q.pick2.trim()),
 				userInfo:userInfo,
 				winnerPick:winnerPick,
 				pool: [
@@ -371,6 +375,8 @@ class QuestionService {
 			content: q.questionContent.content,
 			pick1: q.pick1,
 			pick2: q.pick2,
+			pick1LogoUrl: teamLogoService.getTeamLogo(q.pick1.trim()),
+			pick2LogoUrl: teamLogoService.getTeamLogo(q.pick2.trim()),
 			winnerPick: winnerPick,
 			currentOddsPick1:df.format(currentOddsPick1).toDouble(),
 			currentOddsPick2:df.format(currentOddsPick2).toDouble(),
@@ -479,7 +485,9 @@ class QuestionService {
 			questionId: q.id,
 			content: q.questionContent.content,
 			pick1: q.pick1,
+			pick1LogoUrl: teamLogoService.getTeamLogo(q.pick1.trim()),
 			pick2: q.pick2,
+			pick2LogoUrl: teamLogoService.getTeamLogo(q.pick2.trim()),
 			lastUpdate: lastBet.createdAt,
 			userInfo:userInfo,
 			pool: [
