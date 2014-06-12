@@ -53,14 +53,7 @@ class GameController {
 
 	def getUpcomingGames(){
 		def upcomingGames
-		if (params.userId){
-			if (!userService.accountExists(params.userId)){
-				response.status = 404
-				def errorMap = [code: 102, error: "User Id does not exists"]
-				render errorMap as JSON
-				return
-			}
-			
+		if (params.userId && userService.accountExists(params.userId)){			
 			upcomingGames = gameService.listUpcomingGames(params.userId)
 		}else{
 			upcomingGames = gameService.listUpcomingGames()
@@ -71,14 +64,7 @@ class GameController {
 	
 	def getPastGames(){
 		def pastGames
-		if (params.userId){
-			if (!userService.accountExists(params.userId)){
-				response.status = 404
-				def errorMap = [code: 102, error: "User Id does not exists"]
-				render errorMap as JSON
-				return
-			}
-			
+		if (params.userId && userService.accountExists(params.userId)){		
 			pastGames = gameService.listPastGames(params.userId)
 		}else{
 			 pastGames = gameService.listPastGames()
@@ -97,14 +83,7 @@ class GameController {
 	
 	def getFeatureGames(){
 		def featureGames
-		if (params.userId){			
-			if (!userService.accountExists(params.userId)){
-				response.status = 404
-				def errorMap = [code: 102, error: "User Id does not exists"]
-				render errorMap as JSON
-				return
-			}
-			
+		if (params.userId && userService.accountExists(params.userId)){						
 			featureGames = gameService.listFeatureGames(params.userId)
 		}else{
 			featureGames = gameService.listFeatureGames()

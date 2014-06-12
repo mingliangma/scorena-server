@@ -22,14 +22,7 @@ class QuestionController {
 			return
 		}
 		def questions = ""
-		if (params.userId && params.userId!=null){
-			
-			if (!userService.accountExists(params.userId)){
-				response.status = 404
-				def errorMap = [code: 102, error: "User Id does not exists"]
-				render errorMap as JSON
-				return
-			}
+		if (params.userId && params.userId!=null && userService.accountExists(params.userId)){			
 			
 			questions = questionService.listQuestionsWithPoolInfo(params.gameId, params.userId)
 		}else{
@@ -48,17 +41,8 @@ class QuestionController {
 			return
 		}
 		def questionDetails = ""
-		if (params.userId){
-			
-			if (!userService.accountExists(params.userId)){
-				response.status = 404
-				def errorMap = [code: 102, error: "User Id does not exists"]
-				render errorMap as JSON
-				return
-			}
-			
+		if (params.userId && userService.accountExists(params.userId)){			
 			questionDetails = questionService.getQuestion(params.qId, params.userId)
-
 		}else{
 			questionDetails = questionService.getQuestion(params.qId)
 		
