@@ -172,7 +172,7 @@ class QuestionService {
 		int questionCreated = 0
 		def questionContent2 = QuestionContent.findAllByQuestionType("truefalse-0")
 		for (QuestionContent qc: questionContent2){
-			def q = new Question(eventKey: eventId, pick1: "Yes", pick2: "No", pool: new Pool(minBet: 5))
+			def q = new Question(eventKey: eventId, pick1: "3 or above", pick2: "2 or below", pool: new Pool(minBet: 5))
 			qc.addToQuestion(q)			
 			if (qc.save(failOnError:true)){
 				questionCreated++
