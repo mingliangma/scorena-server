@@ -67,7 +67,7 @@ class QuestionService {
 		}
 		
 		for (Question q: questions){
-			def userInfo=[]
+			def userInfo=[placedBet:false]
 			def winnerPick =-1			
 			def lastBet = betService.getLatestBetByQuestionId(q.id.toString())
 			def game = gameService.getGame(q.eventKey)
