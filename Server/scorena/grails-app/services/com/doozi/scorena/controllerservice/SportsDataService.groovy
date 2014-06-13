@@ -66,6 +66,8 @@ class SportsDataService {
 		def upcomingDate = todayDate + UPCOMING_DATE_RANGE;
 		def upcomingGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime<? and g.startDateTime>? and g.eventStatus<>'post-event' order by g.startDateTime", [upcomingDate, todayDate-1], [cache: true])
 		
+		println "SportsDataService::getAllUpcomingGames(): upcoming game size: "+upcomingGames.size()
+		
 //		def c = ScorenaAllGames.createCriteria()
 //		def upcomingGames = c.list {
 //			between("startDateTime", todayDate-1, upcomingDate)
@@ -90,7 +92,14 @@ class SportsDataService {
 				}
 			}
 						
-			
+			if (eventKey.startsWith("l.fifaworldcup.com-2013")){
+					println "ERROR: SportsDataService::getAllUpcomingGames(): incorrect EventKey! "
+					println "------gameEvent: "+ game.eventKey
+					println "------teamname: " +game.fullName
+					println "------score: "+ game.score
+					println "------gameStatus: "+game.eventStatus
+					continue
+			}
 			
 			if (!upcomingGame){
 				def	gameInfo = [
