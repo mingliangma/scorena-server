@@ -21,11 +21,13 @@ import grails.plugins.rest.client.RestBuilder
 
 @Transactional
 class UserService {
-	int INITIAL_BALANCE = 2000
-	int PREVIOUS_BALANCE = INITIAL_BALANCE
-	int FREE_COIN_BALANCE_THRESHOLD = 50
-	int FREE_COIN_AMOUNT = 1000
-	int RANKING_SIZE = 50
+	public static final int INITIAL_BALANCE = 2000
+	public static final int SOCIALNETWORK_INITIAL_BALANCE = 2500
+	
+	public static final int PREVIOUS_BALANCE = INITIAL_BALANCE
+	public static final int FREE_COIN_BALANCE_THRESHOLD = 50
+	public static final int FREE_COIN_AMOUNT = 1000
+	public static final int RANKING_SIZE = 50
 	String RANK_TYPE_WEEKLY = "weekly"
 	String RANK_TYPE_ALL = "all"
 	
@@ -58,8 +60,8 @@ class UserService {
 	}
 	
 	Map getRanking(userId){
-		def userRankingAll = UserRankingAll.findAll("from UserRankingAll", [max: 55])
-		def userRankingWk = UserRankingWk.findAll("from UserRankingWk", [max: 55])
+		def userRankingAll = UserRankingAll.findAll("from UserRankingAll", [max: RANKING_SIZE])
+		def userRankingWk = UserRankingWk.findAll("from UserRankingWk", [max: RANKING_SIZE])
 		List rankingResultAll =[]
 		List rankingResultWk =[]
 		
@@ -266,7 +268,7 @@ class UserService {
 	}
 	
 	def createSocialNetworkUser(String sessionToken){
-		int currentBalance = INITIAL_BALANCE
+		int currentBalance = SOCIALNETWORK_INITIAL_BALANCE
 		RestBuilder rest = new RestBuilder()
 		
 		Map userProfile = getUserProfileBySessionToken(rest, sessionToken)
@@ -277,7 +279,7 @@ class UserService {
 		def account = Account.findByUserId(userProfile.objectId)
 		
 		if (account == null){
-			Map accountCreationResult = createUserAccount(rest, userProfile.objectId, userProfile.username, INITIAL_BALANCE, PREVIOUS_BALANCE, userProfile.sessionToken)
+			Map accountCreationResult = createUserAccount(rest, userProfile.objectId, userProfile.username, SOCIALNETWORK_INITIAL_BALANCE, SOCIALNETWORK_INITIAL_BALANCE, userProfile.sessionToken)
 			if (accountCreationResult!=[:]){
 				return accountCreationResult
 			}
