@@ -107,9 +107,9 @@ class UrlMappings {
 			action = [POST:"createTournament"]
 		}
 		
-		"/v1/sports/all/tournament/list"(controller:"tournament"){
-			action = [GET:"listTournaments"]
-		}
+//		"/v1/sports/all/tournament/list"(controller:"tournament"){
+//			action = [GET:"listTournaments"]
+//		}
 		
 		"/v1/sports/all/tournament/worldcup"(controller:"tournament"){
 			action = [GET:"getWorldCupTournament"]

@@ -11,6 +11,7 @@ class SportsDataService {
 	static String CALCIO_SERIES_A = "l.lega-calci"
 	static String LA_LIGA= "l.lfp.es.pri"
 	static String MLS = "l.mlsnet.com"
+	static String WORLD_CUP = "l.fifaworldc"
 	
 	static String PREEVENT = "pre-event"
 	static String POSTEVENT = "post-event"
@@ -38,6 +39,8 @@ class SportsDataService {
 			return "La Liga"
 		else if (eventKey.startsWith(MLS))
 			return "Major League Soccer"
+		else if (eventKey.startsWith(WORLD_CUP))
+			return "World Cup 2014"
 		else if (eventKey.startsWith(customGameService.CUSTOM_EVENT_PREFIX))
 			return "Launch Party"
 	}
@@ -55,6 +58,8 @@ class SportsDataService {
 			return LA_LIGA
 		else if (eventKey.startsWith(MLS))
 			return MLS
+		else if (eventKey.startsWith(WORLD_CUP))
+			return WORLD_CUP
 		else if (eventKey.startsWith(customGameService.CUSTOM_EVENT_PREFIX))
 			return customGameService.CUSTOM_EVENT_PREFIX
 	}
