@@ -72,7 +72,7 @@ class TeamLogoService {
 	public static final String SWITZERLAND_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/world_cup/Switzerland.png'
 	public static final String USA_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/world_cup/USA.png'
 	public static final String URUGUAY_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/world_cup/Uruguay.png'
-	public static final String DEFAULT_LOGO_URL = "https://s3-us-west-2.amazonaws.com/teamlogo/world_cup/default.png"
+	public static final String DEFAULT_LOGO_URL = ""
 	
 	public static final String ALGERIA_TEAMNAME = "Algeria"
 	public static final String ARGENTINA_TEAMNAME = "Argentina"
