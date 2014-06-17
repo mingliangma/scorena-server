@@ -8,9 +8,16 @@ class CustomQuestionController {
 	def customQuestionResultService
     def createCustomQuestion() { 
 		
-		if ( !request.JSON.username || !request.JSON.qContent ||!request.JSON.pick1 ||!request.JSON.pick2 || !request.JSON.eventId){
+		if (!request.JSON.qContent ||!request.JSON.pick1 ||!request.JSON.pick2 || !request.JSON.eventId){
 			response.status = 404
 			def result = [error: "invalid parameters"]
+			render result as JSON
+			return
+		}
+		
+		if (!request.JSON.username || request.JSON.username!="scorenaadmin"){
+			response.status = 404
+			def result = [error: "username is incorrect"]
 			render result as JSON
 			return
 		}
@@ -43,6 +50,13 @@ class CustomQuestionController {
 		if ( !request.JSON.winnerPick || !request.JSON.questionId ||!request.JSON.eventId){
 			response.status = 404
 			def result = [error: "invalid parameters"]
+			render result as JSON
+			return
+		}
+		
+		if (!request.JSON.username || request.JSON.username!="scorenaadmin"){
+			response.status = 404
+			def result = [error: "username is incorrect"]
 			render result as JSON
 			return
 		}

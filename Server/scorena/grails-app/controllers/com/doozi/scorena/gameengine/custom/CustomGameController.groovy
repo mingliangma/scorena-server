@@ -7,9 +7,16 @@ class CustomGameController {
 		
 	def createCustomGame() { 
 		
-		if ( !request.JSON.username || !request.JSON.awayTeamName ||!request.JSON.homeTeamName || !request.JSON.startDateTimeInput){
+		if ( !request.JSON.awayTeamName ||!request.JSON.homeTeamName || !request.JSON.startDateTimeInput){
 			response.status = 404
 			def result = [error: "invalid parameters"]
+			render result as JSON
+			return
+		}
+		
+		if (!request.JSON.username || request.JSON.username!="scorenaadmin"){
+			response.status = 404
+			def result = [error: "username is incorrect"]
 			render result as JSON
 			return
 		}
