@@ -67,6 +67,13 @@ class QuestionService {
 		}
 		
 		for (Question q: questions){
+			
+			QuestionContent questionContent = q.questionContent
+			
+			if (questionContent.questionType == "disable")
+				continue
+				
+			
 			def userInfo=[placedBet:false]
 			def winnerPick =-1			
 			def lastBet = betService.getLatestBetByQuestionId(q.id.toString())
@@ -100,7 +107,7 @@ class QuestionService {
 			}
 			resultList.add([
 				questionId: q.id,
-				content: q.questionContent.content,
+				content: questionContent.content,
 				pick1: q.pick1,
 				pick2: q.pick2,
 				pick1LogoUrl: teamLogoService.getTeamLogo(q.pick1.trim()),
