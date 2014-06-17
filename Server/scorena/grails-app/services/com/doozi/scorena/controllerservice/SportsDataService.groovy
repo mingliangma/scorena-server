@@ -69,7 +69,7 @@ class SportsDataService {
 	def getAllUpcomingGames(){
 		def todayDate = new Date()		
 		def upcomingDate = todayDate + UPCOMING_DATE_RANGE;
-		def upcomingGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime<? and g.startDateTime>? and g.eventStatus<>'post-event' order by g.startDateTime", [upcomingDate, todayDate-1], [cache: true])
+		def upcomingGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime<? and g.startDateTime>? and g.eventStatus<>'post-event' order by g.startDateTime", [upcomingDate, todayDate-1])
 		
 		println "SportsDataService::getAllUpcomingGames(): upcoming game size: "+upcomingGames.size()
 		
@@ -92,7 +92,10 @@ class SportsDataService {
 				if (game.eventStatus == "pre-event"){
 					println "ERROR: SportsDataService::getAllUpcomingGames(): gameStatus should not be pre-event!"
 					println "gameEvent: "+ game.eventKey
-					println "score: "+ game.score
+					println "eventStatus: " +game.eventStatus
+					println "score: " +game.score
+					println "team: " +game.fullName
+					println "===================================="
 					continue
 				}
 			}
@@ -145,11 +148,15 @@ class SportsDataService {
 		def todayDate = new Date()
 		def pastDate = todayDate - PAST_DATE_RANGE;
 		def pastGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime>? and g.startDateTime<?and g.eventStatus='post-event'", [pastDate, todayDate+1])
+		println "SportsDataService::getAllPastGames(): past game size: "+pastGames.size()
 		def pastGamesMap = [:]
 		List pastGamesList = []
 		for (ScorenaAllGames game: pastGames){
 			if (game.eventStatus != "post-event"){
 				println "SportsDataService::getAllPastGames():wrong event: "+ game.eventKey
+				println "eventStatus: " +game.eventStatus
+				println "score: " +game.score
+				println "team: " +game.fullName
 			}
 			
 			String eventKey = game.eventKey
@@ -184,7 +191,7 @@ class SportsDataService {
 	}
 	
 	def getGame(def eventKey){
-		def games = ScorenaAllGames.findAllByEventKey(eventKey,[cache: true])
+		def games = ScorenaAllGames.findAllByEventKey(eventKey)
 		
 		def gameInfo = []
 		for (ScorenaAllGames game: games){
