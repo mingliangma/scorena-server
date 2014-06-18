@@ -41,7 +41,11 @@
       function getUpcomingGames() {
         
         var gameIdSelectionMenu = document.getElementById('userSelect_eventId');
-
+        var placeHolderOption = document.createElement('option');
+        placeHolderOption.text = "--Please select a game--";
+        placeHolderOption.value = "";
+        placeHolderOption.id = "new_PlaceHolderOption";
+        placeHolderOption.selected = true;
         //removed old options
         $(gameIdSelectionMenu) 
           .find('option')
@@ -57,12 +61,15 @@
         }
 
         $.getJSON(getUpcomingGamesUrl, function(upcomingGames) {
+          gameIdSelectionMenu.add(placeHolderOption);
           $.each(upcomingGames, function (key, eachGame){
             var newOption = document.createElement('option');
             newOption.text = eachGame.leagueName + ": " + eachGame.home.teamname + " v.s " + eachGame.away.teamname + " @ " + eachGame.date;
             newOption.value = eachGame.gameId;
             gameIdSelectionMenu.add(newOption);
             });
+          $("select").change();
+
         })
         .done(function (json) {
           alert ("getUpcomingGames Success");
@@ -93,26 +100,26 @@
       <form method="post" name="customQuestionForm">
           <div class="ui-field-contain">
             <label for="username">Username:</label>
-            <input type="text" name="username" id="userInput_username" placeholder="Username" value="scorenaadmin">
+            <input type="text" name="username" id="userInput_username" placeholder="Username">
 
             <label for="password">Password:</label>
-            <input type="password" name="password" id="userInput_password" placeholder="Password" value="mz8785">
+            <input type="password" name="password" id="userInput_password" placeholder="Password">
 
             <label for="qContent">Question Content:</label>
-            <input type="text" name="qContent" id="userInput_qContent" placeholder="Question Content" value="TestingJames?">
+            <input type="text" name="qContent" id="userInput_qContent" placeholder="Question Content">
 
             <label for="pick1">Pick 1:</label>
-            <input type="text" name="pick1" id="userInput_pick1" placeholder="pick1" value="TestPick123">
+            <input type="text" name="pick1" id="userInput_pick1" placeholder="pick1">
 
             <label for="pick2">Pick 2:</label>
-            <input type="text" name="pick2" id="userInput_pick2" placeholder="pick2" value="TestPick321">
+            <input type="text" name="pick2" id="userInput_pick2" placeholder="pick2">
 
             <label for="eventId">Event ID:</label>
             <select name="eventId" id="userSelect_eventId" placeholder="eventId" onchange="getSelectedGame(this)">
-              <option value = ""> --Please select a game-- </option>
+              <option selected>--Please select a game--</option>
             </select>
           </div>
-          <button id="fotTesting" onclick="getUpcomingGames (); return false;"> getUpcomingGames or refresh</button>
+          <button id="userClick_getUpcomingGames" onclick="getUpcomingGames (); return false;"> getUpcomingGames or refresh</button>
           <button id="userInput_sumbitButton" onclick="customQuestion (); return false;"> Submit</button>
         </form>
   </div> <!-- /content -->
