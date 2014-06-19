@@ -14,15 +14,19 @@
         var qContent = document.getElementById('userInput_qContent').value;
         var pick1 = document.getElementById('userInput_pick1').value;
         var pick2 = document.getElementById('userInput_pick2').value;
+        var eventIdText = $("#userSelect_eventId option:selected").text();
         
-        var payload =  '{"username": ' + username + ' , "qContent": ' + qContent + ' , "password": ' + password + ', "pick1":' + pick1 + ', "pick2":' + pick2 + ', "eventId":' + eventId +'}';
+        var payload =  '{"username": ' + username + ' , "password": ' + password + ' , "eventId":' + eventId +', "qContent": ' + qContent + ', "pick1":' + pick1 + ', "pick2":' + pick2 + '}';
+        var confirmBoxText = "\n username: " + username + "\n password: (hidden)" + "\n eventId: " + eventIdText + "\n qContent: " + qContent + "\n pick1: " + pick1 + "\n pick2: " + pick2 ;
+
         var customQuestionUrl = "";
         if ($(location).attr('hostname') == 'localhost'){
           customQuestionUrl='http://'+ $(location).attr('host')+'/scorena/v1/admin/game/customquestion';
         }else{
           customQuestionUrl='http://'+ $(location).attr('host')+'/v1/admin/game/customquestion';
         }
-            $.ajax({
+        if (confirm("Are you sure you want to create the following question?" + confirmBoxText)){
+          $.ajax({
               type: "POST",
               async: true,
               url: customQuestionUrl,
@@ -35,7 +39,11 @@
               error: function (err) { 
                 alert("ERROR! Error response text: " + err.responseText)
               }
-        	});
+          });
+        } else {
+          alert("Cancelled: the custom question was NOT created");
+        }
+            
       };
 
       function getUpcomingGames() {
@@ -89,11 +97,12 @@
       };
       
    </script>
+   <title> Scorena Custom Game Web Client </title>
 </head>
 <body>
 <div data-role="page" id="main_Page">
   <div data-role="header">
-    <h1> Scorena Custom Game Web Client </h1>
+    <p> Scorena Custom Game Web Client </p>
     <p id = "update_header"> Upcoming games last updated: has not retrieved any games </p>
   </div> <!-- header -->
   <div data-role="main" class="ui-content">
@@ -105,6 +114,11 @@
             <label for="password">Password:</label>
             <input type="password" name="password" id="userInput_password" placeholder="Password">
 
+            <label for="eventId">Event ID:</label>
+            <select name="eventId" id="userSelect_eventId" placeholder="eventId" onchange="getSelectedGame(this)">
+              <option selected>--Please select a game--</option>
+            </select>
+
             <label for="qContent">Question Content:</label>
             <input type="text" name="qContent" id="userInput_qContent" placeholder="Question Content">
 
@@ -114,10 +128,7 @@
             <label for="pick2">Pick 2:</label>
             <input type="text" name="pick2" id="userInput_pick2" placeholder="pick2">
 
-            <label for="eventId">Event ID:</label>
-            <select name="eventId" id="userSelect_eventId" placeholder="eventId" onchange="getSelectedGame(this)">
-              <option selected>--Please select a game--</option>
-            </select>
+            
           </div>
           <button id="userClick_getUpcomingGames" onclick="getUpcomingGames (); return false;"> getUpcomingGames or refresh</button>
           <button id="userInput_sumbitButton" onclick="customQuestion (); return false;"> Submit</button>
