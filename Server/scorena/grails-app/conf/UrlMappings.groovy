@@ -119,7 +119,9 @@ class UrlMappings {
 			action = [GET:"enrollTournament"]
 		}
 
-		"/v1/admin/customquestionwebsite"(view:"/CustomQuestionWebsite")
+		"/v1/admin/cq"(view:"/CustomQuestionWebsite")
+		
+		"/v1/admin/qr"(view:"/CustomQuestionResultWebsite")
 //        "/"(view:"/index")
         "500"(view:'/error')
 	}
