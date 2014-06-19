@@ -74,7 +74,7 @@ class QuestionControllerIntegrationSpec extends Specification {
 				assert eachQuestion.pick1.length() > 0
 				assert eachQuestion.pick2.getClass() == String
 				assert eachQuestion.pick2.length() > 0
-				assert eachQuestion.userInfo == []
+				assert eachQuestion.userInfo == [placedBet:false]
 				assert eachQuestion.winnerPick == -1
 				assert eachQuestion.pool.pick1Amount.getClass() == Integer
 				assert eachQuestion.pool.pick1Amount >= 0
@@ -220,7 +220,7 @@ class QuestionControllerIntegrationSpec extends Specification {
 				assert eachQuestion.pick1.length() > 0
 				assert eachQuestion.pick2.getClass() == String
 				assert eachQuestion.pick2.length() > 0
-				assert eachQuestion.userInfo == []
+				assert eachQuestion.userInfo == [placedBet:false]
 				assert (eachQuestion.winnerPick == -1 || eachQuestion.winnerPick == 0 
 						|| eachQuestion.winnerPick == 1 || eachQuestion.winnerPick == 2)
 				assert eachQuestion.pool.pick1Amount.getClass() == Integer
@@ -417,7 +417,7 @@ class QuestionControllerIntegrationSpec extends Specification {
 			println "questionC.response.json is the following:" + questionC.response.json
 		
 		then:
-			questionC.response.status == 404
+			questionC.response.status == 200
 			questionC.response.json.code == 102
 			questionC.response.json.error == "User Id does not exists"
 			
