@@ -46,8 +46,8 @@ class CustomQuestionController {
 	}
 	
 	def createCustomQuestionResult(){
-		
-		if ( !request.JSON.winnerPick || !request.JSON.questionId ||!request.JSON.eventId){
+
+		if ( request.JSON.winnerPick == null || !request.JSON.questionId ||!request.JSON.eventId){
 			response.status = 404
 			def result = [error: "invalid parameters"]
 			render result as JSON
