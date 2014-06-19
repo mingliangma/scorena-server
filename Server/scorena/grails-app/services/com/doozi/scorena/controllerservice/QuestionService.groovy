@@ -206,6 +206,22 @@ class QuestionService {
 				}
 			}
 		}
+		
+		def questionContent3 = QuestionContent.findAllByQuestionType("custom-team")
+		println "questionContent3: " + questionContent3.size()
+		for (QuestionContent qc: questionContent3){
+			def q = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
+			qc.addToQuestion(q)
+			if (qc.save(failOnError:true)){
+				questionCreated++
+				System.out.println("game successfully saved")
+			}else{
+				System.out.println("game save failed")
+				qc.errors.each{
+					println it
+				}
+			}
+		}
 		return questionCreated
 	}
 	
@@ -541,7 +557,12 @@ class QuestionService {
 			"from PoolTransaction as t1 group by 1,2 order by betCount desc limit 100")
 							
 		for (List question: questionList){
+			Question q = Question.findById(question[quesitonIdIndex])
+			QuestionContent questionContent = q.questionContent
 			
+			if (questionContent.questionType == "disable")
+				continue
+				
 			//get the questions that have no process transaction 
 			if (question[transactionTypeSumIndex]==0){
 				
