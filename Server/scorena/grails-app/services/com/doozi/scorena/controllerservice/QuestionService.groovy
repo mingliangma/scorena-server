@@ -317,10 +317,10 @@ class QuestionService {
 		
 		def pick1PayoutPercentage
 		def pick2PayoutPercentage
-		def pick1WinningPayoutMultiple
-		def pick2WinningPayoutMultiple
-		def pick1WinningPayoutPercentage 
-		def pick2WinningPayoutPercentage 
+		def pick1WinningPayoutMultiple=0
+		def pick2WinningPayoutMultiple=0
+		def pick1WinningPayoutPercentage=0 
+		def pick2WinningPayoutPercentage=0 
 		def pick1PayoutMultiple 
 		def pick2PayoutMultiple
 		 
