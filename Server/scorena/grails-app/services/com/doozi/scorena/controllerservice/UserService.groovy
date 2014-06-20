@@ -25,9 +25,9 @@ class UserService {
 	public static final int SOCIALNETWORK_INITIAL_BALANCE = 2500
 	
 	public static final int PREVIOUS_BALANCE = INITIAL_BALANCE
-	public static final int FREE_COIN_BALANCE_THRESHOLD = 50
+	public static final int FREE_COIN_BALANCE_THRESHOLD = 100
 	public static final int FREE_COIN_AMOUNT = 1000
-	public static final int RANKING_SIZE = 50
+	public static final int RANKING_SIZE = 100
 	String RANK_TYPE_WEEKLY = "weekly"
 	String RANK_TYPE_ALL = "all"
 	
@@ -38,13 +38,21 @@ class UserService {
 	def sportsDataService
 	
 	def getCoins(userId){
+		int asset = 0
+		
 		def userAccount = Account.findByUserId(userId)
 		if (!userAccount)
 			return [code: 400, error:"userId is invalid"]
 		
-		if (userAccount.currentBalance >=FREE_COIN_BALANCE_THRESHOLD)
+		def c = PoolTransaction.createCriteria()
+		def lastPayoutDate = PoolTransaction.executeQuery("SELECT max(p.createdAt) from PoolTransaction p where p.account.id=? and p.transactionType=?", [userAccount.id, 1])
+		def totalBetAmount = PoolTransaction.executeQuery("SELECT sum(p.transactionAmount) from PoolTransaction p where p.account.id=? and p.transactionType=? and p.createdAt>?", [userAccount.id, 0, lastPayoutDate[0]])
+		asset = totalBetAmount[0]+userAccount.currentBalance
+		println asset
+		
+		if (asset >=FREE_COIN_BALANCE_THRESHOLD)
 			return [code: 400, error:"Balance above "+FREE_COIN_BALANCE_THRESHOLD+" cannot get free coins"]
-			
+		
 		userAccount.currentBalance = userAccount.currentBalance + FREE_COIN_AMOUNT
 		return [username: userAccount.username, userId: userAccount.userId, currentBalance: userAccount.currentBalance, newCoinsAmount: FREE_COIN_AMOUNT]
 	}
@@ -76,8 +84,7 @@ class UserService {
 			Account userAccount = Account.get(rankEntry.id)
 			rankingResultAll.add(getAccountInfoMap(userAccount.userId, userAccount.username, rankEntry.netGain,i+1))
 			if (!userIdMap.containsKey(userAccount.userId)){
-				userIdMap.put(userAccount.userId, "")
-				userIdList
+				userIdMap.put(userAccount.userId, "")				
 			}
 		}
 
