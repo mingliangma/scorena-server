@@ -15,7 +15,7 @@ class TournamentService {
 	def parseService   
 	
 	Map getTournamentRanking(String tournamentId){
-		def userRankingWorldCup = UserRankingWCTournament.findAll("from UserRankingWCTournament")
+		def userRankingWorldCup = UserRankingWCTournament.findAll("from UserRankingWCTournament UserRankingWCT order by UserRankingWCT.netGain desc, UserRankingWCT.currentBalance desc")
 
 		List rankingResultWorldCup =[]
 

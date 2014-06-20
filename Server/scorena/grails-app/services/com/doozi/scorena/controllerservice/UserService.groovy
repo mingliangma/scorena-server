@@ -68,8 +68,8 @@ class UserService {
 	}
 	
 	Map getRanking(userId){
-		def userRankingAll = UserRankingAll.findAll("from UserRankingAll", [max: RANKING_SIZE])
-		def userRankingWk = UserRankingWk.findAll("from UserRankingWk", [max: RANKING_SIZE])
+		def userRankingAll = UserRankingAll.findAll("from UserRankingAll RankingAll order by RankingAll.netGain desc, RankingAll.currentBalance desc", [max: RANKING_SIZE])
+		def userRankingWk = UserRankingWk.findAll("from UserRankingWk RankingWk order by RankingWk.netGain desc, RankingWk.currentBalance desc", [max: RANKING_SIZE])
 		List rankingResultAll =[]
 		List rankingResultWk =[]
 		
