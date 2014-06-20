@@ -69,16 +69,16 @@ class SportsDataService {
 	def getAllUpcomingGames(){
 		def todayDate = new Date()		
 		def upcomingDate = todayDate + UPCOMING_DATE_RANGE;
-		def upcomingGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime<? and g.startDateTime>? and g.eventStatus<>'post-event' order by g.startDateTime", [upcomingDate, todayDate-1])
-		
+//		def upcomingGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime<? and g.startDateTime>? and g.eventStatus<>'post-event' order by g.startDateTime", [upcomingDate, todayDate-1])
+		def c = ScorenaAllGames.createCriteria()
+		def upcomingGames = c.list {
+			between("startDateTime", todayDate-1, upcomingDate)
+			ne("eventStatus", "post-event")
+		    order("startDateTime", "asc")
+		}
 		println "SportsDataService::getAllUpcomingGames(): upcoming game size: "+upcomingGames.size()
 		
-//		def c = ScorenaAllGames.createCriteria()
-//		def upcomingGames = c.list {
-//			between("startDateTime", todayDate-1, upcomingDate)
-//			ne("eventStatus", "post-event")
-//		    order("startDateTime", "asc")
-//		}		
+	
 		
 		def upcomingGamesMap = [:]
 		List upcomingGamesList = []
@@ -147,7 +147,15 @@ class SportsDataService {
 	List getAllPastGames(){
 		def todayDate = new Date()
 		def pastDate = todayDate - PAST_DATE_RANGE;
-		def pastGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime>? and g.startDateTime<?and g.eventStatus='post-event'", [pastDate, todayDate+1])
+//		def pastGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime>? and g.startDateTime<?and g.eventStatus='post-event'", [pastDate, todayDate+1])
+		
+		def c = ScorenaAllGames.createCriteria()
+		def pastGames = c.list {
+			between("startDateTime", pastDate, todayDate+1)
+			eq("eventStatus", "post-event")
+			order("startDateTime", "desc")
+		}
+		
 		println "SportsDataService::getAllPastGames(): past game size: "+pastGames.size()
 		def pastGamesMap = [:]
 		List pastGamesList = []
