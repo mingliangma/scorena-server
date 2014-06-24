@@ -43,6 +43,7 @@ class BetService {
 		
 		if (!playerAccount.save(failOnError:true)){
 			println "ERROR: payout transaction failed to be added to player account"
+			result = -1
 		}
 		
 		if (!q.save(failOnError:true)){
