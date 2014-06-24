@@ -207,9 +207,9 @@ class QuestionService {
 			}
 		}
 		
-		def questionContent3 = QuestionContent.findAllByQuestionType("custom-team")
-		println "questionContent3: " + questionContent3.size()
-		for (QuestionContent qc: questionContent3){
+		def QC_HigherProcession = QuestionContent.findAllByQuestionType("custom-team-0")
+		println "questionContent3: " + QC_HigherProcession.size()
+		for (QuestionContent qc: QC_HigherProcession){
 			def q = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
 			qc.addToQuestion(q)
 			if (qc.save(failOnError:true)){
@@ -222,6 +222,23 @@ class QuestionService {
 				}
 			}
 		}
+		
+		def QC_MoreShots = QuestionContent.findAllByQuestionType("custom-team-1")
+		println "questionContent3: " + QC_MoreShots.size()
+		for (QuestionContent qc: QC_MoreShots){
+			def q = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
+			qc.addToQuestion(q)
+			if (qc.save(failOnError:true)){
+				questionCreated++
+				System.out.println("game successfully saved")
+			}else{
+				System.out.println("game save failed")
+				qc.errors.each{
+					println it
+				}
+			}
+		}
+		
 		return questionCreated
 	}
 	
