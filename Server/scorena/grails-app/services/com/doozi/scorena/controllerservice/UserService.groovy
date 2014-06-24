@@ -27,7 +27,7 @@ class UserService {
 	public static final int PREVIOUS_BALANCE = INITIAL_BALANCE
 	public static final int FREE_COIN_BALANCE_THRESHOLD = 100
 	public static final int FREE_COIN_AMOUNT = 1000
-	public static final int RANKING_SIZE = 100
+	public static final int RANKING_SIZE = 60
 	String RANK_TYPE_WEEKLY = "weekly"
 	String RANK_TYPE_ALL = "all"
 	
@@ -193,7 +193,8 @@ class UserService {
 	}
 	
 	private Map userLogin(RestBuilder rest, String username, String password){
-		
+		println username
+		println password
 		def resp = parseService.loginUser(rest, username, password)
 		
 		if (resp.status != 200){
@@ -333,6 +334,8 @@ class UserService {
 		def rest = new RestBuilder()
 		
 		Map userProfile = userLogin(rest, username, password)
+		
+		println userProfile
 		if (userProfile.code){
 			return userProfile
 		}
@@ -345,7 +348,7 @@ class UserService {
 		
 		def result = userProfileMapRender(userProfile.sessionToken, account.currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name, 
 				userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
-		
+		println result
 		return result
 	}
 	
@@ -412,9 +415,15 @@ class UserService {
 		def userPayoutTrans = betService.listPayoutTransByUserId(userId)
 		def userStats = getBetStats(userPayoutTrans, account.id)
 		//todo netgain/total wager in type 1
-		userStats.weekly.netGainPercent = ((userStats.weekly.netGain / (account.currentBalance))*100).toInteger()
-		userStats.monthly.netGainPercent = ((userStats.monthly.netGain / (account.currentBalance))*100).toInteger()
-		userStats.all.netGainPercent = ((userStats.all.netGain / (account.currentBalance))*100).toInteger()
+		
+		int netGainPercentageDenominator = 1
+		if (account.currentBalance > 0){
+			netGainPercentageDenominator = account.currentBalance
+		}
+		
+		userStats.weekly.netGainPercent = ((userStats.weekly.netGain / (netGainPercentageDenominator))*100).toInteger()
+		userStats.monthly.netGainPercent = ((userStats.monthly.netGain / (netGainPercentageDenominator))*100).toInteger()
+		userStats.all.netGainPercent = ((userStats.all.netGain / (netGainPercentageDenominator))*100).toInteger()
 		
 		def result = userProfileMapRender("", account.currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name,
 			userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
@@ -508,9 +517,13 @@ class UserService {
 		def firstDateOfCurrentWeek = getFirstDateOfCurrentWeek()
 		def firstDateOfCurrentMonth = getFirstDateOfCurrentMonth()
 		
+		println firstDateOfCurrentWeek
+		println firstDateOfCurrentMonth
+		
 		for (PoolTransaction tran: userPayoutTrans){
 			
 			if (tran.createdAt > firstDateOfCurrentWeek){
+				println tran.createdAt
 				stats.all.netGain += (tran.transactionAmount - tran.pick2Amount)
 				stats.monthly.netGain+=(tran.transactionAmount - tran.pick2Amount)
 				stats.weekly.netGain+=(tran.transactionAmount - tran.pick2Amount)

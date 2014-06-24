@@ -71,7 +71,7 @@ class UserController {
 	//curl -v -X GET  -G --data-urlencode 'username=Ming' --data-urlencode 'password=11111111' localhost:8080/scorena/v1/login
 	def login(){
 		
-		response.setHeader('Access-Control-Allow-Origin', '*')
+//		println params
 		if (!params.username||!params.password){
 			response.status = 404
 			def result = [error: "invalid parameters"]			
