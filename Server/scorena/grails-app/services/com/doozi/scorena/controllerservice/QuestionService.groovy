@@ -602,15 +602,15 @@ class QuestionService {
 	private def getUnpickMostBetQuestions(List questions, String userId, int limit){
 		List unpickedQuestionList = []
 		
-		for (Map q: questions){							
+		for (Map q: questions){		
+			if (unpickedQuestionList.size()>limit){
+				break
+			}
 			def userBet = betService.getBetByQuestionIdAndUserId(q.get("questionId"), userId)
 			if (userBet == null){
 				unpickedQuestionList.add(q)
 			}
 			
-			if (unpickedQuestionList.size()>limit){
-				break
-			}
 		}
 		return unpickedQuestionList
 	}
