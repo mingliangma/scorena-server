@@ -14,7 +14,8 @@ import grails.transaction.Transactional
 
 @Transactional
 class BetService {
-
+	def sportsDataService
+	
 	def getPayoutTransByQuestion(Question q){
 		def result = PoolTransaction.find("from PoolTransaction as t where (t.transactionType=1 and t.question.id=?)",[q.id])
 	}
@@ -61,9 +62,23 @@ class BetService {
 		if (account.currentBalance < _wager){
 			return [code:202, message: "The user does not have enough coins to make a bet"]
 		}
-		def question = Question.findById(quesitonId)
+		
+		if (_wager <= 0){
+			return [code:202, message: "The user cannot bet negative amount"]
+		}
+		
+		if (_pick < 1 || _pick > 2){
+			return [code:202, message: "the pick is not available"]
+		}
+		
+		Question question = Question.findById(quesitonId)
 		if (!question){
 			return [code:202, message: "the questionId does not exsist"]
+		}
+		
+		def game = sportsDataService.getGame(question.eventKey)
+		if (game.gameStatus != sportsDataService.PREEVENT){
+			return [code:202, message: "the match is already started. All pool is closed"]
 		}
 		return saveBetTrans(_wager, _time, _pick, account, question)
 		
