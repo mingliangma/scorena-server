@@ -39,15 +39,19 @@ class UserService {
 	
 	def getCoins(userId){
 		int asset = 0
+		int inWagerAmount = 0
 		
 		def userAccount = Account.findByUserId(userId)
 		if (!userAccount)
 			return [code: 400, error:"userId is invalid"]
 		
 		def c = PoolTransaction.createCriteria()
-		def lastPayoutDate = PoolTransaction.executeQuery("SELECT max(p.createdAt) from PoolTransaction p where p.account.id=? and p.transactionType=?", [userAccount.id, 1])
+		def lastPayoutDate = PoolTransaction.executeQuery("SELECT max(p.createdAt) from PoolTransaction p where p.account.id=? and p.transactionType=?", [userAccount.id, 1])		
 		def totalBetAmount = PoolTransaction.executeQuery("SELECT sum(p.transactionAmount) from PoolTransaction p where p.account.id=? and p.transactionType=? and p.createdAt>?", [userAccount.id, 0, lastPayoutDate[0]])
-		asset = totalBetAmount[0]+userAccount.currentBalance
+		if (totalBetAmount[0] != null)
+			inWagerAmount = totalBetAmount[0]
+			
+		asset = inWagerAmount+userAccount.currentBalance
 		println asset
 		
 		if (asset >=FREE_COIN_BALANCE_THRESHOLD)
@@ -449,7 +453,7 @@ class UserService {
 			]
 			return result
 		}
-		return[currentBalance:account.currentBalance]
+		return[currentBalance:account.currentBalance, inWager:"300"]
 		
 	}
 	
