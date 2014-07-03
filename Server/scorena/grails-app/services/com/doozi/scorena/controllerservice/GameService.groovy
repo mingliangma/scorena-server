@@ -76,6 +76,7 @@ class GameService {
 			for (def eventKey: playedGames){
 				if (gameId == eventKey){					
 					pastGame.placedBet = true
+					pastGame.gameWinningAmount = "+100"
 				}
 			}
 		}

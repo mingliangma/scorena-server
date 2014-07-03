@@ -265,7 +265,7 @@ class QuestionService {
 			}
 		}
 
-		return [placedBet:placedBet, userPickStatus:userPickStatus, userPick:userPick]
+		return [placedBet:placedBet, userPickStatus:userPickStatus, userPick:userPick, questionWinningAmount:"100"]
 	}
 	
 	private Map getPostEventQuestionUserInfo(String userId, long questionId, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple,
