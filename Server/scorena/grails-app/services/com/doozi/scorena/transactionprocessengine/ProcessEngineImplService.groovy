@@ -157,6 +157,12 @@ class ProcessEngineImplService {
 			int potAmoutToBePaid = lastTransaction.pick1Amount + lastTransaction.pick2Amount
 			int numPlayersToBePaid = lastTransaction.pick1NumPeople + lastTransaction.pick2NumPeople
 			
+			boolean onePickHasNoBet = false
+			if (lastTransaction.pick1NumPeople == 0 ^ lastTransaction.pick2NumPeople == 0) {
+				onePickHasNoBet = true
+				payoutMultipleOfWager = 1
+			}
+			
 			betTransactions = betService.listAllBets(q.id)
 			
 			int totalWager = 0
@@ -165,7 +171,7 @@ class ProcessEngineImplService {
 			for (PoolTransaction bet: betTransactions){
 				Account account = bet.account
 				int payout = 0
-				if (winnerPick == 0 || bet.pick == winnerPick)
+				if (winnerPick == 0 || bet.pick == winnerPick || onePickHasNoBet)
 					payout =  Math.floor(bet.transactionAmount*payoutMultipleOfWager)
 					
 				def newBalance = account.currentBalance + payout
