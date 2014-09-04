@@ -1,12 +1,12 @@
 import java.util.Date;
 
-import com.doozi.User
-import com.doozi.Account
-import com.doozi.GameService
-import com.doozi.Question
-import com.doozi.Game
-import com.doozi.PoolTransaction
-import com.doozi.BetResult
+import com.doozi.scorena.User
+import com.doozi.scorena.Account
+import com.doozi.scorena.controllerservice.GameService
+import com.doozi.scorena.Question
+import com.doozi.scorena.Game
+import com.doozi.scorena.PoolTransaction
+import com.doozi.scorena.BetResult
 
 //def createBetTrans(int _wager, Date _time, boolean _pick, User user, Question q, Game game){
 //	
@@ -44,35 +44,42 @@ import com.doozi.BetResult
 //}
 
 def simulateBet(){
-	
-	
+
 	def gameService = ctx.getBean("gameService")
 	def betService = ctx.getBean("betService")
 	
 	
 	Random random = new Random()
 	def accounts = Account.findAll()
-	
-	
-	
-	def upcomingGames = gameService.getUpcomingGameObjects()
-	for (Game upcomingGame: upcomingGames){
-		System.out.println("game away: "+upcomingGame.away + "   VS   game home: "+upcomingGame.home)
-		for (Question q: upcomingGame.question){
-			System.out.println("question: "+q.content)
+	def upcomingGames = gameService.listUpcomingGames()
+	for (int j=1; j < upcomingGames.size(); j++){
+		def upcomingGame = upcomingGames.get(j)				
+		System.out.println("game away: "+upcomingGame.away.teamname + "   VS   game home: "+upcomingGame.home.teamname + "----- StartDate: "+upcomingGame.date)
+		
+		def questions = Question.findAllByEventKey(upcomingGame.gameId)
+		
+		for (int i=0; i < questions.size(); i++){
+			Question q = questions.get(i)
+			def questionId = q.id
 			for (Account account: accounts){
-				
-				System.out.println("user name: "+account.username)
-				int _wager =  (random.nextInt(6)+1)*5
-				Date _time = new Date() - random.nextInt(7)
-				int _pick
-				
-				if (random.nextInt(1)==0){
-					_pick=0
-				}else{
-					_pick=1
+				int _wager =  (random.nextInt(4)+1)*20
+				if (account.currentBalance <= _wager){
+					continue
 				}
-				betService.saveBetTrans(_wager, _time,_pick, account, q, upcomingGame)
+				if (random.nextInt(5) == 1){
+					
+					
+					Date _time = new Date()
+					int _pick
+					
+					if (random.nextInt(2)==0){
+						_pick=1
+					}else{
+						_pick=2
+					}
+					System.out.println("user name: "+account.username + " wager: "+_wager + " balance: "+account.currentBalance)
+					betService.saveBetTrans(_wager, _time,_pick, account.userId, q.id)
+				}
 			}
 		}
 	}

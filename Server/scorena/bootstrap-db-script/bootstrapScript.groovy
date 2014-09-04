@@ -29,10 +29,10 @@ import java.util.Date;
 
 
 //bootstrapQuestionContent()
-createQuestions()
-//createUsers()
-//simulateBetUpcoming()
-//simulateBetPast()
+//createQuestions()
+createUsers()
+simulateBetUpcoming()
+simulateBetPast()
 
 println "create transactions ended"
 
@@ -137,14 +137,12 @@ def populateQuestions(String away, String home, String eventId){
 
 def simulateBetUpcoming(){
 
-
 	def gameService = ctx.getBean("gameService")
-	def betService = ctx.getBean("betService")
-	
-	
+	def betService = ctx.getBean("betService")	
 	Random random = new Random()
 	def accounts = Account.findAll()
 	def upcomingGames = gameService.listUpcomingGames()
+	
 	for (int i=0; i < upcomingGames.size(); i++){
 		def upcomingGame = upcomingGames.get(i)				
 		System.out.println("game away: "+upcomingGame.away.teamname + "   VS   game home: "+upcomingGame.home.teamname + "----- StartDate: "+upcomingGame.date)
@@ -156,22 +154,23 @@ def simulateBetUpcoming(){
 			
 			def questionId = q.id
 			for (Account account: accounts){
-				if (random.nextInt(2) == 1){
+				int _wager =  (random.nextInt(4)+1)*20
+				if (account.currentBalance <= _wager){
 					continue
 				}
-				System.out.println("user name: "+account.username)
-				int _wager =  (random.nextInt(6)+1)*5
-				Date _time = new Date()
-				int _pick
-				
-				if (random.nextInt(2)==0){
-					_pick=1
-				}else{
-					_pick=2
+				if (random.nextInt(2) == 1){
+					
+					Date _time = new Date()
+					int _pick
+					
+					if (random.nextInt(2)==0){
+						_pick=1
+					}else{
+						_pick=2
+					}
+					System.out.println("user name: "+account.username + " wager: "+_wager + " balance: "+account.currentBalance)
+					betService.saveBetTrans(_wager, _time,_pick, account.userId, q.id)
 				}
-				
-				
-				betService.saveBetTrans(_wager, _time,_pick, account.userId, q.id)
 			}
 		}
 	}
@@ -201,29 +200,28 @@ def simulateBetPast(){
 				def questionId = q.id
 				Date _time = new Date() - (random.nextInt(6) + 18)
 				for (Account account: accounts){
-					if (random.nextInt(3) == 1){
+					int _wager =  (random.nextInt(4)+1)*20
+					if (account.currentBalance <= _wager){
 						continue
 					}
-					
-					System.out.println("user name: "+account.username)
-					int _wager =  (random.nextInt(6)+1)*5
-					_time = _time + random.nextInt(2)
-					int _pick
-					
-					if (random.nextInt(2)==0){
-						_pick=1
-					}else{
-						_pick=2
+					if (random.nextInt(2) == 1){
+						
+						_time = _time + random.nextInt(2)
+						int _pick
+						
+						if (random.nextInt(2)==0){
+							_pick=1
+						}else{
+							_pick=2
+						}
+						System.out.println("user name: "+account.username + " wager: "+_wager + " balance: "+account.currentBalance)
+						betService.saveBetTrans(_wager, _time,_pick, account.userId, q.id)
 					}
-					
-					
-					betService.saveBetTrans(_wager, _time,_pick, account.userId, q.id)
-				}
 			}
 		}
 	}
+}
 	
-
 def createUser(String _username, String _email, String _password, String _gender, String _region){
 	
 	def userService = ctx.getBean("userService")
