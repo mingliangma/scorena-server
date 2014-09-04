@@ -1,5 +1,8 @@
 package com.doozi.scorena.controllerservice
 
+import java.util.List;
+import java.util.Map;
+
 import grails.transaction.Transactional
 import grails.converters.JSON
 import grails.web.JSONBuilder
@@ -12,18 +15,22 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 
-import com.doozi.scorena.Account;
 import com.doozi.scorena.*;
-import com.doozi.scorena.PoolTransaction
 
 import grails.plugins.rest.client.RestBuilder
 
 @Transactional
 class UserService {
-	def INITIAL_BALANCE = 2000
-	def PREVIOUS_BALANCE = INITIAL_BALANCE
-	def FREE_COIN_BALANCE_THRESHOLD = 50
-	def FREE_COIN_AMOUNT = 1000
+	public static final int INITIAL_BALANCE = 2000
+	public static final int SOCIALNETWORK_INITIAL_BALANCE = 2500
+	
+	public static final int PREVIOUS_BALANCE = INITIAL_BALANCE
+	public static final int FREE_COIN_BALANCE_THRESHOLD = 100
+	public static final int FREE_COIN_AMOUNT = 1000
+	public static final int RANKING_SIZE = 60
+	String RANK_TYPE_WEEKLY = "weekly"
+	String RANK_TYPE_ALL = "all"
+	
 	
 	def grailsApplication
 	def parseService
@@ -31,106 +38,113 @@ class UserService {
 	def sportsDataService
 	
 	def getCoins(userId){
+		int asset = 0
+		int inWagerAmount = 0
+		
 		def userAccount = Account.findByUserId(userId)
 		if (!userAccount)
 			return [code: 400, error:"userId is invalid"]
 		
-		if (userAccount.currentBalance >=FREE_COIN_BALANCE_THRESHOLD)
-			return [code: 400, error:"Balance above "+FREE_COIN_BALANCE_THRESHOLD+" cannot get free coins"]
+		def c = PoolTransaction.createCriteria()
+		def lastPayoutDate = PoolTransaction.executeQuery("SELECT max(p.createdAt) from PoolTransaction p where p.account.id=? and p.transactionType=?", [userAccount.id, 1])		
+		def totalBetAmount = PoolTransaction.executeQuery("SELECT sum(p.transactionAmount) from PoolTransaction p where p.account.id=? and p.transactionType=? and p.createdAt>?", [userAccount.id, 0, lastPayoutDate[0]])
+		if (totalBetAmount[0] != null)
+			inWagerAmount = totalBetAmount[0]
 			
+		asset = inWagerAmount+userAccount.currentBalance
+		println asset
+		
+		if (asset >=FREE_COIN_BALANCE_THRESHOLD)
+			return [code: 400, error:"Balance above "+FREE_COIN_BALANCE_THRESHOLD+" cannot get free coins"]
+		
 		userAccount.currentBalance = userAccount.currentBalance + FREE_COIN_AMOUNT
 		return [username: userAccount.username, userId: userAccount.userId, currentBalance: userAccount.currentBalance, newCoinsAmount: FREE_COIN_AMOUNT]
 	}
 	
-	def constructRankingData(def username, def netgain, def rank){	
+	private Map getAccountInfoMap(String userId, String username, int netgain, int rank){	
 		String netGain = ""
 		if (netgain>0)
 			netGain="+"+netgain.toString()
 		else
 			netGain=netgain.toString()
 			
-		return [username: username, gain: netGain, rank: rank]
+		return [userId: userId, username: username, gain: netGain, rank: rank]
 	}
 	
-//	def processRankingData(Account user, int rank){		
-//		return [username: user.username, gain: user.currentBalance, rank: rank]
-//	}
-	
-	def getRanking(userId){
-		def userRankingAll = UserRankingAll.findAll()
-		def userRankingWk = UserRankingWk.findAll()
+	Map getRanking(userId){
+		def userRankingAll = UserRankingAll.findAll("from UserRankingAll RankingAll order by RankingAll.netGain desc, RankingAll.currentBalance desc", [max: RANKING_SIZE])
+		def userRankingWk = UserRankingWk.findAll("from UserRankingWk RankingWk order by RankingWk.netGain desc, RankingWk.currentBalance desc", [max: RANKING_SIZE])
 		List rankingResultAll =[]
 		List rankingResultWk =[]
 		
-		int rankingAllSize = 50
-		if (userRankingAll.size() < 50)
-			rankingAllSize=userRankingAll.size()
+		int rankingAllSize = userRankingAll.size()
+		int rankingWkSize = userRankingWk.size()
+		List userIdList = []
+		Map userIdMap = [:]
 		
 		
 		for (int i=0; i<rankingAllSize; i++){
-			UserRankingAll rankEntry = userRankingAll.getAt(i)
-			def userAccount = Account.get(rankEntry.id)
-			rankingResultAll.add(constructRankingData(userAccount.username, rankEntry.netGain,i+1))
+			UserRankingAll rankEntry = userRankingAll.get(i)
+			Account userAccount = Account.get(rankEntry.id)
+			rankingResultAll.add(getAccountInfoMap(userAccount.userId, userAccount.username, rankEntry.netGain,i+1))
+			if (!userIdMap.containsKey(userAccount.userId)){
+				userIdMap.put(userAccount.userId, "")				
+			}
 		}
-		
-		int rankingWkSize = 50
-		if (userRankingAll.size() < 50)
-			rankingWkSize=userRankingAll.size()
+
 		
 		for (int i=0; i<rankingWkSize; i++){
-			UserRankingWk rankEntry = userRankingWk.getAt(i)
-			def userAccount = Account.get(rankEntry.id)
-			rankingResultWk.add(constructRankingData(userAccount.username, rankEntry.netGain,i+1))
+			UserRankingWk rankEntry = userRankingWk.get(i)
+			Account userAccount = Account.get(rankEntry.id)
+			rankingResultWk.add(getAccountInfoMap(userAccount.userId, userAccount.username, rankEntry.netGain,i+1))
+			if (!userIdMap.containsKey(userAccount.userId)){
+				userIdMap.put(userAccount.userId, "")
+			}
+		}
+		
+		Map userProfileResults = parseService.retrieveUserList(userIdMap)
+		Map UserProfileUserIdAsKeyMap = getUserProfileUserIdAsKeyMap(userProfileResults.results)
+		
+		for (Map rankingAllEntry: rankingResultAll){
+			String accountUserId = rankingAllEntry.userId
+			Map userProfile = UserProfileUserIdAsKeyMap.get(accountUserId)
+
+			rankingAllEntry.pictureURL = ""
+			
+			if (userProfile != null){
+				if (userProfile.display_name != null && userProfile.display_name != "")
+					rankingAllEntry.username = userProfile.display_name
+			
+				if (userProfile.pictureURL != null && userProfile.pictureURL != "")
+					rankingAllEntry.pictureURL = userProfile.pictureURL					
+			}
+			
+		}
+		
+		for (Map rankingWkEntry: rankingResultWk){
+			String accountUserId = rankingWkEntry.userId
+			Map userProfile = UserProfileUserIdAsKeyMap.get(accountUserId)
+					
+			rankingWkEntry.pictureURL = ""
+			if (userProfile != null){
+				if (userProfile.display_name != null && userProfile.display_name != "")
+					rankingWkEntry.username = userProfile.display_name
+			
+				if (userProfile.pictureURL != null && userProfile.pictureURL != "")
+					rankingWkEntry.pictureURL = userProfile.pictureURL
+			}
 		}
 		
 		return [weekly: rankingResultWk, all: rankingResultAll]
 	}
 	
-//	def getRanking1(userId){
-//		
-//		def rest = new RestBuilder()
-//		def resp = parseService.retreiveUser(rest, userId)
-//		
-//		if (resp.status != 200){
-//			println "ERROR: UserService::getUserProfile(): user account does not exist in parse"
-//			def result = [
-//				code:500,
-//				error:"user account does not exist"
-//			]
-//			return result
-//		}
-//		def userAccount = Account.findByUserId(userId)
-//		def userBalance = userAccount.currentBalance
-//		
-//		def higherRankingList = Account.findAll("from Account as a where a.currentBalance > ? order by a.currentBalance", [userBalance])
-//		
-//		int higherRank = higherRankingList.size()
-//		int currentUserRank = higherRank + 1
-//		int lowerRank = currentUserRank +1
-//		List rankingResult =[]
-//		int higherRankingSize = 5
-//		if (higherRankingList.size()<5)
-//			higherRankingSize=higherRankingList.size()
-//		
-//		for (int i=0; i<higherRankingSize; i++){			
-//			rankingResult.add(0,processRankingData(higherRankingList.get(i), higherRank))
-//			higherRank -= 1
-//		} 
-//		
-//		rankingResult.add(processRankingData(userAccount, currentUserRank))
-//		
-//		def lowerRankingList = Account.findAll("from Account as a where a.currentBalance < ? order by a.currentBalance", [userBalance])
-//		int lowerRankingSize = 5
-//		if (lowerRankingList.size()<5)
-//			lowerRankingSize=lowerRankingList.size()
-//			
-//		for (int i=0; i<lowerRankingSize; i++){
-//			rankingResult.add(processRankingData(lowerRankingList.get(i), lowerRank))
-//			lowerRank +=1
-//		}
-//		
-//		return [weekly: rankingResult, all: rankingResult]
-//	}
+	private Map getUserProfileUserIdAsKeyMap(List userProfileList){
+		Map UserProfileUserIdAsKeyMap = [:]
+		for (Map userProfile: userProfileList){
+			UserProfileUserIdAsKeyMap.put(userProfile.objectId, userProfile)
+		}
+		return UserProfileUserIdAsKeyMap
+	}
 	
 	private Map createUserAccount(RestBuilder rest, String userId, String username, int initialBalance, int previousBalance, String sessionToken){
 		def userAccount = Account.findByUserId(userId)
@@ -156,9 +170,9 @@ class UserService {
 		return [:]
 	}
 	
-	private Map createUserProfile(RestBuilder rest, String username, String email, String password, String gender, String region){
+	private Map createUserProfile(RestBuilder rest, String username, String email, String password, String gender, String region, String displayName){
 			
-		def resp = parseService.createUser(rest, username, email, password, gender, region)
+		def resp = parseService.createUser(rest, username, email, password, gender, region, displayName)
 		
 		if (resp.status != 201){
 			def result = [
@@ -182,85 +196,179 @@ class UserService {
 		return resp.json
 	}
 	
+	public Map getUserProfileBySessionToken_tempFix(RestBuilder rest, String sessionToken){
+		def resp = parseService.validateSessionT3(rest, sessionToken)
+		if (resp.status != 200){
+			def result = [
+				code:resp.json.code,
+				error:resp.json.error
+			]
+			return result
+		}
+		Map userProfileT3 = resp.json
+		println userProfileT3
+		Map userProfile = parseService.retrieveUserByDisplayName(userProfileT3.display_name)
+		println userProfile.results[0]
+		return userProfile.results[0]
+	}
+	
+	private Map userLogin(RestBuilder rest, String username, String password){
+		println username
+		println password
+		def resp = parseService.loginUser(rest, username, password)
+		
+		if (resp.status != 200){
+			def result = [
+				code:resp.json.code,
+				error:resp.json.error
+			]
+			return result
+		}
+		return resp.json
+	}
+	
+	private Map userRetreive(RestBuilder rest, String userId){
+		def resp = parseService.retrieveUser(rest, userId)
+		
+		if (resp.status != 200){
+			println "ERROR: UserService::getUserProfile(): user account does not exist in parse"
+			def result = [
+				code:500,
+				error:"user account does not exist"
+			]
+			return result
+		}
+		return resp.json
+	}
+	
+	private Map userProfileMapRender(String sessionToken, int currentBalance, String createdAt, String username, String displayName,
+		String userId, String gender, String region, String email, String pictureURL){
+		
+		int currentBalanceResp = currentBalance
+		String createdAtResp = ""
+		String usernameResp = ""
+		String userIdResp = ""
+		String genderResp = ""
+		String regionResp = ""
+		String emailResp = ""
+		String pictureURLResp = ""
+		String sessionTokenResp = ""
+		
+		if (sessionToken != null)
+			sessionTokenResp = sessionToken
+		
+		if (createdAt != null)
+			createdAtResp = createdAt
+	
+		if (userId != null)
+			userIdResp = userId
+		
+		if (displayName != null && displayName!="")
+			usernameResp = displayName
+		else if(username != null)
+			usernameResp = username
+			
+			
+		if (gender != null)
+			genderResp = gender
+		
+		if (region != null)
+			regionResp = region
+			
+		if (email != null)
+			emailResp = email
+			
+		if (pictureURL != null)
+			pictureURLResp = pictureURL
+		
+		def result = [
+			createdAt:createdAtResp,
+			username:usernameResp,
+			currentBalance:currentBalanceResp,
+			sessionToken:sessionTokenResp,
+			userId: userIdResp,
+			gender: genderResp,
+			region: regionResp,
+			email: emailResp,
+			pictureUrl: pictureURLResp
+		]
+		return result
+	}
+	
 	def createSocialNetworkUser(String sessionToken){
+		int currentBalance = SOCIALNETWORK_INITIAL_BALANCE
 		RestBuilder rest = new RestBuilder()
-		Map userProfile = getUserProfileBySessionToken(rest, sessionToken)
+		
+		Map userProfile = getUserProfileBySessionToken_tempFix(rest, sessionToken)
 		if (userProfile.code){
 			return userProfile
 		}
-		println userProfile
-		Map accountCreationResult = createUserAccount(rest, userProfile.objectId, userProfile.username, INITIAL_BALANCE, PREVIOUS_BALANCE, userProfile.sessionToken)
-		if (accountCreationResult!=[:]){
-			return accountCreationResult
-		}
 		
-		def result = [
-			createdAt:userProfile.createdAt,
-			username:userProfile.username,
-			currentBalance:INITIAL_BALANCE,
-			sessionToken:userProfile.sessionToken,
-			userId: userProfile.objectId,			
-			gender: userProfile.gender,
-			region: userProfile.location,
-			displayName: userProfile.display_name
-		]
+		def account = Account.findByUserId(userProfile.objectId)
+		
+		if (account == null){
+			Map accountCreationResult = createUserAccount(rest, userProfile.objectId, userProfile.username, SOCIALNETWORK_INITIAL_BALANCE, SOCIALNETWORK_INITIAL_BALANCE, userProfile.sessionToken)
+			if (accountCreationResult!=[:]){
+				return accountCreationResult
+			}
+		}else{
+			currentBalance = account.currentBalance
+		}
+
+		def result = userProfileMapRender(sessionToken, currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name, 
+		userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
+		
 		return result
 	}
 			
 	def createUser(String username, String email, String password, String gender, String region){
-		println "UserService::createUser(): username="+username+"  username="+email
+		println "UserService::createUser(): username="+username+"  email="+email
+		
+		int currentBalance = INITIAL_BALANCE
 		String usernameLowerCase = username.toLowerCase()
+		String displayName = usernameLowerCase
 		RestBuilder rest = new RestBuilder()
 		
-		Map userProfileCreationResult =  createUserProfile(rest, usernameLowerCase, email, password, gender, region)
-		if (userProfileCreationResult.code){
-			return userProfileCreationResult
+		Map userProfile =  createUserProfile(rest, usernameLowerCase, email, password, gender, region, displayName)
+		if (userProfile.code){
+			return userProfile
 		}
 		
 		println "user profile created successfully"		
 			
-		Map accountCreationResult = createUserAccount(rest, userProfileCreationResult.objectId, username, INITIAL_BALANCE, PREVIOUS_BALANCE, userProfileCreationResult.sessionToken)
+		Map accountCreationResult = createUserAccount(rest, userProfile.objectId, username, INITIAL_BALANCE, PREVIOUS_BALANCE, userProfile.sessionToken)
 		if (accountCreationResult!=[:]){
 			return accountCreationResult
 		}
 		
 		println "user profile and account created successfully"
+
 		
-		def result = [			
-			createdAt:userProfileCreationResult.createdAt,
-			username:username,
-			currentBalance:INITIAL_BALANCE,
-			sessionToken:userProfileCreationResult.sessionToken,
-			userId: userProfileCreationResult.objectId,
-			email: email,
-			gender: gender,
-			region: region
-		]
+		def result = userProfileMapRender(userProfile.sessionToken, currentBalance, userProfile.createdAt, userProfile.username, displayName, 
+		userProfile.objectId, gender, region, email, userProfile.pictureURL)
+		
 		return result		
 	}
 	
 	def login(String username, String password){
 		def rest = new RestBuilder()
-		def resp = parseService.loginUser(rest, username, password)
-		if (resp.status != 200 ||resp.json.code)
-			return resp.json
 		
-		def account = Account.findByUserId(resp.json.objectId)
+		Map userProfile = userLogin(rest, username, password)
+		
+		println userProfile
+		if (userProfile.code){
+			return userProfile
+		}
+		
+		def account = Account.findByUserId(userProfile.objectId)
 		
 		if (!account){
 			return [code:500, error:"user account does not exist"]			
 		}
-		def result = [
-			createdAt:resp.json.createdAt,
-			username:resp.json.username,
-			currentBalance:account.currentBalance,
-			sessionToken:resp.json.sessionToken,
-			userId: resp.json.objectId,
-			createdAt: resp.json.createdAt,
-			email: resp.json.email,
-			gender: resp.json.gender,
-			region: resp.json.region
-		]
+		
+		def result = userProfileMapRender(userProfile.sessionToken, account.currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name, 
+				userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
+		println result
 		return result
 	}
 	
@@ -308,15 +416,10 @@ class UserService {
 	
 	def getUserProfile(String userId){
 		def rest = new RestBuilder()
-		def resp = parseService.retreiveUser(rest, userId)
 		
-		if (resp.status != 200){
-			println "ERROR: UserService::getUserProfile(): user account does not exist in parse"			
-			def result = [
-				code:500,
-				error:"user account does not exist"
-			]
-			return result
+		def userProfile = userRetreive(rest, userId)
+		if (userProfile.code){
+			return userProfile
 		}
 		
 		def account = Account.findByUserId(userId)
@@ -332,30 +435,30 @@ class UserService {
 		def userPayoutTrans = betService.listPayoutTransByUserId(userId)
 		def userStats = getBetStats(userPayoutTrans, account.id)
 		//todo netgain/total wager in type 1
-		userStats.weekly.netGainPercent = ((userStats.weekly.netGain / (account.currentBalance))*100).toInteger()
-		userStats.monthly.netGainPercent = ((userStats.monthly.netGain / (account.currentBalance))*100).toInteger()
-		userStats.all.netGainPercent = ((userStats.all.netGain / (account.currentBalance))*100).toInteger()
 		
-		def result = [
-			createdAt:resp.json.createdAt,
-			username:resp.json.username,
-			currentBalance:account.currentBalance,
-			updatedAt:resp.json.updatedAt,,
-			userId: resp.json.objectId,
-			gender: resp.json.gender,
-			region: resp.json.region,
-			email: resp.json.email,
-			userStats: userStats,
-			level: 1,
-			levelName: "novice"
-		]
+		int netGainPercentageDenominator = 1
+		if (account.currentBalance > 0){
+			netGainPercentageDenominator = account.currentBalance
+		}
+		
+		userStats.weekly.netGainPercent = ((userStats.weekly.netGain / (netGainPercentageDenominator))*100).toInteger()
+		userStats.monthly.netGainPercent = ((userStats.monthly.netGain / (netGainPercentageDenominator))*100).toInteger()
+		userStats.all.netGainPercent = ((userStats.all.netGain / (netGainPercentageDenominator))*100).toInteger()
+		
+		def result = userProfileMapRender("", account.currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name,
+			userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
+		
+		result.userStats = userStats
+		result.level = 1
+		result.levelName = "novice"
+		
 		return result		
 		
 	}
 	
 	def getUserBalance(String userId){
 		def rest = new RestBuilder()
-		def resp = parseService.retreiveUser(rest, userId)
+		def resp = parseService.retrieveUser(rest, userId)
 		
 		def account = Account.findByUserId(userId)
 		if (account == null){
@@ -366,7 +469,7 @@ class UserService {
 			]
 			return result
 		}
-		return[currentBalance:account.currentBalance]
+		return[currentBalance:account.currentBalance, inWager:"300"]
 		
 	}
 	
@@ -434,9 +537,13 @@ class UserService {
 		def firstDateOfCurrentWeek = getFirstDateOfCurrentWeek()
 		def firstDateOfCurrentMonth = getFirstDateOfCurrentMonth()
 		
+		println firstDateOfCurrentWeek
+		println firstDateOfCurrentMonth
+		
 		for (PoolTransaction tran: userPayoutTrans){
 			
 			if (tran.createdAt > firstDateOfCurrentWeek){
+				println tran.createdAt
 				stats.all.netGain += (tran.transactionAmount - tran.pick2Amount)
 				stats.monthly.netGain+=(tran.transactionAmount - tran.pick2Amount)
 				stats.weekly.netGain+=(tran.transactionAmount - tran.pick2Amount)
@@ -514,5 +621,20 @@ class UserService {
 		c.set(Calendar.HOUR_OF_DAY, 0);
 		c.set(Calendar.DAY_OF_MONTH, 1);
 		return c.getTime();
+	}
+	
+	Boolean accountExists(String userId){
+		def account = Account.findByUserId(userId)
+		if (account){
+			return true
+		}else{
+			return false
+		}
+	}
+	
+	String getUserDisplayName(String userId){
+		def account = Account.findByUserId(userId)
+		return account.username
+	
 	}
 }

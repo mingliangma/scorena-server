@@ -98,7 +98,30 @@ class UrlMappings {
 		"/v1/admin/game/customgame"(controller:"customGame"){
 			action = [POST:"createCustomGame"]
 		}
+		
+		"/v1/admin/game/autocreatequestions"(controller:"question"){
+			action = [GET:"createQuestions"]
+		}
+		
+		"/v1/admin/tournament/new"(controller:"tournament"){
+			action = [POST:"createTournament"]
+		}
+		
+//		"/v1/sports/all/tournament/list"(controller:"tournament"){
+//			action = [GET:"listTournaments"]
+//		}
+		
+		"/v1/sports/all/tournament/worldcup"(controller:"tournament"){
+			action = [GET:"getWorldCupTournament"]
+		}
+		
+		"/v1/sports/all/tournament/enroll/$tournamentId?"(controller:"tournament"){
+			action = [GET:"enrollTournament"]
+		}
 
+		"/v1/admin/cq"(view:"/CustomQuestionWebsite")
+		
+		"/v1/admin/qr"(view:"/CustomQuestionResultWebsite")
 //        "/"(view:"/index")
         "500"(view:'/error')
 	}

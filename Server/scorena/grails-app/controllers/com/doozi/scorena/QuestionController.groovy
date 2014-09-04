@@ -11,34 +11,48 @@ import grails.converters.JSON
 class QuestionController {
 	
 	def questionService
+	def userService
+	
     def listQuestions() { 
-		println params
 		
-//		if (!params.userId){
-//			response.status = 404
-//			def result = [error: "invalid parameters"]
-//			render result as JSON
-//			return
-//		}
-		
-		if (params.gameId){
-			def questions = questionService.listQuestionsWithPoolInfo(params.gameId, params.userId)
-			render questions as JSON
+		if ( !params.gameId){
+			response.status = 404
+			def result = [error: "invalid game ID parameter"]
+			render result as JSON
+			return
 		}
+		def questions = ""
+		if (params.userId && params.userId!=null && userService.accountExists(params.userId)){			
+			
+			questions = questionService.listQuestionsWithPoolInfo(params.gameId, params.userId)
+		}else{
+			questions = questionService.listQuestionsWithPoolInfo(params.gameId)
+		
+		}
+		render questions as JSON
 	}
 	
 	def getQuestionDetails(){
 		
-//		if (!params.userId){
-//			response.status = 404
-//			def result = [error: "invalid parameters"]
-//			render result as JSON
-//			return
-//		}
-		
-		if (params.gameId && params.qId){
-			def questionDetails = questionService.getQuestion( params.qId, params.userId)
-			render questionDetails as JSON
+		if (!params.qId){
+			response.status = 404
+			def result = [error: "invalid question ID parameter"]
+			render result as JSON
+			return
 		}
+		def questionDetails = ""
+		if (params.userId && userService.accountExists(params.userId)){			
+			questionDetails = questionService.getQuestion(params.qId, params.userId)
+		}else{
+			questionDetails = questionService.getQuestion(params.qId)
+		
+		}
+		render questionDetails as JSON
+	}
+	
+	def createQuestions(){
+		def questionCreationResult = questionService.createQuestions()
+		Map result = [questionCreated: questionCreationResult]
+		render result as JSON
 	}
 }

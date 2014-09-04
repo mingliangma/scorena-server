@@ -2,11 +2,16 @@ package com.doozi.scorena.controllerservice
 import java.util.Date;
 
 import grails.transaction.Transactional
+import groovyjarjarcommonscli.ParseException
 
 @Transactional
 class HelperService {
 
-    def setUTCFormat(def date) {
+    String getOutputDateFormat(Date date){
+		return date.format("yyyy-MM-dd HH:mm:ss z")
+	}
+	
+	def setUTCFormat(def date) {
 		return date.toString()+" UTC"		
     }
 	
@@ -23,5 +28,16 @@ class HelperService {
 	def getUTCCuurentTime(){
 		def now = new Date()
 		return now
+	}
+	
+	boolean dateValidator(String date){
+
+		try {
+		   Date.parse('yyyy-MM-dd HH:mm:ss', date)
+		   return true
+		} catch (Exception e) {
+		   return false
+		}
+		 
 	}
 }

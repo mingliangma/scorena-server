@@ -11,6 +11,7 @@ class SportsDataService {
 	static String CALCIO_SERIES_A = "l.lega-calci"
 	static String LA_LIGA= "l.lfp.es.pri"
 	static String MLS = "l.mlsnet.com"
+	static String WORLD_CUP = "l.fifaworldc"
 	
 	static String PREEVENT = "pre-event"
 	static String POSTEVENT = "post-event"
@@ -31,13 +32,15 @@ class SportsDataService {
 		else if (eventKey.startsWith(CHAMP_LEAGUE)) 
 			return "UEFA Champions League"
 		else if (eventKey.startsWith(BRAZIL_SERIES_A))
-			return "Brazil league Serie A"
+			return "Brazil league Series A"
 		else if (eventKey.startsWith(CALCIO_SERIES_A))
 			return "Calcio Series A"
 		else if (eventKey.startsWith(LA_LIGA))
 			return "La Liga"
 		else if (eventKey.startsWith(MLS))
 			return "Major League Soccer"
+		else if (eventKey.startsWith(WORLD_CUP))
+			return "World Cup 2014"
 		else if (eventKey.startsWith(customGameService.CUSTOM_EVENT_PREFIX))
 			return "Launch Party"
 	}
@@ -55,6 +58,8 @@ class SportsDataService {
 			return LA_LIGA
 		else if (eventKey.startsWith(MLS))
 			return MLS
+		else if (eventKey.startsWith(WORLD_CUP))
+			return WORLD_CUP
 		else if (eventKey.startsWith(customGameService.CUSTOM_EVENT_PREFIX))
 			return customGameService.CUSTOM_EVENT_PREFIX
 	}
@@ -64,12 +69,23 @@ class SportsDataService {
 	def getAllUpcomingGames(){
 		def todayDate = new Date()		
 		def upcomingDate = todayDate + UPCOMING_DATE_RANGE;
-		def upcomingGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime<? and g.startDateTime>? and g.eventStatus<>'post-event' order by g.startDateTime", [upcomingDate, todayDate-1], [cache: true])
+//		def upcomingGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime<? and g.startDateTime>? and g.eventStatus<>'post-event' order by g.startDateTime", [upcomingDate, todayDate-1])
+		def c = ScorenaAllGames.createCriteria()
+		def upcomingGames = c.list {
+			between("startDateTime", todayDate-1, upcomingDate)
+			ne("eventStatus", "post-event")
+		    order("startDateTime", "asc")
+		}
+		println "SportsDataService::getAllUpcomingGames(): upcoming game size: "+upcomingGames.size()
+		
+	
+		
 		def upcomingGamesMap = [:]
 		List upcomingGamesList = []
 		for (ScorenaAllGames game: upcomingGames){
 			String eventKey = game.eventKey
 			def upcomingGame = upcomingGamesMap.get(eventKey)
+			def upcomingGameFullName = game.fullName.trim()
 			
 			String matchDateString = helperService.setUTCFormat(game.startDateTime)				
 			def matchDate = helperService.parseDateFromString(matchDateString)				
@@ -77,12 +93,22 @@ class SportsDataService {
 				if (game.eventStatus == "pre-event"){
 					println "ERROR: SportsDataService::getAllUpcomingGames(): gameStatus should not be pre-event!"
 					println "gameEvent: "+ game.eventKey
-					println "score: "+ game.score
+					println "eventStatus: " +game.eventStatus
+					println "score: " +game.score
+					println "team: " +upcomingGameFullName
+					println "===================================="
 					continue
 				}
 			}
 						
-			
+			if (eventKey.startsWith("l.fifaworldcup.com-2013")){
+					println "ERROR: SportsDataService::getAllUpcomingGames(): incorrect EventKey! "
+					println "------gameEvent: "+ game.eventKey
+					println "------teamname: " +upcomingGameFullName
+					println "------score: "+ game.score
+					println "------gameStatus: "+game.eventStatus
+					continue
+			}
 			
 			if (!upcomingGame){
 				def	gameInfo = [
@@ -93,7 +119,7 @@ class SportsDataService {
 						"gameStatus":game.eventStatus,
 						"date": helperService.setUTCFormat(game.startDateTime) ,
 						(game.alignment):[
-							"teamname":game.fullName,
+							"teamname":upcomingGameFullName,
 							"score":game.score
 						]
 				]
@@ -107,9 +133,9 @@ class SportsDataService {
 				}
 			
 				if (!upcomingGame.away){
-					upcomingGame.away = ["teamname":game.fullName, "score":game.score]
+					upcomingGame.away = ["teamname":upcomingGameFullName, "score":game.score]
 				}else{
-					upcomingGame.home = ["teamname":game.fullName, "score":game.score]
+					upcomingGame.home = ["teamname":upcomingGameFullName, "score":game.score]
 				}
 				upcomingGamesList.add(upcomingGame)
 				
@@ -119,15 +145,30 @@ class SportsDataService {
 		return upcomingGamesList
 	}
 	
-	def getAllPastGames(){
+	List getAllPastGames(){
 		def todayDate = new Date()
 		def pastDate = todayDate - PAST_DATE_RANGE;
-		def pastGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime>? and g.startDateTime<?and g.eventStatus='post-event'", [pastDate, todayDate+1])
+//		def pastGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime>? and g.startDateTime<?and g.eventStatus='post-event'", [pastDate, todayDate+1])
+		
+		def c = ScorenaAllGames.createCriteria()
+		def pastGames = c.list {
+			between("startDateTime", pastDate, todayDate+1)
+			eq("eventStatus", "post-event")
+			order("startDateTime", "desc")
+		}
+		
+		println "SportsDataService::getAllPastGames(): past game size: "+pastGames.size()
 		def pastGamesMap = [:]
 		List pastGamesList = []
 		for (ScorenaAllGames game: pastGames){
+			
+			def pastGameFullName = game.fullName.trim()
+			
 			if (game.eventStatus != "post-event"){
 				println "SportsDataService::getAllPastGames():wrong event: "+ game.eventKey
+				println "eventStatus: " +game.eventStatus
+				println "score: " +game.score
+				println "team: " +pastGameFullName
 			}
 			
 			String eventKey = game.eventKey
@@ -142,7 +183,7 @@ class SportsDataService {
 						"gameStatus":game.eventStatus,
 						"date":helperService.setUTCFormat(game.startDateTime),
 						(game.alignment):[
-							"teamname":game.fullName,
+							"teamname":pastGameFullName,
 							"score":game.score
 						]
 				]
@@ -150,9 +191,9 @@ class SportsDataService {
 			}else{
 			
 				if (!pastGame.away){
-					pastGame.away = ["teamname":game.fullName, "score":game.score]
+					pastGame.away = ["teamname":pastGameFullName, "score":game.score]
 				}else{
-					pastGame.home = ["teamname":game.fullName, "score":game.score]
+					pastGame.home = ["teamname":pastGameFullName, "score":game.score]
 				}
 				pastGamesList.add(pastGame)
 				
@@ -162,10 +203,13 @@ class SportsDataService {
 	}
 	
 	def getGame(def eventKey){
-		def games = ScorenaAllGames.findAllByEventKey(eventKey,[cache: true])
+		def games = ScorenaAllGames.findAllByEventKey(eventKey)
 		
 		def gameInfo = []
 		for (ScorenaAllGames game: games){
+			
+			def gameFullName = game.fullName.trim()
+			
 			if (gameInfo.empty){
 				gameInfo = [
 					"leagueName": getLeagueNameFromEventKey(eventKey),
@@ -175,15 +219,15 @@ class SportsDataService {
 					"gameStatus":game.eventStatus,
 					"date":helperService.setUTCFormat(game.startDateTime),
 					(game.alignment):[
-						"teamname":game.fullName,
+						"teamname":gameFullName,
 						"score":game.score
 					]
 				]
 			}else{
 				if (!gameInfo.away){
-					gameInfo.away = ["teamname":game.fullName, "score":game.score]
+					gameInfo.away = ["teamname":gameFullName, "score":game.score]
 				}else{
-					gameInfo.home = ["teamname":game.fullName, "score":game.score]
+					gameInfo.home = ["teamname":gameFullName, "score":game.score]
 				}
 				
 			}
@@ -242,6 +286,7 @@ class SportsDataService {
 		for (PastEplView game: pastGames){
 			def eventKey = game.eventKey
 			def pastGame = pastGamesMap.get(eventKey)
+			def pastGameFullName = game.fullName.trim()
 			
 			if (!pastGame){	
 				def	gameInfo = [
@@ -250,7 +295,7 @@ class SportsDataService {
 						"type":"soccer",
 						"date":game.startDateTime,
 						(game.alignment):[
-							"teamname":game.fullName,
+							"teamname":pastGameFullName,
 							"score":game.score
 						]
 				]				
@@ -258,9 +303,9 @@ class SportsDataService {
 			}else{
 			
 				if (!pastGame.away){
-					pastGame.away = ["teamname":game.fullName, "score":game.score]
+					pastGame.away = ["teamname":pastGameFullName, "score":game.score]
 				}else{
-					pastGame.home = ["teamname":game.fullName, "score":game.score]
+					pastGame.home = ["teamname":pastGameFullName, "score":game.score]
 				}
 				pastGamesList.add(pastGame)
 				

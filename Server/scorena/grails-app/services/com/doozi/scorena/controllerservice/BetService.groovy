@@ -14,7 +14,9 @@ import grails.transaction.Transactional
 
 @Transactional
 class BetService {
-
+	def sportsDataService
+	def customGameService
+	
 	def getPayoutTransByQuestion(Question q){
 		def result = PoolTransaction.find("from PoolTransaction as t where (t.transactionType=1 and t.question.id=?)",[q.id])
 	}
@@ -42,6 +44,7 @@ class BetService {
 		
 		if (!playerAccount.save(failOnError:true)){
 			println "ERROR: payout transaction failed to be added to player account"
+			result = -1
 		}
 		
 		if (!q.save(failOnError:true)){
@@ -57,9 +60,34 @@ class BetService {
 		if (!account){
 			return [code:202, message: "the userId does not exsist"]
 		}
-		def question = Question.findById(quesitonId)
+		
+		if (account.currentBalance < _wager){
+			return [code:202, message: "The user does not have enough coins to make a bet"]
+		}
+		
+		if (_wager <= 0){
+			return [code:202, message: "The user cannot bet negative amount"]
+		}
+		
+		if (_pick < 1 || _pick > 2){
+			return [code:202, message: "the pick is not available"]
+		}
+		
+		Question question = Question.findById(quesitonId)
 		if (!question){
 			return [code:202, message: "the questionId does not exsist"]
+		}
+		
+		def game = sportsDataService.getGame(question.eventKey)
+		if (game!=[]){
+			if (game.gameStatus != sportsDataService.PREEVENT){
+				return [code:202, message: "the match is already started. All pool is closed"]
+			}
+		}else{
+			def customGame = customGameService.getGame(question.eventKey)
+			if (customGame.gameStatus != sportsDataService.PREEVENT){
+				return [code:202, message: "the match is already started. All pool is closed"]
+			}
 		}
 		return saveBetTrans(_wager, _time, _pick, account, question)
 		

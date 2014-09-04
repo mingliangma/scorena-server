@@ -19,6 +19,17 @@ class ProcessEngineImplService {
 			false
 	}
 	
+	private Boolean isCustomQuestion(String qContentType){		
+		if (qContentType == QuestionContent.CUSTOM){
+			return true
+		}else if (qContentType == QuestionContent.CUSTOMTEAM0){
+			return true
+		}else if (qContentType == QuestionContent.CUSTOMTEAM1){
+			return true
+		}
+		return false
+	}
+	
 	def processUnpaidPayout(){
 		println "ProcessEngineImplService::processUnpaidPayout(): starts"
 		def gameRecords = GameProcessRecord.findAllByTransProcessStatus(3)
@@ -37,7 +48,8 @@ class ProcessEngineImplService {
 			for (Question q:questions){
 				
 				// non-custom questions are not processed
-				if (q.questionContent.questionType != QuestionContent.CUSTOM){
+				if (!isCustomQuestion(q.questionContent.questionType)){
+					println "quetion "+q.questionContent+" is type " + q.questionContent.questionType
 					continue
 				}
 				
@@ -157,6 +169,12 @@ class ProcessEngineImplService {
 			int potAmoutToBePaid = lastTransaction.pick1Amount + lastTransaction.pick2Amount
 			int numPlayersToBePaid = lastTransaction.pick1NumPeople + lastTransaction.pick2NumPeople
 			
+			boolean onePickHasNoBet = false
+			if (lastTransaction.pick1NumPeople == 0 ^ lastTransaction.pick2NumPeople == 0) {
+				onePickHasNoBet = true
+				payoutMultipleOfWager = 1
+			}
+			
 			betTransactions = betService.listAllBets(q.id)
 			
 			int totalWager = 0
@@ -165,7 +183,7 @@ class ProcessEngineImplService {
 			for (PoolTransaction bet: betTransactions){
 				Account account = bet.account
 				int payout = 0
-				if (winnerPick == 0 || bet.pick == winnerPick)
+				if (winnerPick == 0 || bet.pick == winnerPick || onePickHasNoBet)
 					payout =  Math.floor(bet.transactionAmount*payoutMultipleOfWager)
 					
 				def newBalance = account.currentBalance + payout
@@ -185,7 +203,6 @@ class ProcessEngineImplService {
 			
 			println "ProcessEngineImplService::processPayout(): ends"
     }
-	
 	
 	/**
 	 * @param eventKey
@@ -213,7 +230,14 @@ class ProcessEngineImplService {
 			case QuestionContent.CUSTOM:
 				winnerPick = getCustomQuestionWinnerPick(eventKey, question)
 				break;
+			case QuestionContent.CUSTOMTEAM0:
+				winnerPick = getCustomQuestionWinnerPick(eventKey, question)
+				break;
+			case QuestionContent.CUSTOMTEAM1:
+				winnerPick = getCustomQuestionWinnerPick(eventKey, question)
+				break;
 		}
+		return winnerPick
 	}
 	
 	int getCustomQuestionWinnerPick(eventKey, question){

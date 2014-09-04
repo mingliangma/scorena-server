@@ -21,37 +21,11 @@ import com.doozi.scorena.sportsdata.*
 //3b social friend list from away side 
 
 class GameController {
-
-    def index() 
-	{
-		/*
-		String theDate = "12/03/2014 16:00:00";
-		def newdate = new Date().parse("d/M/yyyy H:m:s", theDate)
-		def game = new Game(league: "EPL", away: "Chelsea", home:"Man Unitied", type:"soccer", country:"england", date:newdate)
-		
-		if (game.save())
-		{
-			System.out.println("user successfully saved")
-			render game as JSON
-		}
-		else
-		{
-			System.out.println("user save failed")
-			render status:404
-		}
-		*/
-	}
 	
 	def gameService
 	def sportsDataService
-	
-	/*
-	def upcomingEplSportsDb()
-	{
-		def upcomingGames = viewService.getUpcomingEplMatches()
-		render upcomingGames as JSON
-	}
-	*/
+	def userService
+	def processEngineManagerService
 	
 	def upcomingEplSportsDb()
 	{
@@ -79,7 +53,7 @@ class GameController {
 
 	def getUpcomingGames(){
 		def upcomingGames
-		if (params.userId){
+		if (params.userId && userService.accountExists(params.userId)){			
 			upcomingGames = gameService.listUpcomingGames(params.userId)
 		}else{
 			upcomingGames = gameService.listUpcomingGames()
@@ -89,14 +63,14 @@ class GameController {
 	}
 	
 	def getPastGames(){
-		def upcomingGames
-		if (params.userId){
-			upcomingGames = gameService.listPastGames(params.userId)
+		def pastGames
+		if (params.userId && userService.accountExists(params.userId)){		
+			pastGames = gameService.listPastGames(params.userId)
 		}else{
-			 upcomingGames = gameService.listPastGames()
+			 pastGames = gameService.listPastGames()
 		}
 
-		render upcomingGames as JSON
+		render pastGames as JSON
 	}
 	
 	def getGame(){
@@ -109,7 +83,7 @@ class GameController {
 	
 	def getFeatureGames(){
 		def featureGames
-		if (params.userId){
+		if (params.userId && userService.accountExists(params.userId)){						
 			featureGames = gameService.listFeatureGames(params.userId)
 		}else{
 			featureGames = gameService.listFeatureGames()
@@ -117,44 +91,8 @@ class GameController {
 		render featureGames as JSON
 	}
 	
-	def getFeatureEvents()
-	{
-		String theDate = "12/03/2014 16:00:00";
-		def date1 = new Date().parse("d/M/yyyy H:m:s", theDate)
-		theDate = "17/03/2014 15:00:00";
-		def date2 = new Date().parse("d/M/yyyy H:m:s", theDate)
-		theDate = "17/03/2014 20:00:00";
-		def date3 = new Date().parse("d/M/yyyy H:m:s", theDate)
-		
-		JSONBuilder jSON = new JSONBuilder ()
-		
-		JSON content = jSON.build 
-		{
-			games = array 
-			{
-				unsued 
-				{
-					home = 	"Stoke City"
-					away = "Chelsea"					
-					date = date1
-					league = "EPL"
-					type = "soccer"
-					
-					quesiton = 
-					{
-						content = "Who will score the first goal?"
-						pick1 = "Stoke City"
-						pick2 = "Chelsea"
-					}
-				}		
-			}
-		}
-		
-		response.status = 200
-		render  content
-	}
 	
-	def processEngineManagerService
+
 	def processGameTesting(){
 		def result = processEngineManagerService.startProcessEngine()
 		render result as JSON

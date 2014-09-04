@@ -18,7 +18,14 @@ class GameService {
 	public static final String INTERMISSION = "intermission"
 	public static final String MIDEVENT = "mid-event"
 	
-	def listUpcomingGames(){
+	List listUpcomingNonCustomGames(){
+		List upcomingGames = sportsDataService.getAllUpcomingGames()
+		List upcomingGamesResult=[]
+		upcomingGamesResult.addAll(upcomingGames)
+		return upcomingGamesResult
+	}
+	
+	List listUpcomingGames(){
 		List upcomingGames = sportsDataService.getAllUpcomingGames()
 		List upcomingCustomGames = customGameService.getAllUpcomingGames()
 		List upcomingGamesResult=[]		
@@ -27,12 +34,10 @@ class GameService {
 		return upcomingGamesResult
 	}
 	
-	def listUpcomingGames(def userId){
-		List upcomingGames = sportsDataService.getAllUpcomingGames()	
-		List upcomingCustomGames = 	customGameService.getAllUpcomingGames()		
-		List upcomingGamesResult=[]			
-		upcomingGamesResult.addAll(upcomingCustomGames)
-		upcomingGamesResult.addAll(upcomingGames)
+	List listUpcomingGames(def userId){
+				
+		List upcomingGamesResult=listUpcomingGames()
+		
 		def playedGames = betService.listDistinctBetEventKeyByUserId(userId)
 		
 		for (def upcomingGame: upcomingGamesResult){
@@ -47,14 +52,6 @@ class GameService {
 		return upcomingGamesResult
 	}
 	
-	//deprecated
-//	def getUpcomingGameObjects(){
-//		def today = new Date();
-//		def weekLater = today + 7;
-//		def upcomingGames = Game.findAllByStartDateBetween(today, weekLater)
-//		return upcomingGames
-//	}
-	
 	def listPastGames(){
 		List pastGames = sportsDataService.getAllPastGames()	
 		List pastCustomGames = 	customGameService.getAllPastGames()
@@ -65,11 +62,9 @@ class GameService {
 	}
 	
 	def listPastGames(def userId){
-		List pastGames = sportsDataService.getAllPastGames()
-		List pastCustomGames = 	customGameService.getAllPastGames()
-		List pastGamesResult=[]	
-		pastGamesResult.addAll(pastCustomGames)
-		pastGamesResult.addAll(pastGames)
+
+		List pastGamesResult=listPastGames()
+		
 		def playedGames = betService.listDistinctBetEventKeyByUserId(userId)
 
 		for (def pastGame: pastGamesResult){
@@ -81,6 +76,7 @@ class GameService {
 			for (def eventKey: playedGames){
 				if (gameId == eventKey){					
 					pastGame.placedBet = true
+					pastGame.gameWinningAmount = "+100"
 				}
 			}
 		}
@@ -97,42 +93,6 @@ class GameService {
 		return featureGames
 	}
 	
-//	def listPastGames() {
-//		def today = new Date();
-//		def upcomingGames = Game.findAllByStartDateLessThan(today)
-//		
-//		List resultList = []
-//		
-//		
-//		for (Game g: upcomingGames){
-//			def hScore
-//			def aScore
-//			if (g.id%2 == 0){				
-//				hScore= "1"
-//				aScore= "3"			
-//			}else{
-//				hScore= "2"
-//				aScore= "1"
-//			}
-//			
-//
-//			
-//			resultList.add([
-//				id: g.id,
-//				home: 	g.homeTeamNameFirst,
-//				away: g.awayTeamNameFirst,
-//				date: g.startDate,
-//				league: g.league,
-//				type: g.type,
-//				homeScore: hScore,
-//				awayScore: aScore
-//			])
-//		}
-//		
-//		
-//		return resultList
-//	}
-	
 	def getGame(String gameId){
 		
 		if (gameId.startsWith(customGameService.CUSTOM_EVENT_PREFIX))
@@ -140,34 +100,7 @@ class GameService {
 		else	
 			return sportsDataService.getGame(gameId)
 		
-	}
-	
-//	def getGame(gameId){
-//		def match = Game.findById(gameId)
-//		def gameEvent
-//		if (match.gameEvent){
-//			gameEvent = [
-//						homeScore: match.gameEvent.homeScore,
-//						awayScore: match.gameEvent.awayScore
-//						]
-//		}else{
-//			gameEvent=[]
-//		}
-//		
-//		def all = match.collect {Game game ->
-//			[	id: game.id,
-//				home: 	game.homeTeamNameFirst,
-//				away: game.awayTeamNameFirst,
-//				date: game.startDate,
-//				league: game.league,
-//				type: game.type,
-//				event: gameEvent
-//			]
-//		  }
-//		
-//		return all
-//	}
-	
+	}	
 	
 	def listUpcomingGamesAndQuestions() {
 		def today = new Date();

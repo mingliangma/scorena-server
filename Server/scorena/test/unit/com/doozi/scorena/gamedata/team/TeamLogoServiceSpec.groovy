@@ -1,6 +1,4 @@
-package com.doozi.scorena
-
-import com.doozi.scorena.controllerservice.ParseService;
+package com.doozi.scorena.gamedata.team
 
 import grails.test.mixin.TestFor
 import spock.lang.Specification
@@ -8,8 +6,8 @@ import spock.lang.Specification
 /**
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
-@TestFor(ParseService)
-class ParseServiceSpec extends Specification {
+@TestFor(TeamLogoService)
+class TeamLogoServiceSpec extends Specification {
 
     def setup() {
     }

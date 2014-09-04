@@ -17,8 +17,8 @@ dataSource_sportsData
 
 hibernate 
 {
-    cache.use_second_level_cache = true
-    cache.use_query_cache = true
+    cache.use_second_level_cache = false
+    cache.use_query_cache = false
     cache.region.factory_class = 'net.sf.ehcache.hibernate.EhCacheRegionFactory' // Hibernate 3
     //cache.region.factory_class = 'org.hibernate.cache.ehcache.EhCacheRegionFactory' // Hibernate 4
 }
@@ -56,6 +56,37 @@ environments
 			 }
 		}
     }
+	
+	prodtesting
+	{
+		dataSource
+		{
+			dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
+			url = "jdbc:mysql://prodtestinginstance.cce59dcpxmml.us-west-2.rds.amazonaws.com/scorenaproductiondb?useUnicode=yes&characterEncoding=UTF-8"
+			username = "scorenauser"
+			password = "scorenauser"
+		}
+		
+		dataSource_sportsData
+		{
+			dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
+			
+			url = "jdbc:mysql://xmlinstance.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/sportsdb?user=dooziadmin&password=dooziadmin"
+
+			properties
+			{
+				maxActive = -1
+				minEvictableIdleTimeMillis=1800000
+				timeBetweenEvictionRunsMillis=1800000
+				numTestsPerEvictionRun=3
+				testOnBorrow=true
+				testWhileIdle=true
+				testOnReturn=false
+				validationQuery="SELECT 1"
+				jdbcInterceptors="ConnectionState"
+			 }
+		}
+	}
 	
 	//jdbc:mysql://mydbinstance.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/scorenaT?user=scorenaadmin&password=scorenaadmin
 	
@@ -120,14 +151,19 @@ environments
 			
             properties 
 			{
-               maxActive = -1
-               minEvictableIdleTimeMillis=1800000
-               timeBetweenEvictionRunsMillis=1800000
-               numTestsPerEvictionRun=3
+               //max connections is 310
+				initialSize=10
+		      maxActive=190
+		      maxIdle=110
+		      minIdle=30
+               minEvictableIdleTimeMillis=55000
+               timeBetweenEvictionRunsMillis=34000
+			   validationQuery="SELECT 1"
+			   validationInterval=30000
                testOnBorrow=true
-               testWhileIdle=true
-               testOnReturn=false
-               validationQuery="SELECT 1"
+			   removeAbandoned="true"
+			   removeAbandonedTimeout=55
+			   abandonWhenPercentageFull=100
                jdbcInterceptors="ConnectionState"
             }
         }
@@ -142,15 +178,19 @@ environments
 			
 			properties
 			{
-				maxActive = -1
-				minEvictableIdleTimeMillis=1800000
-				timeBetweenEvictionRunsMillis=1800000
-				numTestsPerEvictionRun=3
-				testOnBorrow=true
-				testWhileIdle=true
-				testOnReturn=false
-				validationQuery="SELECT 1"
-				jdbcInterceptors="ConnectionState"
+			   initialSize=10
+			   maxActive=190
+			   maxIdle=110
+			   minIdle=30
+               minEvictableIdleTimeMillis=55000
+               timeBetweenEvictionRunsMillis=34000
+			   validationQuery="SELECT 1"
+			   validationInterval=30000
+               testOnBorrow=true
+			   removeAbandoned="true"
+			   removeAbandonedTimeout=55
+			   abandonWhenPercentageFull=100
+               jdbcInterceptors="ConnectionState"
 			 }
 		}
     }

@@ -94,6 +94,12 @@ environments {
 		parse.parseRestApiKey ='QSBmZXNUjRMtKwWcqB7jLQgtZizCSMBBeoBQHIql'
     }
 	
+	prodtesting {
+		grails.logging.jul.usebridge = true
+		parse.parseApplicationId='kEepaeRdIInsSbptLl4lZ6xiZg7nv7bEOV56ym9m'
+		parse.parseRestApiKey ='QSBmZXNUjRMtKwWcqB7jLQgtZizCSMBBeoBQHIql'
+	}
+	
 	test{
 		grails.logging.jul.usebridge = true
 		parse.parseApplicationId=System.getProperty("PARAM1")
@@ -111,6 +117,8 @@ environments {
         grails.logging.jul.usebridge = false
 		parse.parseApplicationId=System.getProperty("PARAM1")
 		parse.parseRestApiKey =System.getProperty("PARAM2")
+		parse.parseApplicationId_t3=System.getProperty("PARAM3")
+		parse.parseRestApiKey_t3 =System.getProperty("PARAM4")
     }
 	
 	heng {

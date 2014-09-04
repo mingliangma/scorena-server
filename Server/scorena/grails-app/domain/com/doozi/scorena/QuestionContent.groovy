@@ -14,7 +14,10 @@ class QuestionContent {
 	
 	public static final String WHOWIN = "team-0"
 	public static final String SCOREGREATERTHAN = "truefalse-0"
-	public static final String CUSTOM = "custom"
+	public static final String CUSTOM = "custom" 
+	public static final String CUSTOMTEAM0 = "custom-team-0"
+	public static final String CUSTOMTEAM1 = "custom-team-1"
+	public static final String DISABLE = "disable"
 	
 	static hasMany = [question: Question]
 

@@ -89,9 +89,62 @@ class QuestionService {
 			if (denominatorPick1Mult==0)
 				denominatorPick1Mult=1
 				
+<<<<<<< HEAD
+				def game = gameService.getGame(q.eventKey)
+				def winnerPick =-1
+				if (game.gameStatus.trim() == "post-event"){
+					winnerPick = processEngineImplService.getWinningPick(q.eventKey, q)
+				}
+				def userInfo=[]
+				if (userId!=null){
+					boolean placedBet = false
+					int userPickStatus = -1
+					def userPick =-1
+					
+					def userBet
+					userBet = betService.getBetByQuestionIdAndUserId(q.id, userId)	
+					if (userBet){
+						placedBet = true
+						userPick=userBet.pick
+						if (winnerPick!=-1){
+							
+							if (winnerPick==0){
+								userPickStatus = 0
+							}else if (winnerPick==userBet.pick){
+								userPickStatus = 1
+							}else{
+								userPickStatus = 2
+							}
+						}
+					}							
+		
+					userInfo=[placedBet:placedBet, userPickStatus:userPickStatus, userPick:userPick]
+				}
+				resultList.add([
+					questionId: q.id,
+					content: q.questionContent.content,
+					pick1: q.pick1,
+					pick2: q.pick2,
+					userInfo:userInfo,
+					winnerPick:winnerPick,
+					pool: [
+						pick1Amount: lastBet.pick1Amount,
+						pick1NumPeople: lastBet.pick1NumPeople,
+						pick1PayoutPercent: pick1PayoutPercentage,
+						pick1odds:  df.format(pick1PayoutMultiple).toDouble(),
+						pick2Amount:lastBet.pick2Amount,
+						pick2NumPeople: lastBet.pick2NumPeople,
+						pick2PayoutPercent: pick2PayoutPercentage,
+						pick2odds:  df.format(pick2PayoutMultiple).toDouble(),
+					]
+					
+				])
+			}
+=======
 			if (denominatorPick2Mult==0)
 				denominatorPick2Mult=1
 			
+>>>>>>> 6e69f55f1605b1110a7455b55a0551e2e4b49ae5
 		
 			def pick1PayoutMultiple =  (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick1Mult
 			def pick2PayoutMultiple = (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick2Mult

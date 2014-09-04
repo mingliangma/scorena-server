@@ -71,7 +71,7 @@ class UserController {
 	//curl -v -X GET  -G --data-urlencode 'username=Ming' --data-urlencode 'password=11111111' localhost:8080/scorena/v1/login
 	def login(){
 		
-		response.setHeader('Access-Control-Allow-Origin', '*')
+//		println params
 		if (!params.username||!params.password){
 			response.status = 404
 			def result = [error: "invalid parameters"]			
@@ -179,7 +179,7 @@ class UserController {
 	}
 	
 	def getRanking(){
-		println params
+
 		if (!params.userId || params.userId==""){
 			response.status = 404
 			def result = [error: "userId is required"]
@@ -187,14 +187,14 @@ class UserController {
 			return
 		}
 		
-		def rankingResult = userService.getRanking(params.userId)
+		Map rankingResult = userService.getRanking(params.userId)
 		if (rankingResult.code){
 			response.status = 404
 			render rankingResult as JSON
 			return
 		}
 		render rankingResult as JSON
-		return
+		
 	}
 	
 	def getCoins(){
@@ -223,6 +223,11 @@ class UserController {
 			return
 		}
 		def balanceResult = userService.getUserBalance(params.userId)
+		if (balanceResult.code){
+			response.status = 404
+			render balanceResult as JSON
+			return
+		}
 		render balanceResult as JSON
 	}
 	

@@ -18,7 +18,8 @@ class ScorenaAllGames  implements Serializable{
 		table 'scorena_all_games'
 		version false
 		eventKey column : "event_key"
-		id composite: ['eventKey', 'teamKey']		
+		id composite: ['eventKey', 'teamKey']
+		cache false	
 	}
 	
     static constraints = {
