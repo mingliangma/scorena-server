@@ -14,7 +14,8 @@ import groovy.time.TimeCategory
 import groovy.time.TimeDuration
 
 /**
- *
+ * Note: ListQuestions APIs are complete. getQuestionDetails APIs are NOT complete.
+ * Author: Chih-Hong Pang
  */
 class QuestionControllerIntegrationSpec extends Specification {
 
@@ -422,4 +423,36 @@ class QuestionControllerIntegrationSpec extends Specification {
 			questionC.response.json.error == "User Id does not exists"
 			
 	}
+	
+//	void "getQuestionDetails_Success_PreEvent" () {
+//		
+//	}
+//	
+//	void "getQuestionDetails_Success_PostEvent" () {
+//	
+//	}
+	//key: call the method directly (not done)
+	void "getQuestionDetails_Failure_NoQuestionIdInParam" () {
+		setup:
+			def questionC = new QuestionController()
+			questionC.questionService = questionService
+			questionC.userService = userService
+			
+			def gameC = new GameController()
+			gameC.gameService = gameService
+			gameC.sportsDataService = sportsDataService
+		
+		when:
+			questionC.getQuestionDetails()
+		
+		then:
+			questionC.response.status == 404
+			questionC.response.json.error == "invalid question ID parameter"
+		
+	}
+	
+//	void "getQuestionDetails_Failure_InvalidQuestionId" () {
+//	
+//	}
+	
 }
