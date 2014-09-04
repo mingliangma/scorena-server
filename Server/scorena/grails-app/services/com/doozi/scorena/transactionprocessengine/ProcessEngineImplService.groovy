@@ -19,6 +19,17 @@ class ProcessEngineImplService {
 			false
 	}
 	
+	private Boolean isCustomQuestion(String qContentType){		
+		if (qContentType == QuestionContent.CUSTOM){
+			return true
+		}else if (qContentType == QuestionContent.CUSTOMTEAM0){
+			return true
+		}else if (qContentType == QuestionContent.CUSTOMTEAM1){
+			return true
+		}
+		return false
+	}
+	
 	def processUnpaidPayout(){
 		println "ProcessEngineImplService::processUnpaidPayout(): starts"
 		def gameRecords = GameProcessRecord.findAllByTransProcessStatus(3)
@@ -37,7 +48,8 @@ class ProcessEngineImplService {
 			for (Question q:questions){
 				
 				// non-custom questions are not processed
-				if (q.questionContent.questionType != QuestionContent.CUSTOM){
+				if (!isCustomQuestion(q.questionContent.questionType)){
+					println "quetion "+q.questionContent+" is type " + q.questionContent.questionType
 					continue
 				}
 				
@@ -210,6 +222,12 @@ class ProcessEngineImplService {
                 winnerPick = getScoreGreaterThanWinnerPick(eventKey, question, questionContent.indicator1)
 				break;
 			case QuestionContent.CUSTOM:
+				winnerPick = getCustomQuestionWinnerPick(eventKey, question)
+				break;
+			case QuestionContent.CUSTOMTEAM0:
+				winnerPick = getCustomQuestionWinnerPick(eventKey, question)
+				break;
+			case QuestionContent.CUSTOMTEAM1:
 				winnerPick = getCustomQuestionWinnerPick(eventKey, question)
 				break;
 		}
