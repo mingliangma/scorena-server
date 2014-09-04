@@ -117,6 +117,8 @@ environments {
         grails.logging.jul.usebridge = false
 		parse.parseApplicationId=System.getProperty("PARAM1")
 		parse.parseRestApiKey =System.getProperty("PARAM2")
+		parse.parseApplicationId_t3=System.getProperty("PARAM3")
+		parse.parseRestApiKey_t3 =System.getProperty("PARAM4")
     }
 	
 	heng {

@@ -196,6 +196,22 @@ class UserService {
 		return resp.json
 	}
 	
+	public Map getUserProfileBySessionToken_tempFix(RestBuilder rest, String sessionToken){
+		def resp = parseService.validateSessionT3(rest, sessionToken)
+		if (resp.status != 200){
+			def result = [
+				code:resp.json.code,
+				error:resp.json.error
+			]
+			return result
+		}
+		Map userProfileT3 = resp.json
+		println userProfileT3
+		Map userProfile = parseService.retrieveUserByDisplayName(userProfileT3.display_name)
+		println userProfile.results[0]
+		return userProfile.results[0]
+	}
+	
 	private Map userLogin(RestBuilder rest, String username, String password){
 		println username
 		println password
@@ -283,7 +299,7 @@ class UserService {
 		int currentBalance = SOCIALNETWORK_INITIAL_BALANCE
 		RestBuilder rest = new RestBuilder()
 		
-		Map userProfile = getUserProfileBySessionToken(rest, sessionToken)
+		Map userProfile = getUserProfileBySessionToken_tempFix(rest, sessionToken)
 		if (userProfile.code){
 			return userProfile
 		}

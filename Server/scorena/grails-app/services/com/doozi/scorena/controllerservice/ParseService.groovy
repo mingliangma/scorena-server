@@ -29,6 +29,17 @@ class ParseService {
 		return resp
     }
 	
+	def validateSessionT3(def rest, def sessionToken) {
+		def parseConfig = grailsApplication.config.parse
+		
+		def resp = rest.get("https://api.parse.com/1/users/me"){
+			header 	"X-Parse-Application-Id", parseConfig.parseApplicationId_t3
+			header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey_t3
+			header	"X-Parse-Session-Token", sessionToken
+		}
+		return resp
+	}
+	
 	def createUser(def rest, String usernameInput, String emailInput, String passwordInput, String genderInput, String regionInput, String displayNameInput){
 		def parseConfig = grailsApplication.config.parse
 		
@@ -116,6 +127,23 @@ class ParseService {
 		}				
 		
 		String url = "https://api.parse.com/1/users?where=" + getJSONWhereConstraints(objectIds);
+		
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpGet httpget = new HttpGet(url);
+				
+		httpget.addHeader("X-Parse-Application-Id", parseConfig.parseApplicationId);
+		httpget.addHeader("X-Parse-REST-API-Key", parseConfig.parseRestApiKey);
+
+		HttpResponse httpResponse = httpclient.execute(httpget);
+		JSONObject resultJson = new JSONObject(EntityUtils.toString(httpResponse.getEntity()));
+		
+		return (resultJson as Map)
+	}
+	
+	Map retrieveUserByDisplayName(def displayName){
+		def parseConfig = grailsApplication.config.parse
+		String whereContraintsString = URLEncoder.encode('{"display_name":"' + displayName + '"}', "UTF-8")
+		String url = "https://api.parse.com/1/users?where="+whereContraintsString
 		
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpGet httpget = new HttpGet(url);
