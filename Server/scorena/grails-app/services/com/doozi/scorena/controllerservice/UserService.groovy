@@ -61,16 +61,6 @@ class UserService {
 		return [username: userAccount.username, userId: userAccount.userId, currentBalance: userAccount.currentBalance, newCoinsAmount: FREE_COIN_AMOUNT]
 	}
 	
-	private Map getAccountInfoMap(String userId, String username, int netgain, int rank){	
-		String netGain = ""
-		if (netgain>0)
-			netGain="+"+netgain.toString()
-		else
-			netGain=netgain.toString()
-			
-		return [userId: userId, username: username, gain: netGain, rank: rank]
-	}
-	
 	Map getRanking(userId){
 		def userRankingAll = UserRankingAll.findAll("from UserRankingAll RankingAll order by RankingAll.netGain desc, RankingAll.currentBalance desc", [max: RANKING_SIZE])
 		def userRankingWk = UserRankingWk.findAll("from UserRankingWk RankingWk order by RankingWk.netGain desc, RankingWk.currentBalance desc", [max: RANKING_SIZE])
@@ -138,64 +128,6 @@ class UserService {
 		return [weekly: rankingResultWk, all: rankingResultAll]
 	}
 	
-	private Map getUserProfileUserIdAsKeyMap(List userProfileList){
-		Map UserProfileUserIdAsKeyMap = [:]
-		for (Map userProfile: userProfileList){
-			UserProfileUserIdAsKeyMap.put(userProfile.objectId, userProfile)
-		}
-		return UserProfileUserIdAsKeyMap
-	}
-	
-	private Map createUserAccount(RestBuilder rest, String userId, String username, int initialBalance, int previousBalance, String sessionToken){
-		def userAccount = Account.findByUserId(userId)
-		if (userAccount){
-			def result = [
-				code:202,
-				error:"account already exists"
-			]
-			return result
-		}
-		def account = new Account(userId:userId, username:username, currentBalance:initialBalance,previousBalance:previousBalance)
-		if (!account.save()){
-			account.errors.each{
-				println it
-			}
-			def delResp = parseService.deleteUser(rest, sessionToken, userId)
-			def result = [
-				code:202,
-				error:"account creation failed"
-			]
-			return result
-		}
-		return [:]
-	}
-	
-	private Map createUserProfile(RestBuilder rest, String username, String email, String password, String gender, String region, String displayName){
-			
-		def resp = parseService.createUser(rest, username, email, password, gender, region, displayName)
-		
-		if (resp.status != 201){
-			def result = [
-				code:resp.json.code,
-				error:resp.json.error
-			]
-			return result
-		}
-		return resp.json
-	}
-	
-	private Map getUserProfileBySessionToken(RestBuilder rest, String sessionToken){
-		def resp = parseService.validateSession(rest, sessionToken)
-		if (resp.status != 200){
-			def result = [
-				code:resp.json.code,
-				error:resp.json.error
-			]
-			return result
-		}
-		return resp.json
-	}
-	
 	public Map getUserProfileBySessionToken_tempFix(RestBuilder rest, String sessionToken){
 		def resp = parseService.validateSessionT3(rest, sessionToken)
 		if (resp.status != 200){
@@ -210,89 +142,6 @@ class UserService {
 		Map userProfile = parseService.retrieveUserByDisplayName(userProfileT3.display_name)
 		println userProfile.results[0]
 		return userProfile.results[0]
-	}
-	
-	private Map userLogin(RestBuilder rest, String username, String password){
-		println username
-		println password
-		def resp = parseService.loginUser(rest, username, password)
-		
-		if (resp.status != 200){
-			def result = [
-				code:resp.json.code,
-				error:resp.json.error
-			]
-			return result
-		}
-		return resp.json
-	}
-	
-	private Map userRetreive(RestBuilder rest, String userId){
-		def resp = parseService.retrieveUser(rest, userId)
-		
-		if (resp.status != 200){
-			println "ERROR: UserService::getUserProfile(): user account does not exist in parse"
-			def result = [
-				code:500,
-				error:"user account does not exist"
-			]
-			return result
-		}
-		return resp.json
-	}
-	
-	private Map userProfileMapRender(String sessionToken, int currentBalance, String createdAt, String username, String displayName,
-		String userId, String gender, String region, String email, String pictureURL){
-		
-		int currentBalanceResp = currentBalance
-		String createdAtResp = ""
-		String usernameResp = ""
-		String userIdResp = ""
-		String genderResp = ""
-		String regionResp = ""
-		String emailResp = ""
-		String pictureURLResp = ""
-		String sessionTokenResp = ""
-		
-		if (sessionToken != null)
-			sessionTokenResp = sessionToken
-		
-		if (createdAt != null)
-			createdAtResp = createdAt
-	
-		if (userId != null)
-			userIdResp = userId
-		
-		if (displayName != null && displayName!="")
-			usernameResp = displayName
-		else if(username != null)
-			usernameResp = username
-			
-			
-		if (gender != null)
-			genderResp = gender
-		
-		if (region != null)
-			regionResp = region
-			
-		if (email != null)
-			emailResp = email
-			
-		if (pictureURL != null)
-			pictureURLResp = pictureURL
-		
-		def result = [
-			createdAt:createdAtResp,
-			username:usernameResp,
-			currentBalance:currentBalanceResp,
-			sessionToken:sessionTokenResp,
-			userId: userIdResp,
-			gender: genderResp,
-			region: regionResp,
-			email: emailResp,
-			pictureUrl: pictureURLResp
-		]
-		return result
 	}
 	
 	def createSocialNetworkUser(String sessionToken){
@@ -469,8 +318,20 @@ class UserService {
 			]
 			return result
 		}
-		return[currentBalance:account.currentBalance, inWager:"300"]
+		int currentBalance = account.currentBalance
+		int inWager = getUserInWagerCoins(userId)
 		
+		return[currentBalance:account.currentBalance, inWager:inWager]
+		
+	}
+	
+	private int getUserInWagerCoins(userId){
+		int inWager = 0
+		def unpaidTransactions = betService.listUnpaidBetsByUserId(userId)
+		for (PoolTransaction unpaidTransaction: unpaidTransactions){
+			inWager += unpaidTransaction.transactionAmount
+		}
+		return inWager
 	}
 	
 	def updateUserProfile(String sessionToken, String userId, JSON updateUserData){
@@ -603,26 +464,6 @@ class UserService {
 		return stats
 	}
 	
-	def getFirstDateOfCurrentWeek(){
-		Calendar c1 = Calendar.getInstance();   // this takes current date
-		c1.clear(Calendar.MINUTE);
-		c1.clear(Calendar.SECOND);
-		c1.clear(Calendar.MILLISECOND);
-		c1.set(Calendar.HOUR_OF_DAY, 0);
-		c1.set(Calendar.DAY_OF_WEEK, 2);		
-		return c1.getTime();
-	}
-	
-	def getFirstDateOfCurrentMonth(){
-		Calendar c = Calendar.getInstance();   // this takes current date
-		c.clear(Calendar.MINUTE);
-		c.clear(Calendar.SECOND);
-		c.clear(Calendar.MILLISECOND);
-		c.set(Calendar.HOUR_OF_DAY, 0);
-		c.set(Calendar.DAY_OF_MONTH, 1);
-		return c.getTime();
-	}
-	
 	Boolean accountExists(String userId){
 		def account = Account.findByUserId(userId)
 		if (account){
@@ -636,5 +477,176 @@ class UserService {
 		def account = Account.findByUserId(userId)
 		return account.username
 	
+	}
+
+	private Map getAccountInfoMap(String userId, String username, int netgain, int rank){	
+		String netGain = ""
+		if (netgain>0)
+			netGain="+"+netgain.toString()
+		else
+			netGain=netgain.toString()
+			
+		return [userId: userId, username: username, gain: netGain, rank: rank]
+	}
+
+	private def getFirstDateOfCurrentWeek(){
+		Calendar c1 = Calendar.getInstance();   // this takes current date
+		c1.clear(Calendar.MINUTE);
+		c1.clear(Calendar.SECOND);
+		c1.clear(Calendar.MILLISECOND);
+		c1.set(Calendar.HOUR_OF_DAY, 0);
+		c1.set(Calendar.DAY_OF_WEEK, 2);		
+		return c1.getTime();
+	}
+
+	private def getFirstDateOfCurrentMonth(){
+		Calendar c = Calendar.getInstance();   // this takes current date
+		c.clear(Calendar.MINUTE);
+		c.clear(Calendar.SECOND);
+		c.clear(Calendar.MILLISECOND);
+		c.set(Calendar.HOUR_OF_DAY, 0);
+		c.set(Calendar.DAY_OF_MONTH, 1);
+		return c.getTime();
+	}
+
+	private Map userLogin(RestBuilder rest, String username, String password){
+		println username
+		println password
+		def resp = parseService.loginUser(rest, username, password)
+		
+		if (resp.status != 200){
+			def result = [
+				code:resp.json.code,
+				error:resp.json.error
+			]
+			return result
+		}
+		return resp.json
+	}
+
+	private Map userRetreive(RestBuilder rest, String userId){
+		def resp = parseService.retrieveUser(rest, userId)
+		
+		if (resp.status != 200){
+			println "ERROR: UserService::getUserProfile(): user account does not exist in parse"
+			def result = [
+				code:500,
+				error:"user account does not exist"
+			]
+			return result
+		}
+		return resp.json
+	}
+
+	private Map userProfileMapRender(String sessionToken, int currentBalance, String createdAt, String username, String displayName,
+		String userId, String gender, String region, String email, String pictureURL){
+		
+		int currentBalanceResp = currentBalance
+		String createdAtResp = ""
+		String usernameResp = ""
+		String userIdResp = ""
+		String genderResp = ""
+		String regionResp = ""
+		String emailResp = ""
+		String pictureURLResp = ""
+		String sessionTokenResp = ""
+		
+		if (sessionToken != null)
+			sessionTokenResp = sessionToken
+		
+		if (createdAt != null)
+			createdAtResp = createdAt
+	
+		if (userId != null)
+			userIdResp = userId
+		
+		if (displayName != null && displayName!="")
+			usernameResp = displayName
+		else if(username != null)
+			usernameResp = username
+			
+			
+		if (gender != null)
+			genderResp = gender
+		
+		if (region != null)
+			regionResp = region
+			
+		if (email != null)
+			emailResp = email
+			
+		if (pictureURL != null)
+			pictureURLResp = pictureURL
+		
+		def result = [
+			createdAt:createdAtResp,
+			username:usernameResp,
+			currentBalance:currentBalanceResp,
+			sessionToken:sessionTokenResp,
+			userId: userIdResp,
+			gender: genderResp,
+			region: regionResp,
+			email: emailResp,
+			pictureUrl: pictureURLResp
+		]
+		return result
+	}
+
+	private Map getUserProfileUserIdAsKeyMap(List userProfileList){
+		Map UserProfileUserIdAsKeyMap = [:]
+		for (Map userProfile: userProfileList){
+			UserProfileUserIdAsKeyMap.put(userProfile.objectId, userProfile)
+		}
+		return UserProfileUserIdAsKeyMap
+	}
+
+	private Map createUserAccount(RestBuilder rest, String userId, String username, int initialBalance, int previousBalance, String sessionToken){
+		def userAccount = Account.findByUserId(userId)
+		if (userAccount){
+			def result = [
+				code:202,
+				error:"account already exists"
+			]
+			return result
+		}
+		def account = new Account(userId:userId, username:username, currentBalance:initialBalance,previousBalance:previousBalance)
+		if (!account.save()){
+			account.errors.each{
+				println it
+			}
+			def delResp = parseService.deleteUser(rest, sessionToken, userId)
+			def result = [
+				code:202,
+				error:"account creation failed"
+			]
+			return result
+		}
+		return [:]
+	}
+
+	private Map createUserProfile(RestBuilder rest, String username, String email, String password, String gender, String region, String displayName){
+			
+		def resp = parseService.createUser(rest, username, email, password, gender, region, displayName)
+		
+		if (resp.status != 201){
+			def result = [
+				code:resp.json.code,
+				error:resp.json.error
+			]
+			return result
+		}
+		return resp.json
+	}
+
+	private Map getUserProfileBySessionToken(RestBuilder rest, String sessionToken){
+		def resp = parseService.validateSession(rest, sessionToken)
+		if (resp.status != 200){
+			def result = [
+				code:resp.json.code,
+				error:resp.json.error
+			]
+			return result
+		}
+		return resp.json
 	}
 }

@@ -24,6 +24,7 @@ class QuestionService {
 	def questionService
 	def userService
 	def teamLogoService
+	def questionUserInfoService
 	
 	public static final int FEATURE_QUESTION_SIZE = 3
 	
@@ -74,7 +75,7 @@ class QuestionService {
 				continue
 				
 			
-			def userInfo=[placedBet:false]
+			def userInfo=[:]
 			def winnerPick =-1			
 			def lastBet = betService.getLatestBetByQuestionId(q.id.toString())
 			def game = gameService.getGame(q.eventKey)
@@ -103,7 +104,7 @@ class QuestionService {
 			}
 
 			if (isValidUserId){
-				userInfo = getQuestionsUserInfo(userId, q.id, winnerPick)
+				userInfo = questionUserInfoService.getQuestionsUserInfo(userId, q.id, winnerPick)
 			}
 			resultList.add([
 				questionId: q.id,
@@ -242,58 +243,6 @@ class QuestionService {
 		return questionCreated
 	}
 	
-	private Map getQuestionsUserInfo(String userId, long questionId, int winnerPick){
-		
-		boolean placedBet = false
-		int userPickStatus = -1
-		def userPick =-1
-		def userBet
-		
-		userBet = betService.getBetByQuestionIdAndUserId(questionId, userId)
-		if (userBet){
-			placedBet = true
-			userPick=userBet.pick
-			if (winnerPick!=-1){
-				
-				if (winnerPick==0){
-					userPickStatus = 0
-				}else if (winnerPick==userBet.pick){
-					userPickStatus = 1
-				}else{
-					userPickStatus = 2
-				}
-			}
-		}
-
-		return [placedBet:placedBet, userPickStatus:userPickStatus, userPick:userPick, questionWinningAmount:"100"]
-	}
-	
-	private Map getPostEventQuestionUserInfo(String userId, long questionId, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple,
-		pick1WinningPayoutPercentage,pick2WinningPayoutPercentage){
-		
-		def userWinningAmount = 0
-		def userPayoutPercent = 0
-		def userBetAmount = 0
-		def userPick =-1
-		
-		PoolTransaction userBet = betService.getBetByQuestionIdAndUserId(questionId, userId)
-		
-		if (userBet!= null){
-			if (userBet.pick==1){
-				userWinningAmount = Math.floor(userBet.transactionAmount * pick1WinningPayoutMultiple)
-				userPayoutPercent = pick1WinningPayoutPercentage
-			}else{
-				userWinningAmount = Math.floor(userBet.transactionAmount * pick2WinningPayoutMultiple)
-				userPayoutPercent = pick2WinningPayoutPercentage
-			}
-			
-			userBetAmount=userBet.transactionAmount
-			userPick=userBet.pick
-		}
-		return [userWinningAmount:userWinningAmount, userPayoutPercent:userPayoutPercent, userWager:userBetAmount, userPick:userPick]
-	
-	}
-	
 	/**
 	 * @param q: Question Object that is being requested
 	 * @param userId: the userId that user made the request
@@ -395,7 +344,7 @@ class QuestionService {
 		Map betters = [:]
 		
 		if (userService.accountExists(userId)){
-			userInfo = getPostEventQuestionUserInfo(userId, q.id, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple,
+			userInfo = questionUserInfoService.getPostEventQuestionUserInfo(userId, q.id, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple,
 		pick1WinningPayoutPercentage,pick2WinningPayoutPercentage)
 			betters = getBetters(q.id, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple, userInfo, userId)
 		}else{
@@ -434,18 +383,18 @@ class QuestionService {
 		return result
 	}
 	
-	private Map getPreEventQuestionUserInfo(String userId, long questionId){
-		
-		def userBetAmount = 0
-		def userPick =-1
-		PoolTransaction userBet = betService.getBetByQuestionIdAndUserId(questionId, userId)
-		if (userBet){
-			userBetAmount=userBet.transactionAmount
-			userPick=userBet.pick
-		}
-		return [userWager:userBetAmount, userPick:userPick]
-		
-	}		
+//	private Map getPreEventQuestionUserInfo(String userId, long questionId){
+//		
+//		def userBetAmount = 0
+//		def userPick =-1
+//		PoolTransaction userBet = betService.getBetByQuestionIdAndUserId(questionId, userId)
+//		if (userBet){
+//			userBetAmount=userBet.transactionAmount
+//			userPick=userBet.pick
+//		}
+//		return [userWager:userBetAmount, userPick:userPick]
+//		
+//	}		
 	
 /**
 	 * @param q: Question Object that is being requested
@@ -506,7 +455,7 @@ class QuestionService {
 		def pick2PayoutPercentage =  Math.round(100 * (pick2PayoutMultiple-1))
 		
 		if (userService.accountExists(userId)){
-			userInfo = getPreEventQuestionUserInfo(userId, q.id)
+			userInfo = questionUserInfoService.getPreEventQuestionUserInfo(userId, q.id)
 			betters = getBetters(q.id, pick1PayoutMultiple, pick2PayoutMultiple, userInfo, userId)
 		}else{
 			betters = getBetters(q.id, pick1PayoutMultiple, pick2PayoutMultiple, userInfo)

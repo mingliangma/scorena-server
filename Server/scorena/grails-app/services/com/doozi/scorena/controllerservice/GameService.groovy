@@ -12,6 +12,7 @@ class GameService {
 	def betService
 	def helperService
 	def customGameService
+	def gameUserInfoService
 	
 	public static final String POSTEVENT = "post-event"
 	public static final String PREEVENT = "pre-event"
@@ -41,13 +42,7 @@ class GameService {
 		def playedGames = betService.listDistinctBetEventKeyByUserId(userId)
 		
 		for (def upcomingGame: upcomingGamesResult){
-			def gameId = upcomingGame.gameId
-			upcomingGame.placedBet = false
-			for (def eventKey: playedGames){
-				if (gameId == eventKey){
-					upcomingGame.placedBet = true
-				}
-			}
+			upcomingGame.userInfo=gameUserInfoService.getUpcomingGamesUserInfo(upcomingGame.gameId, playedGames, userId)
 		}
 		return upcomingGamesResult
 	}

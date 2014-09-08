@@ -161,6 +161,13 @@ class BetService {
 		return [code:201]
     }
 	
+	
+	/**
+	 * 
+	 * 
+	 * @param qId
+	 * @return the transaction information that was made the last in a question
+	 */
 	def getLatestBetByQuestionId(def qId){
 		def lastBets = PoolTransaction.findAll("from PoolTransaction as b WHERE id = (select max(id) from b where question_id=? and b.transactionType=?)", [qId, 0])
 		
@@ -181,6 +188,15 @@ class BetService {
 	//	0=all
 	//	1=monthly
 	//	2=weekly
+	/**
+	 * get all the payout transactions (transactionType=1) for a given user and in a perid of time
+	 * 		0=all
+	 *		1=monthly
+	 *		2=weekly
+	 * @param userId
+	 * @param periodOption
+	 * @return
+	 */
 	def listPayoutTransByUserId(def userId, def periodOption){
 		if (periodOption==0)
 			return PoolTransaction.findAll("from PoolTransaction as b where b.account.userId=? and b.transactionType=?", [userId, 1])
@@ -190,7 +206,7 @@ class BetService {
 			return PoolTransaction.findAll("from PoolTransaction as b where b.account.userId=? and b.transactionType=? and (date between subdate(now(), INTERVAL weekday(now()) DAY) AND NOW())", [userId, 1])
 	}
 	
-	def getBetByQuestionIdAndUserId(def qId, def userId){
+	PoolTransaction getBetByQuestionIdAndUserId(def qId, def userId){
 		return PoolTransaction.find("from PoolTransaction as b where b.question.id=? and b.account.userId=? and b.transactionType=?", [qId, userId, 0])
 	}
 	
@@ -206,6 +222,55 @@ class BetService {
 		}
 	}
 	
+	/**
+	 * List all the bets transaction that the system hasn't process for the payout yet with given gameId and userId 
+	 * 
+	 * @param gameId
+	 * @param userId
+	 * @return betsThatNotPayoutYet
+	 */
+	List listBetsByUserIdAndGameId(String gameId, String userId){
+		return PoolTransaction.findAll("from PoolTransaction as b where b.transactionType=? and b.account.userId=? and b.question.eventKey=?", [0, userId, gameId])
+	}
+	
+	/**
+	 * List all the bets transaction that the system hasn't process for the payout yet with given userId 
+	 * @param userId
+	 * @return
+	 */
+	def listUnpaidBetsByUserId(String userId){
+		 
+		 List betsThatNotPayoutYet = []
+		 def earliestTransDateThatUserCanBetOnAUpcomingGame = new Date() - sportsDataService.UPCOMING_DATE_RANGE - 2;
+		 List payoutTransactions = PoolTransaction.findAll("from PoolTransaction as b where b.transactionType=? and b.account.userId=? and b.createdAt>?", [1, userId, earliestTransDateThatUserCanBetOnAUpcomingGame])
+		 List betTransactions = PoolTransaction.findAll("from PoolTransaction as b where b.transactionType=? and b.account.userId=? and b.createdAt>?", [0, userId, earliestTransDateThatUserCanBetOnAUpcomingGame])
+		 
+		 for (PoolTransaction betTrans: betTransactions){
+			 boolean transactionPaid = false
+			 for (PoolTransaction payoutTrans: payoutTransactions){
+				 if (betTrans.eventKey == payoutTrans.eventKey){
+					 transactionPaid = true
+					 break
+				 }
+			 }
+			 
+			 if (!transactionPaid){
+				 betsThatNotPayoutYet.add(betTrans)
+			 }
+		 }
+		 
+		 return betsThatNotPayoutYet
+	}
+	
+	
+	/**
+	 * List all the event keys that user has bet on
+	 * @param userId
+	 * @return
+	 * 
+	 * TODO: upcoming games: return only the transaction date < game start date
+	 * 		 past games: return only the SportsDataService.PAST_DATE_RANGE > transaction date > game start date
+	 */
 	def listDistinctBetEventKeyByUserId(def userId){
 		return PoolTransaction.executeQuery("SELECT DISTINCT eventKey from PoolTransaction as b where b.account.userId=? and b.transactionType=?", [userId, 0])
 	}
