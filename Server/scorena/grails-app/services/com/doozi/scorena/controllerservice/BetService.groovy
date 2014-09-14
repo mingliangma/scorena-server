@@ -5,7 +5,6 @@ import java.util.Date;
 import com.doozi.scorena.Account;
 import com.doozi.scorena.BetResult;
 import com.doozi.scorena.PoolTransaction;
-import com.doozi.scorena.Game;
 import com.doozi.scorena.Question;
 
 import org.hibernate.criterion.CriteriaSpecification
