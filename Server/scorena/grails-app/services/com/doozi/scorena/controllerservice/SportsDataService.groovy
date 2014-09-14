@@ -202,7 +202,7 @@ class SportsDataService {
 		return pastGamesList
 	}
 	
-	def getGame(def eventKey){
+	Map getGame(def eventKey){
 		def games = ScorenaAllGames.findAllByEventKey(eventKey)
 		
 		def gameInfo = []

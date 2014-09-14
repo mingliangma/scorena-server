@@ -1,5 +1,7 @@
 package com.doozi.scorena.controllerservice
 
+import com.doozi.scorena.controllerservice.GameUserInfoService;
+
 import grails.test.mixin.TestFor
 import spock.lang.Specification
 

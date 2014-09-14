@@ -10,6 +10,7 @@ class ProcessEngineImplService {
 	def gameService
 	def betService
 	def customQuestionResultService
+	def sportsDataService
 	
 	def payoutCleared(Question q){
 		def result = betService.getPayoutTransByQuestion(q)
@@ -214,34 +215,39 @@ class ProcessEngineImplService {
 	 * 			- -1 if not winning result
 	 */
 	@Transactional
-	def getWinningPick(eventKey, Question question){
+	def getWinningPick(String eventKey, Question question){
 		
 		int winnerPick = -1
-		def questionContent = question.questionContent
-		def questionType = questionContent.questionType
+		Map game = gameService.getGame(eventKey)
+		if (game.gameStatus.trim() != sportsDataService.POSTEVENT){
+			return winnerPick
+		}
+		
+		QuestionContent questionContent = question.questionContent
+		String questionType = questionContent.questionType
 
 		switch ( questionType ) {
 			case QuestionContent.WHOWIN:
-				winnerPick = getWhoWinWinnerPick(eventKey, question)
+				winnerPick = getWhoWinWinnerPick(game, question)
 				break;
 			case QuestionContent.SCOREGREATERTHAN:
-                winnerPick = getScoreGreaterThanWinnerPick(eventKey, question, questionContent.indicator1)
+                winnerPick = getScoreGreaterThanWinnerPick(game, question, questionContent.indicator1)
 				break;
 			case QuestionContent.CUSTOM:
-				winnerPick = getCustomQuestionWinnerPick(eventKey, question)
+				winnerPick = getCustomQuestionWinnerPick(question)
 				break;
 			case QuestionContent.CUSTOMTEAM0:
-				winnerPick = getCustomQuestionWinnerPick(eventKey, question)
+				winnerPick = getCustomQuestionWinnerPick(question)
 				break;
 			case QuestionContent.CUSTOMTEAM1:
-				winnerPick = getCustomQuestionWinnerPick(eventKey, question)
+				winnerPick = getCustomQuestionWinnerPick(question)
 				break;
 		}
 		return winnerPick
 	}
 	
-	int getCustomQuestionWinnerPick(eventKey, question){
-		def customQuestionResult = customQuestionResultService.getCustomQuestionResult(question.id, eventKey)
+	private int getCustomQuestionWinnerPick(Question question){
+		def customQuestionResult = customQuestionResultService.getCustomQuestionResult(question.id)
 		if (!customQuestionResult)
 			return -1
 			
@@ -254,8 +260,8 @@ class ProcessEngineImplService {
 	}
 	
 	@Transactional
-	int getScoreGreaterThanWinnerPick(eventKey, question, indicator){
-		def game = gameService.getGame(eventKey)
+	private int getScoreGreaterThanWinnerPick(Map game, Question question, String indicator){
+		
 		if ((game.home.score.toInteger() + game.away.score.toInteger()) > new BigDecimal( indicator ) ){			
 			return 1
 		}else{
@@ -264,8 +270,8 @@ class ProcessEngineImplService {
 	}
 	
 	@Transactional
-	int getWhoWinWinnerPick(eventKey, Question question){
-		def game = gameService.getGame(eventKey)
+	private int getWhoWinWinnerPick(Map game, Question question){
+
 		if (game.home.score > game.away.score){
 			if (game.home.teamname.trim() == question.pick1.trim()){
 				return 1

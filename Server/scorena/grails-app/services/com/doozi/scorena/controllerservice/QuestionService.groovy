@@ -25,6 +25,7 @@ class QuestionService {
 	def userService
 	def teamLogoService
 	def questionUserInfoService
+	def questionPoolUtilService
 	
 	public static final int FEATURE_QUESTION_SIZE = 3
 	
@@ -61,11 +62,6 @@ class QuestionService {
 		DecimalFormat df = new DecimalFormat("###.##")
 		List resultList = []		
 		def questions = listQuestions(eventKey)
-		boolean isValidUserId = false
-		
-		if (userId != null){
-			isValidUserId = true
-		}
 		
 		for (Question q: questions){
 			
@@ -80,30 +76,17 @@ class QuestionService {
 			def lastBet = betService.getLatestBetByQuestionId(q.id.toString())
 			def game = gameService.getGame(q.eventKey)
 			
-			def denominatorPickPerc = lastBet.pick1Amount + lastBet.pick2Amount
-			def denominatorPick1Mult = lastBet.pick1Amount
-			def denominatorPick2Mult = lastBet.pick2Amount
-			
-			if (denominatorPickPerc==0)
-				denominatorPickPerc=1
-				
-			if (denominatorPick1Mult==0)
-				denominatorPick1Mult=1
-				
-			if (denominatorPick2Mult==0)
-				denominatorPick2Mult=1
-			
-		
-			def pick1PayoutMultiple =  (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick1Mult
-			def pick2PayoutMultiple = (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick2Mult
-			def pick1PayoutPercentage = Math.round(100 * (pick1PayoutMultiple-1))
-			def pick2PayoutPercentage =  Math.round(100 * (pick2PayoutMultiple-1))
+			def pick1PayoutMultiple = questionPoolUtilService.calculatePick1PayoutMultiple(lastBet)
+			def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(lastBet)		
+
+//			def pick1PayoutPercentage = Math.round(100 * (pick1PayoutMultiple-1))
+//			def pick2PayoutPercentage =  Math.round(100 * (pick2PayoutMultiple-1))
 
 			if (game.gameStatus.trim() == "post-event"){
 				winnerPick = processEngineImplService.getWinningPick(q.eventKey, q)
 			}
 
-			if (isValidUserId){
+			if (userId != null){
 				userInfo = questionUserInfoService.getQuestionsUserInfo(userId, q.id, winnerPick)
 			}
 			resultList.add([
@@ -118,11 +101,11 @@ class QuestionService {
 				pool: [
 					pick1Amount: lastBet.pick1Amount,
 					pick1NumPeople: lastBet.pick1NumPeople,
-					pick1PayoutPercent: pick1PayoutPercentage,
+//					pick1PayoutPercent: pick1PayoutPercentage,
 					pick1odds:  df.format(pick1PayoutMultiple).toDouble(),
 					pick2Amount:lastBet.pick2Amount,
 					pick2NumPeople: lastBet.pick2NumPeople,
-					pick2PayoutPercent: pick2PayoutPercentage,
+//					pick2PayoutPercent: pick2PayoutPercentage,
 					pick2odds:  df.format(pick2PayoutMultiple).toDouble(),
 				]
 				
@@ -253,8 +236,6 @@ class QuestionService {
 			pick1: The name of pick1 option. It could be a teamname or yes/now
 			pick2: The name of pick1 option.
 			winnerPick: The winning result which indicate a tie or winner pick option. 0 is tie, 1 indicates pick1 wins, 2 indicates pick2 wins
-			currentOddsPick1: The odds that shows in the question preview of each question in the question list page
-			currentOddsPick2: The odds that shows in the question preview of each question in the question list page
 			userInfo: [
 				userWinningAmount: The amount of money that the user win,
 				userPayoutPercent: The user's payout on investment in percentage. (Total payout / initial wager) * 100.
@@ -269,6 +250,8 @@ class QuestionService {
 				pick2Amount: The total amount of money that users have put into pick2,
 				pick2NumPeople: The number of users that bet on pick1,
 				pick2PayoutPercent: the payout on investment in percentage assuming pick 2 wins,
+				pick1odds: The odds that shows in the question preview of each question in the question list page
+				pick2odds: The odds that shows in the question preview of each question in the question list page
 			],
 			betters: [
 				name: the user's display name,
@@ -281,36 +264,18 @@ class QuestionService {
 		PoolTransaction lastBet = betService.getLatestBetByQuestionId(q.id)
 		int winnerPick = processEngineImplService.getWinningPick(q.eventKey, q)
 		
-		def pick1PayoutPercentage
-		def pick2PayoutPercentage
 		def pick1WinningPayoutMultiple=0
 		def pick2WinningPayoutMultiple=0
 		def pick1WinningPayoutPercentage=0 
 		def pick2WinningPayoutPercentage=0 
-		def pick1PayoutMultiple 
-		def pick2PayoutMultiple
 		 
 		DecimalFormat df = new DecimalFormat("###.##")
 		
-		def denominatorPickPerc = lastBet.pick1Amount + lastBet.pick2Amount
-		def denominatorPick1Mult = lastBet.pick1Amount
-		def denominatorPick2Mult = lastBet.pick2Amount
-		
-		if (denominatorPickPerc==0)
-			denominatorPickPerc=1
-			
-		if (denominatorPick1Mult==0)
-			denominatorPick1Mult=1
-			
-		if (denominatorPick2Mult==0)
-			denominatorPick2Mult=1
-			
-		pick1PayoutMultiple =  (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick1Mult
-		pick2PayoutMultiple = (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick2Mult
-		
-		
-		pick1PayoutPercentage = Math.round(100 * (pick1PayoutMultiple-1))
-		pick2PayoutPercentage =  Math.round(100 * (pick2PayoutMultiple-1))
+		def pick1PayoutMultiple = questionPoolUtilService.calculatePick1PayoutMultiple(lastBet)
+		def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(lastBet)	
+				
+		def pick1PayoutPercentage = Math.round(100 * (pick1PayoutMultiple-1))
+		def pick2PayoutPercentage =  Math.round(100 * (pick2PayoutMultiple-1))
 		
 		switch (winnerPick){
 			case 1:
@@ -351,13 +316,13 @@ class QuestionService {
 			betters = getBetters(q.id, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple, userInfo)
 		}
 		
-		def currentOddsPick1=1
-		def currentOddsPick2=1
-		if (lastBet.pick1Amount > lastBet.pick2Amount){
-			currentOddsPick1=(lastBet.pick1Amount/denominatorPick2Mult)
-		}else if (lastBet.pick1Amount < lastBet.pick2Amount){
-			currentOddsPick2 = lastBet.pick2Amount/denominatorPick1Mult
-		}
+//		def currentOddsPick1=1
+//		def currentOddsPick2=1
+//		if (lastBet.pick1Amount > lastBet.pick2Amount){
+//			currentOddsPick1=(lastBet.pick1Amount/denominatorPick2Mult)
+//		}else if (lastBet.pick1Amount < lastBet.pick2Amount){
+//			currentOddsPick2 = lastBet.pick2Amount/denominatorPick1Mult
+//		}
 		
 		def result = [
 			questionId: q.id,
@@ -367,16 +332,18 @@ class QuestionService {
 			pick1LogoUrl: teamLogoService.getTeamLogo(q.pick1.trim()),
 			pick2LogoUrl: teamLogoService.getTeamLogo(q.pick2.trim()),
 			winnerPick: winnerPick,
-			currentOddsPick1:df.format(currentOddsPick1).toDouble(),
-			currentOddsPick2:df.format(currentOddsPick2).toDouble(),
+//			currentOddsPick1:df.format(currentOddsPick1).toDouble(),
+//			currentOddsPick2:df.format(currentOddsPick2).toDouble(),
 			userInfo: userInfo,
 			pool: [
 				pick1Amount: lastBet.pick1Amount,
 				pick1NumPeople: lastBet.pick1NumPeople,
-				pick1PayoutPercent: pick1PayoutPercentage,
+//				pick1PayoutPercent: pick1PayoutPercentage,
 				pick2Amount:lastBet.pick2Amount,
 				pick2NumPeople: lastBet.pick2NumPeople,
-				pick2PayoutPercent: pick2PayoutPercentage,
+//				pick2PayoutPercent: pick2PayoutPercentage,
+				pick1odds:  df.format(pick1PayoutMultiple).toDouble(),
+				pick2odds:  df.format(pick2PayoutMultiple).toDouble(),
 			],
 			betters: betters
 		]
@@ -417,8 +384,8 @@ class QuestionService {
 				pick2Amount: The total amount of money that users have put into pick2,
 				pick2NumPeople: The number of users that bet on pick1,
 				pick2PayoutPercent: the payout on investment in percentage assuming pick 2 wins,
-				currentOddsPick1: The odds that shows in the question preview of each question in the question list page
-				currentOddsPick2: The odds that shows in the question preview of each question in the question list page
+				pick1odds: The odds that shows in the question preview of each question in the question list page
+				pick2odds: The odds that shows in the question preview of each question in the question list page
 			],
 			betters: [
 				name: the user's display name,
@@ -434,23 +401,8 @@ class QuestionService {
 		
 		PoolTransaction lastBet = betService.getLatestBetByQuestionId(q.id)
 		
-		
-		def denominatorPickPerc = lastBet.pick1Amount + lastBet.pick2Amount
-		def denominatorPick1Mult = lastBet.pick1Amount
-		def denominatorPick2Mult = lastBet.pick2Amount
-		
-		if (denominatorPickPerc==0)
-			denominatorPickPerc=1
-			
-		if (denominatorPick1Mult==0)
-			denominatorPick1Mult=1
-			
-		if (denominatorPick2Mult==0)
-			denominatorPick2Mult=1
-			
-			
-		def pick1PayoutMultiple = (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick1Mult
-		def pick2PayoutMultiple = (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick2Mult
+		def pick1PayoutMultiple = questionPoolUtilService.calculatePick1PayoutMultiple(lastBet)
+		def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(lastBet)	
 		def pick1PayoutPercentage = Math.round(100 * (pick1PayoutMultiple-1))
 		def pick2PayoutPercentage =  Math.round(100 * (pick2PayoutMultiple-1))
 		
@@ -462,13 +414,13 @@ class QuestionService {
 		}
 
 		
-		def currentOddsPick1=1
-		def currentOddsPick2=1
-		if (lastBet.pick1Amount > lastBet.pick2Amount){
-			currentOddsPick1=(lastBet.pick1Amount/denominatorPick2Mult)
-		}else if (lastBet.pick1Amount < lastBet.pick2Amount){
-			currentOddsPick2 = lastBet.pick2Amount/denominatorPick1Mult
-		}
+//		def currentOddsPick1=1
+//		def currentOddsPick2=1
+//		if (lastBet.pick1Amount > lastBet.pick2Amount){
+//			currentOddsPick1=(lastBet.pick1Amount/denominatorPick2Mult)
+//		}else if (lastBet.pick1Amount < lastBet.pick2Amount){
+//			currentOddsPick2 = lastBet.pick2Amount/denominatorPick1Mult
+//		}
 		
 		def result = [
 			questionId: q.id,
@@ -482,12 +434,14 @@ class QuestionService {
 			pool: [
 				pick1Amount: lastBet.pick1Amount,
 				pick1NumPeople: lastBet.pick1NumPeople,
-				pick1PayoutPercent: pick1PayoutPercentage,
+//				pick1PayoutPercent: pick1PayoutPercentage,
 				pick2Amount:lastBet.pick2Amount,
 				pick2NumPeople: lastBet.pick2NumPeople,
-				pick2PayoutPercent: pick2PayoutPercentage,
-				currentOddsPick1:df.format(currentOddsPick1).toDouble(),
-				currentOddsPick2:df.format(currentOddsPick2).toDouble(),
+//				pick2PayoutPercent: pick2PayoutPercentage,
+//				currentOddsPick1:df.format(currentOddsPick1).toDouble(),
+//				currentOddsPick2:df.format(currentOddsPick2).toDouble(),
+				pick1odds:  df.format(pick1PayoutMultiple).toDouble(),
+				pick2odds:  df.format(pick2PayoutMultiple).toDouble(),
 			],
 			betters: betters
 		]

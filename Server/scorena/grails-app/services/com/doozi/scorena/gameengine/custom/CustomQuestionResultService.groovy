@@ -7,7 +7,7 @@ import com.doozi.scorena.sportsdata.*
 @Transactional
 class CustomQuestionResultService {
 
-    def getCustomQuestionResult(questionId, eventKey) {
+    def getCustomQuestionResult(questionId) {
 		return CustomQuestionResult.find("from CustomQuestionResult as cq where cq.questionId=?",[questionId.toInteger()])
     }
 	

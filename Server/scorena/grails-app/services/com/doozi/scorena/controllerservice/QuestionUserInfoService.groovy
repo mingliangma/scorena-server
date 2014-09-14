@@ -9,7 +9,9 @@ import grails.transaction.Transactional
 @Transactional
 class QuestionUserInfoService {
 	def betService
-	
+	def processEngineImplService
+	def questionUserInfoService
+	def questionPoolUtilService
 	Map getQuestionsUserInfo(String userId, long questionId, int winnerPick){
 		
 		boolean placedBet
@@ -31,10 +33,30 @@ class QuestionUserInfoService {
 			userPick=userBet.pick
 			userPickStatus = getUserPickStatus(winnerPick, userBet.pick)
 			userWager = userBet.transactionAmount
-			questionWinningAmount = 100 
+			questionWinningAmount = getProfitInQuestion(userBet) 
 		}
 
 		return [placedBet:placedBet, userPickStatus:userPickStatus, userPick:userPick, questionWinningAmount:questionWinningAmount, userWager:userWager]
+	}
+	
+	int getProfitInQuestion(PoolTransaction bet){		
+		return getProfitInQuestion(bet.question.eventKey, bet)
+	}
+	
+	int getProfitInQuestion(String gameId, PoolTransaction bet){
+		int profitAmount = 0
+		int winnerPick = processEngineImplService.getWinningPick(gameId, bet.question)
+		if (questionUserInfoService.getUserPickStatus(winnerPick, bet.pick) == 1){
+			if (bet.pick == 1){
+				profitAmount = bet.transactionAmount * (questionPoolUtilService.calculatePick1PayoutMultiple(bet.question.id)-1)
+			}else if (bet.pick == 2){
+				profitAmount = bet.transactionAmount * (questionPoolUtilService.calculatePick2PayoutMultiple(bet.question.id)-1)
+			}
+			
+		}else if (questionUserInfoService.getUserPickStatus(winnerPick, bet.pick) == 2){
+			profitAmount = bet.transactionAmount * -1
+		}
+		return profitAmount
 	}
 	
 	/**		
@@ -52,7 +74,7 @@ class QuestionUserInfoService {
 	 * @param userPick
 	 * @return
 	 */
-	private int getUserPickStatus(int winnerPick, int userPick){
+	public int getUserPickStatus(int winnerPick, int userPick){
 		int userPickStatus = -1
 		
 		if (winnerPick == -1){
@@ -106,7 +128,5 @@ class QuestionUserInfoService {
 		
 	}
 	
-	int getWagerInQuestion(String userId, QuestionId){
-		
-	}
+
 }

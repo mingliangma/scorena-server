@@ -67,13 +67,7 @@ class GameService {
 			if (pastGame.gameStatus != "post-event"){
 				println "gameService::listPastGames():wrong event: "+ pastGame
 			}
-			pastGame.placedBet = false
-			for (def eventKey: playedGames){
-				if (gameId == eventKey){					
-					pastGame.placedBet = true
-					pastGame.gameWinningAmount = "+100"
-				}
-			}
+			pastGame.userInfo=gameUserInfoService.getPastGamesUserInfo(pastGame.gameId, playedGames, userId)			
 		}
 		return pastGamesResult
 	}
@@ -88,7 +82,7 @@ class GameService {
 		return featureGames
 	}
 	
-	def getGame(String gameId){
+	Map getGame(String gameId){
 		
 		if (gameId.startsWith(customGameService.CUSTOM_EVENT_PREFIX))
 			return customGameService.getGame(gameId)
