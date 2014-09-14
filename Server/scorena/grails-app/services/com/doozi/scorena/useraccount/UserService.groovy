@@ -1,4 +1,4 @@
-package com.doozi.scorena.controllerservice
+package com.doozi.scorena.useraccount
 
 import java.util.List;
 import java.util.Map;

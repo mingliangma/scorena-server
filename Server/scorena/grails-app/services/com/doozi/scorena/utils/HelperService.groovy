@@ -1,4 +1,4 @@
-package com.doozi.scorena.controllerservice
+package com.doozi.scorena.utils
 import java.util.Date;
 
 import grails.transaction.Transactional

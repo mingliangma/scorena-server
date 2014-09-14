@@ -1,7 +1,7 @@
 package com.doozi.scorena.gameengine.custom
 
 import com.doozi.scorena.CustomGame
-import com.doozi.scorena.controllerservice.GameService;
+import com.doozi.scorena.gameengine.GameService;
 
 import grails.transaction.Transactional
 

@@ -1,4 +1,4 @@
-package com.doozi.scorena.controllerservice
+package com.doozi.scorena.communication
 
 import grails.test.mixin.TestFor
 import spock.lang.Specification
@@ -6,8 +6,8 @@ import spock.lang.Specification
 /**
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
-@TestFor(SocialService)
-class SocialServiceSpec extends Specification {
+@TestFor(CommentingManagerService)
+class CommentingManagerServiceSpec extends Specification {
 
     def setup() {
     }

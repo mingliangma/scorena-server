@@ -1,4 +1,4 @@
-package com.doozi.scorena.controllerservice
+package com.doozi.scorena.gameengine
 
 import java.util.Map;
 

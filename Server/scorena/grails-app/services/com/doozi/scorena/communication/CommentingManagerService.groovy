@@ -1,9 +1,9 @@
-package com.doozi.scorena.controllerservice
+package com.doozi.scorena.communication
 
 import grails.transaction.Transactional
 
 @Transactional
-class SocialService {
+class CommentingManagerService {
 
     def serviceMethod() {
 

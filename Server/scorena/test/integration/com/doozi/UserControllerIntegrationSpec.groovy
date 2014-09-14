@@ -4,10 +4,11 @@ package com.doozi
 
 import com.doozi.scorena.Account;
 import com.doozi.scorena.UserController;
-import com.doozi.scorena.controllerservice.HelperService;
+import com.doozi.scorena.utils.HelperService;
 
 import grails.plugins.rest.client.RestBuilder
 import spock.lang.*
+
 import org.apache.commons.lang.*
 
 /**
