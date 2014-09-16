@@ -128,27 +128,11 @@ class UserService {
 		return [weekly: rankingResultWk, all: rankingResultAll]
 	}
 	
-	public Map getUserProfileBySessionToken_tempFix(RestBuilder rest, String sessionToken){
-		def resp = parseService.validateSessionT3(rest, sessionToken)
-		if (resp.status != 200){
-			def result = [
-				code:resp.json.code,
-				error:resp.json.error
-			]
-			return result
-		}
-		Map userProfileT3 = resp.json
-		println userProfileT3
-		Map userProfile = parseService.retrieveUserByDisplayName(userProfileT3.display_name)
-		println userProfile.results[0]
-		return userProfile.results[0]
-	}
-	
 	def createSocialNetworkUser(String sessionToken){
 		int currentBalance = SOCIALNETWORK_INITIAL_BALANCE
 		RestBuilder rest = new RestBuilder()
 		
-		Map userProfile = getUserProfileBySessionToken_tempFix(rest, sessionToken)
+		Map userProfile = getUserProfileBySessionToken(rest, sessionToken)
 		if (userProfile.code){
 			return userProfile
 		}
@@ -648,5 +632,21 @@ class UserService {
 			return result
 		}
 		return resp.json
+	}
+	
+	private Map getUserProfileBySessionToken_tempFix(RestBuilder rest, String sessionToken){
+		def resp = parseService.validateSessionT3(rest, sessionToken)
+		if (resp.status != 200){
+			def result = [
+				code:resp.json.code,
+				error:resp.json.error
+			]
+			return result
+		}
+		Map userProfileT3 = resp.json
+		println userProfileT3
+		Map userProfile = parseService.retrieveUserByDisplayName(userProfileT3.display_name)
+		println userProfile.results[0]
+		return userProfile.results[0]
 	}
 }
