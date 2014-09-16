@@ -122,6 +122,7 @@ class UrlMappings {
 		"/v1/admin/cq"(view:"/CustomQuestionWebsite")
 		
 		"/v1/admin/qr"(view:"/CustomQuestionResultWebsite")
+		"/v1/userprofilewebsite"(view:"/userprofile")
 //        "/"(view:"/index")
         "500"(view:'/error')
 	}
