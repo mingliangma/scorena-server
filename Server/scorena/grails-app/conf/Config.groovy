@@ -94,16 +94,22 @@ environments {
 		parse.parseRestApiKey ='QSBmZXNUjRMtKwWcqB7jLQgtZizCSMBBeoBQHIql'
     }
 	
-	prodtesting {
+	awsdev {
 		grails.logging.jul.usebridge = true
-		parse.parseApplicationId='kEepaeRdIInsSbptLl4lZ6xiZg7nv7bEOV56ym9m'
-		parse.parseRestApiKey ='QSBmZXNUjRMtKwWcqB7jLQgtZizCSMBBeoBQHIql'
+		parse.parseApplicationId=System.getProperty("PARAM1")
+		parse.parseRestApiKey =System.getProperty("PARAM2")
+//		parse.parseApplicationId='b2cfHtl3JqMwg7rKfkoGJ7sh6LluiZc8RdjWCeQY'
+//		parse.parseRestApiKey ='k6ybcRnaDAdfUBbLkSBfqiesECFQinEr6D0Lx8dL'
 	}
 	
 	test{
 		grails.logging.jul.usebridge = true
-		parse.parseApplicationId=System.getProperty("PARAM1")
-		parse.parseRestApiKey =System.getProperty("PARAM2")
+//		parse.parseApplicationId=System.getProperty("PARAM1")
+//		parse.parseRestApiKey =System.getProperty("PARAM2")
+		
+		//prod
+//		parse.parseApplicationId="VtsqlRrU7SRiQVdv9TOsdAo3fbFkv2XH7tIZjnYA"
+//		parse.parseRestApiKey ="Yadg67u4HqrpydNNNTjXnLTG6DOgjBjhTnbhZ3u1"
 		
 //		scorena real data/scorenat-env 
 //		parse.parseApplicationId='b2cfHtl3JqMwg7rKfkoGJ7sh6LluiZc8RdjWCeQY'

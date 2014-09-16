@@ -57,23 +57,44 @@ environments
 		}
     }
 	
-	prodtesting
+	awsdev
 	{
-		dataSource
+		dataSource 
 		{
+						
 			dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
-			url = "jdbc:mysql://prodtestinginstance.cce59dcpxmml.us-west-2.rds.amazonaws.com/scorenaproductiondb?useUnicode=yes&characterEncoding=UTF-8"
-			username = "scorenauser"
-			password = "scorenauser"
+			url = System.getProperty("JDBC_CONNECTION_STRING")
+//			url = "jdbc:mysql://scorenat3.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/scorenaT?user=scorenaadmin&password=scorenaadmin"   
+//			url = "jdbc:mysql://scorenarealdata.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/scorenaT?useUnicode=yes&characterEncoding=UTF-8"
+//			username = "dooziadmin"
+//			password = "dooziadmin"	
+			pooled = true
+			driverClassName = "com.mysql.jdbc.Driver"
+			dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+
+			properties 
+			{
+				maxActive = -1
+				minEvictableIdleTimeMillis=1800000
+				timeBetweenEvictionRunsMillis=1800000
+				numTestsPerEvictionRun=3
+				testOnBorrow=true
+				testWhileIdle=true
+				testOnReturn=false
+				validationQuery="SELECT 1"
+				jdbcInterceptors="ConnectionState"
+			 }
 		}
 		
-		dataSource_sportsData
+		dataSource_sportsData 
 		{
-			dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
-			
+			dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''			
 			url = "jdbc:mysql://xmlinstance.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/sportsdb?user=dooziadmin&password=dooziadmin"
-
-			properties
+			pooled = true
+			driverClassName = "com.mysql.jdbc.Driver"
+			dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+			
+			properties 
 			{
 				maxActive = -1
 				minEvictableIdleTimeMillis=1800000
@@ -96,11 +117,12 @@ environments
 		{
 						
 			dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
-			url = System.getProperty("JDBC_CONNECTION_STRING")
+//			url = System.getProperty("JDBC_CONNECTION_STRING")
+//			url = "jdbc:mysql://productioninstance.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/scorenaproductiondb?user=scorenauser&password=qeye2tarunA8"
 //			url = "jdbc:mysql://scorenat3.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/scorenaT?user=scorenaadmin&password=scorenaadmin"   
-//			url = "jdbc:mysql://scorenarealdata.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/scorenaT?useUnicode=yes&characterEncoding=UTF-8"
-//			username = "dooziadmin"
-//			password = "dooziadmin"	
+			url = "jdbc:mysql://scorenarealdata.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/scorenaT?useUnicode=yes&characterEncoding=UTF-8"
+			username = "dooziadmin"
+			password = "dooziadmin"	
 			pooled = true
 			driverClassName = "com.mysql.jdbc.Driver"
 			dialect = org.hibernate.dialect.MySQL5InnoDBDialect
