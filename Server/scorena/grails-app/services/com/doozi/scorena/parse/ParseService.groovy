@@ -1,4 +1,4 @@
-package com.doozi.scorena.useraccount
+package com.doozi.scorena.parse
 
 import java.net.URLEncoder;
 
