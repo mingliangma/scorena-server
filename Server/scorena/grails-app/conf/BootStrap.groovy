@@ -1,22 +1,30 @@
 import com.doozi.scorena.*
 import com.doozi.scorena.sportsdata.ScorenaAllGames
 import java.util.Date;
+import grails.util.Environment
 
 class BootStrap {
 
     def init = { servletContext ->
 		println "bootstrap starts..."
-		
-		if (!QuestionContent.count()) {
-//			bootstrapQuestionContent()
-		}
-		if (!Question.count()) {
-//			createQuestions()
-//			createUsers()
-//			simulateBetUpcoming()
-//			simulateBetPast()
-		}
-		println "bootstrap ended"
+		Environment.executeForCurrentEnvironment {
+			development {
+		 		if (!QuestionContent.count()) {
+					bootstrapQuestionContent()
+				}
+				if (!Question.count()) {
+					createQuestions()					
+				}
+				
+				if (!Account.count()){
+					createUsers()
+					simulateBetUpcoming()
+					simulateBetPast()
+				}
+				
+				println "bootstrap ended"
+			}
+		  }		
     }
     def destroy = {
     }
@@ -82,21 +90,21 @@ class BootStrap {
 		println "upcomingGames: "+upcomingGames.size()
 		println "pastGames: "+pastGames.size()
 		
-		for (int i=0; i < upcomingGames.size(); i++){
-			def game = upcomingGames.get(i)
-			println "game id: "+game.gameId
-			if (Question.findByEventKey(game.gameId) == null){
-				populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
-			}
-		}
-		
-//		for (int i=0; i < pastGames.size(); i++){
-//			def game = pastGames.get(i)
+//		for (int i=0; i < upcomingGames.size(); i++){
+//			def game = upcomingGames.get(i)
 //			println "game id: "+game.gameId
 //			if (Question.findByEventKey(game.gameId) == null){
 //				populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
 //			}
 //		}
+		
+		for (int i=0; i < pastGames.size(); i++){
+			def game = pastGames.get(i)
+			println "game id: "+game.gameId
+			if (Question.findByEventKey(game.gameId) == null){
+				populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
+			}
+		}
 	}
 	
 	def populateQuestions(String away, String home, String eventId){
@@ -171,7 +179,7 @@ class BootStrap {
 					}
 					
 					
-					betService.saveBetTrans(_wager, _time,_pick, account.userId, q.id)
+					betService.createBetTrans(_wager,_pick, account.userId, questionId)
 				}
 			}
 		}
@@ -183,7 +191,7 @@ class BootStrap {
 //			def gameService = ctx.getBean("gameService")
 //			def betService = ctx.getBean("betService")
 			
-			
+			println "============simulateBetPast() starts==============="
 			Random random = new Random()
 			def accounts = Account.findAll()
 			def upcomingGames = gameService.listPastGames()
@@ -217,7 +225,7 @@ class BootStrap {
 						}
 						
 						
-						betService.saveBetTrans(_wager, _time,_pick, account.userId, q.id)
+						betService.createBetTrans(_wager,_pick, account.userId, questionId, _time, false)
 					}
 				}
 			}

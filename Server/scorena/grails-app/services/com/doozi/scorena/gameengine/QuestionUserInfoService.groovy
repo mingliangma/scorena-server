@@ -3,7 +3,8 @@ package com.doozi.scorena.gameengine
 import java.util.Map;
 
 import com.doozi.scorena.PoolTransaction
-
+import com.doozi.scorena.transaction.BetTransaction
+import com.doozi.scorena.utils.*
 import grails.transaction.Transactional
 
 @Transactional
@@ -12,6 +13,8 @@ class QuestionUserInfoService {
 	def processEngineImplService
 	def questionUserInfoService
 	def questionPoolUtilService
+	def poolInfoService
+	
 	Map getQuestionsUserInfo(String userId, long questionId, int winnerPick){
 		
 		boolean placedBet
@@ -20,7 +23,7 @@ class QuestionUserInfoService {
 		int userWager
 		int questionWinningAmount
 		
-		PoolTransaction userBet = betService.getBetByQuestionIdAndUserId(questionId, userId)
+		BetTransaction userBet = betService.getBetByQuestionIdAndUserId(questionId, userId)
 		
 		if (!userBet){
 			placedBet = false
@@ -39,21 +42,26 @@ class QuestionUserInfoService {
 		return [placedBet:placedBet, userPickStatus:userPickStatus, userPick:userPick, questionWinningAmount:questionWinningAmount, userWager:userWager]
 	}
 	
-	int getProfitInQuestion(PoolTransaction bet){		
+	int getProfitInQuestion(BetTransaction bet){		
 		return getProfitInQuestion(bet.question.eventKey, bet)
 	}
 	
-	int getProfitInQuestion(String gameId, PoolTransaction bet){
+	int getProfitInQuestion(String gameId, BetTransaction bet){
 		int profitAmount = 0
+		
+		PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(bet.question.id)		
+		def pick1PayoutMultiple = questionPoolUtilService.calculatePick1PayoutMultiple(questionPoolInfo)
+		def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(questionPoolInfo)
+		
 		int winnerPick = processEngineImplService.getWinningPick(gameId, bet.question)
-		if (questionUserInfoService.getUserPickStatus(winnerPick, bet.pick) == 1){
-			if (bet.pick == 1){
-				profitAmount = bet.transactionAmount * (questionPoolUtilService.calculatePick1PayoutMultiple(bet.question.id)-1)
-			}else if (bet.pick == 2){
-				profitAmount = bet.transactionAmount * (questionPoolUtilService.calculatePick2PayoutMultiple(bet.question.id)-1)
+		if (questionUserInfoService.getUserPickStatus(winnerPick, bet.pick) == PickStatus.USER_WON){
+			if (bet.pick == Pick.PICK1){
+				profitAmount = bet.transactionAmount * (pick1PayoutMultiple-1)
+			}else if (bet.pick == Pick.PICK2){
+				profitAmount = bet.transactionAmount * (pick2PayoutMultiple-1)
 			}
 			
-		}else if (questionUserInfoService.getUserPickStatus(winnerPick, bet.pick) == 2){
+		}else if (questionUserInfoService.getUserPickStatus(winnerPick, bet.pick) == PickStatus.USER_LOST){
 			profitAmount = bet.transactionAmount * -1
 		}
 		return profitAmount
@@ -77,14 +85,14 @@ class QuestionUserInfoService {
 	public int getUserPickStatus(int winnerPick, int userPick){
 		int userPickStatus = -1
 		
-		if (winnerPick == -1){
-			userPickStatus = -1
-		}else if (winnerPick == 0){
-			userPickStatus = 0
+		if (winnerPick == WinnerPick.GAME_NOT_FINISHED){
+			userPickStatus = PickStatus.GAME_NOT_FINISHED
+		}else if (winnerPick == WinnerPick.PICK_TIE){
+			userPickStatus = PickStatus.USER_TIE
 		}else if (winnerPick == userPick){
-			userPickStatus = 1
+			userPickStatus = PickStatus.USER_WON
 		}else{
-			userPickStatus = 2
+			userPickStatus = PickStatus.USER_LOST
 		}
 		return userPickStatus
 	}
@@ -97,7 +105,7 @@ class QuestionUserInfoService {
 		def userBetAmount = 0
 		def userPick =-1
 		
-		PoolTransaction userBet = betService.getBetByQuestionIdAndUserId(questionId, userId)
+		BetTransaction userBet = betService.getBetByQuestionIdAndUserId(questionId, userId)
 		
 		if (userBet!= null){
 			if (userBet.pick==1){
@@ -119,7 +127,7 @@ class QuestionUserInfoService {
 		
 		def userBetAmount = 0
 		def userPick =-1
-		PoolTransaction userBet = betService.getBetByQuestionIdAndUserId(questionId, userId)
+		BetTransaction userBet = betService.getBetByQuestionIdAndUserId(questionId, userId)
 		if (userBet){
 			userBetAmount=userBet.transactionAmount
 			userPick=userBet.pick

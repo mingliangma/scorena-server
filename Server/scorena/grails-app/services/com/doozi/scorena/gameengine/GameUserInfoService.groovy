@@ -2,12 +2,16 @@ package com.doozi.scorena.gameengine
 
 import com.doozi.scorena.PoolTransaction
 import com.doozi.scorena.Question;
+import com.doozi.scorena.controllerservice.*
+import com.doozi.scorena.transaction.BetTransaction
 
 import grails.transaction.Transactional
 
 
-@Transactional
 class GameUserInfoService {
+	
+	static transactional = false
+	
 	def betService
 	def processEngineImplService
 	def questionUserInfoService
@@ -31,7 +35,7 @@ class GameUserInfoService {
 		List userBetsInGame = betService.listBetsByUserIdAndGameId(gameId, userId)
 		int profitAmount = 0
 		
-		for (PoolTransaction bet: userBetsInGame){
+		for (BetTransaction bet: userBetsInGame){
 			profitAmount += questionUserInfoService.getProfitInQuestion(gameId, bet)
 		}
 		return profitAmount
@@ -40,6 +44,7 @@ class GameUserInfoService {
 	private int getuserWinningAmount(PoolTransaction bet){
 		int winnerPick = processEngineImplService.getWinningPick(bet.eventKey, bet.question)
 		int userPickStatus = questionUserInfoService.getUserPickStatus(winnerPick, bet.pick)
+		int ddd = questionUserInfoService.getUserPickStatus(winnerPick, bet.pick)
 		if (userPickStatus==0){
 			return 0
 		}else if (userPickStatus==1){
@@ -49,10 +54,10 @@ class GameUserInfoService {
 
 	
 	private int getWagerInGame(String gameId, String userId){
-		List userBetsInGame = betService.listBetsByUserIdAndGameId(gameId, userId)
+		List<BetTransaction> userBetsInGame = betService.listBetsByUserIdAndGameId(gameId, userId)
 		int wagerInGame = 0
 		
-		for (PoolTransaction bet: userBetsInGame){
+		for (BetTransaction bet: userBetsInGame){
 			wagerInGame += bet.transactionAmount
 		}
 		

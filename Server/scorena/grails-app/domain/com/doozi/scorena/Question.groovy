@@ -1,5 +1,5 @@
 package com.doozi.scorena
-
+import com.doozi.scorena.transaction.*;
 class Question {
 	
 	String eventKey
@@ -7,7 +7,7 @@ class Question {
 	String pick2
 	
 	static hasOne = [pool: Pool]
-	static hasMany = [bet: PoolTransaction]
+	static hasMany = [bet: PoolTransaction, betTrans: BetTransaction, payoutTrans: PayoutTransaction]
 	static belongsTo = [questionContent:QuestionContent]
 	
 	static mapping = {

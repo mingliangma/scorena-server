@@ -2,15 +2,19 @@ package com.doozi.scorena.gameengine
 
 import com.doozi.scorena.Question;
 
-import grails.transaction.Transactional
+import grails.transaction.*
 
 @Transactional
 class GameService {
+	
+	static transactional = false
+	
 	def sportsDataService
 	def questionService
 	def betService
 	def helperService
 	def customGameService
+	def getUpcomingGamesUserInfo
 	def gameUserInfoService
 	
 	public static final String POSTEVENT = "post-event"
@@ -41,7 +45,7 @@ class GameService {
 		def playedGames = betService.listDistinctBetEventKeyByUserId(userId)
 		
 		for (def upcomingGame: upcomingGamesResult){
-			upcomingGame.userInfo=gameUserInfoService.getUpcomingGamesUserInfo(upcomingGame.gameId, playedGames, userId)
+			upcomingGame.userInfo = gameUserInfoService.getUpcomingGamesUserInfo(upcomingGame.gameId, playedGames, userId)
 		}
 		return upcomingGamesResult
 	}

@@ -112,8 +112,8 @@ environments {
 //		parse.parseRestApiKey ="Yadg67u4HqrpydNNNTjXnLTG6DOgjBjhTnbhZ3u1"
 		
 //		scorena real data/scorenat-env 
-//		parse.parseApplicationId='b2cfHtl3JqMwg7rKfkoGJ7sh6LluiZc8RdjWCeQY'
-//		parse.parseRestApiKey ='k6ybcRnaDAdfUBbLkSBfqiesECFQinEr6D0Lx8dL'
+		parse.parseApplicationId='b2cfHtl3JqMwg7rKfkoGJ7sh6LluiZc8RdjWCeQY'
+		parse.parseRestApiKey ='k6ybcRnaDAdfUBbLkSBfqiesECFQinEr6D0Lx8dL'
 		
 		//scorena test 3
 //		parse.parseApplicationId='sxfzjYsgGiSXVwr7pj6vmaFR2f8ok9YGrnXGfx91'

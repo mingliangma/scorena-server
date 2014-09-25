@@ -7,6 +7,8 @@ import com.doozi.scorena.Question;
 import com.doozi.scorena.QuestionContent
 import com.doozi.scorena.controllerservice.SportsDataService;
 import com.doozi.scorena.gamedata.*
+import com.doozi.scorena.transaction.BetTransaction
+import com.doozi.scorena.utils.*
 
 import grails.plugins.rest.client.RestBuilder
 import grails.transaction.Transactional
@@ -26,6 +28,7 @@ class QuestionService {
 	def teamLogoService
 	def questionUserInfoService
 	def questionPoolUtilService
+	def poolInfoService
 	
 	public static final int FEATURE_QUESTION_SIZE = 3
 	
@@ -73,11 +76,11 @@ class QuestionService {
 			
 			def userInfo=[:]
 			def winnerPick =-1			
-			def lastBet = betService.getLatestBetByQuestionId(q.id.toString())
 			def game = gameService.getGame(q.eventKey)
 			
-			def pick1PayoutMultiple = questionPoolUtilService.calculatePick1PayoutMultiple(lastBet)
-			def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(lastBet)		
+			PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(q.id)
+			def pick1PayoutMultiple = questionPoolUtilService.calculatePick1PayoutMultiple(questionPoolInfo)
+			def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(questionPoolInfo)		
 
 //			def pick1PayoutPercentage = Math.round(100 * (pick1PayoutMultiple-1))
 //			def pick2PayoutPercentage =  Math.round(100 * (pick2PayoutMultiple-1))
@@ -99,13 +102,11 @@ class QuestionService {
 				userInfo:userInfo,
 				winnerPick:winnerPick,
 				pool: [
-					pick1Amount: lastBet.pick1Amount,
-					pick1NumPeople: lastBet.pick1NumPeople,
-//					pick1PayoutPercent: pick1PayoutPercentage,
+					pick1Amount: questionPoolInfo.getPick1Amount(),
+					pick1NumPeople: questionPoolInfo.getPick1NumPeople(),
 					pick1odds:  df.format(pick1PayoutMultiple).toDouble(),
-					pick2Amount:lastBet.pick2Amount,
-					pick2NumPeople: lastBet.pick2NumPeople,
-//					pick2PayoutPercent: pick2PayoutPercentage,
+					pick2Amount:questionPoolInfo.getPick2Amount(),
+					pick2NumPeople: questionPoolInfo.getPick2NumPeople(),
 					pick2odds:  df.format(pick2PayoutMultiple).toDouble(),
 				]
 				
@@ -261,7 +262,7 @@ class QuestionService {
 	 */
 	
 	private def getPostEventQuestion(Question q, String userId){
-		PoolTransaction lastBet = betService.getLatestBetByQuestionId(q.id)
+
 		int winnerPick = processEngineImplService.getWinningPick(q.eventKey, q)
 		
 		def pick1WinningPayoutMultiple=0
@@ -270,10 +271,12 @@ class QuestionService {
 		def pick2WinningPayoutPercentage=0 
 		 
 		DecimalFormat df = new DecimalFormat("###.##")
+
 		
-		def pick1PayoutMultiple = questionPoolUtilService.calculatePick1PayoutMultiple(lastBet)
-		def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(lastBet)	
-				
+		PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(q.id)
+		
+		def pick1PayoutMultiple = questionPoolUtilService.calculatePick1PayoutMultiple(questionPoolInfo)
+		def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(questionPoolInfo)				
 		def pick1PayoutPercentage = Math.round(100 * (pick1PayoutMultiple-1))
 		def pick2PayoutPercentage =  Math.round(100 * (pick2PayoutMultiple-1))
 		
@@ -336,11 +339,11 @@ class QuestionService {
 //			currentOddsPick2:df.format(currentOddsPick2).toDouble(),
 			userInfo: userInfo,
 			pool: [
-				pick1Amount: lastBet.pick1Amount,
-				pick1NumPeople: lastBet.pick1NumPeople,
+				pick1Amount: questionPoolInfo.getPick1Amount(),
+				pick1NumPeople: questionPoolInfo.getPick1NumPeople(),
 //				pick1PayoutPercent: pick1PayoutPercentage,
-				pick2Amount:lastBet.pick2Amount,
-				pick2NumPeople: lastBet.pick2NumPeople,
+				pick2Amount:questionPoolInfo.getPick2Amount(),
+				pick2NumPeople: questionPoolInfo.getPick2NumPeople(),
 //				pick2PayoutPercent: pick2PayoutPercentage,
 				pick1odds:  df.format(pick1PayoutMultiple).toDouble(),
 				pick2odds:  df.format(pick2PayoutMultiple).toDouble(),
@@ -399,10 +402,12 @@ class QuestionService {
 		Map betters = [:]
 		Map userInfo = [:]
 		
-		PoolTransaction lastBet = betService.getLatestBetByQuestionId(q.id)
+//		PoolTransaction lastBet = betService.getLatestBetByQuestionId(q.id)
 		
-		def pick1PayoutMultiple = questionPoolUtilService.calculatePick1PayoutMultiple(lastBet)
-		def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(lastBet)	
+		PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(q.id)
+		
+		def pick1PayoutMultiple = questionPoolUtilService.calculatePick1PayoutMultiple(questionPoolInfo)
+		def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(questionPoolInfo)	
 		def pick1PayoutPercentage = Math.round(100 * (pick1PayoutMultiple-1))
 		def pick2PayoutPercentage =  Math.round(100 * (pick2PayoutMultiple-1))
 		
@@ -429,19 +434,19 @@ class QuestionService {
 			pick1LogoUrl: teamLogoService.getTeamLogo(q.pick1.trim()),
 			pick2: q.pick2,
 			pick2LogoUrl: teamLogoService.getTeamLogo(q.pick2.trim()),
-			lastUpdate: lastBet.createdAt,
+			lastUpdate: "",
 			userInfo:userInfo,
 			pool: [
-				pick1Amount: lastBet.pick1Amount,
-				pick1NumPeople: lastBet.pick1NumPeople,
+				pick1Amount: questionPoolInfo.getPick1Amount(),
+				pick1NumPeople: questionPoolInfo.getPick1NumPeople(),
+				pick2Amount:questionPoolInfo.getPick2Amount(),
+				pick2NumPeople: questionPoolInfo.getPick2NumPeople(),
+				pick1odds:  df.format(pick1PayoutMultiple).toDouble(),
+				pick2odds:  df.format(pick2PayoutMultiple).toDouble(),
 //				pick1PayoutPercent: pick1PayoutPercentage,
-				pick2Amount:lastBet.pick2Amount,
-				pick2NumPeople: lastBet.pick2NumPeople,
 //				pick2PayoutPercent: pick2PayoutPercentage,
 //				currentOddsPick1:df.format(currentOddsPick1).toDouble(),
 //				currentOddsPick2:df.format(currentOddsPick2).toDouble(),
-				pick1odds:  df.format(pick1PayoutMultiple).toDouble(),
-				pick2odds:  df.format(pick2PayoutMultiple).toDouble(),
 			],
 			betters: betters
 		]
@@ -543,15 +548,15 @@ class QuestionService {
 		if (userId != null)
 			username = userService.getUserDisplayName(userId)
 		
-		def betTransactions = betService.listAllBets(qId)
+		def betTransactions = betService.listAllBetsByQId(qId)
 		
-		for (PoolTransaction betTrans: betTransactions){
+		for (BetTransaction betTrans: betTransactions){
 
 			Account betterAccount = betTrans.account
 		
 			String betterUsername = betterAccount.username
 			String betterUserId =  betterAccount.userId
-			if (betTrans.pick==1){
+			if (betTrans.pick==Pick.PICK1){
 				
 				if (pick1BettersMap.size() <=10){
 					if ( betterUsername != username){

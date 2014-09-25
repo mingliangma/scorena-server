@@ -1,5 +1,6 @@
 package com.doozi.scorena
-import com.doozi.scorena.tournament.*
+import com.doozi.scorena.tournament.*;
+import com.doozi.scorena.transaction.*;
 
 class Account {
 	String userId
@@ -9,7 +10,7 @@ class Account {
 	
 	
 	//static belongsTo = [user: User]
-	static hasMany = [bet: PoolTransaction, enrollment: Enrollment]
+	static hasMany = [bet: PoolTransaction, enrollment: Enrollment, trans: BetTransaction]
 
 	static constraints = {
 		userId unqiue: true

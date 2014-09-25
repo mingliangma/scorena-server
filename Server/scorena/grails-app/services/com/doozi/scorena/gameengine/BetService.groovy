@@ -6,6 +6,7 @@ import com.doozi.scorena.Account;
 import com.doozi.scorena.BetResult;
 import com.doozi.scorena.PoolTransaction;
 import com.doozi.scorena.Question;
+import com.doozi.scorena.transaction.BetTransaction
 
 import org.hibernate.criterion.CriteriaSpecification
 
@@ -54,131 +55,177 @@ class BetService {
 		return result
 	}
 	
-	def saveBetTrans(int _wager, Date _time, int _pick, String userId, long quesitonId) {
-		def account = Account.findByUserId(userId)
-		if (!account){
-			return [code:202, message: "the userId does not exsist"]
-		}
-		
-		if (account.currentBalance < _wager){
-			return [code:202, message: "The user does not have enough coins to make a bet"]
-		}
-		
-		if (_wager <= 0){
-			return [code:202, message: "The user cannot bet negative amount"]
-		}
-		
-		if (_pick < 1 || _pick > 2){
-			return [code:202, message: "the pick is not available"]
-		}
-		
-		Question question = Question.findById(quesitonId)
-		if (!question){
-			return [code:202, message: "the questionId does not exsist"]
-		}
-		
-		def game = sportsDataService.getGame(question.eventKey)
-		if (game!=[]){
-			if (game.gameStatus != sportsDataService.PREEVENT){
-				return [code:202, message: "the match is already started. All pool is closed"]
-			}
-		}else{
-			def customGame = customGameService.getGame(question.eventKey)
-			if (customGame.gameStatus != sportsDataService.PREEVENT){
-				return [code:202, message: "the match is already started. All pool is closed"]
-			}
-		}
-		return saveBetTrans(_wager, _time, _pick, account, question)
-		
+//	def saveBetTrans(int _wager, Date _time, int _pick, String userId, long quesitonId) {
+//		def account = Account.findByUserId(userId)
+//		if (!account){
+//			return [code:202, message: "the userId does not exsist"]
+//		}
+//		
+//		if (account.currentBalance < _wager){
+//			return [code:202, message: "The user does not have enough coins to make a bet"]
+//		}
+//		
+//		if (_wager <= 0){
+//			return [code:202, message: "The user cannot bet negative amount"]
+//		}
+//		
+//		if (_pick < 1 || _pick > 2){
+//			return [code:202, message: "the pick is not available"]
+//		}
+//		
+//		Question question = Question.findById(quesitonId)
+//		if (!question){
+//			return [code:202, message: "the questionId does not exsist"]
+//		}
+//		
+//		def game = sportsDataService.getGame(question.eventKey)
+//		if (game!=[]){
+//			if (game.gameStatus != sportsDataService.PREEVENT){
+//				return [code:202, message: "the match is already started. All pool is closed"]
+//			}
+//		}else{
+//			def customGame = customGameService.getGame(question.eventKey)
+//			if (customGame.gameStatus != sportsDataService.PREEVENT){
+//				return [code:202, message: "the match is already started. All pool is closed"]
+//			}
+//		}
+//		return saveBetTrans(_wager, _time, _pick, account, question)
+//		
+//	}
+	
+	Map createBetTrans(int playerWager, int playerPick, String userId, long quesitonId) {
+		createBetTrans( playerWager, playerPick, userId, quesitonId, new Date(), true)
 	}
 	
-    def saveBetTrans(int playerWager, Date betCreatedAt, int playerPick, Account playerAccount, Question q) {
-		int pick1amount
-		int pick2amount 
-		int pick1num 
-		int pick2num 
-		def lastBet
+	Map createBetTrans(int playerWager, int playerPick, String userId, long quesitonId, Date transactionDate, boolean toValidate) {
 		
-		def b = PoolTransaction.find("from PoolTransaction as b where (b.question.id=? and b.account.id=? and b.transactionType=?)", q.id, playerAccount.id, PoolTransaction.BUYIN)
-		if (b){
-			return [code:202, message: "the bet transaction already exsists"]
+		Account playerAccount = Account.findByUserId(userId)
+		Question question = Question.findById(quesitonId)
+		
+		if (toValidate){
+			//Find the bet transaction that associated with the given userId and questionId 
+			BetTransaction betTrans = BetTransaction.find("from BetTransaction as b where (b.question.id=? and b.account.id=?)", question.id, playerAccount.id)
 			
+			Map validationResult =  validateBetTrans(playerWager, playerPick, playerAccount, question, betTrans)		
+			
+			if (validationResult!=[:]){
+				return validationResult
+			}
 		}
 		
-		if (q.bet == null || q.bet.size() == 0){
-			if (playerPick==1){
-				 pick1amount = playerWager
-				 pick1num = 1
-				 pick2amount = 0			 
-				 pick2num = 0
-			}else{
-				pick1amount = 0
-				pick1num = 0
-				pick2amount = playerWager
-				pick2num = 1
-			}
-			
-		}else{
-		
-			def questionId = q.id.toString()
-			lastBet = getLatestBetByQuestionId(questionId)
-		
-			if (playerPick==1){
-				 pick1amount = lastBet.pick1Amount + playerWager
-				 pick1num = lastBet.pick1NumPeople + 1
-				 pick2amount = lastBet.pick2Amount			 
-				 pick2num = lastBet.pick2NumPeople
-			}else{
-				pick1amount = lastBet.pick1Amount	
-				pick1num = lastBet.pick1NumPeople
-				pick2amount = lastBet.pick2Amount + playerWager
-				pick2num = lastBet.pick2NumPeople + 1
-			}
-				
-		}	
-		def bet = new PoolTransaction(transactionAmount: playerWager, transactionType:PoolTransaction.BUYIN, createdAt: betCreatedAt, pick: playerPick, pick1Amount:pick1amount, pick1NumPeople:pick1num,
-			pick2Amount:pick2amount, pick2NumPeople:pick2num, eventKey: q.eventKey)
+		BetTransaction newBetTransaction = new BetTransaction(transactionAmount: playerWager, createdAt: transactionDate, pick: playerPick, eventKey: question.eventKey)
 		
 		
-		playerAccount.addToBet(bet)
-		q.addToBet(bet)
+		playerAccount.addToTrans(newBetTransaction)
+		question.addToBetTrans(newBetTransaction)
 
 		
 		playerAccount.currentBalance -= playerWager
 		
 		if (!playerAccount.save(failOnError:true)){
 			System.out.println("---------------account save failed")
-			return [code:202, message: "account data is not saved"]
+			return [code:202, error: "account data is not saved"]
 		}
 		
-		if (!q.save(failOnError:true)){
+		if (!question.save(failOnError:true)){
 			System.out.println("---------------q save failed")
-			return [code:202, message: "Question data is not saved"]
-		}
-		
+			return [code:202, error: "Question data is not saved"]
+		}		
 
-		return [code:201]
-    }
+		return [:]
+	}
 	
 	
+	
+
+	
+//    def saveBetTrans(int playerWager, Date betCreatedAt, int playerPick, Account playerAccount, Question q) {
+//		int pick1amount
+//		int pick2amount 
+//		int pick1num 
+//		int pick2num 
+//		def lastBet
+//		
+//		def b = PoolTransaction.find("from PoolTransaction as b where (b.question.id=? and b.account.id=? and b.transactionType=?)", q.id, playerAccount.id, PoolTransaction.BUYIN)
+//		if (b){
+//			return [code:202, message: "the bet transaction already exsists"]
+//			
+//		}
+//		
+//		if (q.bet == null || q.bet.size() == 0){
+//			if (playerPick==1){
+//				 pick1amount = playerWager
+//				 pick1num = 1
+//				 pick2amount = 0			 
+//				 pick2num = 0
+//			}else{
+//				pick1amount = 0
+//				pick1num = 0
+//				pick2amount = playerWager
+//				pick2num = 1
+//			}
+//			
+//		}else{
+//		
+//			def questionId = q.id.toString()
+//			lastBet = getLatestBetByQuestionId(questionId)
+//		
+//			if (playerPick==1){
+//				 pick1amount = lastBet.pick1Amount + playerWager
+//				 pick1num = lastBet.pick1NumPeople + 1
+//				 pick2amount = lastBet.pick2Amount			 
+//				 pick2num = lastBet.pick2NumPeople
+//			}else{
+//				pick1amount = lastBet.pick1Amount	
+//				pick1num = lastBet.pick1NumPeople
+//				pick2amount = lastBet.pick2Amount + playerWager
+//				pick2num = lastBet.pick2NumPeople + 1
+//			}
+//				
+//		}	
+//		def bet = new PoolTransaction(transactionAmount: playerWager, transactionType:PoolTransaction.BUYIN, createdAt: betCreatedAt, pick: playerPick, pick1Amount:pick1amount, pick1NumPeople:pick1num,
+//			pick2Amount:pick2amount, pick2NumPeople:pick2num, eventKey: q.eventKey)
+//		
+//		
+//		playerAccount.addToBet(bet)
+//		q.addToBet(bet)
+//
+//		
+//		playerAccount.currentBalance -= playerWager
+//		
+//		if (!playerAccount.save(failOnError:true)){
+//			System.out.println("---------------account save failed")
+//			return [code:202, message: "account data is not saved"]
+//		}
+//		
+//		if (!q.save(failOnError:true)){
+//			System.out.println("---------------q save failed")
+//			return [code:202, message: "Question data is not saved"]
+//		}
+//		
+//		return [code:201]
+//    }
+	
+
 	/**
 	 * 
 	 * 
 	 * @param qId
 	 * @return the transaction information that was made the last in a question
 	 */
-	def getLatestBetByQuestionId(def qId){
-		def lastBets = PoolTransaction.findAll("from PoolTransaction as b WHERE id = (select max(id) from b where question_id=? and b.transactionType=?)", [qId, 0])
-		
-		if (lastBets.size()==0){
-		
-			def lastUpdate=new Date()
-			return [pick1Amount:0,pick2Amount:0,pick1NumPeople:0,pick2NumPeople:0, lastUpdate:lastUpdate]
-		}
-				
-		return lastBets.get(0)
-				
-	}
+//	def getLatestBetByQuestionId(def qId){
+//		def lastBets = BetTransaction.findAll("from BetTransaction as b WHERE id = (select max(id) from b where question_id=?)", [qId])
+//		
+//		if (lastBets.size()==0){
+//		
+//			def lastUpdate=new Date()
+//			return [pick1Amount:0,pick2Amount:0,pick1NumPeople:0,pick2NumPeople:0, lastUpdate:lastUpdate]
+//		}
+//				
+//		return lastBets.get(0)
+//				
+//	}
+	
 	def listPayoutTransByUserId(def userId){
 		return listPayoutTransByUserId(userId, 0)
 	}
@@ -205,20 +252,16 @@ class BetService {
 			return PoolTransaction.findAll("from PoolTransaction as b where b.account.userId=? and b.transactionType=? and (date between subdate(now(), INTERVAL weekday(now()) DAY) AND NOW())", [userId, 1])
 	}
 	
-	PoolTransaction getBetByQuestionIdAndUserId(def qId, def userId){
-		return PoolTransaction.find("from PoolTransaction as b where b.question.id=? and b.account.userId=? and b.transactionType=?", [qId, userId, 0])
+	BetTransaction getBetByQuestionIdAndUserId(def qId, def userId){
+		return BetTransaction.find("from BetTransaction as b where b.question.id=? and b.account.userId=?", [qId, userId])
 	}
 	
-	def listAllBets(def qId){
-		return PoolTransaction.findAll("from PoolTransaction as b where b.question.id=? and b.transactionType=?", [qId, 0], [cache: true])
+	List<BetTransaction> listAllBetsByQId(def qId){
+		return BetTransaction.findAll("from BetTransaction as b where b.question.id=?", [qId], [cache: true])
 	}
 	
-	def listAllBetsByPick(def qId, def pick){
-		if (pick==0){
-			return listAllBets(qId)
-		}else{
-			return PoolTransaction.findAll("from PoolTransaction as b where b.question.id=? and b.pick=? and b.transactionType=?", [qId, pick, 0])
-		}
+	List<BetTransaction> listAllBetsByPickAndQId(def qId, int pick){
+		return BetTransaction.findAll("from BetTransaction as b where b.question.id=? and b.pick=?", [qId, pick])
 	}
 	
 	/**
@@ -228,8 +271,9 @@ class BetService {
 	 * @param userId
 	 * @return betsThatNotPayoutYet
 	 */
-	List listBetsByUserIdAndGameId(String gameId, String userId){
-		return PoolTransaction.findAll("from PoolTransaction as b where b.transactionType=? and b.account.userId=? and b.question.eventKey=?", [0, userId, gameId])
+	List<BetTransaction> listBetsByUserIdAndGameId(String gameId, String userId){
+		List<BetTransaction> bt = BetTransaction.findAll("from BetTransaction as b where b.account.userId=? and b.eventKey=?", [userId, gameId])
+		return bt
 	}
 	
 	/**
@@ -242,7 +286,7 @@ class BetService {
 		 List betsThatNotPayoutYet = []
 		 def earliestTransDateThatUserCanBetOnAUpcomingGame = new Date() - sportsDataService.UPCOMING_DATE_RANGE - 2;
 		 List payoutTransactions = PoolTransaction.findAll("from PoolTransaction as b where b.transactionType=? and b.account.userId=? and b.createdAt>?", [1, userId, earliestTransDateThatUserCanBetOnAUpcomingGame])
-		 List betTransactions = PoolTransaction.findAll("from PoolTransaction as b where b.transactionType=? and b.account.userId=? and b.createdAt>?", [0, userId, earliestTransDateThatUserCanBetOnAUpcomingGame])
+		 List betTransactions = BetTransaction.findAll("from BetTransaction as b where b.account.userId=? and b.createdAt>?", [userId, earliestTransDateThatUserCanBetOnAUpcomingGame])
 		 
 		 for (PoolTransaction betTrans: betTransactions){
 			 boolean transactionPaid = false
@@ -271,7 +315,70 @@ class BetService {
 	 * 		 past games: return only the SportsDataService.PAST_DATE_RANGE > transaction date > game start date
 	 */
 	def listDistinctBetEventKeyByUserId(def userId){
-		return PoolTransaction.executeQuery("SELECT DISTINCT eventKey from PoolTransaction as b where b.account.userId=? and b.transactionType=?", [userId, 0])
+		return BetTransaction.executeQuery("SELECT DISTINCT eventKey from BetTransaction as b where b.account.userId=?", [userId])
+	}
+	
+	def getLastUpdatedBetTransactionDateByQId(def qId){
+		def c = BetTransaction.createCriteria()
+		def lastUpdatedBetTransDate = c.get{
+			projections{
+				max "createdAt"
+			}
+		}
+		
+		return lastUpdatedBetTransDate
+	}
+	
+	
+	/**
+	 * Validate Bet Transaction
+	 * 
+	 * @param playerWager
+	 * @param betCreatedAt
+	 * @param playerPick
+	 * @param account
+	 * @param question
+	 * @param betTrans
+	 * @return
+	 */
+	private Map validateBetTrans(int playerWager, int playerPick, Account account, Question question, BetTransaction betTrans){
+		if (!account){
+			return [code:202, error: "the userId does not exsist"]
+		}
+		
+		if (account.currentBalance < playerWager){
+			return [code:202, error: "The user does not have enough coins to make a bet"]
+		}
+		
+		if (playerWager <= 0){
+			return [code:202, error: "The user cannot bet negative amount"]
+		}
+		
+		if (playerPick < 1 || playerPick > 2){
+			return [code:202, error: "the pick is not available"]
+		}
+		
+		if (!question){
+			return [code:202, error: "the questionId does not exsist"]
+		}
+		
+		if (betTrans){
+			return [code:202, error: "the bet transaction already exsists"]
+		}
+		
+		def game = sportsDataService.getGame(question.eventKey)
+		if (game!=[]){
+			if (game.gameStatus != sportsDataService.PREEVENT){
+				return [code:202, error: "the match is already started. All pool is closed"]
+			}
+		}else{
+			def customGame = customGameService.getGame(question.eventKey)
+			if (customGame.gameStatus != sportsDataService.PREEVENT){
+				return [code:202, error: "the match is already started. All pool is closed"]
+			}
+		}
+		
+		return [:]
 	}
 
 }

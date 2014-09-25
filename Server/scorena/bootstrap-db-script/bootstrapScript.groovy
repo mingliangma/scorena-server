@@ -1,15 +1,5 @@
 //command: -DnoTomcat=true run-script bootstrap-db-script/bootstrapScript.groovy
-import com.doozi.scorena.Game
-import com.doozi.scorena.GameEvent
-import com.doozi.scorena.GameResult
-import com.doozi.scorena.Pool
-import com.doozi.scorena.Question
-import com.doozi.scorena.QuestionContent
-import com.doozi.scorena.Account
-import com.doozi.scorena.gameengine.GameService
-import com.doozi.scorena.PoolTransaction
-import com.doozi.scorena.BetResult
-import com.doozi.scorena.User
+import com.doozi.scorena.*
 
 import grails.converters.JSON
 import grails.web.JSONBuilder
@@ -169,7 +159,7 @@ def simulateBetUpcoming(){
 						_pick=2
 					}
 					System.out.println("user name: "+account.username + " wager: "+_wager + " balance: "+account.currentBalance)
-					betService.saveBetTrans(_wager, _time,_pick, account.userId, q.id)
+					betService.createBetTrans(_wager,_pick, account.id, q.id)
 				}
 			}
 		}
@@ -249,43 +239,6 @@ def createUsers(){
 	}
 	println "create users ended"
 }
-
-
-def createGame(String _league, String _away, String _home, String _type, String _country, Date _theDate, int _awayScore, int _homeScore, int _pick1Amount,
-	int _pick1NumPeople, int _pick2Amount, int _pick2NumPeople){
-			
-			println "create game starts..."
-			Random random = new Random()
-			
-			//def newdate = new Date().parse("d/M/yyyy H:m:s", _theDate)
-			String _awayTeamId = random.nextInt(10000).toString()
-			String _homeTeamId = random.nextInt(10000).toString()
-			String _gameEventId = random.nextInt(10000).toString()
-			String _siteKey = random.nextInt(1000).toString()
-			Date currentDate = new Date()
-			
-			def game = new Game(gameEventId: _gameEventId, league: _league, homeTeamId:_homeTeamId, homeTeamNameFirst:_home, awayTeamId: _awayTeamId, awayTeamNameFirst: _away,
-				city: "London", siteKey:_siteKey, siteName: "DW Stadium",type:_type, country:_country, startDate:_theDate, createdAt: currentDate)
-			System.out.println("game: "+game.id)
-			def q1 = new Question(pick1: _home, pick2: _away, content:"who will win between the two",
-				pool: new Pool(minBet: 5))
-			def q2 = new Question(pick1: _home, pick2: _away, content:"who will score the first goal",
-				pool: new Pool(minBet: 5))
-			
-			game.addToQuestion(q1);
-			game.addToQuestion(q2);
-
-		
-			if (game.save()){
-				System.out.println("game successfully saved")
-			}else{
-				System.out.println("game save failed")
-				game.errors.each{
-					println it
-				}
-			}
-}
-
 
 
 

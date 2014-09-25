@@ -1,10 +1,9 @@
 package com.doozi.scorena.utils
 import java.util.Date;
 
-import grails.transaction.Transactional
 import groovyjarjarcommonscli.ParseException
 
-@Transactional
+
 class HelperService {
 
     String getOutputDateFormat(Date date){

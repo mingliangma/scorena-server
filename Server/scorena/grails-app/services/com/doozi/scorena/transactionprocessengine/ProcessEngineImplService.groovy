@@ -1,7 +1,12 @@
 package com.doozi.scorena.transactionprocessengine
 
 
+import java.util.List;
+
 import com.doozi.scorena.*
+import com.doozi.scorena.gameengine.PoolInfo
+import com.doozi.scorena.transaction.BetTransaction
+
 import grails.transaction.Transactional
 
 
@@ -11,6 +16,7 @@ class ProcessEngineImplService {
 	def betService
 	def customQuestionResultService
 	def sportsDataService
+	def poolInfoService
 	
 	def payoutCleared(Question q){
 		def result = betService.getPayoutTransByQuestion(q)
@@ -130,7 +136,7 @@ class ProcessEngineImplService {
 	}
 	
 	
-	@Transactional
+//	@Transactional
     def processPayout(GameProcessRecord gameProcessRecord, Question q) {
 			
 			println "ProcessEngineImplService::processPayout(): starts with eventKey="+gameProcessRecord.eventKey+ "questionId="+q.id
@@ -138,7 +144,7 @@ class ProcessEngineImplService {
 			def eventKey = gameProcessRecord.eventKey
 			int winnerPick = getWinningPick(eventKey, q)
 			def payoutMultipleOfWager
-			def betTransactions
+			
 			boolean processSuccess = true
 			
 			if (winnerPick == -1){
@@ -146,11 +152,12 @@ class ProcessEngineImplService {
 				return
 			}
 			
-			def lastTransaction = betService.getLatestBetByQuestionId(q.id.toString())
+//			def lastTransaction = betService.getLatestBetByQuestionId(q.id.toString())
+			PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(q.id)
 						
 			
-			def denominatorPick1Mult = lastTransaction.pick1Amount
-			def denominatorPick2Mult = lastTransaction.pick2Amount
+			def denominatorPick1Mult = questionPoolInfo.getPick1Amount()
+			def denominatorPick2Mult = questionPoolInfo.getPick2Amount()
 			
 		
 			if (denominatorPick1Mult==0)
@@ -160,28 +167,28 @@ class ProcessEngineImplService {
 				denominatorPick2Mult=1
 				
 			if (winnerPick == 1){
-				payoutMultipleOfWager = (lastTransaction.pick1Amount + lastTransaction.pick2Amount) / denominatorPick1Mult
+				payoutMultipleOfWager = (questionPoolInfo.getPick1Amount() + questionPoolInfo.getPick2Amount()) / denominatorPick1Mult
 			}else if (winnerPick ==2){
-				payoutMultipleOfWager = (lastTransaction.pick1Amount + lastTransaction.pick2Amount) / denominatorPick2Mult
+				payoutMultipleOfWager = (questionPoolInfo.getPick1Amount() + questionPoolInfo.getPick2Amount()) / denominatorPick2Mult
 			}else{
 				payoutMultipleOfWager = 1
 			}
 			
-			int potAmoutToBePaid = lastTransaction.pick1Amount + lastTransaction.pick2Amount
-			int numPlayersToBePaid = lastTransaction.pick1NumPeople + lastTransaction.pick2NumPeople
+			int potAmoutToBePaid = questionPoolInfo.getPick1Amount() + questionPoolInfo.getPick2Amount()
+			int numPlayersToBePaid = questionPoolInfo.getPick1NumPeople() + questionPoolInfo.getPick2NumPeople()
 			
 			boolean onePickHasNoBet = false
-			if (lastTransaction.pick1NumPeople == 0 ^ lastTransaction.pick2NumPeople == 0) {
+			if (questionPoolInfo.getPick1NumPeople() == 0 ^ questionPoolInfo.getPick2NumPeople() == 0) {
 				onePickHasNoBet = true
 				payoutMultipleOfWager = 1
 			}
 			
-			betTransactions = betService.listAllBets(q.id)
+			List<BetTransaction> betTransactions = betService.listAllBetsByQId(q.id)
 			
 			int totalWager = 0
 			int totalpayout = 0
 
-			for (PoolTransaction bet: betTransactions){
+			for (BetTransaction bet: betTransactions){
 				Account account = bet.account
 				int payout = 0
 				if (winnerPick == 0 || bet.pick == winnerPick || onePickHasNoBet)

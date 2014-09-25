@@ -9,15 +9,15 @@ class QuestionPoolUtilService {
 
 	def betService
 	
-    private def getDenominatorPick1Mult(def lastBet) {
-		def denominatorPick1Mult = lastBet.pick1Amount		
+    private def getDenominatorPick1Mult(int pick1Amount) {
+		def denominatorPick1Mult = pick1Amount		
 		if (denominatorPick1Mult==0)
 			denominatorPick1Mult=1		
 		return denominatorPick1Mult
     }
 	
-	private def getDenominatorPick2Mult(def lastBet) {
-		def denominatorPick2Mult = lastBet.pick2Amount			
+	private def getDenominatorPick2Mult(int pick2Amount) {
+		def denominatorPick2Mult = pick2Amount			
 		if (denominatorPick2Mult==0)
 			denominatorPick2Mult=1
 		return denominatorPick2Mult
@@ -39,25 +39,25 @@ class QuestionPoolUtilService {
 		}
 	}
 	
-	def calculatePick1PayoutMultiple(def questionId){
-		PoolTransaction lastBet = betService.getLatestBetByQuestionId(questionId)
-		return calculatePick1PayoutMultiple(lastBet)
-	}
+//	def calculatePick1PayoutMultiple(def questionId){
+//		PoolTransaction lastBet = betService.getLatestBetByQuestionId(questionId)
+//		return calculatePick1PayoutMultiple(lastBet)
+//	}
 	
-	def calculatePick1PayoutMultiple(PoolTransaction lastBet){
-		def denominatorPick1Mult = getDenominatorPick1Mult(lastBet)
-		def pick1PayoutMultiple =  (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick1Mult
+	def calculatePick1PayoutMultiple(PoolInfo poolInfo){
+		def denominatorPick1Mult = getDenominatorPick1Mult(poolInfo.getPick1Amount())
+		def pick1PayoutMultiple =  (poolInfo.getPick1Amount() + poolInfo.getPick2Amount())/denominatorPick1Mult
 		return pick1PayoutMultiple
 	}
 	
-	def calculatePick2PayoutMultiple(def questionId){
-		PoolTransaction lastBet = betService.getLatestBetByQuestionId(questionId)
-		return calculatePick2PayoutMultiple(lastBet)
-	}
+//	def calculatePick2PayoutMultiple(def questionId){
+//		PoolTransaction lastBet = betService.getLatestBetByQuestionId(questionId)
+//		return calculatePick2PayoutMultiple(lastBet)
+//	}
 	
-	def calculatePick2PayoutMultiple(PoolTransaction lastBet){
-		def denominatorPick2Mult = getDenominatorPick2Mult(lastBet)
-		def pick2PayoutMultiple = (lastBet.pick1Amount + lastBet.pick2Amount)/denominatorPick2Mult
+	def calculatePick2PayoutMultiple(PoolInfo poolInfo){
+		def denominatorPick2Mult = getDenominatorPick2Mult(poolInfo.getPick2Amount())
+		def pick2PayoutMultiple = (poolInfo.getPick1Amount() + poolInfo.getPick2Amount())/denominatorPick2Mult
 		return pick2PayoutMultiple
 	}
 }
