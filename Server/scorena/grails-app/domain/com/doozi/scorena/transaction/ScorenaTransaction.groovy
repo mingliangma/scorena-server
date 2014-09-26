@@ -11,4 +11,8 @@ abstract class ScorenaTransaction {
 	
     static constraints = {
     }
+	
+	static mapping = {
+		account joinTable: [name: 'TRANS_ACCOUNT', key: 'account_id']
+	}
 }

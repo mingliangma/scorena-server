@@ -2,7 +2,6 @@ package com.doozi.scorena.gameengine
 
 import com.doozi.scorena.Account
 import com.doozi.scorena.Pool
-import com.doozi.scorena.PoolTransaction;
 import com.doozi.scorena.Question;
 import com.doozi.scorena.QuestionContent
 import com.doozi.scorena.controllerservice.SportsDataService;
@@ -473,14 +472,14 @@ class QuestionService {
 	private def listUpcomingQuesitonsByMostPeopleBetOn(){
 		int eventKeyIndex = 0
 		int quesitonIdIndex = 1
-		int transactionTypeSumIndex = 2
+		int BetCount = 2
 		
 		List preeventQuestions=[]
 		
-		//The questionList data structure is list of [(eventKey),(quesitonId), (transactionTypeSum), (BetCount)]
-		def questionList = PoolTransaction.executeQuery("select eventKey, question.id ,sum(transactionType) as type1, count(*) as betCount "+
-			"from PoolTransaction as t1 group by 1,2 order by betCount desc limit 100")
-							
+		//The questionList data structure is list of [(eventKey),(quesitonId), (BetCount)]
+		def questionList = BetTransaction.executeQuery("select eventKey, question.id, count(*) as betCount "+
+			"from BetTransaction as t1 group by 1,2 order by betCount desc limit 100")
+									
 		for (List question: questionList){
 			Question q = Question.findById(question[quesitonIdIndex])
 			QuestionContent questionContent = q.questionContent
@@ -488,14 +487,12 @@ class QuestionService {
 			if (questionContent.questionType == "disable")
 				continue
 				
-			//get the questions that have no process transaction 
-			if (question[transactionTypeSumIndex]==0){
 				
-				def game = gameService.getGame(question[eventKeyIndex])				
-				if (game.gameStatus == SportsDataService.PREEVENT){
-					preeventQuestions.add([gameId:question[eventKeyIndex], questionId: question[quesitonIdIndex]])
-				}					
-			}
+			def game = gameService.getGame(question[eventKeyIndex])				
+			if (game.gameStatus == SportsDataService.PREEVENT){
+				preeventQuestions.add([gameId:question[eventKeyIndex], questionId: question[quesitonIdIndex]])
+			}					
+			
 		}
 		return preeventQuestions
 	}

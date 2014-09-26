@@ -1,5 +1,4 @@
 package com.doozi.scorena.tournament
-import com.doozi.scorena.controllerservice.*
 
 import grails.converters.JSON
 
@@ -17,11 +16,11 @@ class TournamentController {
     def listTournaments() { 
 		List tournament = []
 
-		if (params.tstatus)
-			tournamentStatus = params.tstatus.toInteger()
-		
-		if (params.estatus)
-			enrollmentStatus = params.estatus.toInteger()
+//		if (params.tstatus)
+//			tournamentStatus = params.tstatus.toInteger()
+//		
+//		if (params.estatus)
+//			enrollmentStatus = params.estatus.toInteger()
 		
 		if (params.userId){			
 			if (!userService.accountExists(params.userId)){
@@ -44,12 +43,14 @@ class TournamentController {
 	
 	def getWorldCupTournament(){
 		Map tournament = [:]
+		println "tournament starts..."
 		
-			if (params.tstatus)
-				tournamentStatus = params.tstatus.toInteger()
-			
-			if (params.estatus)
-				enrollmentStatus = params.estatus.toInteger()
+//		
+//			if (params.tstatus)
+//				tournamentStatus = params.tstatus.toInteger()
+//			
+//			if (params.estatus)
+//				enrollmentStatus = params.estatus.toInteger()
 			
 			if (params.userId){
 				if (!userService.accountExists(params.userId)){
@@ -66,8 +67,9 @@ class TournamentController {
 				tournament = tournamentService.getWorldCupTournament()
 			
 			}
-	
+			println "tournament: "+tournament
 			render tournament as JSON
+			return
 	}
 	
 	def enrollTournament(){

@@ -25,7 +25,7 @@ class SportsDataService {
 	def helperService
 	def customGameService
 		
-	private String getLeagueNameFromEventKey(String eventKey){
+	public String getLeagueNameFromEventKey(String eventKey){
 		
 		if (eventKey.startsWith(PREMIER_LEAGUE))
 			return "Premier League"
@@ -45,7 +45,7 @@ class SportsDataService {
 			return "Launch Party"
 	}
 	
-	private String getLeagueCodeFromEventKey(String eventKey){
+	public String getLeagueCodeFromEventKey(String eventKey){
 		if (eventKey.startsWith(PREMIER_LEAGUE))
 			return PREMIER_LEAGUE
 		else if (eventKey.startsWith(CHAMP_LEAGUE))

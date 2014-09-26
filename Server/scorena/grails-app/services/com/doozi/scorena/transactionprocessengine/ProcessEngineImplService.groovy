@@ -4,6 +4,7 @@ package com.doozi.scorena.transactionprocessengine
 import java.util.List;
 
 import com.doozi.scorena.*
+import com.doozi.scorena.utils.*
 import com.doozi.scorena.gameengine.PoolInfo
 import com.doozi.scorena.transaction.BetTransaction
 
@@ -17,9 +18,11 @@ class ProcessEngineImplService {
 	def customQuestionResultService
 	def sportsDataService
 	def poolInfoService
+	def questionPoolUtilService
+	def payoutService
 	
 	def payoutCleared(Question q){
-		def result = betService.getPayoutTransByQuestion(q)
+		def result = payoutService.getPayoutTransByQuestion(q)
 		if (result)
 			true
 		else
@@ -39,16 +42,13 @@ class ProcessEngineImplService {
 	
 	def processUnpaidPayout(){
 		println "ProcessEngineImplService::processUnpaidPayout(): starts"
-		def gameRecords = GameProcessRecord.findAllByTransProcessStatus(3)
+		def gameRecords = GameProcessRecord.findAllByTransProcessStatus(PayoutTransactionProcessStatus.CUSOTM_QUESTION_UNPROCESSED)
 		
-		def totalpayout = 0
 		def gameRecordsProcessed = 0
-		
 		for (GameProcessRecord gameProcessRecord: gameRecords){
 			
 			println "processing game: "+gameProcessRecord.eventKey
 
-			//def customQuestionsResultNotExist = false
 			def fixed = false
 			def questions = questionService.listQuestions(gameProcessRecord.eventKey)
 			
@@ -67,7 +67,7 @@ class ProcessEngineImplService {
 					continue
 				}
 				
-				// check if custom question result exists
+				// check if custom question result exists. If it does not exist, the question does not process.
 				if (!customQuestionResultService.recordExist(q.id)){
 					println "QuesitonID = "+q.id+" - custom question result does not exists"
 					continue
@@ -78,10 +78,10 @@ class ProcessEngineImplService {
 			}
 			
 			if (fixed){
-				if (gameProcessRecord.transProcessStatus==3){
-					gameProcessRecord.transProcessStatus = 2
-				}else if (gameProcessRecord.transProcessStatus==-2){
-					gameProcessRecord.transProcessStatus = -1
+				if (gameProcessRecord.transProcessStatus==PayoutTransactionProcessStatus.CUSOTM_QUESTION_UNPROCESSED){
+					gameProcessRecord.transProcessStatus = PayoutTransactionProcessStatus.COMPLETED
+				}else if (gameProcessRecord.transProcessStatus==PayoutTransactionProcessStatus.ERROR_WITH_UNPROCCESSED_CUSTOM_QUESTION){
+					gameProcessRecord.transProcessStatus = PayoutTransactionProcessStatus.ERROR
 				}			
 				gameProcessRecord.lastUpdate = new Date()
 				gameProcessRecord.save(flush: true)
@@ -93,19 +93,30 @@ class ProcessEngineImplService {
 		return gameRecordsProcessed
 	}
 	
+	/**
+	 * process new finished game payout. If the custom question result does not exist, mark Transaction Process Status to CUSOTM_QUESTION_UNPROCESSED and skip.  
+	 * 
+	 * @return
+	 */
 	def processNewGamePayout(){
 		println "ProcessEngineImplService::processGamePayout(): starts"
-		def gameRecords = GameProcessRecord.findAllByTransProcessStatus(0)		
+		
+		//find all game process record that haven't processed
+		def gameRecords = GameProcessRecord.findAllByTransProcessStatus(PayoutTransactionProcessStatus.NOT_PROCESSED)		
 		def totalpayout = 0
 		def gameRecordsProcessed = 0
 		
+		
+		
 		for (GameProcessRecord gameProcessRecord: gameRecords){
-
 			gameProcessRecord.transProcessStatus = 1			
 			def customQuestionsResultExists = true
 			def questions = questionService.listQuestions(gameProcessRecord.eventKey)
 			
 			for (Question q:questions){
+				
+				//skip the custom questions that do not have a game result record. later this game process record is marked
+				// as CUSOTM_QUESTION_UNPROCESSED
 				if (q.questionContent.questionType == QuestionContent.CUSTOM){
 					if (!customQuestionResultService.recordExist(q.id)){
 						customQuestionsResultExists=false
@@ -115,15 +126,18 @@ class ProcessEngineImplService {
 				processPayout(gameProcessRecord, q)
 			}
 			
+			//if there are unprocessed custom questions
 			if (!customQuestionsResultExists){
-				if (gameProcessRecord.transProcessStatus==1){
-					gameProcessRecord.transProcessStatus = 3
-				}else if (gameProcessRecord.transProcessStatus==-1){
-					gameProcessRecord.transProcessStatus = -2
+				if (gameProcessRecord.transProcessStatus== PayoutTransactionProcessStatus.IN_PROCESS){
+					gameProcessRecord.transProcessStatus = PayoutTransactionProcessStatus.CUSOTM_QUESTION_UNPROCESSED
+				}else if (gameProcessRecord.transProcessStatus==PayoutTransactionProcessStatus.ERROR){
+					gameProcessRecord.transProcessStatus = PayoutTransactionProcessStatus.ERROR_WITH_UNPROCCESSED_CUSTOM_QUESTION
 				}
-			}else{
-				if (gameProcessRecord.transProcessStatus==1){	
-						gameProcessRecord.transProcessStatus = 2
+			}
+			//if all questions are processed, the game process record is marked as COMPLETED
+			else{
+				if (gameProcessRecord.transProcessStatus==PayoutTransactionProcessStatus.IN_PROCESS){	
+						gameProcessRecord.transProcessStatus = PayoutTransactionProcessStatus.COMPLETED
 				}
 			}
 			gameProcessRecord.lastUpdate = new Date()
@@ -136,77 +150,65 @@ class ProcessEngineImplService {
 	}
 	
 	
-//	@Transactional
+	@Transactional
     def processPayout(GameProcessRecord gameProcessRecord, Question q) {
 			
 			println "ProcessEngineImplService::processPayout(): starts with eventKey="+gameProcessRecord.eventKey+ "questionId="+q.id
 			
 			def eventKey = gameProcessRecord.eventKey
 			int winnerPick = getWinningPick(eventKey, q)
-			def payoutMultipleOfWager
-			
+			int payoutMultipleOfWager			
 			boolean processSuccess = true
-			
-			if (winnerPick == -1){
+			boolean onePickHasNoBet = false
+			PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(q.id)						
+				
+			//Calculate the payout multiple for the winning side. If there is one side that has no one bet on, the variable "onePickHasNoBet" is set to true,
+			//and later, we give the coins back to the users
+			if (winnerPick == WinnerPick.PICK1_WON){
+				if (questionPoolInfo.getPick1NumPeople() == 0 ^ questionPoolInfo.getPick2NumPeople() == 0) {
+					onePickHasNoBet = true
+					payoutMultipleOfWager = 1
+				}else{
+					payoutMultipleOfWager = questionPoolUtilService.calculatePick1PayoutMultiple(questionPoolInfo)
+				}
+			}else if (winnerPick == WinnerPick.PICK2_WON){
+				if (questionPoolInfo.getPick1NumPeople() == 0 ^ questionPoolInfo.getPick2NumPeople() == 0) {
+					onePickHasNoBet = true
+					payoutMultipleOfWager = 1
+				}else{
+					payoutMultipleOfWager = questionPoolUtilService.calculatePick2PayoutMultiple(questionPoolInfo)
+				}
+			}else if (winnerPick == WinnerPick.PICK_TIE) {
+				payoutMultipleOfWager = 1
+			}else{
 				println "ERROR: invalid winner pick"
 				return
 			}
 			
-//			def lastTransaction = betService.getLatestBetByQuestionId(q.id.toString())
-			PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(q.id)
-						
-			
-			def denominatorPick1Mult = questionPoolInfo.getPick1Amount()
-			def denominatorPick2Mult = questionPoolInfo.getPick2Amount()
-			
-		
-			if (denominatorPick1Mult==0)
-				denominatorPick1Mult=1
-				
-			if (denominatorPick2Mult==0)
-				denominatorPick2Mult=1
-				
-			if (winnerPick == 1){
-				payoutMultipleOfWager = (questionPoolInfo.getPick1Amount() + questionPoolInfo.getPick2Amount()) / denominatorPick1Mult
-			}else if (winnerPick ==2){
-				payoutMultipleOfWager = (questionPoolInfo.getPick1Amount() + questionPoolInfo.getPick2Amount()) / denominatorPick2Mult
-			}else{
-				payoutMultipleOfWager = 1
-			}
-			
-			int potAmoutToBePaid = questionPoolInfo.getPick1Amount() + questionPoolInfo.getPick2Amount()
-			int numPlayersToBePaid = questionPoolInfo.getPick1NumPeople() + questionPoolInfo.getPick2NumPeople()
-			
-			boolean onePickHasNoBet = false
-			if (questionPoolInfo.getPick1NumPeople() == 0 ^ questionPoolInfo.getPick2NumPeople() == 0) {
-				onePickHasNoBet = true
-				payoutMultipleOfWager = 1
-			}
-			
 			List<BetTransaction> betTransactions = betService.listAllBetsByQId(q.id)
-			
-			int totalWager = 0
-			int totalpayout = 0
 
 			for (BetTransaction bet: betTransactions){
-				Account account = bet.account
+				
+				//Payout = 0 for the lossing side
+				//Payout > 1 for the winning, tie, and onePickHasNoBet
 				int payout = 0
 				if (winnerPick == 0 || bet.pick == winnerPick || onePickHasNoBet)
 					payout =  Math.floor(bet.transactionAmount*payoutMultipleOfWager)
-					
+				
+				Account account = bet.account
 				def newBalance = account.currentBalance + payout
-
+				account.previousBalance = account.currentBalance
 				account.currentBalance = newBalance
-				def code = betService.savePayoutTrans(account,q, payout, winnerPick, potAmoutToBePaid, numPlayersToBePaid, bet.transactionAmount)
+				
+				
+				def code = payoutService.createPayoutTrans(account,q, payout, winnerPick, bet.transactionAmount, bet.pick)
 				if (code==-1){
 					processSuccess=false
 				}
-				potAmoutToBePaid = potAmoutToBePaid-payout
-				numPlayersToBePaid = numPlayersToBePaid - 1
 			}
 			if (processSuccess != true){
-				if (gameProcessRecord.transProcessStatus==1)			
-					gameProcessRecord.transProcessStatus = -1				
+				if (gameProcessRecord.transProcessStatus==PayoutTransactionProcessStatus.IN_PROCESS)			
+					gameProcessRecord.transProcessStatus = PayoutTransactionProcessStatus.ERROR		
 			}
 			
 			println "ProcessEngineImplService::processPayout(): ends"

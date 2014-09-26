@@ -15,7 +15,10 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 
+import com.doozi.scorena.utils.*;
 import com.doozi.scorena.*;
+import com.doozi.scorena.transaction.BetTransaction
+import com.doozi.scorena.transaction.PayoutTransaction
 
 import grails.plugins.rest.client.RestBuilder
 
@@ -36,6 +39,7 @@ class UserService {
 	def parseService
 	def betService
 	def sportsDataService
+	def payoutService
 	
 	def getCoins(userId){
 		int asset = 0
@@ -45,87 +49,18 @@ class UserService {
 		if (!userAccount)
 			return [code: 400, error:"userId is invalid"]
 		
-		def c = PoolTransaction.createCriteria()
-		def lastPayoutDate = PoolTransaction.executeQuery("SELECT max(p.createdAt) from PoolTransaction p where p.account.id=? and p.transactionType=?", [userAccount.id, 1])		
-		def totalBetAmount = PoolTransaction.executeQuery("SELECT sum(p.transactionAmount) from PoolTransaction p where p.account.id=? and p.transactionType=? and p.createdAt>?", [userAccount.id, 0, lastPayoutDate[0]])
+		def lastPayoutDate = PayoutTransaction.executeQuery("SELECT max(p.createdAt) from PayoutTransaction p where p.account.id=? ", [userAccount.id])		
+		def totalBetAmount = BetTransaction.executeQuery("SELECT sum(p.transactionAmount) from BetTransaction p where p.account.id=? and p.createdAt>?", [userAccount.id, lastPayoutDate[0]])
 		if (totalBetAmount[0] != null)
 			inWagerAmount = totalBetAmount[0]
 			
 		asset = inWagerAmount+userAccount.currentBalance
-		println asset
 		
 		if (asset >=FREE_COIN_BALANCE_THRESHOLD)
 			return [code: 400, error:"Balance above "+FREE_COIN_BALANCE_THRESHOLD+" cannot get free coins"]
 		
 		userAccount.currentBalance = userAccount.currentBalance + FREE_COIN_AMOUNT
 		return [username: userAccount.username, userId: userAccount.userId, currentBalance: userAccount.currentBalance, newCoinsAmount: FREE_COIN_AMOUNT]
-	}
-	
-	Map getRanking(userId){
-		def userRankingAll = UserRankingAll.findAll("from UserRankingAll RankingAll order by RankingAll.netGain desc, RankingAll.currentBalance desc", [max: RANKING_SIZE])
-		def userRankingWk = UserRankingWk.findAll("from UserRankingWk RankingWk order by RankingWk.netGain desc, RankingWk.currentBalance desc", [max: RANKING_SIZE])
-		List rankingResultAll =[]
-		List rankingResultWk =[]
-		
-		int rankingAllSize = userRankingAll.size()
-		int rankingWkSize = userRankingWk.size()
-		List userIdList = []
-		Map userIdMap = [:]
-		
-		
-		for (int i=0; i<rankingAllSize; i++){
-			UserRankingAll rankEntry = userRankingAll.get(i)
-			Account userAccount = Account.get(rankEntry.id)
-			rankingResultAll.add(getAccountInfoMap(userAccount.userId, userAccount.username, rankEntry.netGain,i+1))
-			if (!userIdMap.containsKey(userAccount.userId)){
-				userIdMap.put(userAccount.userId, "")				
-			}
-		}
-
-		
-		for (int i=0; i<rankingWkSize; i++){
-			UserRankingWk rankEntry = userRankingWk.get(i)
-			Account userAccount = Account.get(rankEntry.id)
-			rankingResultWk.add(getAccountInfoMap(userAccount.userId, userAccount.username, rankEntry.netGain,i+1))
-			if (!userIdMap.containsKey(userAccount.userId)){
-				userIdMap.put(userAccount.userId, "")
-			}
-		}
-		
-		Map userProfileResults = parseService.retrieveUserList(userIdMap)
-		Map UserProfileUserIdAsKeyMap = getUserProfileUserIdAsKeyMap(userProfileResults.results)
-		
-		for (Map rankingAllEntry: rankingResultAll){
-			String accountUserId = rankingAllEntry.userId
-			Map userProfile = UserProfileUserIdAsKeyMap.get(accountUserId)
-
-			rankingAllEntry.pictureURL = ""
-			
-			if (userProfile != null){
-				if (userProfile.display_name != null && userProfile.display_name != "")
-					rankingAllEntry.username = userProfile.display_name
-			
-				if (userProfile.pictureURL != null && userProfile.pictureURL != "")
-					rankingAllEntry.pictureURL = userProfile.pictureURL					
-			}
-			
-		}
-		
-		for (Map rankingWkEntry: rankingResultWk){
-			String accountUserId = rankingWkEntry.userId
-			Map userProfile = UserProfileUserIdAsKeyMap.get(accountUserId)
-					
-			rankingWkEntry.pictureURL = ""
-			if (userProfile != null){
-				if (userProfile.display_name != null && userProfile.display_name != "")
-					rankingWkEntry.username = userProfile.display_name
-			
-				if (userProfile.pictureURL != null && userProfile.pictureURL != "")
-					rankingWkEntry.pictureURL = userProfile.pictureURL
-			}
-		}
-		
-		return [weekly: rankingResultWk, all: rankingResultAll]
 	}
 	
 	def createSocialNetworkUser(String sessionToken){
@@ -188,7 +123,7 @@ class UserService {
 		
 		Map userProfile = userLogin(rest, username, password)
 		
-		println userProfile
+		
 		if (userProfile.code){
 			return userProfile
 		}
@@ -201,7 +136,7 @@ class UserService {
 		
 		def result = userProfileMapRender(userProfile.sessionToken, account.currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name, 
 				userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
-		println result
+		
 		return result
 	}
 	
@@ -265,7 +200,7 @@ class UserService {
 			return result
 		}	
 		
-		def userPayoutTrans = betService.listPayoutTransByUserId(userId)
+		def userPayoutTrans = payoutService.listPayoutTransByUserId(userId)
 		def userStats = getBetStats(userPayoutTrans, account.id)
 		//todo netgain/total wager in type 1
 		
@@ -312,7 +247,7 @@ class UserService {
 	private int getUserInWagerCoins(userId){
 		int inWager = 0
 		def unpaidTransactions = betService.listUnpaidBetsByUserId(userId)
-		for (PoolTransaction unpaidTransaction: unpaidTransactions){
+		for (BetTransaction unpaidTransaction: unpaidTransactions){
 			inWager += unpaidTransaction.transactionAmount
 		}
 		return inWager
@@ -324,43 +259,67 @@ class UserService {
 		return resp.json
 	}
 	
+	private List<UserLeagueStats> getUserLeaguesStats(def accountId){
+		String query = "select t.account.id, "+
+		"substring(t.eventKey,1,12) AS league, "+
+		"t.playResult, "+
+		"(sum(t.transactionAmount) - sum(t.initialWager)) AS netGain, "+
+		"count(t.account.id) AS numGames "+
+		"from PayoutTransaction as t where t.account.id=? group by 1, 2,3"
+		List userLeagueStatsFromDB = PayoutTransaction.executeQuery(query, [accountId])
+		List<UserLeagueStats> stats = []
+		
+		for (List userStat : userLeagueStatsFromDB){
+			String leagueName = sportsDataService.getLeagueNameFromEventKey(userStat[1])			
+			UserLeagueStats uls = new UserLeagueStats(userStat[0],leagueName, userStat[2], userStat[3], userStat[4])			
+			stats.add(uls)			
+		}
+		
+		return stats
+	}
+	
 	def getLeagueStats(accountId){
 		def leagues=[:]
-		def userStats = UserLeagueStats.findAllByAccountId(accountId)
-		for (UserLeagueStats userStat : userStats){
-			def leagueName = sportsDataService.getLeagueNameFromEventKey(userStat.league)
+
+		List<UserLeagueStats> stats = getUserLeaguesStats(accountId)
+		
+		
+		for (UserLeagueStats userStat : stats){
+			def leagueName = userStat.getLeague()
 			def leagueMap = [:] 
 			leagueMap = leagues.get(leagueName)
 			if (leagueMap==null){
 				leagueMap = [netGain:"0",wins:0,netLose:"0",losses:0,ties:0]
 				leagues.put(leagueName, leagueMap)
 			}
-			if (userStat.gameResult=="loss"){
+			if (userStat.getPlayResult()==PickStatus.USER_LOST){
 				String netGain = ""
-				if (userStat.netGain>0)
-					netGain="+"+userStat.netGain.toString()
+				if (userStat.getNetGain()>0)
+					netGain="+"+userStat.getNetGain().toString()
 				else
-					netGain=userStat.netGain.toString()
+					netGain=userStat.getNetGain().toString()
 					
 				leagueMap.netLose=netGain
-				leagueMap.losses=userStat.numGames
+				leagueMap.losses=userStat.getNumGames()
 			}
 			
-			if (userStat.gameResult=="win"){
+			if (userStat.getPlayResult()==PickStatus.USER_WON){
 				String netGain = ""
-				if (userStat.netGain>0)
-					netGain="+"+userStat.netGain.toString()
+				if (userStat.getNetGain()>0)
+					netGain="+"+userStat.getNetGain().toString()
 				else
-					netGain=userStat.netGain.toString()
+					netGain=userStat.getNetGain().toString()
 					
 				leagueMap.netGain=netGain
-				leagueMap.wins=userStat.numGames
+				leagueMap.wins=userStat.getNumGames()
 			}
 			
-			if (userStat.gameResult=="tie"){					
-				leagueMap.ties=userStat.numGames
+			if (userStat.getPlayResult()==PickStatus.USER_TIE){					
+				leagueMap.ties=userStat.getNumGames()
 			}			
 		}
+		
+		
 		return leagues
 	}
 	
@@ -374,33 +333,30 @@ class UserService {
 			monthly:[netGain:0, wins:0, losses:0, ties:0,leagues:getLeagueStats(accountId)],
 			weekly:[netGain:0, wins:0, losses:0, ties:0,leagues:getLeagueStats(accountId)]]
 		
+		
 		if (userPayoutTrans==null || userPayoutTrans.size()==0){
-			println "userPayoutTrans null"
 			return stats
 		}
 		
 		def firstDateOfCurrentWeek = getFirstDateOfCurrentWeek()
 		def firstDateOfCurrentMonth = getFirstDateOfCurrentMonth()
 		
-		println firstDateOfCurrentWeek
-		println firstDateOfCurrentMonth
-		
-		for (PoolTransaction tran: userPayoutTrans){
+		for (PayoutTransaction tran: userPayoutTrans){
 			
 			if (tran.createdAt > firstDateOfCurrentWeek){
-				println tran.createdAt
-				stats.all.netGain += (tran.transactionAmount - tran.pick2Amount)
-				stats.monthly.netGain+=(tran.transactionAmount - tran.pick2Amount)
-				stats.weekly.netGain+=(tran.transactionAmount - tran.pick2Amount)
-				if (tran.pick==0){
+				
+				stats.all.netGain += (tran.transactionAmount - tran.initialWager)
+				stats.monthly.netGain+=(tran.transactionAmount - tran.initialWager)
+				stats.weekly.netGain+=(tran.transactionAmount - tran.initialWager)
+				if (tran.winnerPick==0){
 					stats.all.ties+=1
 					stats.monthly.ties+=1
 					stats.weekly.ties+=1					
-				}else if(tran.transactionAmount == 0){
+				}else if(tran.winnerPick != tran.pick){
 					stats.all.losses+=1
 					stats.monthly.losses+=1
 					stats.weekly.losses+=1
-				}else if (tran.transactionAmount > 0){
+				}else if (tran.winnerPick == tran.pick){
 					stats.all.wins+=1
 					stats.monthly.wins+=1
 					stats.weekly.wins+=1					
@@ -412,16 +368,16 @@ class UserService {
 			}
 			
 			if (tran.createdAt > firstDateOfCurrentMonth){
-				stats.monthly.netGain+=(tran.transactionAmount - tran.pick2Amount)
-				stats.all.netGain+=(tran.transactionAmount - tran.pick2Amount)
-				if (tran.pick==0){					
+				stats.monthly.netGain+=(tran.transactionAmount - tran.initialWager)
+				stats.all.netGain+=(tran.transactionAmount - tran.initialWager)
+				if (tran.winnerPick==0){					
 					stats.monthly.ties+=1
 					stats.all.ties+=1
 					continue
-				}else if(tran.transactionAmount == 0){					
+				}else if(tran.winnerPick != tran.pick){					
 					stats.monthly.losses+=1
 					stats.all.losses+=1
-				}else if (tran.transactionAmount > 0){					
+				}else if (tran.winnerPick == tran.pick){					
 					stats.monthly.wins+=1
 					stats.all.wins+=1										
 
@@ -430,13 +386,13 @@ class UserService {
 				}
 				continue
 			}
-			stats.all.netGain+=(tran.transactionAmount - tran.pick2Amount)
-			if (tran.pick==0){				
+			stats.all.netGain+=(tran.transactionAmount - tran.initialWager)
+			if (tran.winnerPick==0){				
 				stats.all.ties+=1
 				continue
-			}else if(tran.transactionAmount == 0){
+			}else if(tran.winnerPick != tran.pick){
 				stats.all.losses+=1
-			}else if (tran.transactionAmount > 0){
+			}else if (tran.winnerPick == tran.pick){
 				stats.all.wins+=1
 
 			}else{
@@ -461,16 +417,6 @@ class UserService {
 		def account = Account.findByUserId(userId)
 		return account.username
 	
-	}
-
-	private Map getAccountInfoMap(String userId, String username, int netgain, int rank){	
-		String netGain = ""
-		if (netgain>0)
-			netGain="+"+netgain.toString()
-		else
-			netGain=netgain.toString()
-			
-		return [userId: userId, username: username, gain: netGain, rank: rank]
 	}
 
 	private def getFirstDateOfCurrentWeek(){
@@ -574,14 +520,6 @@ class UserService {
 			pictureUrl: pictureURLResp
 		]
 		return result
-	}
-
-	private Map getUserProfileUserIdAsKeyMap(List userProfileList){
-		Map UserProfileUserIdAsKeyMap = [:]
-		for (Map userProfile: userProfileList){
-			UserProfileUserIdAsKeyMap.put(userProfile.objectId, userProfile)
-		}
-		return UserProfileUserIdAsKeyMap
 	}
 
 	private Map createUserAccount(RestBuilder rest, String userId, String username, int initialBalance, int previousBalance, String sessionToken){

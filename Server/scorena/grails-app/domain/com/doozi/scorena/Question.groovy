@@ -7,7 +7,7 @@ class Question {
 	String pick2
 	
 	static hasOne = [pool: Pool]
-	static hasMany = [bet: PoolTransaction, betTrans: BetTransaction, payoutTrans: PayoutTransaction]
+	static hasMany = [betTrans: BetTransaction, payoutTrans: PayoutTransaction]
 	static belongsTo = [questionContent:QuestionContent]
 	
 	static mapping = {

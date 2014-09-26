@@ -1,6 +1,5 @@
 package com.doozi.scorena.gameengine
 
-import com.doozi.scorena.PoolTransaction
 import com.doozi.scorena.Question;
 import com.doozi.scorena.controllerservice.*
 import com.doozi.scorena.transaction.BetTransaction
@@ -41,16 +40,16 @@ class GameUserInfoService {
 		return profitAmount
 	}
 	
-	private int getuserWinningAmount(PoolTransaction bet){
-		int winnerPick = processEngineImplService.getWinningPick(bet.eventKey, bet.question)
-		int userPickStatus = questionUserInfoService.getUserPickStatus(winnerPick, bet.pick)
-		int ddd = questionUserInfoService.getUserPickStatus(winnerPick, bet.pick)
-		if (userPickStatus==0){
-			return 0
-		}else if (userPickStatus==1){
-			return 
-		}
-	}
+//	private int getuserWinningAmount(PoolTransaction bet){
+//		int winnerPick = processEngineImplService.getWinningPick(bet.eventKey, bet.question)
+//		int userPickStatus = questionUserInfoService.getUserPickStatus(winnerPick, bet.pick)
+//		int ddd = questionUserInfoService.getUserPickStatus(winnerPick, bet.pick)
+//		if (userPickStatus==0){
+//			return 0
+//		}else if (userPickStatus==1){
+//			return 
+//		}
+//	}
 
 	
 	private int getWagerInGame(String gameId, String userId){

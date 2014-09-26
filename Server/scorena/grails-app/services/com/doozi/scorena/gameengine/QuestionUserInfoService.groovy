@@ -2,7 +2,6 @@ package com.doozi.scorena.gameengine
 
 import java.util.Map;
 
-import com.doozi.scorena.PoolTransaction
 import com.doozi.scorena.transaction.BetTransaction
 import com.doozi.scorena.utils.*
 import grails.transaction.Transactional

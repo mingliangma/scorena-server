@@ -151,9 +151,11 @@ class TournamentService {
 			}
 		}
 		
-		tournament = [title: t.title, content: t.content, prize:t.prize, tournamentId:t.id, tournamentStatus:t.status, enrollmentStatus:enrollmentStatus,
-			startDate: t.startDate.format("yyyy-MM-dd z"), expireDate: t.expireDate.format("yyyy-MM-dd z")]		
+		if (t){
 		
+			tournament = [title: t.title, content: t.content, prize:t.prize, tournamentId:t.id, tournamentStatus:t.status, enrollmentStatus:enrollmentStatus,
+				startDate: t.startDate.format("yyyy-MM-dd z"), expireDate: t.expireDate.format("yyyy-MM-dd z")]		
+		}
 		return tournament
 	}
 	

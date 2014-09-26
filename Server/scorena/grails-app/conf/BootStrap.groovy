@@ -9,13 +9,16 @@ class BootStrap {
 		println "bootstrap starts..."
 		Environment.executeForCurrentEnvironment {
 			development {
+				
+				Thread.sleep(5000)
 		 		if (!QuestionContent.count()) {
 					bootstrapQuestionContent()
 				}
+				 
 				if (!Question.count()) {
 					createQuestions()					
 				}
-				
+
 				if (!Account.count()){
 					createUsers()
 					simulateBetUpcoming()
@@ -90,13 +93,13 @@ class BootStrap {
 		println "upcomingGames: "+upcomingGames.size()
 		println "pastGames: "+pastGames.size()
 		
-//		for (int i=0; i < upcomingGames.size(); i++){
-//			def game = upcomingGames.get(i)
-//			println "game id: "+game.gameId
-//			if (Question.findByEventKey(game.gameId) == null){
-//				populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
-//			}
-//		}
+		for (int i=0; i < upcomingGames.size(); i++){
+			def game = upcomingGames.get(i)
+			println "game id: "+game.gameId
+			if (Question.findByEventKey(game.gameId) == null){
+				populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
+			}
+		}
 		
 		for (int i=0; i < pastGames.size(); i++){
 			def game = pastGames.get(i)

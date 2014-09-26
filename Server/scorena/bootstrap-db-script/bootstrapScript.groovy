@@ -22,7 +22,6 @@ import java.util.Date;
 //createQuestions()
 //createUsers()
 simulateBetUpcoming()
-simulateBetPast()
 
 println "create transactions ended"
 
@@ -82,13 +81,13 @@ def createQuestions(){
 		}
 	}
 	
-//	for (int i=0; i < pastGames.size(); i++){
-//		def game = pastGames.get(i)
-//		println "game id: "+game.gameId
-//		if (Question.findByEventKey(game.gameId) == null){
-//			populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
-//		}
-//	}
+	for (int i=0; i < pastGames.size(); i++){
+		def game = pastGames.get(i)
+		println "game id: "+game.gameId
+		if (Question.findByEventKey(game.gameId) == null){
+			populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
+		}
+	}
 }
 
 def populateQuestions(String away, String home, String eventId){
@@ -166,51 +165,51 @@ def simulateBetUpcoming(){
 	}
 }
 
-def simulateBetPast(){
-	
-	
-		def gameService = ctx.getBean("gameService")
-		def betService = ctx.getBean("betService")
-		
-		
-		Random random = new Random()
-		def accounts = Account.findAll()
-		def upcomingGames = gameService.listPastGames()
-		for (int i=0; i < upcomingGames.size(); i++){
-			def upcomingGame = upcomingGames.get(i)
-			System.out.println("game away: "+upcomingGame.away.teamname + "   VS   game home: "+upcomingGame.home.teamname + "----- StartDate: "+upcomingGame.date)
-			
-			def questions = Question.findAllByEventKey(upcomingGame.gameId)
-			
-			
-			for (Question q: questions){
-				if (random.nextInt(2) == 1){
-					continue
-				}
-				def questionId = q.id
-				Date _time = new Date() - (random.nextInt(6) + 18)
-				for (Account account: accounts){
-					int _wager =  (random.nextInt(4)+1)*20
-					if (account.currentBalance <= _wager){
-						continue
-					}
-					if (random.nextInt(2) == 1){
-						
-						_time = _time + random.nextInt(2)
-						int _pick
-						
-						if (random.nextInt(2)==0){
-							_pick=1
-						}else{
-							_pick=2
-						}
-						System.out.println("user name: "+account.username + " wager: "+_wager + " balance: "+account.currentBalance)
-						betService.saveBetTrans(_wager, _time,_pick, account.userId, q.id)
-					}
-			}
-		}
-	}
-}
+//def simulateBetPast(){
+//	
+//	
+//		def gameService = ctx.getBean("gameService")
+//		def betService = ctx.getBean("betService")
+//		
+//		
+//		Random random = new Random()
+//		def accounts = Account.findAll()
+//		def upcomingGames = gameService.listPastGames()
+//		for (int i=0; i < upcomingGames.size(); i++){
+//			def upcomingGame = upcomingGames.get(i)
+//			System.out.println("game away: "+upcomingGame.away.teamname + "   VS   game home: "+upcomingGame.home.teamname + "----- StartDate: "+upcomingGame.date)
+//			
+//			def questions = Question.findAllByEventKey(upcomingGame.gameId)
+//			
+//			
+//			for (Question q: questions){
+//				if (random.nextInt(2) == 1){
+//					continue
+//				}
+//				def questionId = q.id
+//				Date _time = new Date() - (random.nextInt(6) + 18)
+//				for (Account account: accounts){
+//					int _wager =  (random.nextInt(4)+1)*20
+//					if (account.currentBalance <= _wager){
+//						continue
+//					}
+//					if (random.nextInt(2) == 1){
+//						
+//						_time = _time + random.nextInt(2)
+//						int _pick
+//						
+//						if (random.nextInt(2)==0){
+//							_pick=1
+//						}else{
+//							_pick=2
+//						}
+//						System.out.println("user name: "+account.username + " wager: "+_wager + " balance: "+account.currentBalance)
+//						betService.saveBetTrans(_wager, _time,_pick, account.userId, q.id)
+//					}
+//			}
+//		}
+//	}
+//}
 	
 def createUser(String _username, String _email, String _password, String _gender, String _region){
 	

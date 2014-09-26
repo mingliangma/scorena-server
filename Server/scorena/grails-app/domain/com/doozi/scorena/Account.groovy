@@ -10,11 +10,10 @@ class Account {
 	
 	
 	//static belongsTo = [user: User]
-	static hasMany = [bet: PoolTransaction, enrollment: Enrollment, trans: BetTransaction]
+	static hasMany = [enrollment: Enrollment, trans: ScorenaTransaction]
 
 	static constraints = {
 		userId unqiue: true
-		bet nullable: true
 	}
 	
 	static mapping = {	

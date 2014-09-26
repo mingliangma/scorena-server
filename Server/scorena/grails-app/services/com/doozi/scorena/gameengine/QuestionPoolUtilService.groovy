@@ -1,6 +1,5 @@
 package com.doozi.scorena.gameengine
 
-import com.doozi.scorena.PoolTransaction
 import grails.transaction.Transactional
 
 @Transactional
@@ -39,21 +38,11 @@ class QuestionPoolUtilService {
 		}
 	}
 	
-//	def calculatePick1PayoutMultiple(def questionId){
-//		PoolTransaction lastBet = betService.getLatestBetByQuestionId(questionId)
-//		return calculatePick1PayoutMultiple(lastBet)
-//	}
-	
 	def calculatePick1PayoutMultiple(PoolInfo poolInfo){
 		def denominatorPick1Mult = getDenominatorPick1Mult(poolInfo.getPick1Amount())
 		def pick1PayoutMultiple =  (poolInfo.getPick1Amount() + poolInfo.getPick2Amount())/denominatorPick1Mult
 		return pick1PayoutMultiple
 	}
-	
-//	def calculatePick2PayoutMultiple(def questionId){
-//		PoolTransaction lastBet = betService.getLatestBetByQuestionId(questionId)
-//		return calculatePick2PayoutMultiple(lastBet)
-//	}
 	
 	def calculatePick2PayoutMultiple(PoolInfo poolInfo){
 		def denominatorPick2Mult = getDenominatorPick2Mult(poolInfo.getPick2Amount())
