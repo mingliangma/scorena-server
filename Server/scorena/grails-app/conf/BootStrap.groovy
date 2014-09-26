@@ -27,6 +27,37 @@ class BootStrap {
 				
 				println "bootstrap ended"
 			}
+			awsdev{					
+				Thread.sleep(5000)
+		 		if (!QuestionContent.count()) {
+					bootstrapQuestionContent()
+				}
+				 
+				if (!Question.count()) {
+					createQuestions()					
+				}
+
+				if (!Account.count()){
+					createUsers()
+					simulateBetUpcoming()
+					simulateBetPast()
+				}
+				
+				println "bootstrap ended"
+				}
+			
+			production{
+				Thread.sleep(5000)
+				 if (!QuestionContent.count()) {
+					bootstrapQuestionContent()
+				}
+				 
+				if (!Question.count()) {
+					createQuestions()
+				}
+				
+				println "bootstrap ended"
+				}
 		  }		
     }
     def destroy = {
@@ -36,6 +67,7 @@ class BootStrap {
 	def betService
 	def userService
 	def customQuestionService
+	def questionService
 	
 	def createCustomQuestions(){
 		List pastGames = gameService.listPastGames()
@@ -46,15 +78,11 @@ class BootStrap {
 	}
 	
 	def bootstrapQuestionContent(){
-		def qc1 = new QuestionContent(questionType: QuestionContent.WHOWIN, content: "Who will win", sport: "soccer")
+		def qc1 = new QuestionContent(questionType: QuestionContent.WHOWIN, content: "Who will win this match?", sport: "soccer")
 		
 		String qc2Indicator = 2.5
-		String qc2Content = "will total score be more than "+qc2Indicator+" goals"
+		String qc2Content = "What will the total score be?"
 		def qc2 = new QuestionContent(questionType: QuestionContent.SCOREGREATERTHAN, content: qc2Content, sport: "soccer", indicator1: qc2Indicator)
-		
-		qc2Indicator = 4.5
-		qc2Content = "will total score be more than "+qc2Indicator+" goals"
-		def qc3 = new QuestionContent(questionType: QuestionContent.SCOREGREATERTHAN, content: qc2Content, sport: "soccer", indicator1: qc2Indicator)
 		
 		if (qc1.save()){
 			System.out.println("game successfully saved")
@@ -66,15 +94,6 @@ class BootStrap {
 		}
 		
 		if (qc2.save()){
-			System.out.println("game successfully saved")
-		}else{
-			System.out.println("game save failed")
-			qc2.errors.each{
-				println it
-			}
-		}
-		
-		if (qc3.save()){
 			System.out.println("game successfully saved")
 		}else{
 			System.out.println("game save failed")
@@ -97,7 +116,7 @@ class BootStrap {
 			def game = upcomingGames.get(i)
 			println "game id: "+game.gameId
 			if (Question.findByEventKey(game.gameId) == null){
-				populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
+				questionService.populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
 			}
 		}
 		
@@ -105,7 +124,7 @@ class BootStrap {
 			def game = pastGames.get(i)
 			println "game id: "+game.gameId
 			if (Question.findByEventKey(game.gameId) == null){
-				populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
+				questionService.populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
 			}
 		}
 	}
