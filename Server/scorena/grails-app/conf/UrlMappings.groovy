@@ -122,6 +122,14 @@ class UrlMappings {
 		"/v1/sports/all/tournament/enroll/$tournamentId?"(controller:"tournament"){
 			action = [GET:"enrollTournament"]
 		}
+		
+		"/v1/questions/comments"(controller:"comment") {
+			action = [GET:"getExistingComments"]
+		}
+		
+		"/v1/questions/addcomments"(controller:"comment") {
+			action = [GET:"writeComments"]
+		}
 
 		"/v1/admin/cq"(view:"/CustomQuestionWebsite")
 		
