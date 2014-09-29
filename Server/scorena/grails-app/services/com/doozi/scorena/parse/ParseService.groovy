@@ -40,7 +40,7 @@ class ParseService {
 		return resp
 	}
 	
-	def createUser(def rest, String usernameInput, String emailInput, String passwordInput, String genderInput, String regionInput, String displayNameInput){
+	def createUser(def rest, String usernameInput, String emailInput, String passwordInput, String genderInput, String regionInput, String displayNameInput, String pictureURLInput){
 		def parseConfig = grailsApplication.config.parse
 		
 		def resp = rest.post("https://api.parse.com/1/users"){
@@ -54,6 +54,7 @@ class ParseService {
 				gender=genderInput
 				region=regionInput
 				display_name=displayNameInput
+				pictureURL=pictureURLInput
 			}
 		}
 		return resp

@@ -1,6 +1,9 @@
 import com.doozi.scorena.*
 import com.doozi.scorena.sportsdata.ScorenaAllGames
+import com.doozi.scorena.utils.AccountType;
+
 import java.util.Date;
+
 import grails.util.Environment
 
 class BootStrap {
@@ -18,11 +21,14 @@ class BootStrap {
 				if (!Question.count()) {
 					createQuestions()					
 				}
-
 				if (!Account.count()){
 					createUsers()
 					simulateBetUpcoming()
 					simulateBetPast()
+				}
+				
+				if (!Account.countByAccountType(AccountType.TEST)){
+					createTestUsers()
 				}
 				
 				println "bootstrap ended"
@@ -43,6 +49,10 @@ class BootStrap {
 					simulateBetPast()
 				}
 				
+				if (!Account.countByAccountType(AccountType.TEST)){
+					createTestUsers()
+				}
+				
 				println "bootstrap ended"
 				}
 			
@@ -54,6 +64,10 @@ class BootStrap {
 				 
 				if (!Question.count()) {
 					createQuestions()
+				}
+				
+				if (!Account.countByAccountType(AccountType.TEST)){
+					createTestUsers()
 				}
 				
 				println "bootstrap ended"
@@ -256,12 +270,10 @@ class BootStrap {
 	
 	def createUser(String _username, String _email, String _password, String _gender, String _region){
 		
-//		def userService = ctx.getBean("userService")
 		def resp = userService.createUser(_username, _email, _password, _gender, _region)
 		println resp
 		
-	}
-	
+	}	
 	def createUsers(){
 		Random random = new Random()
 		String _displayName
@@ -270,7 +282,7 @@ class BootStrap {
 		String _gender
 		String _region
 		
-		for (int i=0; i<10; i++){
+		for (int i=0; i<5; i++){
 			def num = random.nextInt(100000)
 			 _displayName  = "scorena"+num.toString()
 			 _email = _displayName+"@gmail.com"
@@ -280,5 +292,158 @@ class BootStrap {
 			createUser(_displayName, _email, _password, _gender, _region)
 		}
 		println "create users ended"
+	}
+	
+	boolean testUsersExist(){
+		def acc = Account.findAllByAccountType(AccountType.TEST)
+		if (acc)
+			true
+		else
+			false
+	}
+	
+	def createTestUsers(){
+		List _displayNames = [
+		"UncleSam",
+		"SecretAgents",
+		"Aiden3321",
+		"Liam",
+		"GotTheRuns",
+		"Noah",
+		"Masonsportsmaster",
+		"Jayden",
+		"Ethan",
+		"Jacob",
+		"ElectrolyteJunkies",
+		"New-Balls",
+		"bigjoe",
+		"KissMyAce",
+		"Hard_Balls",
+		"Caleb",
+		"Ryan",
+		"Alexander",
+		"Elijah",
+		"James",
+		"William",
+		"Oliver",
+		"Boom",
+		"Matthew",
+		"Daniel",
+		"Blondie",
+		"Brayden",
+		"Jayce",
+		"Henry",
+		"Carter",
+		"DylanDamon",
+		"GabrielVespasian",
+		"Joshua",
+		"Nicholas",
+		"DizzyIsaac",
+		"Owen",
+		"Nathan",
+		"Grayson",
+		"EliBaker",
+		"RedLandon",
+		"Andrew888",
+		"Max_Ling",
+		"Nenete",
+		"Losob",
+		"Lujabi",
+		"BigNastyOnes",
+		"Faceskull",
+		"Smash Girls",
+		"Beefdoof",
+		"Meatcorn",
+		"Clotwimp",
+		"Wipelunk",
+		"JosephLumpcheese",
+		"Bumpface",
+		"godfather",
+		"Fingerthimble",
+		"JohnAbrams",
+		"Poofcheese",
+		"Alpha_Bandits",
+		"SpinMasters",
+		"torontowild",
+		"ToxicSmokinMonkeys",
+		"Adam",
+		"Isaiah",
+		"Alex",
+		"Aaron",
+		"Parker",
+		"Cooper",
+		"Miles",
+		"Chase",
+		"Muhammad"]
+		
+		List pictureURLs = [
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/000profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/001profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/002profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/003profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/004profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/005profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/006profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/007profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/008profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/009profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/010profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/011profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/012profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/013profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/014profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/015profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/016profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/017profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/018profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/019profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/020profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/021profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/022profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/023profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/024profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/025profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/026profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/027profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/028profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/029profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/030profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/031profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/032profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/033profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/034profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/035profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/036profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/037profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/038profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/039profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/040profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/041profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/042profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/043profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/044profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/045profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/046profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/047profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/048profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/049profile.png",
+			]
+		
+		
+		
+		
+		String _password = "12345"
+		String _gender = "male"
+		String _region = "Japan"
+		Random random = new Random()
+		for(int i = 0; i<_displayNames.size(); i++){
+			String _email = _displayNames[i]+random.nextInt(100000)+"@scorena.ca"
+			String pictureURL = ""
+			if (i<pictureURLs.size()){
+				pictureURL = pictureURLs[i]
+			}
+			def resp = userService.createTestUser(_displayNames[i], _email, _password, _gender, _region, pictureURL)
+		}
+		
 	}
 }

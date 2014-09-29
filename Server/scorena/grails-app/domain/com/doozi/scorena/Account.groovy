@@ -7,6 +7,7 @@ class Account {
 	String username
 	int currentBalance	
 	int previousBalance
+	int accountType
 	
 	
 	//static belongsTo = [user: User]

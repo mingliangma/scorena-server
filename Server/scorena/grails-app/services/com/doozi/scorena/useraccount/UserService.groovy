@@ -90,6 +90,14 @@ class UserService {
 	}
 			
 	def createUser(String username, String email, String password, String gender, String region){
+		return createUser(username, email, password, gender, region, AccountType.USER, "")
+	}
+	
+	def createTestUser(String username, String email, String password, String gender, String region, String pictureURL){
+		return createUser(username, email, password, gender, region, AccountType.TEST, pictureURL)
+	}
+			
+	def createUser(String username, String email, String password, String gender, String region, int accountType, String pictureURL){
 		println "UserService::createUser(): username="+username+"  email="+email
 		
 		int currentBalance = INITIAL_BALANCE
@@ -97,14 +105,14 @@ class UserService {
 		String displayName = usernameLowerCase
 		RestBuilder rest = new RestBuilder()
 		
-		Map userProfile =  createUserProfile(rest, usernameLowerCase, email, password, gender, region, displayName)
+		Map userProfile =  createUserProfile(rest, usernameLowerCase, email, password, gender, region, displayName, pictureURL)
 		if (userProfile.code){
 			return userProfile
 		}
 		
 		println "user profile created successfully"		
-			
-		Map accountCreationResult = createUserAccount(rest, userProfile.objectId, username, INITIAL_BALANCE, PREVIOUS_BALANCE, userProfile.sessionToken)
+		
+		Map accountCreationResult = createUserAccount(rest, userProfile.objectId, username, INITIAL_BALANCE, PREVIOUS_BALANCE, userProfile.sessionToken, accountType)
 		if (accountCreationResult!=[:]){
 			return accountCreationResult
 		}
@@ -522,7 +530,7 @@ class UserService {
 		return result
 	}
 
-	private Map createUserAccount(RestBuilder rest, String userId, String username, int initialBalance, int previousBalance, String sessionToken){
+	private Map createUserAccount(RestBuilder rest, String userId, String username, int initialBalance, int previousBalance, String sessionToken, int accountType){
 		def userAccount = Account.findByUserId(userId)
 		if (userAccount){
 			def result = [
@@ -531,7 +539,7 @@ class UserService {
 			]
 			return result
 		}
-		def account = new Account(userId:userId, username:username, currentBalance:initialBalance,previousBalance:previousBalance)
+		def account = new Account(userId:userId, username:username, currentBalance:initialBalance,previousBalance:previousBalance, accountType: accountType)
 		if (!account.save()){
 			account.errors.each{
 				println it
@@ -546,9 +554,9 @@ class UserService {
 		return [:]
 	}
 
-	private Map createUserProfile(RestBuilder rest, String username, String email, String password, String gender, String region, String displayName){
+	private Map createUserProfile(RestBuilder rest, String username, String email, String password, String gender, String region, String displayName, String pictureURL){
 			
-		def resp = parseService.createUser(rest, username, email, password, gender, region, displayName)
+		def resp = parseService.createUser(rest, username, email, password, gender, region, displayName, pictureURL)
 		
 		if (resp.status != 201){
 			def result = [
