@@ -1,7 +1,7 @@
 package com.doozi.scorena
 import com.doozi.scorena.transaction.*;
-
 import org.grails.comments.*
+
 class Question implements Commentable{
 	
 	String eventKey
