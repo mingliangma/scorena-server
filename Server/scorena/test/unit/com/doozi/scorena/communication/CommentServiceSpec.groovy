@@ -6,8 +6,8 @@ import spock.lang.Specification
 /**
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
-@TestFor(CommentingManagerService)
-class CommentingManagerServiceSpec extends Specification {
+@TestFor(CommentService)
+class CommentServiceSpec extends Specification {
 
     def setup() {
     }
