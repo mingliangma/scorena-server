@@ -5,7 +5,7 @@ import grails.plugins.rest.client.RestBuilder
 
 
 class BetController {
-	def betService
+	def betTransactionService
 	def userService
 
     
@@ -29,7 +29,7 @@ class BetController {
 		} 
 		
 		//place user's bet
-		Map result = betService.createBetTrans(request.JSON.wager.toInteger(), request.JSON.pick.toInteger(), validation.objectId , 
+		Map result = betTransactionService.createBetTrans(request.JSON.wager.toInteger(), request.JSON.pick.toInteger(), validation.objectId , 
 			request.JSON.questionId.toInteger())
 		
 		

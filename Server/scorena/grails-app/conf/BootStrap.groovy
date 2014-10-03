@@ -78,7 +78,7 @@ class BootStrap {
     }
 	
 	def gameService
-	def betService
+	def betTransactionService
 	def userService
 	def customQuestionService
 	def questionService
@@ -215,7 +215,7 @@ class BootStrap {
 					}
 					
 					
-					betService.createBetTrans(_wager,_pick, account.userId, questionId)
+					betTransactionService.createBetTrans(_wager,_pick, account.userId, questionId)
 				}
 			}
 		}
@@ -261,7 +261,7 @@ class BootStrap {
 						}
 						
 						
-						betService.createBetTrans(_wager,_pick, account.userId, questionId, _time, false)
+						betTransactionService.createBetTrans(_wager,_pick, account.userId, questionId, _time, false)
 					}
 				}
 			}

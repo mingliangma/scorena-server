@@ -6,12 +6,12 @@ import grails.transaction.Transactional
 
 
 class PoolInfoService {
-	def betService
+	def betTransactionService
 	
 	public PoolInfo getQuestionPoolInfo(qId){
 		PoolInfo questionPoolInfo = new PoolInfo()
-		List<BetTransaction> pick1BetTransList = betService.listAllBetsByPickAndQId(qId, Pick.PICK1)
-		List<BetTransaction> pick2BetTransList = betService.listAllBetsByPickAndQId(qId, Pick.PICK2)
+		List<BetTransaction> pick1BetTransList = betTransactionService.listAllBetsByPickAndQId(qId, Pick.PICK1)
+		List<BetTransaction> pick2BetTransList = betTransactionService.listAllBetsByPickAndQId(qId, Pick.PICK2)
 		
 		int pick1BetAmount = 0
 		int pick2BetAmount = 0
@@ -28,7 +28,7 @@ class PoolInfoService {
 		questionPoolInfo.setPick2Amount(pick2BetAmount)
 		questionPoolInfo.setPick1NumPeople(pick1BetTransList.size())
 		questionPoolInfo.setPick2NumPeople(pick2BetTransList.size())
-		println "last updated at: "+betService.getLastUpdatedBetTransactionDateByQId(qId)
+		println "last updated at: "+betTransactionService.getLastUpdatedBetTransactionDateByQId(qId)
 		
 		return questionPoolInfo
 	}

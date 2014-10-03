@@ -11,7 +11,7 @@ class GameUserInfoService {
 	
 	static transactional = false
 	
-	def betService
+	def betTransactionService
 	def processEngineImplService
 	def questionUserInfoService
 	def questionPoolUtilService
@@ -31,7 +31,7 @@ class GameUserInfoService {
 	}
 	
 	private int getProfitInGame(String gameId, String userId){
-		List userBetsInGame = betService.listBetsByUserIdAndGameId(gameId, userId)
+		List userBetsInGame = betTransactionService.listBetsByUserIdAndGameId(gameId, userId)
 		int profitAmount = 0
 		
 		for (BetTransaction bet: userBetsInGame){
@@ -53,7 +53,7 @@ class GameUserInfoService {
 
 	
 	private int getWagerInGame(String gameId, String userId){
-		List<BetTransaction> userBetsInGame = betService.listBetsByUserIdAndGameId(gameId, userId)
+		List<BetTransaction> userBetsInGame = betTransactionService.listBetsByUserIdAndGameId(gameId, userId)
 		int wagerInGame = 0
 		
 		for (BetTransaction bet: userBetsInGame){

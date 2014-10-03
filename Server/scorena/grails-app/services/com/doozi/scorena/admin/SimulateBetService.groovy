@@ -7,7 +7,7 @@ import grails.transaction.Transactional
 
 //@Transactional
 class SimulateBetService {
-	def betService
+	def betTransactionService
 	def gameService
 	
 	def simulateBetUpcoming(){
@@ -38,7 +38,7 @@ class SimulateBetService {
 						_pick=2
 					}
 					
-					def result = betService.createBetTrans(_wager,_pick, account.userId, questionId)
+					def result = betTransactionService.createBetTrans(_wager,_pick, account.userId, questionId)
 				}
 			}
 		}

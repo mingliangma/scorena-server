@@ -6,7 +6,7 @@ import grails.transaction.Transactional
 
 class QuestionPoolUtilService {
 
-	def betService
+	def betTransactionService
 	
     private def getDenominatorPick1Mult(int pick1Amount) {
 		def denominatorPick1Mult = pick1Amount		

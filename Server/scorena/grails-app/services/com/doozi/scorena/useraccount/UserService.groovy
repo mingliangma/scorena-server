@@ -37,9 +37,9 @@ class UserService {
 	
 	def grailsApplication
 	def parseService
-	def betService
+	def betTransactionService
 	def sportsDataService
-	def payoutService
+	def payoutTansactionService
 	
 	def getCoins(userId){
 		int asset = 0
@@ -254,7 +254,7 @@ class UserService {
 	
 	private int getUserInWagerCoins(userId){
 		int inWager = 0
-		def unpaidTransactions = betService.listUnpaidBetsByUserId(userId)
+		def unpaidTransactions = betTransactionService.listUnpaidBetsByUserId(userId)
 		for (BetTransaction unpaidTransaction: unpaidTransactions){
 			inWager += unpaidTransaction.transactionAmount
 		}

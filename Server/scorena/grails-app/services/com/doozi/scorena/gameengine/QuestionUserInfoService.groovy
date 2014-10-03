@@ -8,7 +8,7 @@ import grails.transaction.Transactional
 
 @Transactional
 class QuestionUserInfoService {
-	def betService
+	def betTransactionService
 	def processEngineImplService
 	def questionUserInfoService
 	def questionPoolUtilService

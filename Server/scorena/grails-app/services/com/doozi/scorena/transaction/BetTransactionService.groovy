@@ -1,4 +1,4 @@
-package com.doozi.scorena.gameengine
+package com.doozi.scorena.transaction
 
 import java.util.Date;
 
@@ -12,7 +12,7 @@ import org.hibernate.criterion.CriteriaSpecification
 import grails.transaction.Transactional
 
 @Transactional
-class BetService {
+class BetTransactionService {
 	def sportsDataService
 	def customGameService	
 	

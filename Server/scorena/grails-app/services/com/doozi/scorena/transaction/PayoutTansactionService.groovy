@@ -1,4 +1,4 @@
-package com.doozi.scorena.gameengine
+package com.doozi.scorena.transaction
 
 import com.doozi.scorena.Account;
 import com.doozi.scorena.Question;
@@ -8,7 +8,7 @@ import com.doozi.scorena.transaction.PayoutTransaction
 import grails.transaction.Transactional
 
 @Transactional
-class PayoutService {	
+class PayoutTansactionService {	
 	
 	def questionUserInfoService
 	

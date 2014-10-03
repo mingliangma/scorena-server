@@ -14,15 +14,15 @@ import grails.transaction.Transactional
 class ProcessEngineImplService {
 	def questionService
 	def gameService
-	def betService
+	def betTransactionService
 	def customQuestionResultService
 	def sportsDataService
 	def poolInfoService
 	def questionPoolUtilService
-	def payoutService
+	def payoutTansactionService
 	
 	def payoutCleared(Question q){
-		def result = payoutService.getPayoutTransByQuestion(q)
+		def result = payoutTansactionService.getPayoutTransByQuestion(q)
 		if (result)
 			true
 		else

@@ -30,7 +30,7 @@ class BetControllerIntegrationSpec extends Specification {
 	def parseService
 	def helperService
 	def userService
-	def betService
+	def betTransactionService
 	def sessionFactory
 	def _sessionToken
 	
@@ -47,7 +47,7 @@ class BetControllerIntegrationSpec extends Specification {
     void "placeBet_Failure_WithoutWager"() {
 		setup:
 			def betC = new BetController()
-			betC.betService = betService
+			betC.betTransactionService = betTransactionService
 			betC.userService = userService
 			betC.request.pick = "2"
 			betC.request.questionId = "123"
@@ -67,7 +67,7 @@ class BetControllerIntegrationSpec extends Specification {
 	void "placeBet_Failure_WithoutPick" () {
 		setup:
 			def betC = new BetController()
-			betC.betService = betService
+			betC.betTransactionService = betTransactionService
 			betC.userService = userService
 			betC.request.wager = 40
 			betC.request.questionId = 123
@@ -87,7 +87,7 @@ class BetControllerIntegrationSpec extends Specification {
 	void "placeBet_Failure_WithoutQuestionId" () {
 		setup:
 			def betC = new BetController()
-			betC.betService = betService
+			betC.betTransactionService = betTransactionService
 			betC.userService = userService
 			betC.request.wager = "40"
 			betC.request.pick = "2"
@@ -108,7 +108,7 @@ class BetControllerIntegrationSpec extends Specification {
 	void "placeBet_Failure_WithoutsessionToken" () {
 		setup:
 			def betC = new BetController()
-			betC.betService = betService
+			betC.betTransactionService = betTransactionService
 			betC.userService = userService
 			betC.request.wager = "40"
 			betC.request.pick = "2"
@@ -130,7 +130,7 @@ class BetControllerIntegrationSpec extends Specification {
 	void "placeBet_Failure_InvalidSessionToken" () {
 		setup:
 			def betC = new BetController()
-			betC.betService = betService
+			betC.betTransactionService = betTransactionService
 			betC.userService = userService
 			betC.request.wager = "40"
 			betC.request.pick = "2"
@@ -191,7 +191,7 @@ class BetControllerIntegrationSpec extends Specification {
 			userC.response.reset()
 			
 			def betC = new BetController()
-			betC.betService = betService
+			betC.betTransactionService = betTransactionService
 			betC.userService = userService
 			def wager = userC.userService.INITIAL_BALANCE + 1000
 			def betCContent = '{"wager":"'+wager+'", "pick": "2", "questionId":"123", "sessionToken": "'+sessionToken+'"}'
@@ -245,7 +245,7 @@ class BetControllerIntegrationSpec extends Specification {
 			userC.response.reset()
 			
 			def betC = new BetController()
-			betC.betService = betService
+			betC.betTransactionService = betTransactionService
 			betC.userService = userService
 			betC.request.wager = "0"
 			betC.request.pick = "2"
@@ -294,7 +294,7 @@ class BetControllerIntegrationSpec extends Specification {
 			userC.response.reset()
 			
 			def betC = new BetController()
-			betC.betService = betService
+			betC.betTransactionService = betTransactionService
 			betC.userService = userService
 			betC.request.wager = "-100" // wager has to be negative to fail
 			betC.request.pick = "2"
@@ -343,7 +343,7 @@ class BetControllerIntegrationSpec extends Specification {
 			userC.response.reset()
 			
 			def betC = new BetController()
-			betC.betService = betService
+			betC.betTransactionService = betTransactionService
 			betC.userService = userService
 			betC.request.wager = "40"
 			betC.request.pick = "-1" // pick must be a number less than 1 to fail
@@ -392,7 +392,7 @@ class BetControllerIntegrationSpec extends Specification {
 			userC.response.reset()
 			
 			def betC = new BetController()
-			betC.betService = betService
+			betC.betTransactionService = betTransactionService
 			betC.userService = userService
 			betC.request.wager = "40"
 			betC.request.pick = "3" // pick must be a number less than 1 to fail
@@ -440,7 +440,7 @@ class BetControllerIntegrationSpec extends Specification {
 			userC.response.reset()
 			
 			def betC = new BetController()
-			betC.betService = betService
+			betC.betTransactionService = betTransactionService
 			betC.userService = userService
 			betC.request.wager = "40"
 			betC.request.pick = "2"
@@ -489,7 +489,7 @@ class BetControllerIntegrationSpec extends Specification {
 			userC.response.reset()
 			
 			def betC = new BetController()
-			betC.betService = betService
+			betC.betTransactionService = betTransactionService
 			betC.userService = userService
 			betC.request.wager = "40"
 			betC.request.pick = "2"
@@ -538,7 +538,7 @@ class BetControllerIntegrationSpec extends Specification {
 			userC.response.reset()
 			
 			def betC = new BetController()
-			betC.betService = betService
+			betC.betTransactionService = betTransactionService
 			betC.userService = userService
 			betC.request.wager = "40"
 			betC.request.pick = "2"

@@ -11,7 +11,7 @@ class GameService {
 	
 	def sportsDataService
 	def questionService
-	def betService
+	def betTransactionService
 	def helperService
 	def customGameService
 	def getUpcomingGamesUserInfo

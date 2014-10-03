@@ -18,7 +18,7 @@ import java.util.Map;
 
 @Transactional
 class QuestionService {
-	def betService
+	def betTransactionService
 	def gameService
 	def parseService
 	def processEngineImplService
@@ -511,7 +511,7 @@ class QuestionService {
 			if (unpickedQuestionList.size()>limit){
 				break
 			}
-			def userBet = betService.getBetByQuestionIdAndUserId(q.get("questionId"), userId)
+			def userBet = betTransactionService.getBetByQuestionIdAndUserId(q.get("questionId"), userId)
 			if (userBet == null){
 				unpickedQuestionList.add(q)
 			}
@@ -545,7 +545,7 @@ class QuestionService {
 		if (userId != null)
 			username = userService.getUserDisplayName(userId)
 		
-		def betTransactions = betService.listAllBetsByQId(qId)
+		def betTransactions = betTransactionService.listAllBetsByQId(qId)
 		
 		for (BetTransaction betTrans: betTransactions){
 
