@@ -26,7 +26,7 @@ class SimulateBetService {
 				long questionId = q.id
 				
 				for (Account account: accounts){
-					if (random.nextInt(25) != 1){
+					if (random.nextInt(30) != 1){
 						continue
 					}
 					int _wager =  (random.nextInt(6)+1)*20

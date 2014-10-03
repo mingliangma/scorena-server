@@ -31,12 +31,12 @@ class PayoutService {
 		playerAccount.addToTrans(payoutTransaction)
 		q.addToPayoutTrans(payoutTransaction)
 		int result = 0
-		if (!playerAccount.save(failOnError:true)){
+		if (!playerAccount.merge()){
 			println "ERROR: payout transaction failed to be added to player account"
 			result = -1
 		}
 		
-		if (!q.save(failOnError:true)){
+		if (!q.merge()){
 			println "ERROR: payout transaction failed to be added to question"
 			result = -1
 		}

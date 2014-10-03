@@ -20,7 +20,7 @@ class PoolInfoService {
 			pick1BetAmount += pick1bt.transactionAmount
 		}
 		
-		for (BetTransaction pick2bt: pick1BetTransList){
+		for (BetTransaction pick2bt: pick2BetTransList){
 			pick2BetAmount += pick2bt.transactionAmount
 		}
 		
