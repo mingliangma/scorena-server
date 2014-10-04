@@ -208,7 +208,7 @@ class UserService {
 			return result
 		}	
 		
-		def userPayoutTrans = payoutService.listPayoutTransByUserId(userId)
+		def userPayoutTrans = payoutTansactionService.listPayoutTransByUserId(userId)
 		def userStats = getBetStats(userPayoutTrans, account.id)
 		//todo netgain/total wager in type 1
 		

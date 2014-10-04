@@ -185,7 +185,7 @@ class ProcessEngineImplService {
 				return
 			}
 			
-			List<BetTransaction> betTransactions = betService.listAllBetsByQId(q.id)
+			List<BetTransaction> betTransactions = betTransactionService.listAllBetsByQId(q.id)
 
 			for (BetTransaction bet: betTransactions){
 				
@@ -201,7 +201,7 @@ class ProcessEngineImplService {
 				account.currentBalance = newBalance
 				
 				
-				def code = payoutService.createPayoutTrans(account,q, payout, winnerPick, bet.transactionAmount, bet.pick)
+				def code = payoutTansactionService.createPayoutTrans(account,q, payout, winnerPick, bet.transactionAmount, bet.pick)
 				if (code==-1){
 					processSuccess=false
 				}

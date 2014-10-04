@@ -127,7 +127,7 @@ def populateQuestions(String away, String home, String eventId){
 def simulateBetUpcoming(){
 
 	def gameService = ctx.getBean("gameService")
-	def betService = ctx.getBean("betService")	
+	def betTransactionService = ctx.getBean("betTransactionService")	
 	Random random = new Random()
 	def accounts = Account.findAll()
 	def upcomingGames = gameService.listUpcomingGames()
@@ -158,7 +158,7 @@ def simulateBetUpcoming(){
 						_pick=2
 					}
 					System.out.println("user name: "+account.username + " wager: "+_wager + " balance: "+account.currentBalance)
-					betService.createBetTrans(_wager,_pick, account.id, q.id)
+					betTransactionService.createBetTrans(_wager,_pick, account.id, q.id)
 				}
 			}
 		}

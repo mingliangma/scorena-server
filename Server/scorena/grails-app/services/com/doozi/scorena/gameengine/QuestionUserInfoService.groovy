@@ -22,7 +22,7 @@ class QuestionUserInfoService {
 		int userWager
 		int questionWinningAmount
 		
-		BetTransaction userBet = betService.getBetByQuestionIdAndUserId(questionId, userId)
+		BetTransaction userBet = betTransactionService.getBetByQuestionIdAndUserId(questionId, userId)
 		
 		if (!userBet){
 			placedBet = false
@@ -104,7 +104,7 @@ class QuestionUserInfoService {
 		def userBetAmount = 0
 		def userPick =-1
 		
-		BetTransaction userBet = betService.getBetByQuestionIdAndUserId(questionId, userId)
+		BetTransaction userBet = betTransactionService.getBetByQuestionIdAndUserId(questionId, userId)
 		
 		if (userBet!= null){
 			if (userBet.pick==1){
@@ -126,7 +126,7 @@ class QuestionUserInfoService {
 		
 		def userBetAmount = 0
 		def userPick =-1
-		BetTransaction userBet = betService.getBetByQuestionIdAndUserId(questionId, userId)
+		BetTransaction userBet = betTransactionService.getBetByQuestionIdAndUserId(questionId, userId)
 		if (userBet){
 			userBetAmount=userBet.transactionAmount
 			userPick=userBet.pick

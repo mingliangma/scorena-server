@@ -352,19 +352,6 @@ class QuestionService {
 		return result
 	}
 	
-//	private Map getPreEventQuestionUserInfo(String userId, long questionId){
-//		
-//		def userBetAmount = 0
-//		def userPick =-1
-//		PoolTransaction userBet = betService.getBetByQuestionIdAndUserId(questionId, userId)
-//		if (userBet){
-//			userBetAmount=userBet.transactionAmount
-//			userPick=userBet.pick
-//		}
-//		return [userWager:userBetAmount, userPick:userPick]
-//		
-//	}		
-	
 /**
 	 * @param q: Question Object that is being requested
 	 * @param userId: the userId that user made the request
@@ -400,9 +387,7 @@ class QuestionService {
 		DecimalFormat df = new DecimalFormat("###.##")
 		Map betters = [:]
 		Map userInfo = [:]
-		
-//		PoolTransaction lastBet = betService.getLatestBetByQuestionId(q.id)
-		
+				
 		PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(q.id)
 		
 		def pick1PayoutMultiple = questionPoolUtilService.calculatePick1PayoutMultiple(questionPoolInfo)

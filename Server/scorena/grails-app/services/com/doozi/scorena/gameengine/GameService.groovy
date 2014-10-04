@@ -42,7 +42,7 @@ class GameService {
 				
 		List upcomingGamesResult=listUpcomingGames()
 		
-		def playedGames = betService.listDistinctBetEventKeyByUserId(userId)
+		def playedGames = betTransactionService.listDistinctBetEventKeyByUserId(userId)
 		
 		for (def upcomingGame: upcomingGamesResult){
 			upcomingGame.userInfo = gameUserInfoService.getUpcomingGamesUserInfo(upcomingGame.gameId, playedGames, userId)
@@ -63,7 +63,7 @@ class GameService {
 
 		List pastGamesResult=listPastGames()
 		
-		def playedGames = betService.listDistinctBetEventKeyByUserId(userId)
+		def playedGames = betTransactionService.listDistinctBetEventKeyByUserId(userId)
 
 		for (def pastGame: pastGamesResult){
 			def gameId = pastGame.gameId

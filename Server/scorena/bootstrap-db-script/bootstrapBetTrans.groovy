@@ -46,7 +46,7 @@ import com.doozi.scorena.BetResult
 def simulateBet(){
 
 	def gameService = ctx.getBean("gameService")
-	def betService = ctx.getBean("betService")
+	def betService = ctx.getBean("betTransactionService")
 	
 	
 	Random random = new Random()
