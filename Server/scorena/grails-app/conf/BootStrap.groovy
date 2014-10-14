@@ -56,6 +56,26 @@ class BootStrap {
 				println "bootstrap ended"
 				}
 			
+			joel {
+				
+				Thread.sleep(5000)
+				 if (!QuestionContent.count()) {
+					bootstrapQuestionContent()
+				}
+				 
+				if (!Question.count()) {
+					createQuestions()
+				}
+
+				if (!Account.count()){
+					createUsers()
+					simulateBetUpcoming()
+					simulateBetPast()
+				}
+				
+				println "bootstrap ended"
+			}
+			
 			production{
 				Thread.sleep(5000)
 				 if (!QuestionContent.count()) {

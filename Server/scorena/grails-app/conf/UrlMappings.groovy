@@ -107,8 +107,20 @@ class UrlMappings {
 			action = [POST:"createTournament"]
 		}
 		
-		"/v1/iapprocess"(controller:"IosIap"){
-			action = [POST:"process"]
+		"/v1/iap/getNonce"(controller:"IAP"){
+			action = [POST:"getNonce"]
+		}
+		
+		"/v1/iap/validateApple"(controller:"IAP"){
+			action = [POST:"verifyApple"]
+		}
+		
+		"/v1/iap/validateAndroid"(controller:"IAP"){
+			action = [POST:"verifyAndroid"]
+		}
+		
+		"/v1/iap/activatePurchse"(controller:"IAP"){
+			action = [POST:"activateAndroid"]
 		}
 		
 //		"/v1/sports/all/tournament/list"(controller:"tournament"){
