@@ -106,13 +106,24 @@ class IAPService {
 					userAccount.currentBalance = userAccount.currentBalance + iap.get100K()
 					break;
 					
-					// test case -> to be removed in production 
-					case "Coins3000"://change to -> android.test.purchased if testing with static responses
+					// TODO: test case google play store; remove in production
+					// test case google play store
+					case "Coins3000":
 					AndroidIAPTransaction action = new AndroidIAPTransaction(transactionAmount: 3000, createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
 					userAccount.addToTrans(action)
 					userAccount.previousBalance = userAccount.currentBalance
 					userAccount.currentBalance = userAccount.currentBalance + 3000
 					break;
+					
+					// TODO: test case static response; remove in production
+					// test case static response 
+					case "android.test.purchased":
+					AndroidIAPTransaction action = new AndroidIAPTransaction(transactionAmount: 3000, createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
+					userAccount.addToTrans(action)
+					userAccount.previousBalance = userAccount.currentBalance
+					userAccount.currentBalance = userAccount.currentBalance + 3000
+					break;
+					
 				}
 			
 				// user account failed to save
@@ -172,7 +183,9 @@ class IAPService {
 				if(!search)
 				{
 					// validation: checks base64 encode, signature and public key are verified
-					if(Security.verifyPurchase(Pk, app_data, signature))
+					// TODO: uncomment and remove (true) if testing from google playstore
+					// TODO: leave (true) if testing with static responses 
+					if(true)//(Security.verifyPurchase(Pk, app_data, signature))
 					{
 						// adds order id to transaction list
 						transaction_list.add(orderID)
