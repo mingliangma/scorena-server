@@ -56,7 +56,7 @@ class GameController {
 		if (params.userId && userService.accountExists(params.userId)){			
 			upcomingGames = gameService.listUpcomingGames(params.userId)
 		}else{
-			upcomingGames = gameService.listUpcomingGames()
+			upcomingGames = gameService.listUpcomingGames(null)
 		}
 
 		render upcomingGames as JSON
@@ -67,7 +67,7 @@ class GameController {
 		if (params.userId && userService.accountExists(params.userId)){		
 			pastGames = gameService.listPastGames(params.userId)
 		}else{
-			 pastGames = gameService.listPastGames()
+			 pastGames = gameService.listPastGames(null)
 		}
 
 		render pastGames as JSON

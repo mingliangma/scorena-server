@@ -64,7 +64,19 @@ class SportsDataService {
 			return customGameService.CUSTOM_EVENT_PREFIX
 	}
 	
-
+	List listUpcomingGameIds(){
+		def todayDate = new Date()
+		def upcomingDate = todayDate + UPCOMING_DATE_RANGE;
+		def c = ScorenaAllGames.createCriteria()
+		def upcomingGames = c.list {
+			between("startDateTime", todayDate-1, upcomingDate)
+			ne("eventStatus", "post-event")
+			order("startDateTime", "asc")
+			projections {
+				distinct "eventKey"
+			}
+		}
+	}
 	
 	def getAllUpcomingGames(){
 		def todayDate = new Date()		

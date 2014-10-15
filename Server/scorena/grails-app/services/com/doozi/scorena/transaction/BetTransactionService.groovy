@@ -124,6 +124,14 @@ class BetTransactionService {
 		return BetTransaction.executeQuery("SELECT DISTINCT eventKey from BetTransaction as b where b.account.userId=?", [userId])
 	}
 	
+	List<BetTransaction> listBetTransByUserIdAndGameIds(def userId, List gameIds){
+		return BetTransaction.executeQuery("from BetTransaction as b where b.account.userId=:userId and b.eventKey in :gameIds", [userId:userId, gameIds:gameIds])
+	}
+	
+	List<BetTransaction> listBetTransByGameIds(List gameIds){
+		return BetTransaction.executeQuery("from BetTransaction as b where b.eventKey in :gameIds", [gameIds:gameIds])
+	}
+	
 	def getLastUpdatedBetTransactionDateByQId(def qId){
 		def c = BetTransaction.createCriteria()
 		def lastUpdatedBetTransDate = c.get{

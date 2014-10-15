@@ -16,61 +16,53 @@ class GameUserInfoService {
 	def questionUserInfoService
 	def questionPoolUtilService
 	
-    Map getUpcomingGamesUserInfo(String gameId, List playedGames, String userId) {
+    Map getUpcomingGamesUserInfo(String gameId, List<BetTransaction> userBetsInTheGame, String userId) {
 		Map userinfo=[:]
-		userinfo.placedBet = getPlacedBet(gameId, playedGames)
-		userinfo.userWager = getWagerInGame(gameId, userId)
+		userinfo.placedBet = getPlacedBet(userBetsInTheGame)
+		userinfo.userWager = getWagerInGame(gameId, userId, userBetsInTheGame)
 		return userinfo
     }
 	
-	Map getPastGamesUserInfo(String gameId, List playedGames,  String userId){
+	Map getPastGamesUserInfo(String gameId, List<BetTransaction> userBetsInTheGame, String userId){
 		Map userinfo=[:]
-		userinfo.placedBet = getPlacedBet(gameId, playedGames)
-		userinfo.gameWinningAmount = getProfitInGame(gameId, userId)
+		userinfo.placedBet = getPlacedBet(userBetsInTheGame)
+		userinfo.gameWinningAmount = getProfitInGame(gameId, userId, userBetsInTheGame)
 		return userinfo
 	}
 	
-	private int getProfitInGame(String gameId, String userId){
-		List userBetsInGame = betTransactionService.listBetsByUserIdAndGameId(gameId, userId)
+	private int getProfitInGame(String gameId, String userId, List userBetsInTheGame){
 		int profitAmount = 0
 		
-		for (BetTransaction bet: userBetsInGame){
+		for (BetTransaction bet: userBetsInTheGame){
 			profitAmount += questionUserInfoService.getProfitInQuestion(gameId, bet)
 		}
 		return profitAmount
 	}
 	
-//	private int getuserWinningAmount(PoolTransaction bet){
-//		int winnerPick = processEngineImplService.getWinningPick(bet.eventKey, bet.question)
-//		int userPickStatus = questionUserInfoService.getUserPickStatus(winnerPick, bet.pick)
-//		int ddd = questionUserInfoService.getUserPickStatus(winnerPick, bet.pick)
-//		if (userPickStatus==0){
-//			return 0
-//		}else if (userPickStatus==1){
-//			return 
-//		}
-//	}
-
-	
-	private int getWagerInGame(String gameId, String userId){
-		List<BetTransaction> userBetsInGame = betTransactionService.listBetsByUserIdAndGameId(gameId, userId)
+	private int getWagerInGame(String gameId, String userId, List<BetTransaction> userBetsInTheGame){
 		int wagerInGame = 0
 		
-		for (BetTransaction bet: userBetsInGame){
+		for (BetTransaction bet: userBetsInTheGame){
 			wagerInGame += bet.transactionAmount
 		}
 		
 		return wagerInGame
 	}
 	
-	private Boolean getPlacedBet(String gameId, List playedGames ){
-		Boolean PlacedBet = false
-		for (def eventKey: playedGames){
-			if (gameId == eventKey){
-				PlacedBet = true
-				break
+	private Boolean getPlacedBet(List<BetTransaction> userBetsInGames ){
+		if (userBetsInGames.size() == 0)
+			return false
+		else
+			return true
+	}
+	
+	private List<BetTransaction> listBetsByGameId(List<BetTransaction> playedGames, String gameId){
+		List<BetTransaction> userBetsInGame = []
+		for (BetTransaction bet: playedGames){
+			if (bet.eventKey == gameId){
+				userBetsInGame.add(bet)
 			}
 		}
-		return PlacedBet
+		return userBetsInGame
 	}
 }
