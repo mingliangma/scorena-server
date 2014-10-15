@@ -132,7 +132,8 @@ class SportsDataService {
 						"date": helperService.setUTCFormat(game.startDateTime) ,
 						(game.alignment):[
 							"teamname":upcomingGameFullName,
-							"score":game.score
+							"score":game.score,
+							"teamLogoUrl": "https://s3-us-west-2.amazonaws.com/teamlogo/world_cup/default.png"
 						]
 				]
 				upcomingGamesMap.putAt(eventKey, gameInfo)
@@ -145,9 +146,9 @@ class SportsDataService {
 				}
 			
 				if (!upcomingGame.away){
-					upcomingGame.away = ["teamname":upcomingGameFullName, "score":game.score]
+					upcomingGame.away = ["teamname":upcomingGameFullName, "score":game.score, "teamLogoUrl": "https://s3-us-west-2.amazonaws.com/teamlogo/world_cup/default.png"]
 				}else{
-					upcomingGame.home = ["teamname":upcomingGameFullName, "score":game.score]
+					upcomingGame.home = ["teamname":upcomingGameFullName, "score":game.score, "teamLogoUrl": "https://s3-us-west-2.amazonaws.com/teamlogo/world_cup/default.png"]
 				}
 				upcomingGamesList.add(upcomingGame)
 				
@@ -196,16 +197,17 @@ class SportsDataService {
 						"date":helperService.setUTCFormat(game.startDateTime),
 						(game.alignment):[
 							"teamname":pastGameFullName,
-							"score":game.score
+							"score":game.score,
+							"teamLogoUrl": "https://s3-us-west-2.amazonaws.com/teamlogo/world_cup/default.png"
 						]
 				]
 				pastGamesMap.putAt(eventKey, gameInfo)
 			}else{
 			
 				if (!pastGame.away){
-					pastGame.away = ["teamname":pastGameFullName, "score":game.score]
+					pastGame.away = ["teamname":pastGameFullName, "score":game.score, "teamLogoUrl": "https://s3-us-west-2.amazonaws.com/teamlogo/world_cup/default.png"]
 				}else{
-					pastGame.home = ["teamname":pastGameFullName, "score":game.score]
+					pastGame.home = ["teamname":pastGameFullName, "score":game.score, "teamLogoUrl": "https://s3-us-west-2.amazonaws.com/teamlogo/world_cup/default.png"]
 				}
 				pastGamesList.add(pastGame)
 				
