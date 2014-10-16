@@ -73,11 +73,10 @@ class GameService {
 		List<BetTransaction> betsInPastGames = betTransactionService.listBetTransByGameIds(pastGameIds)
 
 		for (def pastGame: pastGamesResult){
-			def gameId = pastGame.gameId
 			if (pastGame.gameStatus != "post-event"){
 				println "gameService::listPastGames():wrong event: "+ pastGame
 			}
-			List<BetTransaction> allBetsInGame = getAllBetsByGameId(userId, betsInPastGames)
+			List<BetTransaction> allBetsInGame = getAllBetsByGameId(pastGame.gameId, betsInPastGames)
 			pastGame.numPeople = getNumUsersInGame(allBetsInGame)
 			if (userId != null){
 				List<BetTransaction> userBetsInTheGame = getUserBetsFromGame(userId, allBetsInGame)

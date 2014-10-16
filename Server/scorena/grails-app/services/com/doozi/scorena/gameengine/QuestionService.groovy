@@ -58,31 +58,29 @@ class QuestionService {
 	def listQuestionsWithPoolInfo(eventKey){
 		listQuestionsWithPoolInfo(eventKey, null)
 	}
-	
+
+	//TODO: fetch all transactions at the beginning of the method, then process them into different category
 	def listQuestionsWithPoolInfo(eventKey, userId) {
 		
 		DecimalFormat df = new DecimalFormat("###.##")
 		List resultList = []		
 		def questions = listQuestions(eventKey)
-		
+		def game = gameService.getGame(eventKey)
+		def rest = new RestBuilder()
 		for (Question q: questions){
 			
 			QuestionContent questionContent = q.questionContent
 			
 			if (questionContent.questionType == "disable")
 				continue
-				
-			
+						
 			def userInfo=[:]
 			def winnerPick =-1			
-			def game = gameService.getGame(q.eventKey)
+			
 			
 			PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(q.id)
 			def pick1PayoutMultiple = questionPoolUtilService.calculatePick1PayoutMultiple(questionPoolInfo)
 			def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(questionPoolInfo)		
-
-//			def pick1PayoutPercentage = Math.round(100 * (pick1PayoutMultiple-1))
-//			def pick2PayoutPercentage =  Math.round(100 * (pick2PayoutMultiple-1))
 
 			if (game.gameStatus.trim() == "post-event"){
 				winnerPick = processEngineImplService.getWinningPick(q.eventKey, q)
@@ -91,6 +89,15 @@ class QuestionService {
 			if (userId != null){
 				userInfo = questionUserInfoService.getQuestionsUserInfo(userId, q.id, winnerPick)
 			}
+			
+			String playerPictureUrl = ""
+			
+			def resp = parseService.retrieveUser(rest, questionPoolInfo.getHighestBetUserId())
+
+			if (resp.status == 200){
+				playerPictureUrl = resp.json.pictureURL
+			}
+			
 			resultList.add([
 				questionId: q.id,
 				content: questionContent.content,
@@ -100,6 +107,9 @@ class QuestionService {
 				pick2LogoUrl: teamLogoService.getTeamLogo(q.pick2.trim()),
 				userInfo:userInfo,
 				winnerPick:winnerPick,
+				playerBetAmount: questionPoolInfo.getHighestBetAmount(),
+				playerPictureUrl: playerPictureUrl,
+				playerPick: questionPoolInfo.getHighestBetPick() == 1 ? q.pick1 : q.pick2,
 				pool: [
 					pick1Amount: questionPoolInfo.getPick1Amount(),
 					pick1NumPeople: questionPoolInfo.getPick1NumPeople(),
