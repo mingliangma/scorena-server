@@ -135,12 +135,12 @@ class UrlMappings {
 			action = [GET:"enrollTournament"]
 		}
 		
-		"/v1/questions/comments"(controller:"comment") {
+		"/v1/sports/soccer/leagues/all/games/$gameId?/qs/$qId?/comments"(controller:"comment") {
 			action = [GET:"getExistingComments"]
 		}
 		
-		"/v1/questions/addcomments"(controller:"comment") {
-			action = [GET:"writeComments"]
+		"/v1/sports/soccer/leagues/all/games/$gameId?/qs/$qId?/writecomments"(controller:"comment") {
+			action = [POST:"writeComments"]
 		}
 
 		"/v1/admin/cq"(view:"/CustomQuestionWebsite")

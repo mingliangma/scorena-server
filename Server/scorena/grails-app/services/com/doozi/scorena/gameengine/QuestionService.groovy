@@ -28,6 +28,7 @@ class QuestionService {
 	def questionUserInfoService
 	def questionPoolUtilService
 	def poolInfoService
+	def commentService
 	
 	public static final int FEATURE_QUESTION_SIZE = 3
 	
@@ -357,7 +358,9 @@ class QuestionService {
 				pick1odds:  df.format(pick1PayoutMultiple).toDouble(),
 				pick2odds:  df.format(pick2PayoutMultiple).toDouble(),
 			],
-			betters: betters
+			betters: betters,
+			
+			comments: commentService.getExistingComments(q.id)
 		]
 		return result
 	}
@@ -442,7 +445,9 @@ class QuestionService {
 //				currentOddsPick1:df.format(currentOddsPick1).toDouble(),
 //				currentOddsPick2:df.format(currentOddsPick2).toDouble(),
 			],
-			betters: betters
+			betters: betters,
+			
+			comments: commentService.getExistingComments(q.id)
 		]
 		return result
 	}

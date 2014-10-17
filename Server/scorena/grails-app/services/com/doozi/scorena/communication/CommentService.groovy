@@ -9,6 +9,8 @@ import java.util.List
 @Transactional
 class CommentService {
 
+	def helperService
+	
     List getExistingComments(qId)
 	{
 		List commentsList=[]
@@ -23,7 +25,11 @@ class CommentService {
 			if(user==null){
 				return [message:"invalid user ID"]
 			}
-			def comments=[body:it.body,posterId:it.posterId,userName:user.username,timeCreated:it.dateCreated]
+			
+			def dateCreated=it.dateCreated
+			dateCreated = helperService.setUTCFormat(dateCreated)
+			
+			def comments=[body:it.body,userId:user.userId,userName:user.username,timeCreated:dateCreated]
 			commentsList.add(comments)
 		}
 		
