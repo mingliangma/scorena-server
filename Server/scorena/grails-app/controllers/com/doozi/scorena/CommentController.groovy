@@ -29,8 +29,11 @@ class CommentController {
 		def commentsList
 		def commentsMap
 		
+		String qId = params.qId
+		String gameId = params.gameId
+		
 		//validate all required input parameters exist
-		Map validateResult = validateWriteCommentRequest(request)
+		Map validateResult = validateWriteCommentRequest(request, qId, gameId)
 		if (validateResult != [:]){
 			response.status = 404
 			render validateResult as JSON
@@ -44,15 +47,15 @@ class CommentController {
 			render validation as JSON
 			return
 		}
-		
-		commentsList=commentService.writeComments(request.JSON.userId,request.JSON.message,request.JSON.qId)
+		String userId = validation.objectId
+		commentsList=commentService.writeComments(userId, request.JSON.message, qId)
 		commentsMap=[comments:commentsList]
 		
 		render commentsMap as JSON
 	}
 	
-	private Map validateWriteCommentRequest(def request){
-		if (!request.JSON.userId||!request.JSON.qId|| !request.JSON.message || !request.JSON.sessionToken){
+	private Map validateWriteCommentRequest(def request, qId, gameId){
+		if (!qId || !gameId || !request.JSON.message || !request.JSON.sessionToken){
 			response.status =404
 			def resp = [
 				code: 101,

@@ -136,11 +136,7 @@ class UrlMappings {
 		}
 		
 		"/v1/sports/soccer/leagues/all/games/$gameId?/qs/$qId?/comments"(controller:"comment") {
-			action = [GET:"getExistingComments"]
-		}
-		
-		"/v1/sports/soccer/leagues/all/games/$gameId?/qs/$qId?/writecomments"(controller:"comment") {
-			action = [POST:"writeComments"]
+			action = [GET:"getExistingComments", POST:"writeComments"]
 		}
 
 		"/v1/admin/cq"(view:"/CustomQuestionWebsite")
