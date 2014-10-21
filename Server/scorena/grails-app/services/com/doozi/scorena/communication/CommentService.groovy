@@ -27,7 +27,7 @@ class CommentService {
 			}
 			
 			def dateCreated=it.dateCreated
-			dateCreated = helperService.setUTCFormat(dateCreated)
+			dateCreated = helperService.getOutputDateFormat(dateCreated)
 			
 			def comments=[body:it.body,userId:user.userId,userName:user.username,timeCreated:dateCreated]
 			commentsList.add(comments)
