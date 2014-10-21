@@ -1,16 +1,20 @@
 package com.doozi.scorena
 
 import java.util.Map;
-
 import grails.converters.JSON
 
+/**
+ * @author HDJ
+ *
+ */
 class CommentController {
-
     def commentService
 	def userService
 	
-	def index() { }
-	
+	/**
+	 * @brief get comments info of the question
+	 * @return json of comments list:[body,userId,userName,timeCreated]
+	 */
 	def getExistingComments(){
 		def commentsList
 		def commentsMap
@@ -25,6 +29,10 @@ class CommentController {
 		render commentsMap as JSON
 	}
 	
+	/**
+	 * @brief add comments to the question
+	 * @return json of comments list:[body,userId,userName,timeCreated]
+	 */
 	def writeComments(){
 		def commentsList
 		def commentsMap
@@ -47,6 +55,8 @@ class CommentController {
 			render validation as JSON
 			return
 		}
+		
+		//add comments to the question
 		String userId = validation.objectId
 		commentsList=commentService.writeComments(userId, request.JSON.message, qId)
 		commentsMap=[comments:commentsList]
@@ -54,6 +64,13 @@ class CommentController {
 		render commentsMap as JSON
 	}
 	
+	/**
+	 * @brief validate the request parameters
+	 * @param request.json.message,sessionToken
+	 * @param qId
+	 * @param gameId
+	 * @return
+	 */
 	private Map validateWriteCommentRequest(def request, qId, gameId){
 		if (!qId || !gameId || !request.JSON.message || !request.JSON.sessionToken){
 			response.status =404

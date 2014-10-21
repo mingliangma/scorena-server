@@ -1,16 +1,27 @@
 package com.doozi.scorena.communication
 
+import grails.transaction.Transactional
+import java.util.List
+
 import com.doozi.scorena.Question
 import com.doozi.scorena.Account
-import grails.transaction.Transactional
 
-import java.util.List
+
+/**
+ * @author HDJ
+ *
+ */
 
 @Transactional
 class CommentService {
 
 	def helperService
 	
+	/**
+	 * @brief get comments information of the question
+	 * @param qId:ID of question
+	 * @return List of comments:[body,userId,userName,timeCreated]
+	 */
     List getExistingComments(qId)
 	{
 		List commentsList=[]
@@ -36,6 +47,13 @@ class CommentService {
 		return commentsList
 	}
 	
+	/**
+	 * @brief add comments to question
+	 * @param userId:userId of the account commenting
+	 * @param message:content of comments
+	 * @param qId:question ID of the question to be commented
+	 * @return List of comments:[body,userId,userName,timeCreated]
+	 */
 	List writeComments(userId,message,qId){
 		List commentsList=[]
 		Question q = Question.findById(qId)
