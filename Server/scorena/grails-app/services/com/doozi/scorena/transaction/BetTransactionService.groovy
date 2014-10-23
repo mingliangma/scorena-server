@@ -36,7 +36,8 @@ class BetTransactionService {
 			}
 		}
 		
-		BetTransaction newBetTransaction = new BetTransaction(transactionAmount: playerWager, createdAt: transactionDate, pick: playerPick, eventKey: question.eventKey)
+		BetTransaction newBetTransaction = new BetTransaction(transactionAmount: playerWager, createdAt: transactionDate, 
+			pick: playerPick, eventKey: question.eventKey, league: sportsDataService.getLeagueCodeFromEventKey(question.eventKey))
 		
 		
 		playerAccount.addToTrans(newBetTransaction)

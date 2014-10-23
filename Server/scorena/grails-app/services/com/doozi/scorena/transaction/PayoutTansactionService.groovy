@@ -9,7 +9,7 @@ import grails.transaction.Transactional
 
 @Transactional
 class PayoutTansactionService {	
-	
+	def sportsDataService
 	def questionUserInfoService
 	
 	/**
@@ -26,7 +26,8 @@ class PayoutTansactionService {
 	def createPayoutTrans(Account playerAccount, Question q, int payout, int winnerPick, int wager, int userPick){
 		
 		int playResult = questionUserInfoService.getUserPickStatus(winnerPick, userPick)
-		PayoutTransaction payoutTransaction = new PayoutTransaction(transactionAmount: payout, createdAt: new Date(), winnerPick: winnerPick, pick: userPick, initialWager:wager, eventKey: q.eventKey, playResult: playResult)
+		PayoutTransaction payoutTransaction = new PayoutTransaction(transactionAmount: payout, createdAt: new Date(), winnerPick: winnerPick, pick: userPick, initialWager:wager, 
+			eventKey: q.eventKey, playResult: playResult, league: sportsDataService.getLeagueCodeFromEventKey(q.eventKey))
 		
 		playerAccount.addToTrans(payoutTransaction)
 		q.addToPayoutTrans(payoutTransaction)
