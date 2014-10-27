@@ -21,15 +21,18 @@ class BootStrap {
 				if (!Question.count()) {
 					createQuestions()					
 				}
+				
+//				if (!Account.countByAccountType(AccountType.TEST)){
+//					createTestUsers()
+//				}
+				
 				if (!Account.count()){
 					createUsers()
 					simulateBetUpcoming()
 					simulateBetPast()
 				}
 				
-				if (!Account.countByAccountType(AccountType.TEST)){
-					createTestUsers()
-				}
+				
 				
 				println "bootstrap ended"
 			}
@@ -208,6 +211,10 @@ class BootStrap {
 		def accounts = Account.findAll()
 		def upcomingGames = gameService.listUpcomingGames()
 		for (int i=0; i < upcomingGames.size(); i++){
+			if (random.nextInt(2) == 1){
+				continue
+			}
+			
 			def upcomingGame = upcomingGames.get(i)
 			System.out.println("game away: "+upcomingGame.away.teamname + "   VS   game home: "+upcomingGame.home.teamname + "----- StartDate: "+upcomingGame.date)
 			
@@ -215,9 +222,9 @@ class BootStrap {
 			
 			
 			for (Question q: questions){
-				if (random.nextInt(3) == 1){
-					continue
-				}
+//				if (random.nextInt(3) == 1){
+//					continue
+//				}
 				def questionId = q.id
 				for (Account account: accounts){
 					if (random.nextInt(2) == 1){
@@ -250,22 +257,28 @@ class BootStrap {
 			println "============simulateBetPast() starts==============="
 			Random random = new Random()
 			def accounts = Account.findAll()
-			def upcomingGames = gameService.listPastGames()
-			for (int i=0; i < upcomingGames.size(); i++){
-				def upcomingGame = upcomingGames.get(i)
+			def pastGames = gameService.listPastGames()
+			for (int i=0; i < pastGames.size(); i++){
+				
+				if (random.nextInt(2) == 1){
+					continue
+				}
+				
+				def upcomingGame = pastGames.get(i)
+				
 				System.out.println("game away: "+upcomingGame.away.teamname + "   VS   game home: "+upcomingGame.home.teamname + "----- StartDate: "+upcomingGame.date)
 				
 				def questions = Question.findAllByEventKey(upcomingGame.gameId)
 				
 				
 				for (Question q: questions){
-					if (random.nextInt(2) == 1){
-						continue
-					}
+//					if (random.nextInt(2) == 1){
+//						continue
+//					}
 					def questionId = q.id
 					Date _time = new Date() - (random.nextInt(6) + 18)
 					for (Account account: accounts){
-						if (random.nextInt(3) == 1){
+						if (random.nextInt(15) == 1){
 							continue
 						}
 						
@@ -302,7 +315,7 @@ class BootStrap {
 		String _gender
 		String _region
 		
-		for (int i=0; i<5; i++){
+		for (int i=0; i<10; i++){
 			def num = random.nextInt(100000)
 			 _displayName  = "scorena"+num.toString()
 			 _email = _displayName+"@gmail.com"

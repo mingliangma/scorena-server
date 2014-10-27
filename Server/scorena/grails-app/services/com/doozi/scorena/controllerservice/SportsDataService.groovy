@@ -1,6 +1,6 @@
 package com.doozi.scorena.controllerservice
 import com.doozi.scorena.sportsdata.*;
-import com.doozi.scorena.LeagueTypeEnum;
+import com.doozi.scorena.transaction.LeagueTypeEnum;
 
 import grails.transaction.Transactional
 
@@ -46,7 +46,7 @@ class SportsDataService {
 			return "Launch Party"
 	}
 	
-	public String getLeagueCodeFromEventKey(String eventKey){
+	public LeagueTypeEnum getLeagueCodeFromEventKey(String eventKey){
 		if (eventKey.startsWith(PREMIER_LEAGUE))
 			return LeagueTypeEnum.EPL
 		else if (eventKey.startsWith(CHAMP_LEAGUE))

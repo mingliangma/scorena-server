@@ -3,7 +3,7 @@ package com.doozi.scorena.transaction
 import java.util.Date;
 import com.doozi.scorena.*
 
-abstract class ScorenaTransaction {
+abstract class AbstractTransaction {
 	int transactionAmount
 	Date createdAt	
 	
@@ -13,6 +13,6 @@ abstract class ScorenaTransaction {
     }
 	
 	static mapping = {
-		account joinTable: [name: 'TRANS_ACCOUNT', key: 'account_id']
+//		account joinTable: [name: 'TRANS_ACCOUNT', key: 'account_id']
 	}
 }

@@ -16,7 +16,6 @@ import java.text.DecimalFormat
 import java.util.Map;
 
 
-@Transactional
 class QuestionService {
 	def betTransactionService
 	def gameService
@@ -84,7 +83,7 @@ class QuestionService {
 			def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(questionPoolInfo)		
 
 			if (game.gameStatus.trim() == "post-event"){
-				winnerPick = processEngineImplService.getWinningPick(q.eventKey, q)
+				winnerPick = processEngineImplService.getWinningPick(game, q)
 			}
 
 			if (userId != null){
@@ -143,11 +142,11 @@ class QuestionService {
 			return [message: "invalid question ID"]
 		}
 		
-		def game = gameService.getGame(q.eventKey)
+		Map game = gameService.getGame(q.eventKey)
 		Map questionDetails = [:]
 		
 		if (game.gameStatus.trim() == "post-event"){
-			questionDetails = getPostEventQuestion(q, userId)
+			questionDetails = getPostEventQuestion(q, userId, game)
 		}else{
 			questionDetails = getPreEventQuestion(q, userId)
 		}
@@ -170,6 +169,7 @@ class QuestionService {
 		return questionsCreated
 	}
 	
+	@Transactional
 	int populateQuestions(String away, String home, String eventId){
 		int questionCreated = 0
 		def questionContent2 = QuestionContent.findAllByQuestionType("truefalse-0")
@@ -271,9 +271,9 @@ class QuestionService {
 			]
 	 */
 	
-	private def getPostEventQuestion(Question q, String userId){
+	private def getPostEventQuestion(Question q, String userId, Map game){
 
-		int winnerPick = processEngineImplService.getWinningPick(q.eventKey, q)
+		int winnerPick = processEngineImplService.getWinningPick(game, q)
 		
 		def pick1WinningPayoutMultiple=0
 		def pick2WinningPayoutMultiple=0

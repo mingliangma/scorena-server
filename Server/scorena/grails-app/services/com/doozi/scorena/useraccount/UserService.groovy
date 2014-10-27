@@ -275,25 +275,7 @@ class UserService {
 	
 	}
 
-	private def getFirstDateOfCurrentWeek(){
-		Calendar c1 = Calendar.getInstance();   // this takes current date
-		c1.clear(Calendar.MINUTE);
-		c1.clear(Calendar.SECOND);
-		c1.clear(Calendar.MILLISECOND);
-		c1.set(Calendar.HOUR_OF_DAY, 0);
-		c1.set(Calendar.DAY_OF_WEEK, 2);		
-		return c1.getTime();
-	}
 
-	private def getFirstDateOfCurrentMonth(){
-		Calendar c = Calendar.getInstance();   // this takes current date
-		c.clear(Calendar.MINUTE);
-		c.clear(Calendar.SECOND);
-		c.clear(Calendar.MILLISECOND);
-		c.set(Calendar.HOUR_OF_DAY, 0);
-		c.set(Calendar.DAY_OF_MONTH, 1);
-		return c.getTime();
-	}
 
 	private Map userLogin(RestBuilder rest, String username, String password){
 		println username

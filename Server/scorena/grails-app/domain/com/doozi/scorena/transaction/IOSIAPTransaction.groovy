@@ -2,7 +2,7 @@ package com.doozi.scorena.transaction
 
 import java.util.Date;
 
-class IOSIAPTransaction extends ScorenaTransaction{
+class IOSIAPTransaction extends AbstractTransaction{
 	// quantity of product
 	int quantity;
 	// product Id

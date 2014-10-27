@@ -1,4 +1,4 @@
-package com.doozi.scorena
+package com.doozi.scorena.processengine
 
 import java.util.Date;
 
@@ -12,7 +12,8 @@ import java.util.Date;
 */
 class GameProcessRecord {
 	String eventKey
-	int transProcessStatus
+	TransactionProcessStatusEnum transProcessStatus
+	ScoreProcessStatusEnum scoreProcessStatus
 	Date lastUpdate
 	Date startDateTime
 	

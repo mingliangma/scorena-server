@@ -2,6 +2,7 @@ package com.doozi.scorena.gameengine.custom
 
 import grails.transaction.Transactional
 import com.doozi.scorena.*
+import com.doozi.scorena.processengine.CustomQuestionResult
 import com.doozi.scorena.sportsdata.*
 
 @Transactional

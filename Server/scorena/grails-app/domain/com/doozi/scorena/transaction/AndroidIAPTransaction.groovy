@@ -1,6 +1,6 @@
 package com.doozi.scorena.transaction
 
-class AndroidIAPTransaction extends ScorenaTransaction{
+class AndroidIAPTransaction extends AbstractTransaction{
 	String productId
 	String orderId
 	int quantity

@@ -1,9 +1,10 @@
 package com.doozi.scorena.transactionprocessengine
 
 import grails.transaction.Transactional
-import com.doozi.scorena.*
+//import com.doozi.scorena.*
+import com.doozi.scorena.processengine.*
 
-@Transactional
+//@Transactional
 class NewGameResultFetcherService {
 	def sportsDataService
 	def customGameService
@@ -18,12 +19,9 @@ class NewGameResultFetcherService {
 	 * 
 	 * @return the number of game payout records added to the GameProcessRecord table that need to be processed
 	 */
-	def getUnprocessedPastGame(){
+	def getUnprocessedPastGame(List pastGames, List pastCustomGames){
 		println "NewGameResultFetcherService::getUnprocessedPastGame(): starts"
 		
-		//Get past games from both sports DB game table and Scorena DB custom game table 
-		List pastGames = sportsDataService.getAllPastGames()
-		List pastCustomGames = customGameService.getAllPastGames()
 		List allPastGames = []
 		allPastGames.addAll(pastCustomGames)
 		allPastGames.addAll(pastGames)
@@ -48,7 +46,8 @@ class NewGameResultFetcherService {
 			
 			if (unprocessed == true){
 				println "NewGameResultFetcherService::getUnprocessedPastGame(): Event " + pastGame.gameId + " is added to the GameProcessRecord table"
-				def newProcessRecord = new GameProcessRecord(eventKey: pastGame.gameId, transProcessStatus: 0, startDateTime: helperService.parseDateFromString(pastGame.date), lastUpdate: new Date())
+				def newProcessRecord = new GameProcessRecord(eventKey: pastGame.gameId, transProcessStatus: TransactionProcessStatusEnum.NOT_PROCESSED, 
+					scoreProcessStatus: ScoreProcessStatusEnum.NOT_PROCESSED, startDateTime: helperService.parseDateFromString(pastGame.date), lastUpdate: new Date())
 				newProcessRecord.save()		
 				gameRecordAdded++
 			}

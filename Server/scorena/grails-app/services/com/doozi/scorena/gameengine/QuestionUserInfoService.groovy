@@ -6,6 +6,7 @@ import com.doozi.scorena.transaction.BetTransaction
 import com.doozi.scorena.utils.*
 import grails.transaction.Transactional
 
+
 @Transactional
 class QuestionUserInfoService {
 	def betTransactionService
@@ -35,24 +36,20 @@ class QuestionUserInfoService {
 			userPick=userBet.pick
 			userPickStatus = getUserPickStatus(winnerPick, userBet.pick)
 			userWager = userBet.transactionAmount
-			questionWinningAmount = getProfitInQuestion(userBet) 
+			questionWinningAmount = getProfitInQuestion(winnerPick, userBet) 
 		}
 
 		return [placedBet:placedBet, userPickStatus:userPickStatus, userPick:userPick, questionWinningAmount:questionWinningAmount, userWager:userWager]
 	}
 	
-	int getProfitInQuestion(BetTransaction bet){		
-		return getProfitInQuestion(bet.question.eventKey, bet)
-	}
-	
-	int getProfitInQuestion(String gameId, BetTransaction bet){
+	int getProfitInQuestion(int winnerPick, BetTransaction bet){		
+				
 		int profitAmount = 0
 		
 		PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(bet.question.id)		
 		def pick1PayoutMultiple = questionPoolUtilService.calculatePick1PayoutMultiple(questionPoolInfo)
 		def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(questionPoolInfo)
 		
-		int winnerPick = processEngineImplService.getWinningPick(gameId, bet.question)
 		if (questionUserInfoService.getUserPickStatus(winnerPick, bet.pick) == PickStatus.USER_WON){
 			if (bet.pick == Pick.PICK1){
 				profitAmount = bet.transactionAmount * (pick1PayoutMultiple-1)
@@ -64,8 +61,14 @@ class QuestionUserInfoService {
 			profitAmount = bet.transactionAmount * -1
 		}
 		return profitAmount
+	
 	}
 	
+	int getProfitInQuestion(Map game, BetTransaction bet){
+		int winnerPick = processEngineImplService.getWinningPick(game, bet.question)
+		return getProfitInQuestion(winnerPick, bet)
+
+	}
 	/**		
 			return user's winning or lost status if game result is available.
 				winnerPick = -1, the game has not finished yet, the winnerPick is not available

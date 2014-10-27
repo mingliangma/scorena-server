@@ -1,4 +1,4 @@
-package com.doozi.scorena.transaction
+package com.doozi.scorena.score
 
 import grails.test.mixin.TestFor
 import spock.lang.Specification
@@ -6,8 +6,8 @@ import spock.lang.Specification
 /**
  * See the API for {@link grails.test.mixin.domain.DomainClassUnitTestMixin} for usage instructions
  */
-@TestFor(AbstractTransaction)
-class TransactionSpec extends Specification {
+@TestFor(BronzeMetalScore)
+class BronzeScoreSpec extends Specification {
 
     def setup() {
     }

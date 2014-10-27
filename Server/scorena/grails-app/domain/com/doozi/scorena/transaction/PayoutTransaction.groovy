@@ -1,9 +1,10 @@
 package com.doozi.scorena.transaction
-import com.doozi.scorena.LeagueTypeEnum;
-import com.doozi.scorena.Question
-import com.doozi.scorena.transaction.ScorenaTransaction
+import java.util.Date;
 
-class PayoutTransaction extends ScorenaTransaction{
+import com.doozi.scorena.Question
+import com.doozi.scorena.transaction.AbstractTransaction
+
+class PayoutTransaction extends AbstractTransaction{
 		
 	String eventKey
 	LeagueTypeEnum league
@@ -11,6 +12,8 @@ class PayoutTransaction extends ScorenaTransaction{
 	int winnerPick
 	int initialWager
 	int playResult
+	int profit
+	Date gameStartTime
 	
 	static belongsTo = [question: Question]
 	

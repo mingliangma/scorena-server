@@ -23,18 +23,18 @@ class GameUserInfoService {
 		return userinfo
     }
 	
-	Map getPastGamesUserInfo(String gameId, List<BetTransaction> userBetsInTheGame, String userId){
+	Map getPastGamesUserInfo(Map game, List<BetTransaction> userBetsInTheGame, String userId){
 		Map userinfo=[:]
 		userinfo.placedBet = getPlacedBet(userBetsInTheGame)
-		userinfo.gameWinningAmount = getProfitInGame(gameId, userId, userBetsInTheGame)
+		userinfo.gameWinningAmount = getProfitInGame(game, userId, userBetsInTheGame)
 		return userinfo
 	}
 	
-	private int getProfitInGame(String gameId, String userId, List userBetsInTheGame){
+	private int getProfitInGame(Map game, String userId, List userBetsInTheGame){
 		int profitAmount = 0
 		
 		for (BetTransaction bet: userBetsInTheGame){
-			profitAmount += questionUserInfoService.getProfitInQuestion(gameId, bet)
+			profitAmount += questionUserInfoService.getProfitInQuestion(game, bet)
 		}
 		return profitAmount
 	}

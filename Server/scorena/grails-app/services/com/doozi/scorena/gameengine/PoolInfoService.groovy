@@ -48,7 +48,7 @@ class PoolInfoService {
 		questionPoolInfo.setHighestBetUserId(highestBetUserId)
 		questionPoolInfo.setHighestBetPick(highestBetPick)
 		
-		println "last updated at: "+betTransactionService.getLastUpdatedBetTransactionDateByQId(qId)
+//		println "last updated at: "+betTransactionService.getLastUpdatedBetTransactionDateByQId(qId)
 		
 		return questionPoolInfo
 	}

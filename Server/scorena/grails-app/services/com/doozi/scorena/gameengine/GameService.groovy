@@ -80,7 +80,7 @@ class GameService {
 			pastGame.numPeople = getNumUsersInGame(allBetsInGame)
 			if (userId != null){
 				List<BetTransaction> userBetsInTheGame = getUserBetsFromGame(userId, allBetsInGame)
-				pastGame.userInfo=gameUserInfoService.getPastGamesUserInfo(pastGame.gameId, userBetsInTheGame, userId)
+				pastGame.userInfo=gameUserInfoService.getPastGamesUserInfo(pastGame, userBetsInTheGame, userId)
 			}				
 		}
 		return pastGamesResult

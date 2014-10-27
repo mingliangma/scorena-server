@@ -1,6 +1,9 @@
 package com.doozi.scorena
 import com.doozi.scorena.transaction.*;
+import com.doozi.scorena.score.*;
 import org.grails.comments.*
+
+
 
 class Question implements Commentable{
 	
@@ -9,7 +12,7 @@ class Question implements Commentable{
 	String pick2
 	
 	static hasOne = [pool: Pool]
-	static hasMany = [betTrans: BetTransaction, payoutTrans: PayoutTransaction]
+	static hasMany = [betTrans: BetTransaction, payoutTrans: PayoutTransaction, score: QuestionScore]
 	static belongsTo = [questionContent:QuestionContent]
 	
 	static mapping = {

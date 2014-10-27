@@ -11,25 +11,27 @@ import org.hibernate.criterion.CriteriaSpecification
 
 import grails.transaction.Transactional
 
-@Transactional
+
 class BetTransactionService {
 	def sportsDataService
 	def customGameService	
+	def helperService
 	
 	Map createBetTrans(int playerWager, int playerPick, String userId, long quesitonId) {
 		createBetTrans( playerWager, playerPick, userId, quesitonId, new Date(), true)
 	}
 	
+	@Transactional
 	Map createBetTrans(int playerWager, int playerPick, String userId, long quesitonId, Date transactionDate, boolean toValidate) {
 		
 		Account playerAccount = Account.findByUserId(userId)
 		Question question = Question.findById(quesitonId)
-		
+		Map game = sportsDataService.getGame(question.eventKey)
 		if (toValidate){
 			//Find the bet transaction that associated with the given userId and questionId 
 			BetTransaction betTrans = BetTransaction.find("from BetTransaction as b where (b.question.id=? and b.account.id=?)", question.id, playerAccount.id)
 			
-			Map validationResult =  validateBetTrans(playerWager, playerPick, playerAccount, question, betTrans)		
+			Map validationResult =  validateBetTrans(playerWager, playerPick, playerAccount, question, betTrans, game)		
 			
 			if (validationResult!=[:]){
 				return validationResult
@@ -37,7 +39,7 @@ class BetTransactionService {
 		}
 		
 		BetTransaction newBetTransaction = new BetTransaction(transactionAmount: playerWager, createdAt: transactionDate, 
-			pick: playerPick, eventKey: question.eventKey, league: sportsDataService.getLeagueCodeFromEventKey(question.eventKey))
+			pick: playerPick, eventKey: question.eventKey, league: sportsDataService.getLeagueCodeFromEventKey(question.eventKey), gameStartTime:helperService.parseDateFromString(game.date))
 		
 		
 		playerAccount.addToTrans(newBetTransaction)
@@ -156,7 +158,7 @@ class BetTransactionService {
 	 * @param betTrans
 	 * @return
 	 */
-	private Map validateBetTrans(int playerWager, int playerPick, Account account, Question question, BetTransaction betTrans){
+	private Map validateBetTrans(int playerWager, int playerPick, Account account, Question question, BetTransaction betTrans, Map game){
 		if (!account){
 			return [code:202, error: "the userId does not exsist"]
 		}
@@ -181,7 +183,6 @@ class BetTransactionService {
 			return [code:202, error: "the bet transaction already exsists"]
 		}
 		
-		def game = sportsDataService.getGame(question.eventKey)
 		if (game!=[]){
 			if (game.gameStatus != sportsDataService.PREEVENT){
 				return [code:202, error: "the match is already started. All pool is closed"]

@@ -7,7 +7,7 @@ import com.doozi.scorena.transaction.PayoutTransaction
 
 import grails.transaction.Transactional
 
-@Transactional
+
 class PayoutTansactionService {	
 	def sportsDataService
 	def questionUserInfoService
@@ -21,24 +21,33 @@ class PayoutTansactionService {
 	 * @param winnerPick
 	 * @param wager
 	 * @param userPick
-	 * @return
+	 * @return -1 on error, 0 on success
 	 */
-	def createPayoutTrans(Account playerAccount, Question q, int payout, int winnerPick, int wager, int userPick){
+	@Transactional
+	def createPayoutTrans(Account playerAccount, Question q, int payout, int winnerPick, int wager, int userPick, int playResult, Date gameStartTime){		
+//		println "PayoutTansactionService::createPayoutTrans(): qId="+q.id + ",accountId=" + playerAccount.id+", payout="+payout
 		
-		int playResult = questionUserInfoService.getUserPickStatus(winnerPick, userPick)
 		PayoutTransaction payoutTransaction = new PayoutTransaction(transactionAmount: payout, createdAt: new Date(), winnerPick: winnerPick, pick: userPick, initialWager:wager, 
-			eventKey: q.eventKey, playResult: playResult, league: sportsDataService.getLeagueCodeFromEventKey(q.eventKey))
+			eventKey: q.eventKey, playResult: playResult, league: sportsDataService.getLeagueCodeFromEventKey(q.eventKey), profit: payout-wager, gameStartTime:gameStartTime)
 		
+		def newBalance = playerAccount.currentBalance + payout
+		playerAccount.previousBalance = playerAccount.currentBalance
+		playerAccount.currentBalance = newBalance
+				
 		playerAccount.addToTrans(payoutTransaction)
 		q.addToPayoutTrans(payoutTransaction)
 		int result = 0
-		if (!playerAccount.merge()){
-			println "ERROR: payout transaction failed to be added to player account"
+		if (!playerAccount.save()){
+			    playerAccount.errors.each {
+			        println it
+			    }
 			result = -1
 		}
 		
-		if (!q.merge()){
-			println "ERROR: payout transaction failed to be added to question"
+		if (!q.save()){
+			    q.errors.each {
+			        println it
+			    }
 			result = -1
 		}
 		

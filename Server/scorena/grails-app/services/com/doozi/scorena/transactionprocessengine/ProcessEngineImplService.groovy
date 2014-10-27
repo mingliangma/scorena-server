@@ -7,6 +7,8 @@ import com.doozi.scorena.*
 import com.doozi.scorena.utils.*
 import com.doozi.scorena.gameengine.PoolInfo
 import com.doozi.scorena.transaction.BetTransaction
+import com.doozi.scorena.transaction.PayoutTransaction
+import com.doozi.scorena.processengine.*
 
 import grails.transaction.Transactional
 
@@ -20,8 +22,11 @@ class ProcessEngineImplService {
 	def poolInfoService
 	def questionPoolUtilService
 	def payoutTansactionService
+	def scoreService
+	def questionUserInfoService
+	def helperService
 	
-	def payoutCleared(Question q){
+	private def payoutCleared(Question q){
 		def result = payoutTansactionService.getPayoutTransByQuestion(q)
 		if (result)
 			true
@@ -40,58 +45,81 @@ class ProcessEngineImplService {
 		return false
 	}
 	
-	def processUnpaidPayout(){
-		println "ProcessEngineImplService::processUnpaidPayout(): starts"
-		def gameRecords = GameProcessRecord.findAllByTransProcessStatus(PayoutTransactionProcessStatus.CUSOTM_QUESTION_UNPROCESSED)
+	
+	
+//	/**
+//	 * deprecated
+//	 * @return
+//	 */
+//	def processUnpaidPayout(){
+//		println "ProcessEngineImplService::processUnpaidPayout(): starts"
+//		def gameRecords = GameProcessRecord.findAllByTransProcessStatus(PayoutTransactionProcessStatus.CUSOTM_QUESTION_UNPROCESSED)
+//		
+//		def gameRecordsProcessed = 0
+//		for (GameProcessRecord gameProcessRecord: gameRecords){
+//			
+//			println "processing game: "+gameProcessRecord.eventKey
+//
+//			def fixed = false
+//			def questions = questionService.listQuestions(gameProcessRecord.eventKey)
+//			
+//			for (Question q:questions){
+//				
+//				// non-custom questions are processed
+//				if (!isCustomQuestion(q.questionContent.questionType)){
+//					println "quetion "+q.questionContent+" is type " + q.questionContent.questionType
+//					continue
+//				}
+//				
+//				// Check if the payout are already exist. 
+//				def clearTransResult = payoutCleared(q)
+//				println "QuesitonID = "+q.id+" - clearTransResult: "+clearTransResult
+//				if (clearTransResult){
+//					continue
+//				}
+//				
+//				// check if custom question result exists. If it does not exist, the question does not process.
+//				if (!customQuestionResultService.recordExist(q.id)){
+//					println "QuesitonID = "+q.id+" - custom question result does not exists"
+//					continue
+//				}
+//								
+//				processPayout(gameProcessRecord, q)
+//				fixed = true
+//			}
+//			
+//			if (fixed){
+//				if (gameProcessRecord.transProcessStatus==PayoutTransactionProcessStatus.CUSOTM_QUESTION_UNPROCESSED){
+//					gameProcessRecord.transProcessStatus = PayoutTransactionProcessStatus.COMPLETED
+//				}else if (gameProcessRecord.transProcessStatus==PayoutTransactionProcessStatus.ERROR_WITH_UNPROCCESSED_CUSTOM_QUESTION){
+//					gameProcessRecord.transProcessStatus = PayoutTransactionProcessStatus.ERROR
+//				}			
+//				gameProcessRecord.lastUpdate = new Date()
+//				gameProcessRecord.save(flush: true)
+//				gameRecordsProcessed++
+//			}
+//		}
+//				
+//		println "ProcessEngineImplService::processUnpaidPayout(): ends"
+//		return gameRecordsProcessed
+//	}
+	
+	@Transactional
+	def processNewGameScore(){
 		
-		def gameRecordsProcessed = 0
+		println "processNewGameScore() starts"
+		//find all game process record that haven't processed
+		def gameRecords = GameProcessRecord.findAll("from GameProcessRecord as g where g.scoreProcessStatus = ? and g.transProcessStatus = ?", [ScoreProcessStatusEnum.NOT_PROCESSED, TransactionProcessStatusEnum.PROCESSED])
 		for (GameProcessRecord gameProcessRecord: gameRecords){
-			
-			println "processing game: "+gameProcessRecord.eventKey
-
-			def fixed = false
-			def questions = questionService.listQuestions(gameProcessRecord.eventKey)
-			
-			for (Question q:questions){
-				
-				// non-custom questions are not processed
-				if (!isCustomQuestion(q.questionContent.questionType)){
-					println "quetion "+q.questionContent+" is type " + q.questionContent.questionType
-					continue
-				}
-				
-				// Check if the payout are already exist. 
-				def clearTransResult = payoutCleared(q)
-				println "QuesitonID = "+q.id+" - clearTransResult: "+clearTransResult
-				if (clearTransResult){
-					continue
-				}
-				
-				// check if custom question result exists. If it does not exist, the question does not process.
-				if (!customQuestionResultService.recordExist(q.id)){
-					println "QuesitonID = "+q.id+" - custom question result does not exists"
-					continue
-				}
-								
-				processPayout(gameProcessRecord, q)
-				fixed = true
-			}
-			
-			if (fixed){
-				if (gameProcessRecord.transProcessStatus==PayoutTransactionProcessStatus.CUSOTM_QUESTION_UNPROCESSED){
-					gameProcessRecord.transProcessStatus = PayoutTransactionProcessStatus.COMPLETED
-				}else if (gameProcessRecord.transProcessStatus==PayoutTransactionProcessStatus.ERROR_WITH_UNPROCCESSED_CUSTOM_QUESTION){
-					gameProcessRecord.transProcessStatus = PayoutTransactionProcessStatus.ERROR
-				}			
-				gameProcessRecord.lastUpdate = new Date()
-				gameProcessRecord.save(flush: true)
-				gameRecordsProcessed++
-			}
+			List<PayoutTransaction> pTransactionList= PayoutTransaction.findAll("from PayoutTransaction as p where p.eventKey=? order by p.account.id",[gameProcessRecord.eventKey])
+			scoreService.processQuestionScore(pTransactionList, gameProcessRecord)
+			scoreService.processGoldSilverBronzeScore(pTransactionList, gameProcessRecord)
+			gameProcessRecord.scoreProcessStatus = ScoreProcessStatusEnum.PROCESSED
 		}
-				
-		println "ProcessEngineImplService::processUnpaidPayout(): ends"
-		return gameRecordsProcessed
+		
+		println "processNewGameScore() ends"
 	}
+	
 	
 	/**
 	 * process new finished game payout. If the custom question result does not exist, mark Transaction Process Status to CUSOTM_QUESTION_UNPROCESSED and skip.  
@@ -102,62 +130,74 @@ class ProcessEngineImplService {
 		println "ProcessEngineImplService::processGamePayout(): starts"
 		
 		//find all game process record that haven't processed
-		def gameRecords = GameProcessRecord.findAllByTransProcessStatus(PayoutTransactionProcessStatus.NOT_PROCESSED)		
+		def gameRecords = GameProcessRecord.findAllByTransProcessStatus(TransactionProcessStatusEnum.NOT_PROCESSED)		
 		def totalpayout = 0
 		def gameRecordsProcessed = 0
-		
+		boolean payoutErrorExist = false
 		
 		
 		for (GameProcessRecord gameProcessRecord: gameRecords){
-			gameProcessRecord.transProcessStatus = 1			
-			def customQuestionsResultExists = true
-			def questions = questionService.listQuestions(gameProcessRecord.eventKey)
+		
+			List<Question> questions = questionService.listQuestions(gameProcessRecord.eventKey)
+			Map game = gameService.getGame(gameProcessRecord.eventKey)
 			
-			for (Question q:questions){
-				
-				//skip the custom questions that do not have a game result record. later this game process record is marked
-				// as CUSOTM_QUESTION_UNPROCESSED
-				if (q.questionContent.questionType == QuestionContent.CUSTOM){
-					if (!customQuestionResultService.recordExist(q.id)){
-						customQuestionsResultExists=false
-						continue
+			if (isReadyToProcess(questions, game) == true){
+
+				for (Question q:questions){
+					int payoutCode = processPayout(q, game)
+					if (payoutCode==-1){
+						gameProcessRecord.transProcessStatus = TransactionProcessStatusEnum.ERROR
+						break
 					}
 				}
-				processPayout(gameProcessRecord, q)
+				
+				gameProcessRecord.transProcessStatus = TransactionProcessStatusEnum.PROCESSED
+				gameProcessRecord.lastUpdate = new Date()
+				gameProcessRecord.save(flush: true)
+				gameRecordsProcessed++
 			}
-			
-			//if there are unprocessed custom questions
-			if (!customQuestionsResultExists){
-				if (gameProcessRecord.transProcessStatus== PayoutTransactionProcessStatus.IN_PROCESS){
-					gameProcessRecord.transProcessStatus = PayoutTransactionProcessStatus.CUSOTM_QUESTION_UNPROCESSED
-				}else if (gameProcessRecord.transProcessStatus==PayoutTransactionProcessStatus.ERROR){
-					gameProcessRecord.transProcessStatus = PayoutTransactionProcessStatus.ERROR_WITH_UNPROCCESSED_CUSTOM_QUESTION
-				}
-			}
-			//if all questions are processed, the game process record is marked as COMPLETED
-			else{
-				if (gameProcessRecord.transProcessStatus==PayoutTransactionProcessStatus.IN_PROCESS){	
-						gameProcessRecord.transProcessStatus = PayoutTransactionProcessStatus.COMPLETED
-				}
-			}
-			gameProcessRecord.lastUpdate = new Date()
-			gameProcessRecord.save(flush: true)
-			gameRecordsProcessed++
 		}
 				
 		println "ProcessEngineImplService::processGamePayout(): ends"
 		return gameRecordsProcessed
 	}
 	
+	private boolean isReadyToProcess(List<Question> questions, Map game){
+				
+		if (game.gameStatus.trim() != sportsDataService.POSTEVENT){
+			return false
+		}
+		
+		if (game.away.score == null || game.away.score == "" ||game.home.score == null || game.home.score == ""){
+			return false
+		}
+				
+		for (Question q:questions){
+			if (q.questionContent.questionType == QuestionContent.CUSTOM){
+				if (!customQuestionResultService.recordExist(q.id)){
+					return false
+				}
+			}
+		}
+		return true
+		
+	}
 	
-	@Transactional
-    def processPayout(GameProcessRecord gameProcessRecord, Question q) {
+	
+
+
+    /**
+     * @param question
+     * @param game
+     * @return -1 on error, 0 on success
+     */
+		@Transactional
+    private int processPayout(Question q, Map game) {
 			
-			println "ProcessEngineImplService::processPayout(): starts with eventKey="+gameProcessRecord.eventKey+ "questionId="+q.id
+			println "ProcessEngineImplService::processPayout(): starts with eventKey="+game.gameId+ "questionId="+q.id
 			
-			def eventKey = gameProcessRecord.eventKey
-			int winnerPick = getWinningPick(eventKey, q)
-			int payoutMultipleOfWager			
+			int winnerPick = getWinningPick(game, q)
+			def payoutMultipleOfWager			
 			boolean processSuccess = true
 			boolean onePickHasNoBet = false
 			PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(q.id)						
@@ -194,22 +234,14 @@ class ProcessEngineImplService {
 				int payout = 0
 				if (winnerPick == 0 || bet.pick == winnerPick || onePickHasNoBet)
 					payout =  Math.floor(bet.transactionAmount*payoutMultipleOfWager)
-				
-				Account account = bet.account
-				def newBalance = account.currentBalance + payout
-				account.previousBalance = account.currentBalance
-				account.currentBalance = newBalance
-				
-				
-				def code = payoutTansactionService.createPayoutTrans(account,q, payout, winnerPick, bet.transactionAmount, bet.pick)
+								
+				int playResult = questionUserInfoService.getUserPickStatus(winnerPick, bet.pick)
+				def code = payoutTansactionService.createPayoutTrans(bet.account,q, payout, winnerPick, bet.transactionAmount, bet.pick, playResult, helperService.parseDateFromString(game.date))
 				if (code==-1){
-					processSuccess=false
+					return -1
 				}
 			}
-			if (processSuccess != true){
-				if (gameProcessRecord.transProcessStatus==PayoutTransactionProcessStatus.IN_PROCESS)			
-					gameProcessRecord.transProcessStatus = PayoutTransactionProcessStatus.ERROR		
-			}
+			return 0
 			
 			println "ProcessEngineImplService::processPayout(): ends"
     }
@@ -223,11 +255,41 @@ class ProcessEngineImplService {
 	 * 			- 0 if ties
 	 * 			- -1 if not winning result
 	 */
-	@Transactional
-	def getWinningPick(String eventKey, Question question){
+//	@Transactional
+//	def getWinningPick(String eventKey, Question question){
+//		
+//		int winnerPick = -1
+//		Map game = gameService.getGame(eventKey)
+//		if (game.gameStatus.trim() != sportsDataService.POSTEVENT){
+//			return winnerPick
+//		}
+//		
+//		QuestionContent questionContent = question.questionContent
+//		String questionType = questionContent.questionType
+//
+//		switch ( questionType ) {
+//			case QuestionContent.WHOWIN:
+//				winnerPick = getWhoWinWinnerPick(game, question)
+//				break;
+//			case QuestionContent.SCOREGREATERTHAN:
+//                winnerPick = getScoreGreaterThanWinnerPick(game, question, questionContent.indicator1)
+//				break;
+//			case QuestionContent.CUSTOM:
+//				winnerPick = getCustomQuestionWinnerPick(question)
+//				break;
+//			case QuestionContent.CUSTOMTEAM0:
+//				winnerPick = getCustomQuestionWinnerPick(question)
+//				break;
+//			case QuestionContent.CUSTOMTEAM1:
+//				winnerPick = getCustomQuestionWinnerPick(question)
+//				break;
+//		}
+//		return winnerPick
+//	}
+	
+	def getWinningPick(Map game, Question question){
 		
 		int winnerPick = -1
-		Map game = gameService.getGame(eventKey)
 		if (game.gameStatus.trim() != sportsDataService.POSTEVENT){
 			return winnerPick
 		}
@@ -240,7 +302,7 @@ class ProcessEngineImplService {
 				winnerPick = getWhoWinWinnerPick(game, question)
 				break;
 			case QuestionContent.SCOREGREATERTHAN:
-                winnerPick = getScoreGreaterThanWinnerPick(game, question, questionContent.indicator1)
+				winnerPick = getScoreGreaterThanWinnerPick(game, question, questionContent.indicator1)
 				break;
 			case QuestionContent.CUSTOM:
 				winnerPick = getCustomQuestionWinnerPick(question)
@@ -268,7 +330,6 @@ class ProcessEngineImplService {
 		return winnerPick
 	}
 	
-	@Transactional
 	private int getScoreGreaterThanWinnerPick(Map game, Question question, String indicator){
 		
 		if ((game.home.score.toInteger() + game.away.score.toInteger()) > new BigDecimal( indicator ) ){			
@@ -278,7 +339,6 @@ class ProcessEngineImplService {
 		}
 	}
 	
-	@Transactional
 	private int getWhoWinWinnerPick(Map game, Question question){
 
 		if (game.home.score > game.away.score){
