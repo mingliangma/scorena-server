@@ -138,6 +138,18 @@ class UrlMappings {
 		"/v1/sports/soccer/leagues/all/games/$gameId?/qs/$qId?/comments"(controller:"comment") {
 			action = [GET:"getExistingComments", POST:"writeComments"]
 		}
+		
+		"/v1/user/$userId?/friends"(controller:"friendSystem") {
+			action = [GET:"listFriends"]
+		}
+		
+		"/v1/user/$userId?/friends/reqest"(controller:"friendSystem") {
+			action = [GET:"friendRequest"]
+		}
+		
+		"/v1/user/$userId?/friends/confirmation"(controller:"friendSystem") {
+			action = [GET:"confirmFriendRequest"]
+		}
 
 		"/v1/admin/cq"(view:"/CustomQuestionWebsite")
 		

@@ -26,8 +26,8 @@ class FriendSystemController {
 	
 	def listFriends() {
 		String userId = params.userId
-		List allFriendList = []
-		Map allFriendMap = []
+		def allFriendList
+		def allFriendMap
 
 		allFriendList = friendSystemService.listFriends(userId)
 		allFriendMap = [allFriend:allFriendList]
