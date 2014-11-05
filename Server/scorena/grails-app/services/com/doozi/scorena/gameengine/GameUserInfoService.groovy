@@ -2,6 +2,7 @@ package com.doozi.scorena.gameengine
 
 import com.doozi.scorena.Question;
 import com.doozi.scorena.controllerservice.*
+import com.doozi.scorena.score.AbstractScore
 import com.doozi.scorena.transaction.BetTransaction
 
 import grails.transaction.Transactional
@@ -23,10 +24,22 @@ class GameUserInfoService {
 		return userinfo
     }
 	
-	Map getPastGamesUserInfo(Map game, List<BetTransaction> userBetsInTheGame, String userId){
+	Map getPastGamesUserInfo(Map game, List<BetTransaction> userBetsInTheGame, String userId, AbstractScore scoreTransaction){
 		Map userinfo=[:]
 		userinfo.placedBet = getPlacedBet(userBetsInTheGame)
 		userinfo.gameWinningAmount = getProfitInGame(game, userId, userBetsInTheGame)
+
+		if (scoreTransaction == null){
+			
+			userinfo.isGameProcessed = false
+			userinfo.rank=-1
+			userinfo.badge=""
+			
+		}else{
+			userinfo.isGameProcessed = true
+			userinfo.rank = scoreTransaction.rank
+			userinfo.badge = scoreTransaction.class.getSimpleName()
+		}
 		return userinfo
 	}
 	

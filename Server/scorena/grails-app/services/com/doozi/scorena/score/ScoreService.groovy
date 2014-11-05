@@ -11,10 +11,26 @@ import com.doozi.scorena.transaction.PayoutTransaction
 
 import grails.transaction.Transactional
 
-@Transactional
+//@Transactional
 class ScoreService {
 	
 	def sportsDataService
+	
+	List<AbstractScore> listBadgeScoresByUserIdAndPastGames(String userId, List eventKeys){
+		String query = "from AbstractScore as s where (s.class=com.doozi.scorena.score.NoMetalScore or s.class=com.doozi.scorena.score.GoldMetalScore "+
+		"or s.class=com.doozi.scorena.score.SilverMetalScore or s.class=com.doozi.scorena.score.BronzeMetalScore) and s.account.userId=:userId and s.eventKey in (:eventKeys)"
+				
+		List<AbstractScore> metalScoreTransactionList = AbstractScore.findAll(query, [userId:userId,eventKeys: eventKeys])
+	}
+	
+	List<AbstractScore> listBadgeScoresByGameId(String eventKey){
+		
+		
+		String query = "from AbstractScore as s where (s.class=com.doozi.scorena.score.NoMetalScore or s.class=com.doozi.scorena.score.GoldMetalScore "+
+		"or s.class=com.doozi.scorena.score.SilverMetalScore or s.class=com.doozi.scorena.score.BronzeMetalScore) and s.eventKey=:eventKey order by s.rank"
+				
+		List<AbstractScore> metalScoreTransactionList = AbstractScore.findAll(query, [eventKey: eventKey])
+	}
 
     def processQuestionScore(List<PayoutTransaction> pTransactionList, GameProcessRecord gameProcessRecord) {
 		println "processQuestionScore() starts, with pTransactionList size="+pTransactionList.size()
@@ -32,10 +48,7 @@ class ScoreService {
 		int tSize = pTransactionList.size()
 		if (tSize <=0)
 			return
-		
 			
-
-		
 		String eventKey = pTransactionList[0].eventKey
 		
 		Map profitMap = [:]
@@ -108,7 +121,7 @@ class ScoreService {
 
 			//it.key is accountId, it.value is profit			
 			if (k <= GoldLastTransactionIndex || (lastGoldProfit == it.value.totalProfit && lastGoldWager == it.value.totalWager)){			
-				insertGoldScore(ScoreConstant.GOLD_SCORE, new Date(), eventKey, accountMap[it.key], rank/numPeople*100, it.value.totalProfit, gameProcessRecord.startDateTime)			
+				insertGoldScore(ScoreConstant.GOLD_SCORE, new Date(), eventKey, accountMap[it.key], rank/numPeople*100, it.value.totalProfit, gameProcessRecord.startDateTime, rank)			
 				lastGoldProfit = it.value.totalProfit
 				lastGoldWager = it.value.totalWager
 				
@@ -118,7 +131,7 @@ class ScoreService {
 //				println "=========================================="
 			}else if (k <= SilverLastTransactionIndex || (lastSilverProfit == it.value.totalProfit && lastSilverWager == it.value.totalWager)){
 				
-				insertSilverScore(ScoreConstant.SILVER_SCORE, new Date(), eventKey, accountMap[it.key], rank/numPeople*100, it.value.totalProfit, gameProcessRecord.startDateTime)
+				insertSilverScore(ScoreConstant.SILVER_SCORE, new Date(), eventKey, accountMap[it.key], rank/numPeople*100, it.value.totalProfit, gameProcessRecord.startDateTime, rank)
 				lastSilverProfit = it.value.totalProfit
 				lastSilverWager = it.value.totalWager
 			
@@ -129,7 +142,7 @@ class ScoreService {
 				
 			} else if (k <= BronzeLastTransactionIndex || (lastBronzeProfit == it.value.totalProfit && lastBronzeWager == it.value.totalWager)){
 			
-				insertBronzeScore(ScoreConstant.BRONZE_SCORE, new Date(), eventKey, accountMap[it.key], rank/numPeople*100, it.value.totalProfit, gameProcessRecord.startDateTime)
+				insertBronzeScore(ScoreConstant.BRONZE_SCORE, new Date(), eventKey, accountMap[it.key], rank/numPeople*100, it.value.totalProfit, gameProcessRecord.startDateTime, rank)
 				lastBronzeProfit = it.value.totalProfit
 				lastBronzeWager = it.value.totalWager
 				
@@ -138,19 +151,18 @@ class ScoreService {
 //				println "profit="+ it.value.totalProfit
 //				println "=========================================="
 			}else{
-				println "processGoldSilverBronzeScore() ends"
-				return
+				insertNoScore(ScoreConstant.NO_SCORE, new Date(), eventKey, accountMap[it.key], rank/numPeople*100, it.value.totalProfit, gameProcessRecord.startDateTime, rank)
 			}
 		}
 		println "processGoldSilverBronzeScore() ends"
 	}
 	
-	private def insertGoldScore(int score, Date createdAt, String eventKey, Account account, BigDecimal topPercentage, int profitCollected,  Date gameStartTime){
+	private def insertGoldScore(int score, Date createdAt, String eventKey, Account account, BigDecimal topPercentage, int profitCollected,  Date gameStartTime, int rank){
 		
 		LeagueTypeEnum l = sportsDataService.getLeagueCodeFromEventKey(eventKey)
 		
 		GoldMetalScore gs = new GoldMetalScore(gameStartTime:gameStartTime, league:sportsDataService.getLeagueCodeFromEventKey(eventKey), score: score, 
-			createdAt: createdAt, eventKey:eventKey, topPercentage:topPercentage, profitCollected:profitCollected)
+			createdAt: createdAt, eventKey:eventKey, topPercentage:topPercentage, profitCollected:profitCollected, rank: rank)
 
 		account.addToScore(gs)
 		
@@ -165,10 +177,10 @@ class ScoreService {
 		return result
 	}
 	
-	private def insertSilverScore(int score, Date createdAt, String eventKey, Account account, BigDecimal topPercentage, int profitCollected,  Date gameStartTime){
+	private def insertSilverScore(int score, Date createdAt, String eventKey, Account account, BigDecimal topPercentage, int profitCollected,  Date gameStartTime, int rank){
 		
 		SilverMetalScore ss = new SilverMetalScore(gameStartTime:gameStartTime, league:sportsDataService.getLeagueCodeFromEventKey(eventKey), score: score, 
-			createdAt: createdAt, eventKey:eventKey, topPercentage:topPercentage, profitCollected:profitCollected)
+			createdAt: createdAt, eventKey:eventKey, topPercentage:topPercentage, profitCollected:profitCollected, rank: rank)
 		
 		account.addToScore(ss)
 		
@@ -183,9 +195,9 @@ class ScoreService {
 		return result
 	}
 	
-	private def insertBronzeScore(int score, Date createdAt, String eventKey, Account account, BigDecimal topPercentage, int profitCollected,  Date gameStartTime){
+	private def insertBronzeScore(int score, Date createdAt, String eventKey, Account account, BigDecimal topPercentage, int profitCollected,  Date gameStartTime, int rank){
 		BronzeMetalScore bs = new BronzeMetalScore(gameStartTime:gameStartTime, league:sportsDataService.getLeagueCodeFromEventKey(eventKey), score: score, 
-			createdAt: createdAt, eventKey:eventKey, topPercentage:topPercentage, profitCollected:profitCollected)
+			createdAt: createdAt, eventKey:eventKey, topPercentage:topPercentage, profitCollected:profitCollected, rank: rank)
 			
 		account.addToScore(bs)
 		
@@ -195,6 +207,26 @@ class ScoreService {
 		        println it
 		    }
 			result = -1
+		}
+		
+		return result
+	}
+	
+	private def insertNoScore(int score, Date createdAt, String eventKey, Account account, BigDecimal topPercentage, int profitCollected,  Date gameStartTime, int rank){
+		
+		LeagueTypeEnum l = sportsDataService.getLeagueCodeFromEventKey(eventKey)
+		
+		NoMetalScore ns = new NoMetalScore(gameStartTime:gameStartTime, league:sportsDataService.getLeagueCodeFromEventKey(eventKey), score: score,
+			createdAt: createdAt, eventKey:eventKey, topPercentage:topPercentage, profitCollected:profitCollected, rank: rank)
+
+		account.addToScore(ns)
+		
+		int result = 0
+		if (!account.save()){
+			account.errors.each {
+				println it
+			}
+			 result = -1
 		}
 		
 		return result
