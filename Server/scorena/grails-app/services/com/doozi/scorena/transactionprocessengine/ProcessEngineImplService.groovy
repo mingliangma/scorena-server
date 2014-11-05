@@ -222,7 +222,7 @@ class ProcessEngineImplService {
 				payoutMultipleOfWager = 1
 			}else{
 				println "ERROR: invalid winner pick, winnerPick="+winnerPick
-				return
+				return -1
 			}
 			
 			List<BetTransaction> betTransactions = betTransactionService.listAllBetsByQId(q.id)
