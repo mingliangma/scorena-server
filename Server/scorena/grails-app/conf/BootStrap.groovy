@@ -315,7 +315,7 @@ class BootStrap {
 		String _gender
 		String _region
 		
-		for (int i=0; i<10; i++){
+		for (int i=0; i<20; i++){
 			def num = random.nextInt(100000)
 			 _displayName  = "scorena"+num.toString()
 			 _email = _displayName+"@gmail.com"

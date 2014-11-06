@@ -107,6 +107,10 @@ class UrlMappings {
 			action = [POST:"createTournament"]
 		}
 		
+		"/v1/ranking/getRank"(controller:"Ranking"){
+			action = [GET:"getRank"]
+		}
+		
 		"/v1/iap/getNonce"(controller:"IAP"){
 			action = [POST:"getNonce"]
 		}
