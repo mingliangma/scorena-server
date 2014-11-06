@@ -26,6 +26,7 @@ class GameController {
 	def sportsDataService
 	def userService
 	def processEngineManagerService
+	def rankingService
 	
 	def upcomingEplSportsDb()
 	{
@@ -101,5 +102,16 @@ class GameController {
 	def testGames(){
 		def games = sportsDataService.getAllUpcomingGames()
 		render games as JSON
+	}
+	
+	def getGameRanking(){
+		if (params.gameId){
+			def gameRanking = rankingService.getGameRanking(params.gameId)
+			render gameRanking as JSON
+		}else{
+			response.status = 404
+			def result = [error: "invalid parameters"]
+			render result as JSON
+		}
 	}
 }

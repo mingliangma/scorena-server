@@ -221,8 +221,8 @@ class ProcessEngineImplService {
 			}else if (winnerPick == WinnerPick.PICK_TIE) {
 				payoutMultipleOfWager = 1
 			}else{
-				println "ERROR: invalid winner pick"
-				return
+				println "ERROR: invalid winner pick, winnerPick="+winnerPick
+				return -1
 			}
 			
 			List<BetTransaction> betTransactions = betTransactionService.listAllBetsByQId(q.id)
@@ -348,6 +348,7 @@ class ProcessEngineImplService {
 				return 2
 			}else{
 				println "ERROR: invalid teamname"
+				println "game: " + game
 				return -1
 			}	
 		}else if(game.home.score < game.away.score){
@@ -357,6 +358,7 @@ class ProcessEngineImplService {
 				return 2
 			}else{
 				println "ERROR: invalid teamname"
+				println "game: " + game
 				return -1
 			}
 		}else{
