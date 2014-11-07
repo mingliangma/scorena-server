@@ -79,8 +79,8 @@ class UrlMappings {
 			action = [POST:"placeBet"]
 		}
 		
-		"/v1/sports/ranking"(controller:"user"){
-			action = [GET:"getRanking"]
+		"/v1/sports/ranking"(controller:"Ranking"){
+			action = [GET:"getRank"]
 		}
 		
 		"/v1/sports/processgame"(controller:"game"){
@@ -109,10 +109,6 @@ class UrlMappings {
 		
 		"/v1/admin/tournament/new"(controller:"tournament"){
 			action = [POST:"createTournament"]
-		}
-		
-		"/v1/ranking/getRank"(controller:"Ranking"){
-			action = [GET:"getRank"]
 		}
 		
 		"/v1/iap/getNonce"(controller:"IAP"){

@@ -290,7 +290,6 @@ class ScoreRankingService {
 			}
 			
 		}
-		System.out.println(rankingResultAll)
 		
 		if (code == 0)
 		{

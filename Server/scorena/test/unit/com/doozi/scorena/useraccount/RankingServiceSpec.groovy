@@ -1,5 +1,7 @@
 package com.doozi.scorena.useraccount
 
+import com.doozi.scorena.ranking.RankingService;
+
 import grails.test.mixin.TestFor
 import spock.lang.Specification
 

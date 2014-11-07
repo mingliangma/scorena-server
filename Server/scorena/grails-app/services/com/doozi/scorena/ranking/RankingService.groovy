@@ -1,4 +1,4 @@
-package com.doozi.scorena.useraccount
+package com.doozi.scorena.ranking
 
 import java.util.List;
 import java.util.Map;
