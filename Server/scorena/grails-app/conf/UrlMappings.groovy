@@ -147,12 +147,12 @@ class UrlMappings {
 			action = [GET:"listFriends"]
 		}
 		
-		"/v1/user/$userId?/friends/reqest"(controller:"friendSystem") {
-			action = [GET:"friendRequest"]
+		"/v1/user/$userId?/friends/request"(controller:"friendSystem") {
+			action = [POST:"friendRequest"]
 		}
 		
 		"/v1/user/$userId?/friends/confirmation"(controller:"friendSystem") {
-			action = [GET:"confirmFriendRequest"]
+			action = [POST:"confirmFriendRequest"]
 		}
 
 		"/v1/admin/cq"(view:"/CustomQuestionWebsite")

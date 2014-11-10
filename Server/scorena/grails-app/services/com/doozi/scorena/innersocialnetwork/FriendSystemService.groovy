@@ -10,7 +10,7 @@ class FriendSystemService {
 	
 	def helperService
 
-    def friendRequest(String userId1, String userId2) {
+    List friendRequest(String userId1, String userId2) {
 		Account user1 = Account.findByUserId(userId1)
 		Account user2 = Account.findByUserId(userId2)
 		int status = 0
@@ -18,6 +18,8 @@ class FriendSystemService {
 		//createdTime = helperService.getOutputDateFormat(createdTime)
 		Date updatedTime = new Date()
 		//updatedTime = helperService.getOutputDateFormat(updatedTime)
+		
+		def tips = []
 		
 		if(user1 != null && user2 != null) {
 			//before new a friend request record, we need to check it is requested before or not
@@ -35,25 +37,36 @@ class FriendSystemService {
 				if (!friend.save()) {
 					friend.errors.each {
 						println it
+						tips.add(it)
 					}
+				}
+				else {
+					println("request records successfully!")
+					tips = ["request records successfully!"]
 				}
 			}
 			else {
-				println("duplicated friend request")
+				println("duplicated friend request!")
+				tips = ["duplicated friend request!"]
 			}
 		}
 		else {
-			println("invalid userId")
+			println("invalid userId!")
+			tips = ["invalid userId!"]
 		}
+		
+		return tips
 	}
 	
-	def confirmFriendRequest(String requestId, String userId1, String userId2) {
+	List confirmFriendRequest(String requestId, String userId1, String userId2) {
 		FriendSystem friend = FriendSystem.findById(requestId)
 		Account user1 = Account.findByUserId(userId1)
 		Account user2 = Account.findByUserId(userId2)
 		Date updatedTime = new Date()
 		//updatedTime = helperService.getOutputDateFormat(updatedTime)
 		int status = 1
+		
+		def tips = []
 		
 		if(friend != null && user1 != null && user2 != null) {
 			if(friend.user1 == user1 && friend.user2 == user2) {
@@ -64,13 +77,25 @@ class FriendSystemService {
 				if (!friend.save()) {
 					friend.errors.each {
 						println it
+						tips.add(it)
 					}
 				}
+				else {
+					println("confirmation records successfully!")
+					tips = ["confirmation records successfully!"]
+				}
+			}
+			else {
+				println("wrong requestId!")
+				tips = ["wrong requestId!"]
 			}
 		}
 		else {
-			System.out.print("invalid userId or requestId")
+			System.out.print("invalid userId or requestId!")
+			tips = ["invalid userId or requestId!"]
 		}
+		
+		return tips
 	}
 	
 	List listFriends(userId) {
@@ -103,6 +128,10 @@ class FriendSystemService {
 			}
 			
 			return allFriendList			
+		}
+		else {
+			def error = ["invalid userID!"]
+			return error
 		}
 	}
 }
