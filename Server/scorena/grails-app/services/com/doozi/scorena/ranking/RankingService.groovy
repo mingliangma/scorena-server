@@ -1,15 +1,17 @@
-package com.doozi.scorena.useraccount
+package com.doozi.scorena.ranking
 
 import java.util.List;
 import java.util.Map;
 
 import com.doozi.scorena.*
+import com.doozi.scorena.score.AbstractScore
 
 import grails.transaction.Transactional
 
 //@Transactional
 class RankingService {
 	def parseService
+	def scoreService
 	
 	public static final int USERNAME_RANKING_QUERY_INDEX = 0
 	public static final int USERID_RANKING_QUERY_INDEX = 1
@@ -102,7 +104,46 @@ class RankingService {
 		return [weekly: rankingResultWk, all: rankingResultAll]
 	}
 	
-	private Map getAccountInfoMap(String userId, String username, long netgain, int rank){
+	List getGameRanking(String gameId){
+				
+		List<AbstractScore> metalScoreTransactionList = scoreService.listBadgeScoresByGameId(gameId)
+		
+		if (metalScoreTransactionList.size() ==0){
+			return []
+		}
+		
+		List gameRanking =[]
+		Map userIdMap = [:]
+		for (AbstractScore score: metalScoreTransactionList){
+			gameRanking.add(getAccountInfoMap(score.account.userId, score.account.username, score.profitCollected, score.rank))
+			userIdMap.put(score.account.userId, "")
+		}
+		
+		//Retieve user profile from parse, then restructure the result data into UserProfileUserIdAsKeyMap Map with format
+		// [(userId):userprofile]
+		Map userProfileResults = parseService.retrieveUserList(userIdMap)
+		Map UserProfileUserIdAsKeyMap = getUserProfileUserIdAsKeyMap(userProfileResults.results)
+		
+		for (Map gameRankingEntry: gameRanking){
+			String accountUserId = gameRankingEntry.userId
+			Map userProfile = UserProfileUserIdAsKeyMap.get(accountUserId)
+
+			gameRankingEntry.pictureURL = ""
+			
+			if (userProfile != null){
+				if (userProfile.display_name != null && userProfile.display_name != "")
+					gameRankingEntry.username = userProfile.display_name
+			
+				if (userProfile.pictureURL != null && userProfile.pictureURL != "")
+					gameRankingEntry.pictureURL = userProfile.pictureURL
+			}
+			
+		}
+		
+		return gameRanking
+	}
+	
+	public Map getAccountInfoMap(String userId, String username, long netgain, int rank){
 		String netGain = ""
 		if (netgain>0)
 			netGain="+"+netgain.toString()
@@ -112,7 +153,7 @@ class RankingService {
 		return [userId: userId, username: username, gain: netGain, rank: rank]
 	}
 	
-	private Map getUserProfileUserIdAsKeyMap(List userProfileList){
+	public Map getUserProfileUserIdAsKeyMap(List userProfileList){
 		Map UserProfileUserIdAsKeyMap = [:]
 		for (Map userProfile: userProfileList){
 			UserProfileUserIdAsKeyMap.put(userProfile.objectId, userProfile)

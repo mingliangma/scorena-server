@@ -58,6 +58,10 @@ class PayoutTansactionService {
 		def result = PayoutTransaction.find("from PayoutTransaction as t where (t.question.id=?)",[q.id])
 	}
 	
+	List<PayoutTransaction> listPayoutTransByGameId(String eventKey){
+		def result = PayoutTransaction.findAll("from PayoutTransaction as t where (t.eventKey=?)",[eventKey])
+	}
+	
 	def listPayoutTransByUserId(def userId){
 		return listPayoutTransByUserId(userId, 0)
 	}

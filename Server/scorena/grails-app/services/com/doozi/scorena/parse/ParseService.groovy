@@ -40,9 +40,9 @@ class ParseService {
 		return resp
 	}
 	
-	def createUser(def rest, String usernameInput, String emailInput, String passwordInput, String genderInput, String regionInput, String displayNameInput, String pictureURLInput){
+	def createUser(def rest, String usernameInput, String emailInput, String passwordInput, String genderInput, String regionInput, String displayNameInput, String pictureURLInput, 
+		String facebookIdInput){
 		def parseConfig = grailsApplication.config.parse
-		
 		def resp = rest.post("https://api.parse.com/1/users"){
 			header 	"X-Parse-Application-Id", parseConfig.parseApplicationId
 			header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
@@ -55,6 +55,7 @@ class ParseService {
 				region=regionInput
 				display_name=displayNameInput
 				pictureURL=pictureURLInput
+				facebookId=facebookIdInput
 			}
 		}
 		return resp
@@ -112,6 +113,25 @@ class ParseService {
 //		return resp
 //	}
 	
+	Map retrieveUserListByFBIds(List facebookIds){
+		def parseConfig = grailsApplication.config.parse
+		if (facebookIds.size() == 0){
+			return [:]
+		}
+		
+		String url = "https://api.parse.com/1/users?where=" + getJSONWhereConstraints("facebookId", facebookIds);
+		
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpGet httpget = new HttpGet(url);
+				
+		httpget.addHeader("X-Parse-Application-Id", parseConfig.parseApplicationId);
+		httpget.addHeader("X-Parse-REST-API-Key", parseConfig.parseRestApiKey);
+
+		HttpResponse httpResponse = httpclient.execute(httpget);
+		JSONObject resultJson = new JSONObject(EntityUtils.toString(httpResponse.getEntity()));
+		
+		return (resultJson as Map)
+	}
 	
 	/**
 	 * There is an issue by using RestBuilder that pass in a JSON object into the URL parameter.
@@ -127,7 +147,7 @@ class ParseService {
 			return [:]
 		}				
 		
-		String url = "https://api.parse.com/1/users?where=" + getJSONWhereConstraints(objectIds);
+		String url = "https://api.parse.com/1/users?where=" + getJSONWhereConstraints("objectId", objectIds);
 		
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpGet httpget = new HttpGet(url);
@@ -158,13 +178,13 @@ class ParseService {
 		return (resultJson as Map)
 	}
 	
-	private String getJSONWhereConstraints(List objectIds){
+	private String getJSONWhereConstraints(String fieldName, List values){
 		JSONArray objectIdArray = new JSONArray()
 		JSONObject whereContraintsJson = new JSONObject();
 
-		for (String objectId: objectIds){
+		for (String value: values){
 			JSONObject objectIdJson = new JSONObject()
-			objectIdJson.put("objectId", objectId)			
+			objectIdJson.put(fieldName, value)			
 			objectIdArray.add(objectIdJson)
 		}
 		
@@ -175,14 +195,14 @@ class ParseService {
 		return whereContraintsString
 	}
 	
-	private String getJSONWhereConstraints(Map objectIds){
+	private String getJSONWhereConstraints(String fieldName, Map values){
 		JSONArray objectIdArray = new JSONArray()
 		JSONObject whereContraintsJson = new JSONObject();
 		
-		objectIds.each{
+		values.each{
 			it -> 
 				JSONObject objectIdJson = new JSONObject()
-				objectIdJson.put("objectId", it.key)
+				objectIdJson.put(fieldName, it.key)
 				objectIdArray.add(objectIdJson)
 		}
 		

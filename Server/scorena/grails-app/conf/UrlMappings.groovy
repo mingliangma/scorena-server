@@ -63,9 +63,13 @@ class UrlMappings {
 			action = [GET:"getGame"]
 		}
 		
+		"/v1/sports/soccer/leagues/all/games/$gameId?/ranking"(controller:"game"){
+			action = [GET:"getGameRanking"]
+		}
+		
 		"/v1/sports/soccer/leagues/all/games/$gameId?/qs"(controller:"question"){
 			action = [GET:"listQuestions"]
-		}
+		}		
 
 		"/v1/sports/soccer/leagues/all/games/$gameId?/qs/$qId?"(controller:"question"){
 			action = [GET:"getQuestionDetails"]
@@ -75,8 +79,8 @@ class UrlMappings {
 			action = [POST:"placeBet"]
 		}
 		
-		"/v1/sports/ranking"(controller:"user"){
-			action = [GET:"getRanking"]
+		"/v1/sports/ranking"(controller:"Ranking"){
+			action = [GET:"getRank"]
 		}
 		
 		"/v1/sports/processgame"(controller:"game"){

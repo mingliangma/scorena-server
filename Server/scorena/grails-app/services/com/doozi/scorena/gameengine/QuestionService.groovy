@@ -98,6 +98,8 @@ class QuestionService {
 				playerPictureUrl = resp.json.pictureURL
 			}
 			
+			
+			
 			resultList.add([
 				questionId: q.id,
 				content: questionContent.content,
@@ -107,9 +109,9 @@ class QuestionService {
 				pick2LogoUrl: teamLogoService.getTeamLogo(q.pick2.trim()),
 				userInfo:userInfo,
 				winnerPick:winnerPick,
-				playerBetAmount: questionPoolInfo.getHighestBetAmount(),
-				playerPictureUrl: playerPictureUrl,
-				playerPick: questionPoolInfo.getHighestBetPick() == 1 ? q.pick1 : q.pick2,
+				playerBetAmount: questionPoolInfo.getHighestBetAmount(), //the question preview player bet amount
+				playerPictureUrl: playerPictureUrl,						 // the question preview player picture URL
+				playerPick: questionPoolInfo.getHighestBetPick() == 1 ? q.pick1 : q.pick2, // the question preview player pick
 				pool: [
 					pick1Amount: questionPoolInfo.getPick1Amount(),
 					pick1NumPeople: questionPoolInfo.getPick1NumPeople(),

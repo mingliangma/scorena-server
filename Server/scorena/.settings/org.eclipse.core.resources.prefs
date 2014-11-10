@@ -1,6 +1,8 @@
 eclipse.preferences.version=1
 encoding//.link_to_grails_plugins/class-diagram-0.5.2/grails-app/i18n=UTF-8
 encoding//.link_to_grails_plugins/class-diagram-0.5.2/grails-app/i18n/messages.properties=UTF-8
+encoding//.link_to_grails_plugins/commentable-0.8.1/grails-app/i18n=UTF-8
+encoding//.link_to_grails_plugins/commentable-0.8.1/grails-app/i18n/messages.properties=UTF-8
 encoding//.link_to_grails_plugins/hibernate-3.6.10.6/grails-app/i18n=UTF-8
 encoding//.link_to_grails_plugins/hibernate-3.6.10.6/grails-app/i18n/messages.properties=UTF-8
 encoding//.link_to_grails_plugins/resources-1.2.1/grails-app/i18n=UTF-8

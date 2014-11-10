@@ -33,7 +33,9 @@ class UserController {
 			return
 		}
 		
-		Map result = userService.createSocialNetworkUser(request.JSON.sessionToken)
+		List facebookIds = ["100010", "100011", "100012", "100013", "100014" ]
+		
+		Map result = userService.createSocialNetworkUser(request.JSON.sessionToken, facebookIds)
 
 		if (result.code){
 			response.status = 404

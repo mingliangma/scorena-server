@@ -27,7 +27,8 @@ class BootStrap {
 //				}
 				
 				if (!Account.count()){
-					createUsers()
+					createTestUsers()
+					//createUsers()
 					simulateBetUpcoming()
 					simulateBetPast()
 				}
@@ -303,7 +304,7 @@ class BootStrap {
 	
 	def createUser(String _username, String _email, String _password, String _gender, String _region){
 		
-		def resp = userService.createUser(_username, _email, _password, _gender, _region)
+		def resp = userService.createTestUser(_username, _email, _password, _gender, _region, "", "")
 		println resp
 		
 	}	
@@ -315,7 +316,7 @@ class BootStrap {
 		String _gender
 		String _region
 		
-		for (int i=0; i<10; i++){
+		for (int i=0; i<20; i++){
 			def num = random.nextInt(100000)
 			 _displayName  = "scorena"+num.toString()
 			 _email = _displayName+"@gmail.com"
@@ -469,13 +470,15 @@ class BootStrap {
 		String _gender = "male"
 		String _region = "Japan"
 		Random random = new Random()
-		for(int i = 0; i<_displayNames.size(); i++){
+		for(int i = 0; i<_displayNames.size()/3; i++){
 			String _email = _displayNames[i]+random.nextInt(100000)+"@scorena.ca"
 			String pictureURL = ""
 			if (i<pictureURLs.size()){
 				pictureURL = pictureURLs[i]
 			}
-			def resp = userService.createTestUser(_displayNames[i], _email, _password, _gender, _region, pictureURL)
+			
+			int facebookId = 100000+i
+			def resp = userService.createTestUser(_displayNames[i], _email, _password, _gender, _region, pictureURL, facebookId.toString())
 		}
 		
 	}

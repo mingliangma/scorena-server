@@ -1,6 +1,7 @@
 package com.doozi.scorena.gameengine
 
 import com.doozi.scorena.Question;
+import com.doozi.scorena.score.AbstractScore
 import com.doozi.scorena.transaction.BetTransaction
 
 import grails.transaction.*
@@ -16,6 +17,9 @@ class GameService {
 	def customGameService
 	def getUpcomingGamesUserInfo
 	def gameUserInfoService
+	def scoreService
+	def parseService
+	def rankingService
 	
 	public static final String POSTEVENT = "post-event"
 	public static final String PREEVENT = "pre-event"
@@ -71,20 +75,31 @@ class GameService {
 		List pastGamesResult=listPastGamesData()
 		List pastGameIds = getGameIdsFromGameData(pastGamesResult)
 		List<BetTransaction> betsInPastGames = betTransactionService.listBetTransByGameIds(pastGameIds)
-
+		
+		List<AbstractScore> metalScoreTransactionList = scoreService.listBadgeScoresByUserIdAndPastGames(userId, pastGameIds)
+		
+		println "metalScoreTransactionList size = "+metalScoreTransactionList.size()
+		
 		for (def pastGame: pastGamesResult){
 			if (pastGame.gameStatus != "post-event"){
 				println "gameService::listPastGames():wrong event: "+ pastGame
 			}
+			
 			List<BetTransaction> allBetsInGame = getAllBetsByGameId(pastGame.gameId, betsInPastGames)
 			pastGame.numPeople = getNumUsersInGame(allBetsInGame)
+			
+			
 			if (userId != null){
-				List<BetTransaction> userBetsInTheGame = getUserBetsFromGame(userId, allBetsInGame)
-				pastGame.userInfo=gameUserInfoService.getPastGamesUserInfo(pastGame, userBetsInTheGame, userId)
+				AbstractScore scoreTransaction = getScoreTransactionByGameId(pastGame.gameId, metalScoreTransactionList)
+			
+				List<BetTransaction> userBetsInTheGame = getUserBetsFromGame(userId, allBetsInGame)				
+				pastGame.userInfo=gameUserInfoService.getPastGamesUserInfo(pastGame, userBetsInTheGame, userId, scoreTransaction)
 			}				
 		}
 		return pastGamesResult
 	}
+	
+
 	
 	def listFeatureGames(userId){
 		List featureGames = questionService.listFeatureQuestions(userId)
@@ -141,5 +156,14 @@ class GameService {
 			}
 		}
 		return userBetsInTheGame
+	}
+	
+	private AbstractScore getScoreTransactionByGameId(String eventKey, List<AbstractScore> metalScoreTransactionList){
+		for (AbstractScore scoreTransaction: metalScoreTransactionList){
+			if (scoreTransaction.eventKey == eventKey){
+				return scoreTransaction
+			}
+		}
+		return null
 	}
 }

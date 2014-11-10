@@ -64,7 +64,7 @@ class UserService {
 		return [username: userAccount.username, userId: userAccount.userId, currentBalance: userAccount.currentBalance, newCoinsAmount: FREE_COIN_AMOUNT]
 	}
 	
-	def createSocialNetworkUser(String sessionToken){
+	def createSocialNetworkUser(String sessionToken, List facebookIds){
 		int currentBalance = SOCIALNETWORK_INITIAL_BALANCE
 		RestBuilder rest = new RestBuilder()
 		
@@ -83,6 +83,10 @@ class UserService {
 		}else{
 			currentBalance = account.currentBalance
 		}
+		
+		//TODO: automatically add facebook friends to scorena friend system
+		Map facebookFriendsUserProfiles = parseService.retrieveUserListByFBIds(facebookIds)		
+		println "facebookFriendsUserProfiles="+facebookFriendsUserProfiles
 
 		def result = userProfileMapRender(sessionToken, currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name, 
 		userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
@@ -91,22 +95,22 @@ class UserService {
 	}
 			
 	def createUser(String username, String email, String password, String gender, String region){
-		return createUser(username, email, password, gender, region, AccountType.USER, "")
+		return createUser(username, email, password, gender, region, AccountType.USER, "", "")
 	}
 	
-	def createTestUser(String username, String email, String password, String gender, String region, String pictureURL){
-		return createUser(username, email, password, gender, region, AccountType.TEST, pictureURL)
+	def createTestUser(String username, String email, String password, String gender, String region, String pictureURL, String facebookId){
+		return createUser(username, email, password, gender, region, AccountType.TEST, pictureURL, facebookId)
 	}
 			
-	def createUser(String username, String email, String password, String gender, String region, int accountType, String pictureURL){
-		println "UserService::createUser(): username="+username+"  email="+email
+	def createUser(String username, String email, String password, String gender, String region, int accountType, String pictureURL, String facebookId){
+		println "UserService::createUser(): username="+username+"  email="+email + " facebookId="+facebookId
 		
 		int currentBalance = INITIAL_BALANCE
 		String usernameLowerCase = username.toLowerCase()
 		String displayName = usernameLowerCase
 		RestBuilder rest = new RestBuilder()
 		
-		Map userProfile =  createUserProfile(rest, usernameLowerCase, email, password, gender, region, displayName, pictureURL)
+		Map userProfile =  createUserProfile(rest, usernameLowerCase, email, password, gender, region, displayName, pictureURL, facebookId)
 		if (userProfile.code){
 			return userProfile
 		}
@@ -275,6 +279,9 @@ class UserService {
 	
 	}
 
+	private List getFacebookFrdsUserId(List facebookIds){
+		Map userProfiles = parseService.retrieveUserListByFBIds(facebookIds)
+	}
 
 
 	private Map userLogin(RestBuilder rest, String username, String password){
@@ -360,6 +367,16 @@ class UserService {
 		return result
 	}
 
+	/**
+	 * @param rest
+	 * @param userId
+	 * @param username
+	 * @param initialBalance
+	 * @param previousBalance
+	 * @param sessionToken
+	 * @param accountType
+	 * @return returns empty map upon successful
+	 */
 	private Map createUserAccount(RestBuilder rest, String userId, String username, int initialBalance, int previousBalance, String sessionToken, int accountType){
 		def userAccount = Account.findByUserId(userId)
 		if (userAccount){
@@ -384,9 +401,9 @@ class UserService {
 		return [:]
 	}
 
-	private Map createUserProfile(RestBuilder rest, String username, String email, String password, String gender, String region, String displayName, String pictureURL){
+	private Map createUserProfile(RestBuilder rest, String username, String email, String password, String gender, String region, String displayName, String pictureURL, String facebookId){
 			
-		def resp = parseService.createUser(rest, username, email, password, gender, region, displayName, pictureURL)
+		def resp = parseService.createUser(rest, username, email, password, gender, region, displayName, pictureURL, facebookId)
 		
 		if (resp.status != 201){
 			def result = [
