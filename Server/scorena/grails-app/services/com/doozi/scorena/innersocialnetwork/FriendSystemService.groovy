@@ -31,7 +31,7 @@ class FriendSystemService {
 			int duplicationResultSize = duplicationResult.size()
 			
 			if(duplicationResultSize == 0) {
-				def friend = new FriendSystem(user1:user1,user2:user2,createdTime:createdTime,updatedTime:updatedTime)
+				def friend = new FriendSystem(user1:user1,user2:user2,status:status,createdTime:createdTime,updatedTime:updatedTime)
 				friend.save()
 				
 				if (!friend.save()) {
@@ -42,7 +42,7 @@ class FriendSystemService {
 				}
 				else {
 					println("request records successfully!")
-					tips = ["request records successfully!"]
+					tips = []
 				}
 			}
 			else {
@@ -82,7 +82,7 @@ class FriendSystemService {
 				}
 				else {
 					println("confirmation records successfully!")
-					tips = ["confirmation records successfully!"]
+					tips = []
 				}
 			}
 			else {
@@ -133,5 +133,54 @@ class FriendSystemService {
 			def error = ["invalid userID!"]
 			return error
 		}
+	}
+	
+	List addFacebookFriend(String userId1, String userId2) {
+		Account user1 = Account.findByUserId(userId1)
+		Account user2 = Account.findByUserId(userId2)
+		int status = 1
+		Date createdTime = new Date()
+		//createdTime = helperService.getOutputDateFormat(createdTime)
+		Date updatedTime = new Date()
+		//updatedTime = helperService.getOutputDateFormat(updatedTime)
+		
+		def tips = []
+		
+		if(user1 != null && user2 != null) {
+			//before setting up a friend system, we need to check it is set before or not
+			//duplication check
+			//TODO not only check record exist but also need to check ststus = 0
+			String duplicationRequestQuery = "SELECT user1.username,user2.username,status FROM FriendSystem "+
+			"WHERE (user1=? AND user2=?)"
+			
+			def duplicationResult = FriendSystem.executeQuery(duplicationRequestQuery,[user1,user2])
+			int duplicationResultSize = duplicationResult.size()
+			
+			if(duplicationResultSize == 0) {
+				def friend = new FriendSystem(user1:user1,user2:user2,status:status,createdTime:createdTime,updatedTime:updatedTime)
+				friend.save()
+				
+				if (!friend.save()) {
+					friend.errors.each {
+						println it
+						tips.add(it)
+					}
+				}
+				else {
+					println("facebook friend system set up successfully!")
+					tips = ["facebook friend system set up successfully!"]
+				}
+			}
+			else {
+				println("friend system set up before!")
+				tips = ["friend system set up before!"]
+			}
+		}
+		else {
+			println("invalid userId!")
+			tips = ["invalid userId!"]
+		}
+		
+		return tips
 	}
 }
