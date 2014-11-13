@@ -135,7 +135,7 @@ class FriendSystemService {
 		}
 	}
 	
-	List addFacebookFriend(String userId1, String userId2) {
+	def addFacebookFriend(String userId1, String userId2) {
 		Account user1 = Account.findByUserId(userId1)
 		Account user2 = Account.findByUserId(userId2)
 		int status = 1
@@ -149,11 +149,10 @@ class FriendSystemService {
 		if(user1 != null && user2 != null) {
 			//before setting up a friend system, we need to check it is set before or not
 			//duplication check
-			//TODO not only check record exist but also need to check ststus = 0
 			String duplicationRequestQuery = "SELECT user1.username,user2.username,status FROM FriendSystem "+
-			"WHERE (user1=? AND user2=?)"
+			"WHERE (user1=? AND user2=? AND status=1) OR (user1=? AND user2=? AND status=1)"
 			
-			def duplicationResult = FriendSystem.executeQuery(duplicationRequestQuery,[user1,user2])
+			def duplicationResult = FriendSystem.executeQuery(duplicationRequestQuery,[user1,user2,user2,user1])
 			int duplicationResultSize = duplicationResult.size()
 			
 			if(duplicationResultSize == 0) {
@@ -168,7 +167,7 @@ class FriendSystemService {
 				}
 				else {
 					println("facebook friend system set up successfully!")
-					tips = ["facebook friend system set up successfully!"]
+					tips = []
 				}
 			}
 			else {
