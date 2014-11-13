@@ -135,6 +135,12 @@ class FriendSystemService {
 		}
 	}
 	
+	/**
+	 * add user2 directly to friend of user1
+	 * @param userId1
+	 * @param userId2:facebook friend of user1
+	 * @return []:successfully
+	 */
 	def addFacebookFriend(String userId1, String userId2) {
 		Account user1 = Account.findByUserId(userId1)
 		Account user2 = Account.findByUserId(userId2)
@@ -181,5 +187,35 @@ class FriendSystemService {
 		}
 		
 		return tips
+	}
+	
+	/**
+	 * judge user1 and user2 are friends or not
+	 * @param userId1
+	 * @param userId2
+	 * @return boolean
+	 */
+	Boolean isFriend(String userId1, String userId2) {
+		Account user1 = Account.findByUserId(userId1)
+		Account user2 = Account.findByUserId(userId2)
+		Boolean isFriend = false
+		
+		String friendListQuery = "SELECT user1.username, user2.username FROM FriendSystem "+
+		"WHERE status=1 AND (user1=? OR user2=?) AND (user1=? OR user2=?)"
+		
+		if(user1 != null && user2 != null) {
+			def isFriendResult = FriendSystem.executeQuery(friendListQuery,[user1,user1,user2,user2])
+			int isFriendResultSize = isFriendResult.size()
+			if(isFriendResultSize > 0) 
+				isFriend = true
+			else 
+				isFriend = false
+		}
+		else {
+			def error = ["invalid userID!(isFriend)"]
+			println "error:" + error
+		}
+		
+		return isFriend
 	}
 }
