@@ -35,7 +35,7 @@ class UrlMappings {
 			action = [GET:"login"]
 		}
 		
-		"/v1/users/$userId?"(controller:"user") {
+		"/v1/users/$userId?/$month?"(controller:"user") {
 			action = [GET:"getUserProfile", PUT:"updateUserProfile", DELETE:"deleteUserProfile" ]
 		}	
 		

@@ -139,12 +139,12 @@ class UserController {
 			return
 		}
 		
-		def resp = userService.getUserProfile(params.userId.toString())
+		def resp = userService.getUserProfile(params.userId.toString(),params.month)
 		if (resp.code){
 			response.status =400
 			render resp as JSON
 			return
-		}
+		} 
 		render resp as JSON
 	}
 	

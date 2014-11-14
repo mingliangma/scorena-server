@@ -1,6 +1,7 @@
 package com.doozi.scorena.score
 
 import java.util.Date;
+import java.util.List;
 
 import com.doozi.scorena.Account
 import com.doozi.scorena.utils.PickStatus
@@ -22,6 +23,11 @@ class ScoreService {
 				
 		List<AbstractScore> metalScoreTransactionList = AbstractScore.findAll(query, [userId:userId,eventKeys: eventKeys])
 	}
+	
+	List<AbstractScore> listScoresByUserId(String userId){
+		def result =AbstractScore.findAll("from AbstractScore as s where (s.account.userId=?)",[userId])
+	}
+	
 	
 	List<AbstractScore> listBadgeScoresByGameId(String eventKey){
 		

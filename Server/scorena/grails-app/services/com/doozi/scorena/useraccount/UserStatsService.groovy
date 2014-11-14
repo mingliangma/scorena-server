@@ -1,16 +1,24 @@
 package com.doozi.scorena.useraccount
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import com.doozi.scorena.transaction.LeagueTypeEnum;
 import com.doozi.scorena.transaction.PayoutTransaction
+import com.doozi.scorena.score.AbstractScore
+
 import grails.transaction.Transactional
+
 import com.doozi.scorena.utils.*
 //@Transactional
 class UserStatsService {
 
 def sportsDataService
-Map getUserStats(userPayoutTrans, account){
-	Map userStats = getBetStats(userPayoutTrans, account.id)
+def helperService
+Map getUserStats(userScores,userPayoutTrans, month, account){
+	Map userStats = getAllStats(userScores,userPayoutTrans, month,account.id)
+//	Map userStats = getBetStats(userPayoutTrans, account.id)
 	//todo netgain/total wager in type 1
 	
 	int netGainPercentageDenominator = 1
@@ -18,11 +26,158 @@ Map getUserStats(userPayoutTrans, account){
 		netGainPercentageDenominator = account.currentBalance
 	}
 	
-	userStats.weekly.netGainPercent = ((userStats.weekly.netGain / (netGainPercentageDenominator))*100).toInteger()
+//	userStats.weekly.netGainPercent = ((userStats.weekly.netGain / (netGainPercentageDenominator))*100).toInteger()
 	userStats.monthly.netGainPercent = ((userStats.monthly.netGain / (netGainPercentageDenominator))*100).toInteger()
 	userStats.all.netGainPercent = ((userStats.all.netGain / (netGainPercentageDenominator))*100).toInteger()
 	return userStats
 }
+
+/*
+ * Returns all user stats in a JSON string; includes data for total stats and monthly stat based on current month or specified month
+ * 
+ * [totalScore:[total:val, leagues: [leaguename[Score:val] ], ...   ]
+ *  monthScore:[total:val, leagues: [leaguename[Score:val] ], ...   ]
+ * totalMedal:[question:val, bronze:val, silver:val, gold:val ,leagues:[leaguename[question:val, bronze:val, silver:val, gold:val]], ... ]
+ * monthMedal:[question:val, bronze:val, silver:val, gold:val ,leagues:[leaguename[question:val, bronze:val, silver:val, gold:val]], ... ]
+ * all:[netGain:val, wins:val, losses:val, ties:val, leagues:[leaguename[netGain:val, wins:val, losses:val, ties:val]],...]
+ * monthly:[netGain:val, wins:val, losses:val, ties:val, leagues:[leaguename[netGain:val, wins:val, losses:val, ties:val]],...]
+ * ]
+ * 
+ */
+def getAllStats(userScores,userPayoutTrans, month, accountId)
+{
+	def firstOfMonth
+	def lastOfMonth
+	
+	// month check
+	if(month == null || month == "")
+	{
+		 firstOfMonth = helperService.getFirstDateOfCurrentMonth()
+		 lastOfMonth = helperService.getLastDateOfCurrentMonth()
+	}
+	else
+	{
+		 firstOfMonth = helperService.getFirstOfMonth(month)
+		 lastOfMonth = helperService.getLastOfMonth(month)
+	}
+	
+	// if an incorrect month is entered then first and last are taken as the current month
+	if (firstOfMonth == null || lastOfMonth == null )
+	{
+		firstOfMonth = helperService.getFirstDateOfCurrentMonth()
+		lastOfMonth = helperService.getLastDateOfCurrentMonth()
+	}
+	
+	
+	System.out.println("First of month: " + firstOfMonth)
+	
+	System.out.println("Last of month: " + lastOfMonth)
+	
+	def gameStats = [totalScore:[total:0,leagues:getLeagueScores(userScores)],
+		monthScore:[total:0,leagues:getLeagueScoresMonth(userScores,firstOfMonth,lastOfMonth)],
+		totalMedal:[question:0,bronze:0,silver:0,gold:0,leagues:getLeagueMedals(userScores)],
+		monthMedal:[question:0,bronze:0,silver:0,gold:0,leagues:getLeagueMedalsMonth(userScores,firstOfMonth,lastOfMonth)],
+		all:[netGain:0, wins:0, losses:0, ties:0, leagues:getLeagueStats(accountId)],
+		monthly:[netGain:0, wins:0, losses:0, ties:0,leagues:getLeagueStats(accountId)]
+	//	weekly:[netGain:0, wins:0, losses:0, ties:0,leagues:getLeagueStats(accountId)]
+		]
+	
+	// Payout data check and Score data check
+	if (userPayoutTrans==null || userPayoutTrans.size()==0 || userScores==null || userScores.size() ==0 )
+	{
+		return gameStats
+	}
+	
+	// loops through scores data and updates map accordingly
+	for (AbstractScore scoreStat: userScores)
+	{
+		gameStats.totalScore.total += scoreStat.score
+				
+				switch(scoreStat.class.getSimpleName())
+				{
+					case "QuestionScore":
+					gameStats.totalMedal.question += 1
+					break;
+					
+					case "BronzeMetalScore":
+					gameStats.totalMedal.bronze += 1
+					break;
+					
+					case "SilverMetalScore":
+					gameStats.totalMedal.silver += 1
+					break;
+					
+					case "GoldMetalScore":
+					gameStats.totalMedal.gold += 1
+					break;
+				}
+				
+				if (scoreStat.createdAt > firstOfMonth && scoreStat.createdAt < lastOfMonth )
+				{
+					gameStats.monthScore.total += scoreStat.score
+
+					switch(scoreStat.class.getSimpleName())
+					{
+						case "QuestionScore":
+						gameStats.monthMedal.question += 1
+						break;
+						
+						case "BronzeMetalScore":
+						gameStats.monthMedal.bronze += 1
+						break;
+						
+						case "SilverMetalScore":
+						gameStats.monthMedal.silver += 1
+						break;
+						
+						case "GoldMetalScore":
+						gameStats.monthMedal.gold += 1
+						break;
+					}
+				}
+	}
+	
+	// loops through payout data and  updates map accordingly
+	for (PayoutTransaction tran: userPayoutTrans)
+	{
+		if (tran.createdAt > firstOfMonth && tran.createdAt < lastOfMonth)
+		{
+			gameStats.monthly.netGain+=(tran.transactionAmount - tran.initialWager)
+			gameStats.all.netGain+=(tran.transactionAmount - tran.initialWager)
+			if (tran.winnerPick==0){
+				gameStats.monthly.ties+=1
+				gameStats.all.ties+=1
+				continue
+			}else if(tran.winnerPick != tran.pick){
+				gameStats.monthly.losses+=1
+				gameStats.all.losses+=1
+			}else if (tran.winnerPick == tran.pick){
+				gameStats.monthly.wins+=1
+				gameStats.all.wins+=1
+
+			}else{
+				println "ERROR: UserService::getBetStats(): should not go in here"
+			}
+			continue
+		}
+		gameStats.all.netGain+=(tran.transactionAmount - tran.initialWager)
+		if (tran.winnerPick==0){
+			gameStats.all.ties+=1
+			continue
+		}else if(tran.winnerPick != tran.pick){
+			gameStats.all.losses+=1
+		}else if (tran.winnerPick == tran.pick){
+			gameStats.all.wins+=1
+
+		}else{
+			println "ERROR: UserService::getBetStats(): should not go in here"
+		}
+	}
+	
+	return gameStats
+	
+}
+
 
 def getBetStats(userPayoutTrans, accountId){
 		
@@ -105,6 +260,149 @@ def getBetStats(userPayoutTrans, accountId){
 		return stats
 	}
 
+
+
+// updates nested map of user score stats for each league user is present in, in total
+	def getLeagueScores(stats)
+	{
+		if(stats == null || stats.size==0)
+		{
+			return [score:0]
+		}
+		
+		def scores = [:]
+		for(AbstractScore scoreStat:stats)
+		{
+			def leagueName = sportsDataService.getLeagueNameFromEventKey( scoreStat.getEventKey())
+			def scoreMap = [:]
+			scoreMap = scores.get(leagueName)
+			if(scoreMap == null)
+			{
+				scoreMap = [score:0]
+				scores.put(leagueName, scoreMap)
+			}
+				scoreMap.score += scoreStat.getScore()
+		}
+		return scores
+	}
+	
+	// updates nested map of user score stats for each league user is present in, by specified month-first and last date
+	def getLeagueScoresMonth(stats,first,last)
+	{
+		if(stats == null || stats.size==0)
+		{
+			return [score:0]
+		}
+		
+		def scores = [:]
+		
+		for(AbstractScore scoreStat:stats)
+		{
+			def leagueName = sportsDataService.getLeagueNameFromEventKey( scoreStat.getEventKey())
+			def scoreMap = [:]
+			scoreMap = scores.get(leagueName)
+			if(scoreMap == null)
+			{
+				scoreMap = [score:0]
+				scores.put(leagueName, scoreMap)
+			}
+			
+			if (scoreStat.getCreatedAt() > first && scoreStat.getCreatedAt() < last )
+			{
+				scoreMap.score += scoreStat.getScore()
+			}
+		}
+		return scores
+	}
+	
+	// updates nested map of user medal stats for each league user is present in, in total
+	def getLeagueMedals(stats)
+	{
+		if(stats == null || stats.size==0)
+		{
+			return [question:0, bronze:0, silver:0,gold:0]
+		}
+		def medals = [:]
+		
+		for(AbstractScore medalStat:stats)
+		{
+			def leagueName =  sportsDataService.getLeagueNameFromEventKey( medalStat.getEventKey())
+			def medalMap = [:]
+			medalMap = medals.get(leagueName)
+			if(medalMap == null)
+			{
+				medalMap = [question:0, bronze:0, silver:0,gold:0]
+				medals.put(leagueName, medalMap)
+			}
+				switch(medalStat.class.getSimpleName())
+				{
+					case "QuestionScore":
+					medalMap.question += 1
+					break;
+					
+					case "BronzeMetalScore":
+					medalMap.bronze += 1
+					break;
+					
+					case "SilverMetalScore":
+					medalMap.silver += 1
+					break;
+					
+					case "GoldMetalScore":
+					medalMap.gold += 1
+					break;
+				}
+		}
+		return medals
+	}
+
+	// updates nested map of user score stats for each league user is present in, by specified month- first and last date
+	def getLeagueMedalsMonth(stats,first,last)
+	{
+		if(stats == null || stats.size==0)
+		{
+			return [question:0, bronze:0, silver:0,gold:0]
+		}
+		def medals = [:]
+		
+		for(AbstractScore medalStat:stats)
+		{
+			def leagueName =  sportsDataService.getLeagueNameFromEventKey( medalStat.getEventKey())
+			def medalMap = [:]
+			medalMap = medals.get(leagueName)
+			if(medalMap == null)
+			{
+				medalMap = [question:0, bronze:0, silver:0,gold:0]
+				medals.put(leagueName, medalMap)
+			}
+			
+			if (medalStat.getCreatedAt() > first && medalStat.getCreatedAt() < last  )
+			{
+				switch(medalStat.class.getSimpleName())
+				{
+					case "QuestionScore":
+					medalMap.question += 1
+					break;
+					
+					case "BronzeMetalScore":
+					medalMap.bronze += 1
+					break;
+					
+					case "SilverMetalScore":
+					medalMap.silver += 1
+					break;
+					
+					case "GoldMetalScore":
+					medalMap.gold += 1
+					break;
+				}
+			}
+		}
+		return medals
+	}
+	
+	
+
 	def getLeagueStats(accountId){
 		def leagues=[:]
 	
@@ -167,25 +465,5 @@ def getBetStats(userPayoutTrans, accountId){
 		}
 		
 		return stats
-	}
-	
-	private def getFirstDateOfCurrentWeek(){
-		Calendar c1 = Calendar.getInstance();   // this takes current date
-		c1.clear(Calendar.MINUTE);
-		c1.clear(Calendar.SECOND);
-		c1.clear(Calendar.MILLISECOND);
-		c1.set(Calendar.HOUR_OF_DAY, 0);
-		c1.set(Calendar.DAY_OF_WEEK, 2);
-		return c1.getTime();
-	}
-
-	private def getFirstDateOfCurrentMonth(){
-		Calendar c = Calendar.getInstance();   // this takes current date
-		c.clear(Calendar.MINUTE);
-		c.clear(Calendar.SECOND);
-		c.clear(Calendar.MILLISECOND);
-		c.set(Calendar.HOUR_OF_DAY, 0);
-		c.set(Calendar.DAY_OF_MONTH, 1);
-		return c.getTime();
-	}
+	}	
 }

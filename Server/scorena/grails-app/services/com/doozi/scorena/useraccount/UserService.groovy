@@ -41,6 +41,7 @@ class UserService {
 	def sportsDataService
 	def payoutTansactionService
 	def userStatsService
+	def scoreService 
 	
 	def getCoins(userId){
 		int asset = 0
@@ -195,7 +196,7 @@ class UserService {
 		return [:]
 	}
 	
-	def getUserProfile(String userId){
+	def getUserProfile(String userId,String month){
 		def rest = new RestBuilder()
 		
 		def userProfile = userRetreive(rest, userId)
@@ -213,15 +214,16 @@ class UserService {
 			return result
 		}	
 		
+		def userScores = scoreService.listScoresByUserId(userId)
 		def userPayoutTrans = payoutTansactionService.listPayoutTransByUserId(userId)
-		Map userStats = userStatsService.getUserStats(userPayoutTrans, account)
-		
+		Map userStats = userStatsService.getUserStats(userScores, userPayoutTrans, month,account)
+
 		def result = userProfileMapRender("", account.currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name,
 			userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
 		
 		result.userStats = userStats
 		result.level = 1
-		result.levelName = "novice"
+		result.levelName = "novice" 
 		
 		return result		
 		
