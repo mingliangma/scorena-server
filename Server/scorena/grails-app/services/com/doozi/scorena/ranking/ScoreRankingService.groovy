@@ -6,6 +6,8 @@ import com.doozi.scorena.*
 import com.doozi.scorena.score.AbstractScore
 import com.doozi.scorena.score.QuestionScore
 
+import com.doozi.scorena.utils.*
+
 import grails.converters.JSON
 import grails.transaction.Transactional
 
@@ -21,6 +23,7 @@ import java.net.URL
 class ScoreRankingService {
 	def parseService
 	def sportsDataService
+	def helperService
 	
 	public static final int USERID_RANKING_QUERY_INDEX = 0
 	public static final int USER_SCORE_RANKING_QUERY_INDEX = 1
@@ -33,7 +36,7 @@ class ScoreRankingService {
 		try
 		{
 			// searches database
-			def userRankingAll = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore s group by s.account.id order by sum(score) desc")
+			def userRankingAll = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s group by s.account.id order by sum(score) desc")
 			
 			// if userRanking is null, returns error
 			if (userRankingAll == null)
@@ -49,21 +52,32 @@ class ScoreRankingService {
 	}
 	
 	// gets the user ranking by month based on the month and year supplied  
-	def getRankingByMonth(String month, String year)
+	def getRankingByMonth(String month)
 	{	
 		try 
 		{
-			// evaluates month and year
-			String date_search = evalDate(month,year)	
-			
+			def lastOfMonth = helperService.getLastOfMonth(month)
+
 			// if date_search is null
-			if(date_search == null)
+			if (lastOfMonth == null) //(date_search == null  )
 			{
-				return [type:"Error", message: "Invalid month/year"]
+				return [type:"Error", message: "Invalid month"]
+			}
+			
+			
+			String year = lastOfMonth.toString().substring(24,28)
+
+			// evaluates month and year
+			String date_search = evalDate(month,year)
+			
+			if(date_search == null  )
+			{
+				return [type:"Error", message: "Invalid month"]
 			}
 			
 			// searches database
-			def userRankingAll = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore s where s.gameStartTime between "+ date_search+ " group by s.account.id order by sum(score) desc")
+			def userRankingAll = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s where s.gameStartTime between "+ date_search +" group by s.account.id order by sum(score) desc")
+			
 			
 			// if userRanking is null, returns error
 			if (userRankingAll == null)
@@ -79,6 +93,7 @@ class ScoreRankingService {
 			return [type:"Error", message: e.getMessage()]
 		}
 	}
+
 	
 	// gets the user ranking by league
 	def getRankingByLeague(String league)
@@ -95,7 +110,7 @@ class ScoreRankingService {
 			}
 			
 			// searches database
-			def userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore s where s.league = '"+ leagueCode+"' group by s.account.id order by sum(score) desc")
+			def userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s where s.league = '"+ leagueCode+"' group by s.account.id order by sum(score) desc")
 			
 			// if userRanking is null, returns error
 			if (userRanking == null)
@@ -113,18 +128,30 @@ class ScoreRankingService {
 	}
 	
 	// gets user ranking by league and month
-	def getRankingByLeagueAndMonth(String month, String year, String league)
+	def getRankingByLeagueAndMonth(String month,String league)
 	{	
 		try
 		{
+			
+			def lastOfMonth = helperService.getLastOfMonth(month)
+
+			// if date_search is null
+			if (lastOfMonth == null) //(date_search == null  )
+			{
+				return [type:"Error", message: "Invalid month"]
+			}
+			
+			
+			String year = lastOfMonth.toString().substring(24,28)
+
 			// evaluates month and year
 			String date_search = evalDate(month,year)
 			
-			// if date_search is null, return error
-			if(date_search == null)
+			if(date_search == null  )
 			{
-				return [type:"Error", message: "Invalid month/year"]
+				return [type:"Error", message: "Invalid month"]
 			}
+			
 			
 			// gets sports code
 			String leagueCode = sportsDataService.getLeagueCodeFromEventKey(league)
@@ -136,7 +163,7 @@ class ScoreRankingService {
 			}
 			
 			// searches database
-			def userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore s where s.gameStartTime between "+ date_search+ " AND s.league = '"+leagueCode+"'  group by s.account.id order by sum(score) desc")
+			def userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s where s.gameStartTime between "+ date_search +" AND s.league = '"+leagueCode+"'  group by s.account.id order by sum(score) desc")
 			
 			// if userRanking is null, return error
 			if (userRanking == null)
