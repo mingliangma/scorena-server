@@ -42,6 +42,7 @@ class UserService {
 	def payoutTansactionService
 	def userStatsService
 	def scoreService 
+	def friendSystemService
 	
 	def getCoins(userId){
 		int asset = 0
@@ -223,7 +224,7 @@ class UserService {
 		
 		result.userStats = userStats
 		result.level = 1
-		result.levelName = "novice" 
+		result.levelName = "novice"
 		
 		return result		
 		

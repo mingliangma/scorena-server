@@ -28,6 +28,7 @@ class QuestionService {
 	def questionPoolUtilService
 	def poolInfoService
 	def commentService
+	def friendSystemService
 	
 	public static final int FEATURE_QUESTION_SIZE = 3
 	
@@ -542,6 +543,8 @@ class QuestionService {
 		Map pick1BettersMap = [:]
 		Map pick2BettersMap = [:]
 		def currentUserAdded = false
+		Boolean isFriend = false	//indicator weather better is current user's friends or not 
+		Boolean isFriendMySelf = true	//indicator weather current user is current user's friends or not 
 		
 		String username = ""
 		if (userId != null)
@@ -555,6 +558,11 @@ class QuestionService {
 		
 			String betterUsername = betterAccount.username
 			String betterUserId =  betterAccount.userId
+			
+			if(userId != null) 	{
+				isFriend = friendSystemService.isFriend(userId,betterUserId)
+			}
+			
 			if (betTrans.pick==Pick.PICK1){
 				
 				if (pick1BettersMap.size() <=10){
@@ -563,7 +571,8 @@ class QuestionService {
 							name:betterUsername,
 							userId:betterUserId,
 							wager:betTrans.transactionAmount,
-							expectedWinning: Math.round(pick1PayoutMultiple * betTrans.transactionAmount)])
+							expectedWinning: Math.round(pick1PayoutMultiple * betTrans.transactionAmount),
+							isFriend: isFriend])
 					}
 				}
 			}else{
@@ -573,7 +582,8 @@ class QuestionService {
 							name:betterUsername,
 							userId:betterUserId,
 							wager:betTrans.transactionAmount,
-							expectedWinning: Math.round(pick2PayoutMultiple * betTrans.transactionAmount)])				
+							expectedWinning: Math.round(pick2PayoutMultiple * betTrans.transactionAmount),
+							isFriend: isFriend])				
 					}
 				}
 			}
@@ -583,14 +593,17 @@ class QuestionService {
 		
 		if ( currentUserAdded == false && userInfo!=[:] && username!="" ){
 			if (userInfo.userPick==1){
-				pick1BettersMap.put(userId,[name:username, userId:userId, wager:userInfo.userWager,expectedWinning: Math.round(pick1PayoutMultiple * userInfo.userWager)])
+				pick1BettersMap.put(userId,[name:username, userId:userId, wager:userInfo.userWager,expectedWinning: Math.round(pick1PayoutMultiple * userInfo.userWager), isFriend: isFriendMySelf])
 			}else if (userInfo.userPick==2){
-				pick2BettersMap.put(userId,[name:username, userId:userId, wager:userInfo.userWager,expectedWinning: Math.round(pick2PayoutMultiple * userInfo.userWager)])			
+				pick2BettersMap.put(userId,[name:username, userId:userId, wager:userInfo.userWager,expectedWinning: Math.round(pick2PayoutMultiple * userInfo.userWager), isFriend: isFriendMySelf])			
 			}
 		}
 		
 		def homeBettersArr = getBettersProfile(pick1BettersMap)
 		def awayBettersArr = getBettersProfile(pick2BettersMap)
+		
+		homeBettersArr = getBettersOrderedByIsFriend(homeBettersArr)	//get betters presented in order by it is current user's friend or not
+		awayBettersArr = getBettersOrderedByIsFriend(awayBettersArr)	//get betters presented in order by it is current user's friend or not
 		
 		def betters=[
 			pick1Betters: homeBettersArr,
@@ -598,6 +611,22 @@ class QuestionService {
 		]
 		
 		return betters
+	}
+	
+	private def getBettersOrderedByIsFriend(def bettersArr) {
+		List isFriendUserProfileGroup = []
+		List noneFriendUserProfileGroup = []
+		for(Map userProfileMap: bettersArr) {
+			if(userProfileMap.isFriend == true)
+				isFriendUserProfileGroup.add(userProfileMap)
+			else
+				noneFriendUserProfileGroup.add(userProfileMap)
+		}
+		List bettersList = []
+		bettersList.addAll(isFriendUserProfileGroup)
+		bettersList.addAll(noneFriendUserProfileGroup)
+		
+		return bettersList
 	}
 	
 	private List getBettersProfile(Map bettersMap){

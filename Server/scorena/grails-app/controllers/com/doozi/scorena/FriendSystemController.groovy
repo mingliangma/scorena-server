@@ -32,9 +32,19 @@ class FriendSystemController {
 		String userId2 = request.JSON.userId2
 		
 		def tipsList = friendSystemService.friendRequest(userId1, userId2)
-		def tipsMap = [tips:tipsList]
 		
-		render tipsMap as JSON
+		if(tipsList != []) {
+			response.status = 404
+			def resp = [
+				code: 101,
+				error: tipsList
+				]
+			render resp as JSON
+		}
+		else {
+			def tipsMap = [tips:tipsList]
+			render tipsMap as JSON
+		}
 		
 		return
 	}
@@ -62,9 +72,19 @@ class FriendSystemController {
 		String userId1 = request.JSON.userId1
 		
 		def tipsList = friendSystemService.confirmFriendRequest(requestId, userId1, userId2)
-		def tipsMap = [tips:tipsList]
 		
-		render tipsMap as JSON
+		if(tipsList != []) {
+			response.status = 404
+			def resp = [
+				code: 101,
+				error: tipsList
+				]
+			render resp as JSON
+		}
+		else {
+			def tipsMap = [tips:tipsList]
+			render tipsMap as JSON
+		}
 		
 		return
 	}
@@ -74,10 +94,22 @@ class FriendSystemController {
 		def allFriendList
 		def allFriendMap
 		
+		if(!userId) {
+			response.status = 404
+			def resp = [
+				code: 101,
+				error: "invalid userID!"
+				]
+			render resp as JSON
+			return 
+		}
+		
 		allFriendList = friendSystemService.listFriends(userId)
 		allFriendMap = [allFriend:allFriendList]
 		
 		render allFriendMap as JSON
+		
+		return
 	}
 	
 	/**
@@ -87,7 +119,7 @@ class FriendSystemController {
 	 */
 	private Map validateFriendRequest(def request, userId1){
 		if (!userId1 || !request.JSON.userId2 || !request.JSON.sessionToken){
-			response.status =404
+			response.status = 404
 			def resp = [
 				code: 101,
 				error: "invalid parameters"
@@ -104,7 +136,7 @@ class FriendSystemController {
 	 */
 	private Map validateConfirmFriendRequest(def request, userId2){
 		if (!userId2 || !request.JSON.requestId || !request.JSON.userId1 || !request.JSON.sessionToken){
-			response.status =404
+			response.status = 404
 			def resp = [
 				code: 101,
 				error: "invalid parameters"

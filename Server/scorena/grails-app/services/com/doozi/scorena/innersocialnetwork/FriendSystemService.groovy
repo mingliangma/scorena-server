@@ -31,7 +31,7 @@ class FriendSystemService {
 			int duplicationResultSize = duplicationResult.size()
 			
 			if(duplicationResultSize == 0) {
-				def friend = new FriendSystem(user1:user1,user2:user2,createdTime:createdTime,updatedTime:updatedTime)
+				def friend = new FriendSystem(user1:user1,user2:user2,status:status,createdTime:createdTime,updatedTime:updatedTime)
 				friend.save()
 				
 				if (!friend.save()) {
@@ -42,7 +42,7 @@ class FriendSystemService {
 				}
 				else {
 					println("request records successfully!")
-					tips = ["request records successfully!"]
+					tips = []
 				}
 			}
 			else {
@@ -82,7 +82,7 @@ class FriendSystemService {
 				}
 				else {
 					println("confirmation records successfully!")
-					tips = ["confirmation records successfully!"]
+					tips = []
 				}
 			}
 			else {
@@ -133,5 +133,89 @@ class FriendSystemService {
 			def error = ["invalid userID!"]
 			return error
 		}
+	}
+	
+	/**
+	 * add user2 directly to friend of user1
+	 * @param userId1
+	 * @param userId2:facebook friend of user1
+	 * @return []:successfully
+	 */
+	def addFacebookFriend(String userId1, String userId2) {
+		Account user1 = Account.findByUserId(userId1)
+		Account user2 = Account.findByUserId(userId2)
+		int status = 1
+		Date createdTime = new Date()
+		//createdTime = helperService.getOutputDateFormat(createdTime)
+		Date updatedTime = new Date()
+		//updatedTime = helperService.getOutputDateFormat(updatedTime)
+		
+		def tips = []
+		
+		if(user1 != null && user2 != null) {
+			//before setting up a friend system, we need to check it is set before or not
+			//duplication check
+			String duplicationRequestQuery = "SELECT user1.username,user2.username,status FROM FriendSystem "+
+			"WHERE (user1=? AND user2=? AND status=1) OR (user1=? AND user2=? AND status=1)"
+			
+			def duplicationResult = FriendSystem.executeQuery(duplicationRequestQuery,[user1,user2,user2,user1])
+			int duplicationResultSize = duplicationResult.size()
+			
+			if(duplicationResultSize == 0) {
+				def friend = new FriendSystem(user1:user1,user2:user2,status:status,createdTime:createdTime,updatedTime:updatedTime)
+				friend.save()
+				
+				if (!friend.save()) {
+					friend.errors.each {
+						println it
+						tips.add(it)
+					}
+				}
+				else {
+					println("facebook friend system set up successfully!")
+					tips = []
+				}
+			}
+			else {
+				println("friend system set up before!")
+				tips = ["friend system set up before!"]
+			}
+		}
+		else {
+			println("invalid userId!")
+			tips = ["invalid userId!"]
+		}
+		
+		return tips
+	}
+	
+	/**
+	 * judge user1 and user2 are friends or not
+	 * @param userId1
+	 * @param userId2
+	 * @return boolean
+	 */
+	Boolean isFriend(String userId1, String userId2) {
+		Account user1 = Account.findByUserId(userId1)
+		Account user2 = Account.findByUserId(userId2)
+		Boolean isFriend = false
+		
+		String friendListQuery = "SELECT user1.username, user2.username FROM FriendSystem "+
+		"WHERE status=1 AND (user1=? OR user2=?) AND (user1=? OR user2=?)"
+		
+		if(user1 != null && user2 != null) {
+			def isFriendResult = FriendSystem.executeQuery(friendListQuery,[user1,user1,user2,user2])
+			int isFriendResultSize = isFriendResult.size()
+			if(isFriendResultSize > 0) 
+				isFriend = true
+			else 
+				isFriend = false
+		}
+		else {
+			def error = ["invalid userID!(isFriend)"]
+			println "error:" + error
+		}
+		
+		return isFriend
 	}
 }
