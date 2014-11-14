@@ -115,7 +115,7 @@ class RankingService {
 		List gameRanking =[]
 		Map userIdMap = [:]
 		for (AbstractScore score: metalScoreTransactionList){
-			gameRanking.add(getAccountInfoMap(score.account.userId, score.account.username, score.profitCollected, score.rank))
+			gameRanking.add(getAccountInfoMap(score.account.userId, score.account.username, score.profitCollected, score.rank, score.class.getSimpleName()))
 			userIdMap.put(score.account.userId, "")
 		}
 		
@@ -141,6 +141,15 @@ class RankingService {
 		}
 		
 		return gameRanking
+	}
+	public Map getAccountInfoMap(String userId, String username, long netgain, int rank, String badge){
+		String netGain = ""
+		if (netgain>0)
+			netGain="+"+netgain.toString()
+		else
+			netGain=netgain.toString()
+			
+		return [userId: userId, username: username, gain: netGain, rank: rank, badge: badge]
 	}
 	
 	public Map getAccountInfoMap(String userId, String username, long netgain, int rank){
