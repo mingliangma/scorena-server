@@ -39,7 +39,7 @@ class ScoreRankingService {
 			def userRankingAll = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s group by s.account.id order by sum(score) desc")
 			
 			// if userRanking is null, returns error
-			if (userRankingAll == null)
+			if (userRankingAll == null || userRankingAll == "")
 			{
 				return [type:"Error", message: "No Results"]
 			}
@@ -56,19 +56,21 @@ class ScoreRankingService {
 	{	
 		try 
 		{
-			def lastOfMonth = helperService.getLastOfMonth(month)
-
+			def firstOfMonth = helperService.getFirstOfMonth(month)
+			
 			// if date_search is null
-			if (lastOfMonth == null) //(date_search == null  )
+			if (firstOfMonth == null) //(date_search == null  )
 			{
 				return [type:"Error", message: "Invalid month"]
 			}
 			
+			String rankMonth = helperService.getMonthByMonth(month)
 			
-			String year = lastOfMonth.toString().substring(24,28)
+			String year = firstOfMonth.toString().substring(24,28)
 
+			
 			// evaluates month and year
-			String date_search = evalDate(month,year)
+			String date_search = evalDate(rankMonth,year)
 			
 			if(date_search == null  )
 			{
@@ -76,17 +78,17 @@ class ScoreRankingService {
 			}
 			
 			// searches database
-			def userRankingAll = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s where s.gameStartTime between "+ date_search +" group by s.account.id order by sum(score) desc")
-			
+			def userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s where s.gameStartTime between "+ date_search +" group by s.account.id order by sum(score) desc")
+
 			
 			// if userRanking is null, returns error
-			if (userRankingAll == null)
+			if (userRanking == null || userRanking == "")
 			{
 				return [type:"Error", message: "No Results"]
 			}
 			
 			// return user ranking
-			return returnScores(userRankingAll,month,year,"",1)
+			return returnScores(userRanking,rankMonth,year,"",1)
 		}
 		catch (Exception e)
 		{
@@ -101,25 +103,25 @@ class ScoreRankingService {
 		try
 		{
 			// gets sports code
-			String leagueCode = sportsDataService.getLeagueCodeFromEventKey(league)
+			//String leagueCode = sportsDataService.getLeagueCodeFromEventKey(league)
 			
 			// if league Code is null, return error
-			if(leagueCode == null)
+		/*	if(leagueCode == null)
 			{
 				return [type:"Error", message: "Invalid leagueCode"]
 			}
-			
+			*/
 			// searches database
-			def userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s where s.league = '"+ leagueCode+"' group by s.account.id order by sum(score) desc")
+			def userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s where s.league = '"+ league+"' group by s.account.id order by sum(score) desc")
 			
 			// if userRanking is null, returns error
-			if (userRanking == null)
+			if (userRanking == null || userRanking == "")
 			{
 				return [type:"Error", message: "No Results"]
 			}
 			
 			// return user ranking 
-			return returnScores(userRanking,"","",leagueCode,2)
+			return returnScores(userRanking,"","",league,2)
 		}
 		catch (Exception e)
 		{
@@ -133,19 +135,20 @@ class ScoreRankingService {
 		try
 		{
 			
-			def lastOfMonth = helperService.getLastOfMonth(month)
+			def firstOfMonth = helperService.getFirstOfMonth(month)
 
 			// if date_search is null
-			if (lastOfMonth == null) //(date_search == null  )
+			if (firstOfMonth == null) //(date_search == null  )
 			{
 				return [type:"Error", message: "Invalid month"]
 			}
 			
-			
-			String year = lastOfMonth.toString().substring(24,28)
+			String rankMonth = helperService.getMonthByMonth(month)
+			String year = firstOfMonth.toString().substring(24,28)
 
+			
 			// evaluates month and year
-			String date_search = evalDate(month,year)
+			String date_search = evalDate(rankMonth,year)
 			
 			if(date_search == null  )
 			{
@@ -154,25 +157,25 @@ class ScoreRankingService {
 			
 			
 			// gets sports code
-			String leagueCode = sportsDataService.getLeagueCodeFromEventKey(league)
+			//String leagueCode = sportsDataService.getLeagueCodeFromEventKey(league)
 			
 			// if league Code is null, return error
-			if(leagueCode == null)
+		/*	if(leagueCode == null)
 			{
 				return [type:"Error", message: "Invalid leagueCode"]
 			}
-			
+			*/
 			// searches database
-			def userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s where s.gameStartTime between "+ date_search +" AND s.league = '"+leagueCode+"'  group by s.account.id order by sum(score) desc")
+			def userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s where s.gameStartTime between "+ date_search +" AND s.league = '"+league+"'  group by s.account.id order by sum(score) desc")
 			
 			// if userRanking is null, return error
-			if (userRanking == null)
+			if (userRanking == null || userRanking == "")
 			{
 				return [type:"Error", message: "No Results"]
 			}
 			
 			// return user ranking
-			return returnScores(userRanking,month,year,leagueCode,3)
+			return returnScores(userRanking,rankMonth,year,league,3)
 		}
 		catch (Exception e)
 		{
@@ -320,19 +323,39 @@ class ScoreRankingService {
 		
 		if (code == 0)
 		{
+			if(rankingAllSize == 0)
+			{
+				return [type:"Overall",rankScores: "No Results"]
+			}
+			
 			return [type:"Overall",rankScores: rankingResultAll]
 		}
 		
 		else if (code == 1)
 		{
+			if(rankingAllSize == 0)
+			{
+				return [type:"Overall", date:month+" "+year ,rankScores: "No Results"]
+			}
+			
 			return [type:"Month", date:month+" "+year ,rankScores: rankingResultAll]
 		}
 		else if (code == 2)
 		{
+			if(rankingAllSize == 0)
+			{
+				return [type:"Overall", league:league, rankScores: "No Results"]
+			}
+			
 			return [type:"League",league:league, rankScores: rankingResultAll]
 		}
 		else if (code == 3)
 		{
+			if(rankingAllSize == 0)
+			{
+				return [type:"Overall",date:month+" "+year , league:league, rankScores: "No Results"]
+			}
+			
 			return [type:"League&Month",date:month+" "+year ,league:league,rankScores: rankingResultAll]
 		}
 	}	

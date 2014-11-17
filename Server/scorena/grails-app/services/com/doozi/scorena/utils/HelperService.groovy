@@ -66,9 +66,41 @@ class HelperService {
 	// gets first day of specified month
 	def getFirstOfMonth(String month)
 	{
-		if(!(months.containsKey(month)))
+		int parse_month
+		
+		try{
+			 parse_month = Integer.parseInt(month)
+			 
+			 if (parse_month > 12 || parse_month <= 0)
+			 {
+				 return null
+			 }
+			 
+		}
+		catch (Exception e) 
 		{
-			return null;
+		System.out.println(e.message)
+			
+			if(!(months.containsKey(month)))
+			{
+				return null;
+			}
+			
+			Calendar c = Calendar.getInstance();   // this takes current date
+			c.clear(Calendar.MINUTE);
+			c.clear(Calendar.SECOND);
+			c.clear(Calendar.MILLISECOND);
+			c.set(Calendar.HOUR_OF_DAY, 0);
+			c.set(Calendar.MONTH,months[month])
+			c.set(Calendar.DAY_OF_MONTH,1 );
+			
+		//	if ( getFirstDateOfCurrentMonth() < c.getTime() )
+			if ( getLastDateOfCurrentMonth() < c.getTime() )
+			{
+			   c.add(Calendar.YEAR, -1)
+			}
+			
+			return c.getTime();
 		}
 		
 		Calendar c = Calendar.getInstance();   // this takes current date
@@ -76,24 +108,54 @@ class HelperService {
 		c.clear(Calendar.SECOND);
 		c.clear(Calendar.MILLISECOND);
 		c.set(Calendar.HOUR_OF_DAY, 0);
-		c.set(Calendar.MONTH,months[month])
+		c.set(Calendar.MONTH, parse_month - 1)
 		c.set(Calendar.DAY_OF_MONTH,1 );
 		
-	    if ( getFirstDateOfCurrentMonth() < c.getTime() )
+	//	if ( getFirstDateOfCurrentMonth() < c.getTime() )
+		if ( getLastDateOfCurrentMonth() < c.getTime() )
 		{
 		   c.add(Calendar.YEAR, -1)
 		}
-		
-		
-		return c.getTime();
+
+		return c.getTime();	
 	}
 	
 	// gets last day of specified month
 	def getLastOfMonth(String month)
 	{
-		if(!(months.containsKey(month)))
+		int parse_month
+		
+		try{
+			 parse_month = Integer.parseInt(month)
+			 
+			 if (parse_month > 12 || parse_month <= 0)
+			 {
+				 return null
+			 }
+			 
+		}
+		catch (Exception e)
 		{
-			return null;
+			System.out.println(e.message)
+			if(!(months.containsKey(month)))
+			{
+				return null;
+			}
+			
+			Calendar c = Calendar.getInstance();   // this takes current date
+			c.set(Calendar.HOUR_OF_DAY, 23);
+			c.set(Calendar.MINUTE, 59);
+			c.set(Calendar.SECOND, 59);
+			c.set(Calendar.MILLISECOND, 999);
+			c.set(Calendar.MONTH, parse_month - 1)
+			c.set(Calendar.DATE, c.getActualMaximum(Calendar.DATE));
+			
+			if ( getLastDateOfCurrentMonth() < c.getTime() )
+			{
+			   c.add(Calendar.YEAR, - 1)
+			}
+	
+			return c.getTime();
 		}
 		
 		Calendar c = Calendar.getInstance();   // this takes current date
@@ -101,7 +163,7 @@ class HelperService {
 		c.set(Calendar.MINUTE, 59);
 		c.set(Calendar.SECOND, 59);
 		c.set(Calendar.MILLISECOND, 999);
-		c.set(Calendar.MONTH,months[month])
+		c.set(Calendar.MONTH,parse_month - 1)
 		c.set(Calendar.DATE, c.getActualMaximum(Calendar.DATE));
 		
 		if ( getLastDateOfCurrentMonth() < c.getTime() )
@@ -110,6 +172,65 @@ class HelperService {
 		}
 
 		return c.getTime();
+
+	}
+	
+	
+	def getMonthString(String month, Date dateString )
+	{
+		int parse_month
+		def myMonth 
+		String year = dateString.toString().substring(24,28)
+		try{
+			 parse_month = Integer.parseInt(month)
+			 
+			 if (parse_month > 12 || parse_month <= 0)
+			 {
+				 return null
+			 }
+		}
+		catch (Exception e)
+		{
+			if(!(months.containsKey(month)))
+			{
+				return null
+			}
+			
+			return month + " " + year
+		}
+		
+		myMonth = months.find{ it.value == (parse_month -1) }?.key
+		return myMonth +" "+ year
+	}
+	
+	def getMonthByMonth(String month)
+	{
+		int parse_month
+		def myMonth
+		try{
+			 parse_month = Integer.parseInt(month)
+			 
+			 if (parse_month > 12 || parse_month <= 0)
+			 {
+				 return null
+			 }
+		}
+		catch (Exception e)
+		{
+			if(!(months.containsKey(month)))
+			{
+				return null
+			}
+			return month 
+		}		
+		myMonth = months.find{ it.value == (parse_month -1) }?.key
+		return myMonth
+	}
+	
+	def getMonth()
+	{
+		Calendar c = Calendar.getInstance();
+		return new SimpleDateFormat("MMMM").format(c.getTime()).toString()
 	}
 	
 		

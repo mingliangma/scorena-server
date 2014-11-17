@@ -130,7 +130,20 @@ class UserController {
 	}
 	
 	
-	//curl -v -X GET localhost:8080/scorena/v1/users/R3yN1lprBc
+	/*curl -v -X GET localhost:8080/scorena/v1/users/R3yN1lprBc
+	or
+	
+	curl -v -X GET localhost:8080/scorena/v1/users/R3yN1lprBc/month/November
+	
+	or 
+	curl -v -X GET localhost:8080/scorena/v1/users/R3yN1lprBc/month/11
+	
+	or 
+	curl -v -X GET localhost:8080/scorena/v1/users/R3yN1lprBc/month/1
+	
+	or 
+	curl -v -X GET localhost:8080/scorena/v1/users/R3yN1lprBc/month/01
+	*/
 	def getUserProfile(){
 		if (!params.userId){
 			response.status = 404
