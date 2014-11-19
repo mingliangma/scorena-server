@@ -9,6 +9,7 @@ import com.doozi.scorena.FriendSystem
 class FriendSystemService {
 	
 	def helperService
+	def parseService
 
     List friendRequest(String userId1, String userId2) {
 		Account user1 = Account.findByUserId(userId1)
@@ -101,38 +102,78 @@ class FriendSystemService {
 	List listFriends(userId) {
 		Account user = Account.findByUserId(userId)
 		//SQL Query find friend in FriendSystem where status=1
-		String friendListQuery = "SELECT user1.username, user2.username FROM FriendSystem "+
-		"WHERE status=1 AND (user1=? OR user2=?) AND (user1!=? OR user2 != ?)"
-		final int USERNAME1_QUERY_INDEX = 0
-		final int USERNAME2_QUERY_INDEX = 1
+		String friendListQuery = "SELECT user1.userId, user2.userId FROM FriendSystem "+
+		"WHERE status=1 AND (user1=? OR user2=?) AND (user1!=? OR user2!=?)"
+		final int USERID1_QUERY_INDEX = 0
+		final int USERID2_QUERY_INDEX = 1
 		
 		if(user != null) {
 			//find all friend of user by SQL Query
 			def allFriendResult = FriendSystem.executeQuery(friendListQuery,[user,user,user,user])
 			
-			def allFriendList = []
+			List allFriendList = []
+			def allFriendProfileList = []
 			int allFriendSize = allFriendResult.size()
 			
 			for(int i=0;i<allFriendSize;i++) {
 				List friendSystem = allFriendResult[i]
 				
-				if(friendSystem[USERNAME1_QUERY_INDEX]==user.username && friendSystem[USERNAME2_QUERY_INDEX]!=user.username) {
-					String friendUserName = friendSystem[USERNAME2_QUERY_INDEX]
-					allFriendList.add(friendUserName)
+				if(friendSystem[USERID1_QUERY_INDEX]==user.userId && friendSystem[USERID2_QUERY_INDEX]!=user.userId) {
+					String friendUserId = friendSystem[USERID2_QUERY_INDEX]
+					allFriendList.add(friendUserId)
 				}
 				
-				if(friendSystem[USERNAME2_QUERY_INDEX]==user.username && friendSystem[USERNAME1_QUERY_INDEX]!=user.username) {
-					String friendUserName = friendSystem[USERNAME1_QUERY_INDEX]
-					allFriendList.add(friendUserName)
+				if(friendSystem[USERID2_QUERY_INDEX]==user.userId && friendSystem[USERID1_QUERY_INDEX]!=user.userId) {
+					String friendUserId = friendSystem[USERID1_QUERY_INDEX]
+					allFriendList.add(friendUserId)
 				}
 			}
 			
-			return allFriendList			
+			int allFriendListSize = allFriendList.size()
+			if (allFriendListSize != 0) {
+				allFriendProfileList = getUserProfile(allFriendList)
+			}
+			
+			return allFriendProfileList			
 		}
 		else {
 			def error = ["invalid userID!"]
 			return error
 		}
+	}
+	
+	List getUserProfile (List userIdList) {
+		def userProfileList = []
+		def userProfileResultList = []
+		
+		Map userProfileResults = parseService.retrieveUserList(userIdList)
+		if (userProfileResults.error){
+			println "Error: FriendSystemService::getUserProfile(): in retrieving user "+userProfileResults.error
+			return []
+		}
+
+		userProfileResultList = userProfileResults.results
+		
+		for (Map userProfile: userProfileResultList){
+			String userId = userProfile.objectId
+			Account user = Account.findByUserId(userId)
+			if (user == null) {
+				return ["Error: invalid userId!(FriendSystemService::getUserProfile)"]
+			}
+			int currentBalance = user.currentBalance
+			
+			def userDataMap = [userId:userProfile.objectId, pictureURL:userProfile.pictureURL, name:userProfile.username, balance:currentBalance]
+			
+			if (userProfile.display_name != null && userProfile.display_name != "")
+				userDataMap.name = userProfile.display_name
+			
+			if (userProfile.pictureURL != null && userProfile.pictureURL != "")
+				userDataMap.pictureURL = userProfile.pictureURL
+				
+			userProfileList.add(userDataMap)
+		}
+		
+		return userProfileList
 	}
 	
 	/**
