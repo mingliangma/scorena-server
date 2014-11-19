@@ -41,6 +41,7 @@ class UserService {
 	def sportsDataService
 	def payoutTansactionService
 	def userStatsService
+	def scoreService 
 	def friendSystemService
 	
 	def getCoins(userId){
@@ -85,15 +86,10 @@ class UserService {
 			currentBalance = account.currentBalance
 		}
 		
-		//automatically add facebook friends to scorena friend system
-		def tips = []
-		List facebookFriendUserIdList = getFacebookFrdsUserId(facebookIds)
-		def currentUserId = account.userId
-		for(String facebookFriendUserId: facebookFriendUserIdList) {
-			tips = friendSystemService.addFacebookFriend(currentUserId, facebookFriendUserId)
-		}
-		println "tips:" + tips
-		
+		//TODO: automatically add facebook friends to scorena friend system
+		Map facebookFriendsUserProfiles = parseService.retrieveUserListByFBIds(facebookIds)		
+		println "facebookFriendsUserProfiles="+facebookFriendsUserProfiles
+
 		def result = userProfileMapRender(sessionToken, currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name, 
 		userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
 		
@@ -201,7 +197,7 @@ class UserService {
 		return [:]
 	}
 	
-	def getUserProfile(String userId){
+	def getUserProfile(String userId,String month){
 		def rest = new RestBuilder()
 		
 		def userProfile = userRetreive(rest, userId)
@@ -219,9 +215,10 @@ class UserService {
 			return result
 		}	
 		
+		def userScores = scoreService.listScoresByUserId(userId)
 		def userPayoutTrans = payoutTansactionService.listPayoutTransByUserId(userId)
-		Map userStats = userStatsService.getUserStats(userPayoutTrans, account)
-		
+		Map userStats = userStatsService.getUserStats(userScores, userPayoutTrans, month,account)
+
 		def result = userProfileMapRender("", account.currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name,
 			userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
 		
@@ -286,18 +283,7 @@ class UserService {
 	}
 
 	private List getFacebookFrdsUserId(List facebookIds){
-		Map userProfilesMap = parseService.retrieveUserListByFBIds(facebookIds)
-		
-		println "userProfiles:" + userProfilesMap
-		
-		List userProfileList = userProfilesMap.results	//TODO format of Map userProfiles
-		List userIdList = []
-		
-		for(Map userProfile: userProfileList) {
-			userIdList.add(userProfile.objectId)
-		}
-		
-		return userIdList
+		Map userProfiles = parseService.retrieveUserListByFBIds(facebookIds)
 	}
 
 
