@@ -2,7 +2,7 @@ package com.doozi.scorena.gameengine
 
 import com.doozi.scorena.Question;
 import com.doozi.scorena.controllerservice.*
-import com.doozi.scorena.score.AbstractScore
+import com.doozi.scorena.score.*
 import com.doozi.scorena.transaction.BetTransaction
 
 import grails.transaction.Transactional
@@ -34,11 +34,22 @@ class GameUserInfoService {
 			userinfo.isGameProcessed = false
 			userinfo.rank=-1
 			userinfo.badge=""
+			userinfo.badgeScore=0
 			
 		}else{
 			userinfo.isGameProcessed = true
 			userinfo.rank = scoreTransaction.rank
 			userinfo.badge = scoreTransaction.class.getSimpleName()
+			
+			if (GoldMetalScore.class.getSimpleName() == scoreTransaction.class.getSimpleName()){
+				userinfo.badgeScore = ScoreConstant.GOLD_SCORE
+			}else if (SilverMetalScore.class.getSimpleName() == scoreTransaction.class.getSimpleName()){
+				userinfo.badgeScore = ScoreConstant.SILVER_SCORE
+			}else if (BronzeMetalScore.class.getSimpleName() == scoreTransaction.class.getSimpleName()){
+				userinfo.badgeScore = ScoreConstant.BRONZE_SCORE
+			}else{
+				userinfo.badgeScore = ScoreConstant.NO_SCORE
+			}
 		}
 		return userinfo
 	}
