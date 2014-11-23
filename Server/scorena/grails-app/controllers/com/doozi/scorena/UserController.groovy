@@ -17,6 +17,7 @@ import grails.converters.JSON
 class UserController {
 	def userService
 	def rankingService
+	def userHistoryService
 	
 	def list(){
 		def user="this is testing user"
@@ -260,5 +261,18 @@ class UserController {
 //	}
 //	def save() {}
 //	def update() {}
+	
+	def getUserHistoryGames() {
+		if (!params.userId){
+			response.status = 404
+			def result = [error: "userId is required"]
+			render result as JSON
+			return
+		}
+		def userId = params.userId
+		def userHistoryGames = userHistoryService.listPastGames(userId)
+		render userHistoryGames as JSON
+		return
+	} 
 
 }
