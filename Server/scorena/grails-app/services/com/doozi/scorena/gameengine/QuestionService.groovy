@@ -565,7 +565,7 @@ class QuestionService {
 			
 			if (betTrans.pick==Pick.PICK1){
 				
-				if (pick1BettersMap.size() <=10){
+				if (pick1BettersMap.size() <=8){
 					if ( betterUsername != username){
 						pick1BettersMap.put(betterUserId,[
 							name:betterUsername,
@@ -576,7 +576,7 @@ class QuestionService {
 					}
 				}
 			}else{
-				if (pick2BettersMap.size() <=10){
+				if (pick2BettersMap.size() <=8){
 					if (betterUsername != username){
 						pick2BettersMap.put(betterUserId, [
 							name:betterUsername,
@@ -587,7 +587,7 @@ class QuestionService {
 					}
 				}
 			}
-			if (pick2BettersMap.size() >10 && pick1BettersMap.size() >10)
+			if (pick2BettersMap.size() >8 && pick1BettersMap.size() >8)
 				break
 		}		
 		

@@ -17,7 +17,11 @@ import org.codehaus.groovy.grails.web.json.JSONObject
 
 @Transactional
 class ParseService {
+	public static final int COMPOUND_QUERY_OBJECT_LIMIT=9
+	
 	def grailsApplication
+	
+	
     def validateSession(def rest, def sessionToken) {
 		def parseConfig = grailsApplication.config.parse
 		
@@ -56,6 +60,7 @@ class ParseService {
 				display_name=displayNameInput
 				pictureURL=pictureURLInput
 				facebookId=facebookIdInput
+				lastLoggedIn=new Date()
 			}
 		}
 		return resp
@@ -141,24 +146,49 @@ class ParseService {
 	 * 					
 	 * @return a Map object that contains a list of Parse users' profile
 	 */
-	Map retrieveUserList(def objectIds){
+	Map retrieveUserList(List objectIds){
 		def parseConfig = grailsApplication.config.parse
-		if (objectIds.size() == 0){
+		int inputObjectIdsSize = objectIds.size()
+		if (inputObjectIdsSize == 0){
 			return [:]
 		}				
 		
-		String url = "https://api.parse.com/1/users?where=" + getJSONWhereConstraints("objectId", objectIds);
+		int i = 0
+		int querySize = 0
+		List queryIdList =[]
+		List parseUserList = []
+		HttpClient httpclient = new DefaultHttpClient()
 		
-		HttpClient httpclient = new DefaultHttpClient();
-		HttpGet httpget = new HttpGet(url);
+		for (String objectId: objectIds){
+			queryIdList.add(objectId)
+			querySize++
+			i++
+			
+			if (i>=inputObjectIdsSize || querySize >=COMPOUND_QUERY_OBJECT_LIMIT){
+				String url = "https://api.parse.com/1/users?where=" + getJSONWhereConstraints("objectId", queryIdList)
+				Map queryResult = parseQuery(httpclient, url)
 				
-		httpget.addHeader("X-Parse-Application-Id", parseConfig.parseApplicationId);
-		httpget.addHeader("X-Parse-REST-API-Key", parseConfig.parseRestApiKey);
+				if (queryResult.error)
+					return queryResult
+					
+				List parseResult = queryResult.results
+				parseUserList = parseUserList+parseResult
+				
+				querySize=0
+				queryIdList=[]
+			}
 
-		HttpResponse httpResponse = httpclient.execute(httpget);
-		JSONObject resultJson = new JSONObject(EntityUtils.toString(httpResponse.getEntity()));
+		}
 		
-		return (resultJson as Map)
+		Map userListResult = [results:parseUserList]
+
+		return userListResult
+	}
+	
+	Map retrieveUserList(Map objectIds){
+		List objectIdList = [];
+		objectIds.each() { k, v -> objectIdList << k }
+		return retrieveUserList(objectIdList)
 	}
 	
 	Map retrieveUserByDisplayName(def displayName){
@@ -189,7 +219,6 @@ class ParseService {
 		}
 		
 		whereContraintsJson.put('$or',objectIdArray);
-		
 		
 		String whereContraintsString = URLEncoder.encode(whereContraintsJson.toString(), "UTF-8")
 		return whereContraintsString
@@ -262,6 +291,19 @@ class ParseService {
 		return resp
 	}
 	
-	
+	private Map parseQuery(HttpClient httpclient, String url){
+		
+		def parseConfig = grailsApplication.config.parse
+		
+		HttpGet httpget = new HttpGet(url);
+				
+		httpget.addHeader("X-Parse-Application-Id", parseConfig.parseApplicationId);
+		httpget.addHeader("X-Parse-REST-API-Key", parseConfig.parseRestApiKey);
+
+		HttpResponse httpResponse = httpclient.execute(httpget);
+		JSONObject resultJson = new JSONObject(EntityUtils.toString(httpResponse.getEntity()));
+		
+		return (resultJson as Map)
+	}
 	
 }
