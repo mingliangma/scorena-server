@@ -167,7 +167,7 @@ class BetTransactionService {
 			return [code:202, error: "The user does not have enough coins to make a bet"]
 		}
 		
-		if (playerWager <= 0){
+		if (playerWager < 0){
 			return [code:202, error: "The user cannot bet negative amount"]
 		}
 		

@@ -12,7 +12,7 @@ import com.doozi.scorena.Account
  *
  */
 
-@Transactional
+
 class CommentService {
 
 	def helperService
@@ -40,7 +40,7 @@ class CommentService {
 			def dateCreated=it.dateCreated
 			dateCreated = helperService.getOutputDateFormat(dateCreated)
 			
-			def comments=[body:it.body,userId:user.userId,userName:user.username,timeCreated:dateCreated]
+			def comments=[body:it.body,userId:user.userId,userName:user.username,timeCreated:dateCreated, pictureURL:"https://s3-us-west-2.amazonaws.com/userprofilepickture/003profile.png"]
 			commentsList.add(comments)
 		}
 		
@@ -54,6 +54,7 @@ class CommentService {
 	 * @param qId:question ID of the question to be commented
 	 * @return List of comments:[body,userId,userName,timeCreated]
 	 */
+	@Transactional
 	List writeComments(userId,message,qId){
 		List commentsList=[]
 		Question q = Question.findById(qId)
