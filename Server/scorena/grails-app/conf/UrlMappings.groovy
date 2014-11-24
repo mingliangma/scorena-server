@@ -151,15 +151,15 @@ class UrlMappings {
 			action = [GET:"getExistingComments", POST:"writeComments"]
 		}
 		
-		"/v1/user/$userId?/friends"(controller:"friendSystem") {
+		"/v1/users/$userId?/friends"(controller:"friendSystem") {
 			action = [GET:"listFriends"]
 		}
 		
-		"/v1/user/$userId?/friends/request"(controller:"friendSystem") {
+		"/v1/users/$userId?/friends/request"(controller:"friendSystem") {
 			action = [POST:"friendRequest"]
 		}
 		
-		"/v1/user/$userId?/friends/confirmation"(controller:"friendSystem") {
+		"/v1/users/$userId?/friends/confirmation"(controller:"friendSystem") {
 			action = [POST:"confirmFriendRequest"]
 		}
 

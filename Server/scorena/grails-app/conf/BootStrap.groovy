@@ -31,6 +31,7 @@ class BootStrap {
 					//createUsers()
 					simulateBetUpcoming()
 					simulateBetPast()
+					addFriends()
 				}
 				
 				
@@ -51,6 +52,7 @@ class BootStrap {
 					createUsers()
 					simulateBetUpcoming()
 					simulateBetPast()
+					addFriends()
 				}
 				
 				if (!Account.countByAccountType(AccountType.TEST)){
@@ -75,6 +77,8 @@ class BootStrap {
 					createUsers()
 					simulateBetUpcoming()
 					simulateBetPast()
+					addFriends()
+
 				}
 				
 				println "bootstrap ended"
@@ -94,6 +98,8 @@ class BootStrap {
 					createUsers()
 					simulateBetUpcoming()
 					simulateBetPast()
+					addFriends()
+
 				}
 				
 				println "bootstrap ended"
@@ -125,6 +131,7 @@ class BootStrap {
 	def userService
 	def customQuestionService
 	def questionService
+	def friendSystemService
 	
 	def createCustomQuestions(){
 		List pastGames = gameService.listPastGames()
@@ -498,6 +505,42 @@ class BootStrap {
 			
 			int facebookId = 100000+i
 			def resp = userService.createTestUser(_displayNames[i], _email, _password, _gender, _region, pictureURL, facebookId.toString())
+		}
+		
+	}
+	
+	def addFriends(){
+		List<Account> users = Account.findAll ()		
+		int userSize = users.size()
+		println "userSize: "+userSize
+		Random random = new Random()
+		for (Account user: users){
+			if (random.nextInt(4) == 1){
+						
+				String user1Id=users[random.nextInt(userSize)].userId
+				String user2Id=users[random.nextInt(userSize)].userId
+				String user3Id=users[random.nextInt(userSize)].userId
+				String user4Id=users[random.nextInt(userSize)].userId
+				String user5Id=users[random.nextInt(userSize)].userId
+				
+				println "user: "+ user.userId
+				
+				println "user1Id: "+user1Id
+				println "user2Id: "+user2Id
+				println "user3Id: "+user3Id
+				println "user4Id: "+user4Id
+				println "user5Id: "+user5Id
+				
+				friendSystemService.addFacebookFriend(user.userId, user1Id)
+				Thread.sleep(1000)
+				friendSystemService.addFacebookFriend(user.userId, user2Id)
+				Thread.sleep(1000)
+				friendSystemService.addFacebookFriend(user.userId, user3Id)
+				Thread.sleep(1000)
+				friendSystemService.addFacebookFriend(user.userId, user4Id)
+				Thread.sleep(1000)
+				friendSystemService.addFacebookFriend(user.userId, user5Id)
+			}
 		}
 		
 	}
