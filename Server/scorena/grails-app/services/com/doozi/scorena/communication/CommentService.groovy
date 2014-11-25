@@ -6,6 +6,8 @@ import java.util.List
 import com.doozi.scorena.Question
 import com.doozi.scorena.Account
 
+import grails.plugins.rest.client.RestBuilder
+
 
 /**
  * @author HDJ
@@ -16,6 +18,7 @@ import com.doozi.scorena.Account
 class CommentService {
 
 	def helperService
+	def parseService
 	
 	/**
 	 * @brief get comments information of the question
@@ -33,14 +36,29 @@ class CommentService {
 		
 		q.comments.each{
 			Account user= Account.findById(it.posterId);
-			if(user==null){
+			if(user == null){
 				return [message:"invalid user ID"]
 			}
 			
+			def userId = user.userId
+			def username = user.username
 			def dateCreated=it.dateCreated
 			dateCreated = helperService.getOutputDateFormat(dateCreated)
 			
-			def comments=[body:it.body,userId:user.userId,userName:user.username,timeCreated:dateCreated]
+			def rest = new RestBuilder()
+			def resp = parseService.retrieveUser(rest, userId)
+			if (resp.status != 200) {
+				println "get user profile failed! (CommentService::getExistingComments)"
+				return [message: "get user profile failed!"]
+			}
+			def userProfile = resp.json
+			
+			if (userProfile.display_name != null && userProfile.display_name != "") {
+				username = userProfile.display_name
+			}
+			def pictureURL = userProfile.pictureURL
+			
+			def comments=[body:it.body, userId:userId, name:username, timeCreated:dateCreated, pictureURL:pictureURL]
 			commentsList.add(comments)
 		}
 		
@@ -80,7 +98,7 @@ class CommentService {
 			q.addComment(user, message)
 		}
 		
-		commentsList=getExistingComments(qId)
+		commentsList = getExistingComments(qId)
 		return commentsList	
 	}
 }

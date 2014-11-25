@@ -120,7 +120,7 @@ class GameService {
 		
 	}
 	
-	private List<String> getGameIdsFromGameData(List games){
+	public List<String> getGameIdsFromGameData(List games){
 		List gameIds = []
 		for (Map game: games){
 			gameIds.add(game.gameId)
@@ -128,7 +128,7 @@ class GameService {
 		return gameIds
 	}
 	
-	private int getNumUsersInGame(List<BetTransaction> userBetsInGame){
+	public int getNumUsersInGame(List<BetTransaction> userBetsInGame){
 		Map userMap =[:]
 		for (BetTransaction bet: userBetsInGame){
 			if (!userMap.containsKey(bet.account.id)){
@@ -138,7 +138,7 @@ class GameService {
 		return userMap.size()
 	}
 	
-	private List<BetTransaction> getAllBetsByGameId(String gameId, List<BetTransaction> betsInGames){
+	public List<BetTransaction> getAllBetsByGameId(String gameId, List<BetTransaction> betsInGames){
 		List<BetTransaction> allBetsInTheGame = []
 		for (BetTransaction bet: betsInGames){
 			if (bet.eventKey == gameId){
@@ -148,7 +148,7 @@ class GameService {
 		return allBetsInTheGame
 	}
 	
-	private List<BetTransaction> getUserBetsFromGame(String userId, List<BetTransaction> betsInGames){
+	public List<BetTransaction> getUserBetsFromGame(String userId, List<BetTransaction> betsInGames){
 		List<BetTransaction> userBetsInTheGame = []
 		for (BetTransaction bet: betsInGames){
 			if (bet.account.userId == userId){
@@ -158,7 +158,7 @@ class GameService {
 		return userBetsInTheGame
 	}
 	
-	private AbstractScore getScoreTransactionByGameId(String eventKey, List<AbstractScore> metalScoreTransactionList){
+	public AbstractScore getScoreTransactionByGameId(String eventKey, List<AbstractScore> metalScoreTransactionList){
 		for (AbstractScore scoreTransaction: metalScoreTransactionList){
 			if (scoreTransaction.eventKey == eventKey){
 				return scoreTransaction
