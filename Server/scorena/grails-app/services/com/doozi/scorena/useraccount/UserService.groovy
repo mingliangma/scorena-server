@@ -220,7 +220,7 @@ class UserService {
 		Map userStats = userStatsService.getUserStats(userScores, userPayoutTrans, month,account)
 
 		def result = userProfileMapRender("", account.currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name,
-			userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
+			userProfile.objectId, "", "", userProfile.email, userProfile.pictureURL)
 		
 		result.userStats = userStats
 		result.level = 1

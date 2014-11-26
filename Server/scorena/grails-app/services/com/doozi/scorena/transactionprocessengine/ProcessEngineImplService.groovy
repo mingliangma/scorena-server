@@ -196,7 +196,7 @@ class ProcessEngineImplService {
 			
 			println "ProcessEngineImplService::processPayout(): starts with eventKey="+game.gameId+ "questionId="+q.id
 			
-			int winnerPick = getWinningPick(game, q)
+			int winnerPick = calculateWinningPick(game, q)
 			def payoutMultipleOfWager			
 			boolean processSuccess = true
 			boolean onePickHasNoBet = false
@@ -287,7 +287,7 @@ class ProcessEngineImplService {
 //		return winnerPick
 //	}
 	
-	def getWinningPick(Map game, Question question){
+	def calculateWinningPick(Map game, Question question){
 		
 		int winnerPick = -1
 		if (game.gameStatus.trim() != sportsDataService.POSTEVENT){

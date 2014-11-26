@@ -27,7 +27,6 @@ class GameUserInfoService {
 	Map getPastGamesUserInfo(Map game, List<BetTransaction> userBetsInTheGame, String userId, AbstractScore scoreTransaction){
 		Map userinfo=[:]
 		userinfo.placedBet = getPlacedBet(userBetsInTheGame)
-		userinfo.gameWinningAmount = getProfitInGame(game, userId, userBetsInTheGame)
 
 		if (scoreTransaction == null){
 			
@@ -35,8 +34,10 @@ class GameUserInfoService {
 			userinfo.rank=-1
 			userinfo.badge=""
 			userinfo.badgeScore=0
+			userinfo.gameWinningAmount =0
 			
 		}else{
+			userinfo.gameWinningAmount = getProfitInGame(game, userId, userBetsInTheGame)		
 			userinfo.isGameProcessed = true
 			userinfo.rank = scoreTransaction.rank
 			userinfo.badge = scoreTransaction.class.getSimpleName()

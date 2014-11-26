@@ -49,14 +49,11 @@ class BootStrap {
 				}
 
 				if (!Account.count()){
-					createUsers()
+//					createUsers()
+					createTestUsers()
 					simulateBetUpcoming()
 					simulateBetPast()
 					addFriends()
-				}
-				
-				if (!Account.countByAccountType(AccountType.TEST)){
-					createTestUsers()
 				}
 				
 				println "bootstrap ended"
