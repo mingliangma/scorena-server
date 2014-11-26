@@ -16,6 +16,7 @@ class CustomGameService {
 	
 	def helperService
 	def gameService
+	def sportsDataService
 	
 	def getGame(def eventKey){
 		def games = CustomGame.findAllByEventKey(eventKey,[cache: true])
@@ -54,54 +55,8 @@ class CustomGameService {
 		def todayDate = new Date()
 		def upcomingDate = todayDate + UPCOMING_DATE_RANGE;
 		def upcomingGames = CustomGame.findAll("from CustomGame as g where g.startDateTime<? and g.startDateTime>? and g.eventStatus<>'post-event' order by g.startDateTime", [upcomingDate, todayDate-1], [cache: true])
-		def upcomingGamesMap = [:]
-		List upcomingGamesList = []
-		for (CustomGame game: upcomingGames){
-			String eventKey = game.eventKey
-			def upcomingGame = upcomingGamesMap.get(eventKey)
-						
-			String matchDateString = helperService.setUTCFormat(game.startDateTime)
-			def matchDate = helperService.parseDateFromString(matchDateString)
-			if (todayDate > matchDate){
-				if (game.eventStatus == "pre-event"){
-					println "ERROR: SportsDataService::getAllUpcomingGames(): gameStatus should not be pre-event!"
-					println "gameEvent: "+ game.eventKey
-					println "score: "+ game.score
-				}
-			}
-						
-			
-			if (!upcomingGame){
-				def	gameInfo = [
-						"leagueName": "",
-						"leagueCode": "",
-						"gameId":eventKey,
-						"type":"soccer",
-						"gameStatus":game.eventStatus,
-						"date": helperService.setUTCFormat(game.startDateTime) ,
-						(game.alignment):[
-							"teamname":game.fullName,
-							"score":game.score
-						]
-				]
-				upcomingGamesMap.putAt(eventKey, gameInfo)
-			}else{
-			
-				if (upcomingGame.gameStatus != game.eventStatus){
-					println "ERROR: SportsDataService::getAllUpcomingGames(): gameStatus does not match!"
-					println "First set data: "+upcomingGame
-					println "second set data: "+ game.eventStatus
-				}
-			
-				if (!upcomingGame.away){
-					upcomingGame.away = ["teamname":game.fullName, "score":game.score]
-				}else{
-					upcomingGame.home = ["teamname":game.fullName, "score":game.score]
-				}
-				upcomingGamesList.add(upcomingGame)
-				
-			}
-		}
+		List upcomingGamesList = sportsDataService.constructGameList(upcomingGames, sportsDataService.PREEVENT, todayDate)
+		
 		return upcomingGamesList
 	}
 	
@@ -109,42 +64,8 @@ class CustomGameService {
 		def todayDate = new Date()
 		def pastDate = todayDate - PAST_DATE_RANGE;
 		def pastGames = CustomGame.findAll("from CustomGame as g where g.startDateTime>? and g.startDateTime<? and g.eventStatus='post-event' order by g.startDateTime", [pastDate, todayDate+1])
-		def pastGamesMap = [:]
-		List pastGamesList = []
-		for (CustomGame game: pastGames){
-			if (game.eventStatus != "post-event"){
-				println "SportsDataService::getAllPastGames():wrong event: "+ game.eventKey
-			}
-			
-			String eventKey = game.eventKey
-			def pastGame = pastGamesMap.get(eventKey)
-			
-			if (!pastGame){
-				def	gameInfo = [
-						"leagueName": "",
-						"leagueCode": "",
-						"gameId":eventKey,
-						"type":"soccer",
-						"gameStatus":game.eventStatus,
-						"date":helperService.setUTCFormat(game.startDateTime),
-						(game.alignment):[
-							"teamname":game.fullName,
-							"score":game.score
-						]
-				]
-				pastGamesMap.putAt(eventKey, gameInfo)
-			}else{
-			
-				if (!pastGame.away){
-					pastGame.away = ["teamname":game.fullName, "score":game.score]
-				}else{
-					pastGame.home = ["teamname":game.fullName, "score":game.score]
-				}
-				pastGamesList.add(pastGame)
-				
-			}
-		}
-		
+
+		List pastGamesList = sportsDataService.constructGameList(pastGames, sportsDataService.PREEVENT, todayDate)		
 		return pastGamesList
 	}
 	

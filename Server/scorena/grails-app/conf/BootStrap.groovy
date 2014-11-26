@@ -131,7 +131,7 @@ class BootStrap {
 	def friendSystemService
 	
 	def createCustomQuestions(){
-		List pastGames = gameService.listPastGames()
+		List pastGames = gameService.listPastGamesData("all", "all")
 		println "createCustomQuestions()::pastGames: "+pastGames.size()
 		for (def game: pastGames){
 			customQuestionService.createCustomQuestion(game.gameId, "Joseph will be naked at the party?", "hell yes", "of course")
@@ -167,8 +167,8 @@ class BootStrap {
 	def createQuestions(){
 		println "create quesitons starts"
 		
-		List upcomingGames = gameService.listUpcomingGames()
-		List pastGames = gameService.listPastGames()
+		List upcomingGames = gameService.listUpcomingGamesData("all", "all")
+		List pastGames = gameService.listPastGamesData("all", "all")
 		
 		println "upcomingGames: "+upcomingGames.size()
 		println "pastGames: "+pastGames.size()
@@ -233,7 +233,7 @@ class BootStrap {
 		
 		Random random = new Random()
 		def accounts = Account.findAll()
-		def upcomingGames = gameService.listUpcomingGames()
+		def upcomingGames = gameService.listUpcomingGamesData("all", "all")
 		for (int i=0; i < upcomingGames.size(); i++){
 			if (random.nextInt(2) == 1){
 				continue
@@ -281,7 +281,7 @@ class BootStrap {
 			println "============simulateBetPast() starts==============="
 			Random random = new Random()
 			def accounts = Account.findAll()
-			def pastGames = gameService.listPastGames()
+			def pastGames = gameService.listPastGamesData("all", "all")
 			for (int i=0; i < pastGames.size(); i++){
 				
 				if (random.nextInt(2) == 1){

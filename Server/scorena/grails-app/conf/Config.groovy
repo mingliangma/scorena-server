@@ -96,10 +96,10 @@ environments {
 	
 	awsdev {
 		grails.logging.jul.usebridge = true
-		parse.parseApplicationId=System.getProperty("PARAM1")
-		parse.parseRestApiKey =System.getProperty("PARAM2")
-//		parse.parseApplicationId='b2cfHtl3JqMwg7rKfkoGJ7sh6LluiZc8RdjWCeQY'
-//		parse.parseRestApiKey ='k6ybcRnaDAdfUBbLkSBfqiesECFQinEr6D0Lx8dL'
+//		parse.parseApplicationId=System.getProperty("PARAM1")
+//		parse.parseRestApiKey =System.getProperty("PARAM2")
+		parse.parseApplicationId='b2cfHtl3JqMwg7rKfkoGJ7sh6LluiZc8RdjWCeQY'
+		parse.parseRestApiKey ='k6ybcRnaDAdfUBbLkSBfqiesECFQinEr6D0Lx8dL'
 	}
 	
 	test{

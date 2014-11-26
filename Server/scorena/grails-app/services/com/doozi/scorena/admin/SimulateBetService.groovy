@@ -14,7 +14,7 @@ class SimulateBetService {
 		
 		Random random = new Random()
 		def accounts = Account.findAllByAccountType(AccountType.TEST)
-		def upcomingGames = gameService.listUpcomingGames()
+		def upcomingGames = gameService.listUpcomingGamesData("all", "all")
 		for (int i=0; i < upcomingGames.size(); i++){
 			def upcomingGame = upcomingGames.get(i)			
 			def questions = Question.findAllByEventKey(upcomingGame.gameId)
