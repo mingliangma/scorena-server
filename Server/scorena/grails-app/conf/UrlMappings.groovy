@@ -55,6 +55,10 @@ class UrlMappings {
 			action = [GET:"getUserHistoryGames"]
 		}
 		
+		"/v1/users/$userId?/history/$gameId?/qs"(controller:"user") {
+			action = [GET:"getUserHistoryQuestions"]
+		}
+		
 		"/v1/sports/soccer/leagues/all/games/feature"(controller:"game"){
 			action = [GET:"getFeatureGames"]
 		}

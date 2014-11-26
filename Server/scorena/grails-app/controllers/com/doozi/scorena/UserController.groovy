@@ -269,10 +269,34 @@ class UserController {
 			render result as JSON
 			return
 		}
+		
 		def userId = params.userId
-		def userHistoryGames = userHistoryService.listPastGames(userId)
+		def userHistoryGames = userHistoryService.listBettedGames(userId)
 		render userHistoryGames as JSON
 		return
 	} 
+	
+	def getUserHistoryQuestions() {
+		if (!params.userId){
+			response.status = 404
+			def result = [error: "userId is required"]
+			render result as JSON
+			return
+		}
+		
+		if (!params.gameId){
+			response.status = 404
+			def result = [error: "gameId is required"]
+			render result as JSON
+			return
+		}
+		
+		def userId = params.userId
+		def gameId = params.gameId
+		
+		def userHistoryQuestions = userHistoryService.listBettedQuestions(userId, gameId)
+		render userHistoryQuestions as JSON
+		return
+	}
 
 }

@@ -220,7 +220,7 @@ class SportsDataService {
 	Map getGame(def eventKey){
 		def games = ScorenaAllGames.findAllByEventKey(eventKey)
 		
-		def gameInfo = []
+		def gameInfo = [:]
 		for (ScorenaAllGames game: games){
 			
 			def gameFullName = game.fullName.trim()

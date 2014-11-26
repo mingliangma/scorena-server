@@ -6,6 +6,7 @@ import grails.transaction.Transactional
 
 import com.doozi.scorena.transaction.BetTransaction
 import com.doozi.scorena.score.AbstractScore
+import com.doozi.scorena.Question
 
 /**
  * show user's betting game & question history
@@ -21,6 +22,7 @@ class UserHistoryService {
 	def scoreService
 	def gameUserInfoService
 	def gameService
+	def questionService
 	
 	/**
 	 * show all past game
@@ -40,7 +42,7 @@ class UserHistoryService {
 	 * @param userId
 	 * @return list of past bet games
 	 */
-	def listPastGames(def userId){
+	def listBettedGames(def userId){
 		if (userId == null) {
 			return [message:"invalid userId!(UserHistoryService::listPastGames)"]
 		}
@@ -72,6 +74,22 @@ class UserHistoryService {
 			}
 		}
 		return userHistoryGames
+	}
+	
+	/**
+	 * show user's betted questions
+	 * @param gameId
+	 * @return list of details of betted questions
+	 */
+	def listBettedQuestions(def userId, def gameId) {
+		def qId = 56
+//		def questions = Question.findByEventKey(gameId)
+//		print "question:" + questions
+		def questionDetails = questionService.getQuestion(qId, userId)
+		print "questionDetails:" + questionDetails
+		
+		return questionDetails
+		
 	}
 	
 }
