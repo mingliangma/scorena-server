@@ -146,6 +146,7 @@ class ProcessEngineImplService {
 				gameProcessRecord.lastUpdate = new Date()
 				gameProcessRecord.save(flush: true)
 				gameRecordsProcessed++
+				continue
 			}
 			
 			if (isReadyToProcess(questions, game) == true){
@@ -178,7 +179,7 @@ class ProcessEngineImplService {
 		}
 		
 		if (game.away.score == null || game.away.score == "" ||game.home.score == null || game.home.score == ""){
-			println "ProcessEngineImplService:isReadyToProcess():: returned false because game is not available."			
+			println "ProcessEngineImplService:isReadyToProcess():: returned false because game score is not available. game="+game 			
 			return false
 		}
 				
