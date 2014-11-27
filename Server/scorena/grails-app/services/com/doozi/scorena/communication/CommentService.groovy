@@ -14,7 +14,7 @@ import grails.plugins.rest.client.RestBuilder
  *
  */
 
-@Transactional
+
 class CommentService {
 
 	def helperService
@@ -72,6 +72,7 @@ class CommentService {
 	 * @param qId:question ID of the question to be commented
 	 * @return List of comments:[body,userId,userName,timeCreated]
 	 */
+	@Transactional
 	List writeComments(userId,message,qId){
 		List commentsList=[]
 		Question q = Question.findById(qId)

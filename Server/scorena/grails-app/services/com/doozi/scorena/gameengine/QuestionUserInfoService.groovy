@@ -3,6 +3,7 @@ package com.doozi.scorena.gameengine
 import java.util.Map;
 
 import com.doozi.scorena.transaction.BetTransaction
+import com.doozi.scorena.transaction.PayoutTransaction
 import com.doozi.scorena.utils.*
 import grails.transaction.Transactional
 
@@ -15,31 +16,39 @@ class QuestionUserInfoService {
 	def questionPoolUtilService
 	def poolInfoService
 	
-	Map getQuestionsUserInfo(String userId, long questionId, int winnerPick){
+	Map getQuestionsUserInfo(PayoutTransaction payout, BetTransaction userBet){
 		
 		boolean placedBet
 		int userPick
 		int userPickStatus
 		int userWager
 		int questionWinningAmount
-		
-		BetTransaction userBet = betTransactionService.getBetByQuestionIdAndUserId(questionId, userId)
-		
-		if (!userBet){
+		boolean isGameProcessed
+				
+		if (!userBet){ // user did not make a bet
 			placedBet = false
+			isGameProcessed = false
 			userPick = -1
 			userPickStatus = -1
 			userWager = 0
 			questionWinningAmount = 0
-		}else{
+		}else if (userBet && !payout){ //user made a bet but game has not processed yet 
 			placedBet = true
+			isGameProcessed = false
 			userPick=userBet.pick
-			userPickStatus = getUserPickStatus(winnerPick, userBet.pick)
+			userPickStatus = -1
 			userWager = userBet.transactionAmount
-			questionWinningAmount = getProfitInQuestion(winnerPick, userBet) 
+			questionWinningAmount = 0
+		}else { // user made a bet and the game is processed 
+			placedBet = true
+			isGameProcessed = true
+			userPick=userBet.pick
+			userPickStatus = payout.playResult
+			userWager = userBet.transactionAmount
+			questionWinningAmount = payout.profit
 		}
 
-		return [placedBet:placedBet, userPickStatus:userPickStatus, userPick:userPick, questionWinningAmount:questionWinningAmount, userWager:userWager]
+		return [placedBet:placedBet, isGameProcessed:isGameProcessed, userPickStatus:userPickStatus, userPick:userPick, questionWinningAmount:questionWinningAmount, userWager:userWager]
 	}
 	
 	int getProfitInQuestion(int winnerPick, BetTransaction bet){		
@@ -65,7 +74,7 @@ class QuestionUserInfoService {
 	}
 	
 	int getProfitInQuestion(Map game, BetTransaction bet){
-		int winnerPick = processEngineImplService.getWinningPick(game, bet.question)
+		int winnerPick = processEngineImplService.calculateWinningPick(game, bet.question)
 		return getProfitInQuestion(winnerPick, bet)
 
 	}

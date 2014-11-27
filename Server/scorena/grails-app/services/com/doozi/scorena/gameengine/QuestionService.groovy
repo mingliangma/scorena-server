@@ -7,17 +7,21 @@ import com.doozi.scorena.QuestionContent
 import com.doozi.scorena.controllerservice.SportsDataService;
 import com.doozi.scorena.gamedata.*
 import com.doozi.scorena.transaction.BetTransaction
+import com.doozi.scorena.transaction.PayoutTransaction;
 import com.doozi.scorena.utils.*
+import com.doozi.scorena.processengine.*
 
 import grails.plugins.rest.client.RestBuilder
 import grails.transaction.Transactional
 
 import java.text.DecimalFormat
+import java.util.List;
 import java.util.Map;
 
 
 class QuestionService {
 	def betTransactionService
+	def payoutTansactionService
 	def gameService
 	def parseService
 	def processEngineImplService
@@ -67,28 +71,47 @@ class QuestionService {
 		List resultList = []		
 		def questions = listQuestions(eventKey)
 		def game = gameService.getGame(eventKey)
+		List<PayoutTransaction> userPayouts = payoutTansactionService.listPayoutTransByGameIdAndUserId(eventKey, userId)
+		List<BetTransaction> userBets = betTransactionService.listBetsByUserIdAndGameId(eventKey, userId)
+		
 		def rest = new RestBuilder()
 		for (Question q: questions){
 			
 			QuestionContent questionContent = q.questionContent
+			def userInfo=[:]
+			def winnerPick =-1
+			PayoutTransaction userPayoutInThisQuestion;
+			BetTransaction userBetInThisQuestion;
+			
+			for (PayoutTransaction payout: userPayouts){
+				if (payout.question.id==q.id){
+					userPayoutInThisQuestion = payout
+				}
+			}
+			
+			for (BetTransaction bet: userBets){
+				if (bet.question.id==q.id){
+					userBetInThisQuestion = bet
+				}
+			}
+			
 			
 			if (questionContent.questionType == "disable")
 				continue
 						
-			def userInfo=[:]
-			def winnerPick =-1			
-			
 			
 			PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(q.id)
 			def pick1PayoutMultiple = questionPoolUtilService.calculatePick1PayoutMultiple(questionPoolInfo)
 			def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(questionPoolInfo)		
 
 			if (game.gameStatus.trim() == "post-event"){
-				winnerPick = processEngineImplService.getWinningPick(game, q)
+				GameProcessRecord processRecord = GameProcessRecord.findByEventKey(game.gameId)
+				if (processRecord && processRecord.transProcessStatus == TransactionProcessStatusEnum.PROCESSED)
+					winnerPick = processEngineImplService.calculateWinningPick(game, q)
 			}
 
 			if (userId != null){
-				userInfo = questionUserInfoService.getQuestionsUserInfo(userId, q.id, winnerPick)
+				userInfo = questionUserInfoService.getQuestionsUserInfo(userPayoutInThisQuestion, userBetInThisQuestion)
 			}
 			
 			String playerPictureUrl = ""
@@ -127,8 +150,6 @@ class QuestionService {
 	
 		return resultList
 	}
-	
-
 	
 	def listQuestions(eventKey){
 		return Question.findAllByEventKey(eventKey)
@@ -240,6 +261,8 @@ class QuestionService {
 		return questionCreated
 	}
 	
+
+	
 	/**
 	 * @param q: Question Object that is being requested
 	 * @param userId: the userId that user made the request
@@ -276,7 +299,7 @@ class QuestionService {
 	
 	private def getPostEventQuestion(Question q, String userId, Map game){
 
-		int winnerPick = processEngineImplService.getWinningPick(game, q)
+		int winnerPick = processEngineImplService.calculateWinningPick(game, q)
 		
 		def pick1WinningPayoutMultiple=0
 		def pick2WinningPayoutMultiple=0
@@ -565,7 +588,7 @@ class QuestionService {
 			
 			if (betTrans.pick==Pick.PICK1){
 				
-				if (pick1BettersMap.size() <=10){
+				if (pick1BettersMap.size() <=8){
 					if ( betterUsername != username){
 						pick1BettersMap.put(betterUserId,[
 							name:betterUsername,
@@ -576,7 +599,7 @@ class QuestionService {
 					}
 				}
 			}else{
-				if (pick2BettersMap.size() <=10){
+				if (pick2BettersMap.size() <=8){
 					if (betterUsername != username){
 						pick2BettersMap.put(betterUserId, [
 							name:betterUsername,
@@ -587,7 +610,7 @@ class QuestionService {
 					}
 				}
 			}
-			if (pick2BettersMap.size() >10 && pick1BettersMap.size() >10)
+			if (pick2BettersMap.size() >8 && pick1BettersMap.size() >8)
 				break
 		}		
 		
@@ -664,6 +687,8 @@ class QuestionService {
 		}
 		
 		return bettersProfileList
-	}	
+	}
+	
+	
 }
 

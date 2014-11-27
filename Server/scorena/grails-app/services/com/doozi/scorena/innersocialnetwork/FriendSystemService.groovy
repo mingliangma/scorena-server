@@ -204,7 +204,6 @@ class FriendSystemService {
 			
 			if(duplicationResultSize == 0) {
 				def friend = new FriendSystem(user1:user1,user2:user2,status:status,createdTime:createdTime,updatedTime:updatedTime)
-				friend.save()
 				
 				if (!friend.save()) {
 					friend.errors.each {
@@ -213,7 +212,7 @@ class FriendSystemService {
 					}
 				}
 				else {
-					println("facebook friend system set up successfully!")
+					println(user1.userId + " and " + user2.userId + " successfully become friend")
 					tips = []
 				}
 			}
