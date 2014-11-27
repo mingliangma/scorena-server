@@ -179,7 +179,12 @@ class QuestionService {
 	
 	def createQuestions(){
 		int questionsCreated = 0
-		List upcomingGames = gameService.listUpcomingNonCustomGames()
+		List upcomingGames = []
+		List upcomingGamesSoccer = gameService.listUpcomingNonCustomGames()
+		List upcomingGamesNBA = gameService.listUpcomingGamesData("all", "nba")
+		upcomingGames.addAll(upcomingGamesSoccer)
+		upcomingGames.addAll(upcomingGamesNBA)
+		
 		
 		for (int i=0; i < upcomingGames.size(); i++){
 			def game = upcomingGames.get(i)			
@@ -515,7 +520,7 @@ class QuestionService {
 				
 				
 			def game = gameService.getGame(question[eventKeyIndex])				
-			if (game.gameStatus == SportsDataService.PREEVENT){
+			if (game.gameStatus == SportsDataService.PREEVENT_NAME){
 				preeventQuestions.add([gameId:question[eventKeyIndex], questionId: question[quesitonIdIndex]])
 			}					
 			

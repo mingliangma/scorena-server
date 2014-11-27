@@ -39,6 +39,11 @@ class SimulateBetService {
 					}
 					
 					def result = betTransactionService.createBetTrans(_wager,_pick, account.userId, questionId)
+					if (result == [:])
+						println "SimulateBetService:simulateBetUpcoming():: successfully bet. userId="+account.username+" questionId="+questionId
+					else
+						println "SimulateBetService:simulateBetUpcoming():: bet failed. "+result
+						
 				}
 			}
 		}

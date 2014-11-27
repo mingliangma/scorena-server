@@ -153,7 +153,8 @@ class GameService {
 	
 	Map getGame(String gameId){
 		
-		if (gameId.startsWith(customGameService.CUSTOM_EVENT_PREFIX))
+		if (gameId.startsWith(customGameService.CUSTOM_EVENT_PREFIX) || 
+			gameId.startsWith(sportsDataService.getLeaguePrefixFromLeagueEnum(LeagueTypeEnum.NBA)))
 			return customGameService.getGame(gameId)
 		else	
 			return sportsDataService.getGame(gameId)

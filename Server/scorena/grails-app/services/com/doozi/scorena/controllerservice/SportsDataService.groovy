@@ -19,6 +19,12 @@ class SportsDataService {
 	final static int POSTEVENT = 3
 	final static int INTERMISSION = 2
 	final static int MIDEVENT = 1
+	final static int ALLEVENT = 4
+	
+	final static String PREEVENT_NAME = "pre-event"
+	final static String POSTEVENT_NAME = "post-event"
+	final static String INTERMISSION_NAME = "intermission"
+	final static String MIDEVENT_NAME = "mid-event"
 	
 	
 	static int UPCOMING_DATE_RANGE = 7
@@ -195,35 +201,10 @@ class SportsDataService {
 	
 	Map getGame(def eventKey){
 		def games = ScorenaAllGames.findAllByEventKey(eventKey)
+		def todayDate = new Date()
 		
-		def gameInfo = []
-		for (ScorenaAllGames game: games){
-			
-			def gameFullName = game.fullName.trim()
-			
-			if (gameInfo.empty){
-				gameInfo = [
-					"leagueName": getLeagueNameFromEventKey(eventKey),
-					"leagueCode": getLeagueCodeFromEventKey(eventKey),
-					"gameId":eventKey,
-					"type":"soccer",
-					"gameStatus":game.eventStatus,
-					"date":helperService.setUTCFormat(game.startDateTime),
-					(game.alignment):[
-						"teamname":gameFullName,
-						"score":game.score
-					]
-				]
-			}else{
-				if (!gameInfo.away){
-					gameInfo.away = ["teamname":gameFullName, "score":game.score]
-				}else{
-					gameInfo.home = ["teamname":gameFullName, "score":game.score]
-				}
-				
-			}
-		}
-		
+		def gameInfo = constructGameList(games, ALLEVENT, todayDate)[0]
+	
 		return gameInfo
 	}
 	
