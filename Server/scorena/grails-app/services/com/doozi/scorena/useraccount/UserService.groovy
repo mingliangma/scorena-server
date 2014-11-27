@@ -91,7 +91,7 @@ class UserService {
 		println "facebookFriendsUserProfiles="+facebookFriendsUserProfiles
 
 		def result = userProfileMapRender(sessionToken, currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name, 
-		userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
+		userProfile.objectId, "", "", userProfile.email, userProfile.pictureURL)
 		
 		return result
 	}
@@ -128,7 +128,7 @@ class UserService {
 
 		
 		def result = userProfileMapRender(userProfile.sessionToken, currentBalance, userProfile.createdAt, userProfile.username, displayName, 
-		userProfile.objectId, gender, region, email, userProfile.pictureURL)
+		userProfile.objectId, "", "", email, userProfile.pictureURL)
 		
 		return result		
 	}
@@ -150,7 +150,7 @@ class UserService {
 		}
 		
 		def result = userProfileMapRender(userProfile.sessionToken, account.currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name, 
-				userProfile.objectId, userProfile.gender, userProfile.region, userProfile.email, userProfile.pictureURL)
+				userProfile.objectId, "", "", userProfile.email, userProfile.pictureURL)
 		
 		return result
 	}

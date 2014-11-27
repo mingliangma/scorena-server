@@ -3,6 +3,7 @@ package com.doozi.scorena.gameengine
 import com.doozi.scorena.Question;
 import com.doozi.scorena.score.AbstractScore
 import com.doozi.scorena.transaction.BetTransaction
+import com.doozi.scorena.transaction.LeagueTypeEnum
 
 import grails.transaction.*
 
@@ -33,22 +34,40 @@ class GameService {
 		return upcomingGamesResult
 	}
 	
-	List listUpcomingGamesData(){
-		List upcomingGames = sportsDataService.getAllUpcomingGames()
-		List upcomingCustomGames = customGameService.getAllUpcomingGames()
-		List upcomingGamesResult=[]		
+	List listUpcomingGamesData(String sportType, String leagueType){
+		List upcomingGames = []
+		List upcomingCustomGames = []
+
+		if (leagueType.toUpperCase() == LeagueTypeEnum.NBA.toString()){
+			
+			upcomingCustomGames = customGameService.getAllUpcomingGames()
+		
+		}else if (leagueType.toUpperCase() == LeagueTypeEnum.EPL.toString()){
+		
+			upcomingGames = sportsDataService.getAllUpcomingGames(leagueType)
+			
+		}else if (leagueType.toUpperCase() == LeagueTypeEnum.CHAMP.toString()){
+		
+			upcomingGames = sportsDataService.getAllUpcomingGames(leagueType)
+			
+		}else{
+			upcomingCustomGames = customGameService.getAllUpcomingGames()
+			upcomingGames = sportsDataService.getAllUpcomingGames()
+		}
+		
+		List upcomingGamesResult=[]
 		upcomingGamesResult.addAll(upcomingCustomGames)
 		upcomingGamesResult.addAll(upcomingGames)
 		return upcomingGamesResult
 	}
 	
-	List listUpcomingGames(def userId){
+	List listUpcomingGames(def userId, String sportType, String leagueType){
 				
-		List upcomingGamesResult=listUpcomingGamesData()		
+		List upcomingGamesResult=listUpcomingGamesData(sportType, leagueType)		
 		List upcomingGameIds = getGameIdsFromGameData(upcomingGamesResult)
 		List<BetTransaction> betsInUpcomingGames = betTransactionService.listBetTransByGameIds(upcomingGameIds)
 		
-		
+		println "upcomingGamesResult size="+upcomingGamesResult.size()
 		for (def upcomingGame: upcomingGamesResult){
 			List<BetTransaction> allBetsInGame = getAllBetsByGameId(upcomingGame.gameId, betsInUpcomingGames)
 			upcomingGame.numPeople = getNumUsersInGame(allBetsInGame)
@@ -61,25 +80,46 @@ class GameService {
 		return upcomingGamesResult
 	}
 	
-	def listPastGamesData(){
-		List pastGames = sportsDataService.getAllPastGames()	
-		List pastCustomGames = 	customGameService.getAllPastGames()
+	def listPastGamesData(String sportType, String leagueType){
+		
+		List pastGames = []
+		List pastCustomGames = []
+
+		if (leagueType.toUpperCase() == LeagueTypeEnum.NBA.toString()){
+			
+			pastCustomGames = customGameService.getAllPastGames()
+			
+		}else if (leagueType.toUpperCase() == LeagueTypeEnum.EPL.toString()){
+		
+			pastGames = sportsDataService.getAllPastGames(leagueType)
+			
+		}else if (leagueType.toUpperCase() == LeagueTypeEnum.CHAMP.toString()){
+		
+			pastGames = sportsDataService.getAllPastGames(leagueType)
+			
+		}else{
+			pastCustomGames = customGameService.getAllPastGames()
+			pastGames = sportsDataService.getAllPastGames()
+		}
+		
+		
 		List pastGamesResult=[]	
 		pastGamesResult.addAll(pastCustomGames)
 		pastGamesResult.addAll(pastGames)
 		return pastGamesResult
 	}
 	
-	def listPastGames(def userId){
+	def listPastGames(def userId, String sportType, String leagueType){
 
-		List pastGamesResult=listPastGamesData()
+		List pastGamesResult=listPastGamesData(sportType, leagueType)
 		List pastGameIds = getGameIdsFromGameData(pastGamesResult)
-		List<BetTransaction> betsInPastGames = betTransactionService.listBetTransByGameIds(pastGameIds)
-		
-		List<AbstractScore> metalScoreTransactionList = scoreService.listBadgeScoresByUserIdAndPastGames(userId, pastGameIds)
-		
-		println "metalScoreTransactionList size = "+metalScoreTransactionList.size()
-		
+		List<BetTransaction> betsInPastGames = []
+		List<AbstractScore> metalScoreTransactionList = []
+		if (pastGameIds!=[]){
+			betsInPastGames = betTransactionService.listBetTransByGameIds(pastGameIds)
+			metalScoreTransactionList = scoreService.listBadgeScoresByUserIdAndPastGames(userId, pastGameIds)
+		}
+		 		
 		for (def pastGame: pastGamesResult){
 			if (pastGame.gameStatus != "post-event"){
 				println "gameService::listPastGames():wrong event: "+ pastGame
@@ -113,7 +153,8 @@ class GameService {
 	
 	Map getGame(String gameId){
 		
-		if (gameId.startsWith(customGameService.CUSTOM_EVENT_PREFIX))
+		if (gameId.startsWith(customGameService.CUSTOM_EVENT_PREFIX) || 
+			gameId.startsWith(sportsDataService.getLeaguePrefixFromLeagueEnum(LeagueTypeEnum.NBA)))
 			return customGameService.getGame(gameId)
 		else	
 			return sportsDataService.getGame(gameId)

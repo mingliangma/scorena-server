@@ -59,35 +59,35 @@ class UrlMappings {
 			action = [GET:"getUserHistoryQuestions"]
 		}
 		
-		"/v1/sports/soccer/leagues/all/games/feature"(controller:"game"){
+		"/v1/sports/$sportType/leagues/$leagueType/games/feature"(controller:"game"){
 			action = [GET:"getFeatureGames"]
 		}
 		
-		"/v1/sports/soccer/leagues/all/games/upcoming"(controller:"game"){
+		"/v1/sports/$sportType/leagues/$leagueType/games/upcoming"(controller:"game"){
 			action = [GET:"getUpcomingGames"]
 		}
 		
-		"/v1/sports/soccer/leagues/all/games/past"(controller:"game"){
+		"/v1/sports/$sportType/leagues/$leagueType/games/past"(controller:"game"){
 			action = [GET:"getPastGames"]
 		}
 		
-		"/v1/sports/soccer/leagues/all/games/$gameId?"(controller:"game"){
+		"/v1/sports/$sportType/leagues/$leagueType/games/$gameId?"(controller:"game"){
 			action = [GET:"getGame"]
 		}
 		
-		"/v1/sports/soccer/leagues/all/games/$gameId?/ranking"(controller:"game"){
+		"/v1/sports/$sportType/leagues/$leagueType/games/$gameId?/ranking"(controller:"game"){
 			action = [GET:"getGameRanking"]
 		}
 		
-		"/v1/sports/soccer/leagues/all/games/$gameId?/qs"(controller:"question"){
+		"/v1/sports/$sportType/leagues/$leagueType/games/$gameId?/qs"(controller:"question"){
 			action = [GET:"listQuestions"]
 		}		
 
-		"/v1/sports/soccer/leagues/all/games/$gameId?/qs/$qId?"(controller:"question"){
+		"/v1/sports/$sportType/leagues/$leagueType/games/$gameId?/qs/$qId?"(controller:"question"){
 			action = [GET:"getQuestionDetails"]
 		}
 		
-		"/v1/sports/soccer/leagues/all/wagers/new"(controller:"bet"){
+		"/v1/sports/$sportType/leagues/$leagueType/wagers/new"(controller:"bet"){
 			action = [POST:"placeBet"]
 		}
 		
@@ -117,6 +117,10 @@ class UrlMappings {
 		
 		"/v1/admin/game/autocreatequestions"(controller:"question"){
 			action = [GET:"createQuestions"]
+		}
+		
+		"/v1/admin/simulatebet"(controller:"simulateBet"){
+			action = [GET:"simulateBet"]
 		}
 		
 		"/v1/admin/tournament/new"(controller:"tournament"){
@@ -151,7 +155,7 @@ class UrlMappings {
 			action = [GET:"enrollTournament"]
 		}
 		
-		"/v1/sports/soccer/leagues/all/games/$gameId?/qs/$qId?/comments"(controller:"comment") {
+		"/v1/sports/$sportType/leagues/$leagueType/games/$gameId?/qs/$qId?/comments"(controller:"comment") {
 			action = [GET:"getExistingComments", POST:"writeComments"]
 		}
 		

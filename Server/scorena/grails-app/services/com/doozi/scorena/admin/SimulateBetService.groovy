@@ -14,7 +14,7 @@ class SimulateBetService {
 		
 		Random random = new Random()
 		def accounts = Account.findAllByAccountType(AccountType.TEST)
-		def upcomingGames = gameService.listUpcomingGames()
+		def upcomingGames = gameService.listUpcomingGamesData("all", "all")
 		for (int i=0; i < upcomingGames.size(); i++){
 			def upcomingGame = upcomingGames.get(i)			
 			def questions = Question.findAllByEventKey(upcomingGame.gameId)
@@ -39,6 +39,11 @@ class SimulateBetService {
 					}
 					
 					def result = betTransactionService.createBetTrans(_wager,_pick, account.userId, questionId)
+					if (result == [:])
+						println "SimulateBetService:simulateBetUpcoming():: successfully bet. userId="+account.username+" questionId="+questionId
+					else
+						println "SimulateBetService:simulateBetUpcoming():: bet failed. "+result
+						
 				}
 			}
 		}

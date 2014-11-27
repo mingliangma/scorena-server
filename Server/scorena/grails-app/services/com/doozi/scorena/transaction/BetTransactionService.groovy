@@ -14,11 +14,12 @@ import grails.transaction.Transactional
 
 class BetTransactionService {
 	def sportsDataService
+	def gameService
 	def customGameService	
 	def helperService
 	
 	Map createBetTrans(int playerWager, int playerPick, String userId, long quesitonId) {
-		createBetTrans( playerWager, playerPick, userId, quesitonId, new Date(), true)
+		return createBetTrans( playerWager, playerPick, userId, quesitonId, new Date(), true)
 	}
 	
 	@Transactional
@@ -26,7 +27,7 @@ class BetTransactionService {
 		
 		Account playerAccount = Account.findByUserId(userId)
 		Question question = Question.findById(quesitonId)
-		Map game = sportsDataService.getGame(question.eventKey)
+		Map game = gameService.getGame(question.eventKey)
 		if (toValidate){
 			//Find the bet transaction that associated with the given userId and questionId 
 			BetTransaction betTrans = BetTransaction.find("from BetTransaction as b where (b.question.id=? and b.account.id=?)", question.id, playerAccount.id)
@@ -183,16 +184,11 @@ class BetTransactionService {
 			return [code:202, error: "the bet transaction already exsists"]
 		}
 		
-		if (game!=[]){
-			if (game.gameStatus != sportsDataService.PREEVENT){
-				return [code:202, error: "the match is already started. All pool is closed"]
-			}
-		}else{
-			def customGame = customGameService.getGame(question.eventKey)
-			if (customGame.gameStatus != sportsDataService.PREEVENT){
-				return [code:202, error: "the match is already started. All pool is closed"]
-			}
+		if (game.gameStatus != sportsDataService.PREEVENT_NAME){
+			
+			return [code:202, error: "the match is already started. All pool is closed"]
 		}
+		
 		
 		return [:]
 	}

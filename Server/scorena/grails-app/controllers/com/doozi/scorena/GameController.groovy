@@ -55,9 +55,9 @@ class GameController {
 	def getUpcomingGames(){
 		def upcomingGames
 		if (params.userId && userService.accountExists(params.userId)){			
-			upcomingGames = gameService.listUpcomingGames(params.userId)
+			upcomingGames = gameService.listUpcomingGames(params.userId, params.sportsType, params.leagueType)
 		}else{
-			upcomingGames = gameService.listUpcomingGames(null)
+			upcomingGames = gameService.listUpcomingGames(null, params.sportsType, params.leagueType)
 		}
 
 		render upcomingGames as JSON
@@ -66,9 +66,9 @@ class GameController {
 	def getPastGames(){
 		def pastGames
 		if (params.userId && userService.accountExists(params.userId)){		
-			pastGames = gameService.listPastGames(params.userId)
+			pastGames = gameService.listPastGames(params.userId, params.sportsType, params.leagueType)
 		}else{
-			 pastGames = gameService.listPastGames(null)
+			 pastGames = gameService.listPastGames(null, params.sportsType, params.leagueType)
 		}
 
 		render pastGames as JSON

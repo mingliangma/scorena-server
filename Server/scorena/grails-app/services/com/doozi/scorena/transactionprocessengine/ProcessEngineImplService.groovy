@@ -141,17 +141,26 @@ class ProcessEngineImplService {
 			List<Question> questions = questionService.listQuestions(gameProcessRecord.eventKey)
 			Map game = gameService.getGame(gameProcessRecord.eventKey)
 			
+			if (game==[:]){
+				gameProcessRecord.transProcessStatus = TransactionProcessStatusEnum.ERROR
+				gameProcessRecord.lastUpdate = new Date()
+				gameProcessRecord.save(flush: true)
+				gameRecordsProcessed++
+				continue
+			}
+			
 			if (isReadyToProcess(questions, game) == true){
-
+				int payoutCode=0
 				for (Question q:questions){
-					int payoutCode = processPayout(q, game)
+					payoutCode = processPayout(q, game)
 					if (payoutCode==-1){
 						gameProcessRecord.transProcessStatus = TransactionProcessStatusEnum.ERROR
 						break
 					}
 				}
+				if (payoutCode == 0)
+					gameProcessRecord.transProcessStatus = TransactionProcessStatusEnum.PROCESSED
 				
-				gameProcessRecord.transProcessStatus = TransactionProcessStatusEnum.PROCESSED
 				gameProcessRecord.lastUpdate = new Date()
 				gameProcessRecord.save(flush: true)
 				gameRecordsProcessed++
@@ -164,17 +173,20 @@ class ProcessEngineImplService {
 	
 	private boolean isReadyToProcess(List<Question> questions, Map game){
 				
-		if (game.gameStatus.trim() != sportsDataService.POSTEVENT){
+		if (game.gameStatus == null || game.gameStatus.trim() != sportsDataService.POSTEVENT_NAME){
+			println "ProcessEngineImplService:isReadyToProcess():: returned false because game status is either null or preevent. gameStatus="+game.gameStatus"/"+sportsDataService.POSTEVENT_NAME
 			return false
 		}
 		
 		if (game.away.score == null || game.away.score == "" ||game.home.score == null || game.home.score == ""){
+			println "ProcessEngineImplService:isReadyToProcess():: returned false because game score is not available. game="+game 			
 			return false
 		}
 				
 		for (Question q:questions){
 			if (q.questionContent.questionType == QuestionContent.CUSTOM){
 				if (!customQuestionResultService.recordExist(q.id)){
+					println "ProcessEngineImplService:isReadyToProcess():: returned false because custom game record does not exist"
 					return false
 				}
 			}
@@ -254,43 +266,11 @@ class ProcessEngineImplService {
 	 * 			- 2 if pick2 wins
 	 * 			- 0 if ties
 	 * 			- -1 if not winning result
-	 */
-//	@Transactional
-//	def getWinningPick(String eventKey, Question question){
-//		
-//		int winnerPick = -1
-//		Map game = gameService.getGame(eventKey)
-//		if (game.gameStatus.trim() != sportsDataService.POSTEVENT){
-//			return winnerPick
-//		}
-//		
-//		QuestionContent questionContent = question.questionContent
-//		String questionType = questionContent.questionType
-//
-//		switch ( questionType ) {
-//			case QuestionContent.WHOWIN:
-//				winnerPick = getWhoWinWinnerPick(game, question)
-//				break;
-//			case QuestionContent.SCOREGREATERTHAN:
-//                winnerPick = getScoreGreaterThanWinnerPick(game, question, questionContent.indicator1)
-//				break;
-//			case QuestionContent.CUSTOM:
-//				winnerPick = getCustomQuestionWinnerPick(question)
-//				break;
-//			case QuestionContent.CUSTOMTEAM0:
-//				winnerPick = getCustomQuestionWinnerPick(question)
-//				break;
-//			case QuestionContent.CUSTOMTEAM1:
-//				winnerPick = getCustomQuestionWinnerPick(question)
-//				break;
-//		}
-//		return winnerPick
-//	}
-	
+	 */	
 	def calculateWinningPick(Map game, Question question){
 		
 		int winnerPick = -1
-		if (game.gameStatus.trim() != sportsDataService.POSTEVENT){
+		if (game.gameStatus.trim() != sportsDataService.POSTEVENT_NAME){
 			return winnerPick
 		}
 		
