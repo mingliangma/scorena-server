@@ -7,6 +7,9 @@ import grails.transaction.Transactional
 import com.doozi.scorena.transaction.BetTransaction
 import com.doozi.scorena.score.AbstractScore
 import com.doozi.scorena.Question
+import com.doozi.scorena.Account
+
+import grails.plugins.rest.client.RestBuilder
 
 /**
  * show user's betting game & question history
@@ -82,14 +85,21 @@ class UserHistoryService {
 	 * @return list of details of betted questions
 	 */
 	def listBettedQuestions(def userId, def gameId) {
-		def qId = 56
-//		def questions = Question.findByEventKey(gameId)
-//		print "question:" + questions
-		def questionDetails = questionService.getQuestion(qId, userId)
-		print "questionDetails:" + questionDetails
+		def questionDetailsList = []
+		def userBettedQuestionsDetailsList = []
 		
-		return questionDetails
+		questionDetailsList = questionService.listQuestionsWithPoolInfo(gameId, userId)
+		if (questionDetailsList != null && questionDetailsList != "") {
+			for (def questionDetails: questionDetailsList) {
+				if (questionDetails.userInfo != null && questionDetails.userInfo != "") {
+					if (questionDetails.userInfo.placedBet == true) {
+						userBettedQuestionsDetailsList.add(questionDetails)
+					}
+				}
+			}
+		}
 		
+		return userBettedQuestionsDetailsList
 	}
 	
 }
