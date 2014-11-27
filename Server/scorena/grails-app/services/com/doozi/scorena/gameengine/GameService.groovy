@@ -65,7 +65,11 @@ class GameService {
 				
 		List upcomingGamesResult=listUpcomingGamesData(sportType, leagueType)		
 		List upcomingGameIds = getGameIdsFromGameData(upcomingGamesResult)
-		List<BetTransaction> betsInUpcomingGames = betTransactionService.listBetTransByGameIds(upcomingGameIds)
+		
+		List<BetTransaction> betsInUpcomingGames = []
+		if (upcomingGameIds!=[]){
+			betsInUpcomingGames = betTransactionService.listBetTransByGameIds(upcomingGameIds)
+		}
 		
 		println "upcomingGamesResult size="+upcomingGamesResult.size()
 		for (def upcomingGame: upcomingGamesResult){
