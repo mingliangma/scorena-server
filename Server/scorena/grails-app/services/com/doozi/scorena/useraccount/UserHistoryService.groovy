@@ -80,9 +80,10 @@ class UserHistoryService {
 	}
 	
 	/**
-	 * show user's betted questions
+	 * show user's bet questions
 	 * @param gameId
-	 * @return list of details of betted questions
+	 * @param usrId
+	 * @return list of details of bet questions
 	 */
 	def listBettedQuestions(def userId, def gameId) {
 		def questionDetailsList = []
