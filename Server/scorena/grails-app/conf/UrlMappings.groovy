@@ -123,6 +123,10 @@ class UrlMappings {
 			action = [GET:"simulateBet"]
 		}
 		
+		"/v1/admin/simulatecomment"(controller:"simulateBet"){
+			action = [GET:"simulateComment"]
+		}
+		
 		"/v1/admin/tournament/new"(controller:"tournament"){
 			action = [POST:"createTournament"]
 		}
