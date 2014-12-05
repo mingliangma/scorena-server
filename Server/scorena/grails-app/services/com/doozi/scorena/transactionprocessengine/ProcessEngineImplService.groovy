@@ -25,6 +25,7 @@ class ProcessEngineImplService {
 	def scoreService
 	def questionUserInfoService
 	def helperService
+	def pushService
 	
 	private def payoutCleared(Question q){
 		def result = payoutTansactionService.getPayoutTransByQuestion(q)
@@ -207,7 +208,8 @@ class ProcessEngineImplService {
     private int processPayout(Question q, Map game) {
 			
 			println "ProcessEngineImplService::processPayout(): starts with eventKey="+game.gameId+ "questionId="+q.id
-			
+			String awayTeam = game.away.teamname
+			String homeTeam = game.home.teamname
 			int winnerPick = calculateWinningPick(game, q)
 			def payoutMultipleOfWager			
 			boolean processSuccess = true
@@ -238,7 +240,8 @@ class ProcessEngineImplService {
 			}
 			
 			List<BetTransaction> betTransactions = betTransactionService.listAllBetsByQId(q.id)
-
+			
+			ArrayList accountsList = new ArrayList()
 			for (BetTransaction bet: betTransactions){
 				
 				//Payout = 0 for the lossing side
@@ -248,11 +251,45 @@ class ProcessEngineImplService {
 					payout =  Math.floor(bet.transactionAmount*payoutMultipleOfWager)
 								
 				int playResult = questionUserInfoService.getUserPickStatus(winnerPick, bet.pick)
+				
+				// adds bet account to list of payout accounts if it does not already contain the account
+				if (!accountsList.contains(bet.account))
+				{
+					accountsList.add(bet.account)
+				}
+				
 				def code = payoutTansactionService.createPayoutTrans(bet.account,q, payout, winnerPick, bet.transactionAmount, bet.pick, playResult, helperService.parseDateFromString(game.date))
-				if (code==-1){
+				if (code==-1)
+				{
 					return -1
 				}
 			}
+			
+			// for each account in the payout accounts 
+			for (Account user: accountsList)
+			{
+				def userPayout = PayoutTransaction.executeQuery("Select sum(profit) from PayoutTransaction p where  p.account.id =? and eventKey = ?", [ user.id,game.gameId])
+				
+				
+				System.out.println(user.id + " - Profit: " + userPayout[0])
+				String msg = ""
+				
+				if (userPayout[0] > 0)
+				{
+					msg = "Congratulations! You have won " + userPayout[0] +" Coins in game "+ awayTeam +" vs "+ homeTeam 
+				}
+				else
+				{
+					msg = "Sorry, You have lost "+userPayout[0]+" Coins in game "+ awayTeam +" vs "+ homeTeam 
+				}
+				
+				// sends end of game push to user with amount of coins won or lost 
+				def payoutPush = pushService.endOfGamePush(game.gameId,user.username,msg)
+				
+				
+			}
+			
+			
 			return 0
 			
 			println "ProcessEngineImplService::processPayout(): ends"

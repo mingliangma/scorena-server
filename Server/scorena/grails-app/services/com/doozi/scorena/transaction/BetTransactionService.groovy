@@ -17,6 +17,7 @@ class BetTransactionService {
 	def gameService
 	def customGameService	
 	def helperService
+	def pushService
 	
 	Map createBetTrans(int playerWager, int playerPick, String userId, long quesitonId) {
 		return createBetTrans( playerWager, playerPick, userId, quesitonId, new Date(), true)
@@ -42,6 +43,10 @@ class BetTransactionService {
 		BetTransaction newBetTransaction = new BetTransaction(transactionAmount: playerWager, createdAt: transactionDate, 
 			pick: playerPick, eventKey: question.eventKey, league: sportsDataService.getLeagueCodeFromEventKey(question.eventKey), gameStartTime:helperService.parseDateFromString(game.date))
 		
+		//String awayTeam = game.away.teamname
+		//String homeTeam = game.home.teamname
+		
+		
 		
 		playerAccount.addToTrans(newBetTransaction)
 		question.addToBetTrans(newBetTransaction)
@@ -58,6 +63,15 @@ class BetTransactionService {
 			System.out.println("---------------q save failed")
 			return [code:202, error: "Question data is not saved"]
 		}		
+		
+		// gets the users decvice installation ID by username
+		String objectID = pushService.getInstallationByUsername(playerAccount.username)
+		
+		// preps event key for pars channel. parse does not allow for  '.' in a channel name, replase it with a "_"
+		String parse_channel = question.eventKey.replace(".","_")
+		
+		// Registers user device into push channel for game event key
+		def test = pushService.updateGameChannel(objectID, parse_channel)
 
 		return [:]
 	}	

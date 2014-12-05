@@ -114,6 +114,7 @@ environments {
 //		scorena real data/scorenat-env 
 		parse.parseApplicationId='b2cfHtl3JqMwg7rKfkoGJ7sh6LluiZc8RdjWCeQY'
 		parse.parseRestApiKey ='k6ybcRnaDAdfUBbLkSBfqiesECFQinEr6D0Lx8dL'
+		parse.parseMasterKey='PrEDT2TQfCQcrkY0oFr6XaW4XvdKhzyeMp3F6XsC'
 		
 		//scorena test 3
 //		parse.parseApplicationId='sxfzjYsgGiSXVwr7pj6vmaFR2f8ok9YGrnXGfx91'
@@ -125,6 +126,7 @@ environments {
 		parse.parseRestApiKey =System.getProperty("PARAM2")
 		parse.parseApplicationId_t3=System.getProperty("PARAM3")
 		parse.parseRestApiKey_t3 =System.getProperty("PARAM4")
+		
     }
 	
 	heng {
@@ -143,6 +145,7 @@ environments {
 		grails.logging.jul.usebridge = true
 		parse.parseApplicationId='bkGa8TOi7bq4KTvJk5yIC0mzXfkc0kVdjHFkNqap'
 		parse.parseRestApiKey ='ZcmOhNQlwH3wmmlObsuWUJ3qGkqoPLcc2zBoKAwT'
+		parse.parseMasterKey ='eOifDVVGBEg0rmgSvOrsQyEmh7IEL11AceVeYgUq'
 	}
 	thomas {
 		grails.logging.jul.usebridge = true

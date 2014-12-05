@@ -131,6 +131,18 @@ class UrlMappings {
 			action = [POST:"createTournament"]
 		}
 		
+		"/v1/admin/push/addChannel"(controller:"push"){
+			action = [GET:"updateChannel"]
+		}
+		
+		"/v1/admin/push/removeChannel"(controller:"push"){
+			action = [GET:"removeChannel"]
+		}
+		
+		"/v1/admin/push/getUser"(controller:"push"){
+			action = [GET:"getUserInstallationID"]
+		}
+				
 		"/v1/iap/getNonce"(controller:"IAP"){
 			action = [POST:"getNonce"]
 		}
