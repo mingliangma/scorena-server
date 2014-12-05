@@ -10,6 +10,7 @@ import com.doozi.scorena.transaction.BetTransaction
 import com.doozi.scorena.transaction.PayoutTransaction
 import com.doozi.scorena.processengine.*
 
+import grails.plugins.rest.client.RestBuilder
 import grails.transaction.Transactional
 
 
@@ -264,6 +265,7 @@ class ProcessEngineImplService {
 					return -1
 				}
 			}
+			def rest = new RestBuilder()
 			
 			// for each account in the payout accounts 
 			for (Account user: accountsList)
@@ -284,7 +286,7 @@ class ProcessEngineImplService {
 				}
 				
 				// sends end of game push to user with amount of coins won or lost 
-				def payoutPush = pushService.endOfGamePush(game.gameId,user.username,msg)
+				def payoutPush = pushService.endOfGamePush(rest,game.gameId,user.username,msg)
 				
 				
 			}

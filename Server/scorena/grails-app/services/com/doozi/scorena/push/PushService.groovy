@@ -11,10 +11,10 @@ class PushService {
 	def grailsApplication
 	def gameService
 	
-    def updateGameChannel(String objectID, String eventKey)
+    def updateGameChannel(def rest, String objectID, String eventKey)
 	{
 		def parseConfig = grailsApplication.config.parse		
-		def rest = new RestBuilder()
+		
 		def param = ["__op": "AddUnique" ,"objects":[(eventKey)]]
 		def resp = rest.put("https://api.parse.com/1/installations/"+ objectID)
 		{
@@ -29,11 +29,11 @@ class PushService {
 		return resp.json.toString()
 	}
 	
-	def removeGameChannel(String objectID,String eventKey)
+	def removeGameChannel(def rest, String objectID,String eventKey)
 	{
 		def parseConfig = grailsApplication.config.parse
 		
-		def rest = new RestBuilder()
+		
 		def param = ["__op": "Remove" ,"objects":[(eventKey)]]
 		def resp = rest.put("https://api.parse.com/1/installations/"+ objectID)
 		{
@@ -47,10 +47,10 @@ class PushService {
 		return resp.json.toString()
 	}
 	
-	def getInstallationByUsername(String user)
+	def getInstallationByUsername(def rest, String user)
 	{
 		def parseConfig = grailsApplication.config.parse
-		def rest = new RestBuilder()
+		
 		def param = ["username": (user)]
 		def resp = rest.get("https://api.parse.com/1/installations/")
 		{
@@ -68,7 +68,7 @@ class PushService {
 		return resp.json.results[0].objectId.toString()
 	}
 	
-	def sendGameStartPush(String eventKey)
+	def sendGameStartPush(def rest, String eventKey)
 	{
 		def parseConfig = grailsApplication.config.parse
 		def Map game = gameService.getGame(eventKey)
@@ -77,7 +77,7 @@ class PushService {
 		String away = game.away.teamname
 		String msg =  "The game you picked between"+ away +" vs"+ home +" will start shortly."
 		
-		def rest = new RestBuilder()
+		
 		def chanParam = ["channels":['$in':[(eventKey)]]] 
 		def alertParam = ["alert": (msg)]
 		def resp = rest.post("https://api.parse.com/1/push")
@@ -95,11 +95,11 @@ class PushService {
 		return resp.json.toString()
 	}
 	
- def endOfGamePush(String eventKey,String user, String msg)
+ def endOfGamePush(def rest, String eventKey,String user, String msg)
  {
 	 def parseConfig = grailsApplication.config.parse
 	 def Map game = gameService.getGame(eventKey)
-	 def rest = new RestBuilder()
+	 
 	 def userParam = ["username": (user)]
 	 def chanParam = ["channels":['$in':[(eventKey)]]]
 	 def alertParam = ["alert": (msg)]

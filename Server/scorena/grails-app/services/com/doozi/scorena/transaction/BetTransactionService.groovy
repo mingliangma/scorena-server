@@ -9,6 +9,7 @@ import com.doozi.scorena.transaction.PayoutTransaction
 
 import org.hibernate.criterion.CriteriaSpecification
 
+import grails.plugins.rest.client.RestBuilder
 import grails.transaction.Transactional
 
 
@@ -64,14 +65,15 @@ class BetTransactionService {
 			return [code:202, error: "Question data is not saved"]
 		}		
 		
+		def rest = new RestBuilder()
 		// gets the users decvice installation ID by username
-		String objectID = pushService.getInstallationByUsername(playerAccount.username)
+		String objectID = pushService.getInstallationByUsername(rest, playerAccount.username)
 		
 		// preps event key for pars channel. parse does not allow for  '.' in a channel name, replase it with a "_"
 		String parse_channel = question.eventKey.replace(".","_")
 		
 		// Registers user device into push channel for game event key
-		def test = pushService.updateGameChannel(objectID, parse_channel)
+		def test = pushService.updateGameChannel(rest, objectID, parse_channel)
 
 		return [:]
 	}	
