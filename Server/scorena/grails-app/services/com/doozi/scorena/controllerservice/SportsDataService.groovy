@@ -32,6 +32,7 @@ class SportsDataService {
 	
 	def helperService
 	def customGameService
+	def teamLogoService
 		
 	public String getLeagueNameFromEventKey(String eventKey){
 
@@ -257,7 +258,7 @@ class SportsDataService {
 						(game.alignment):[
 							"teamname":gameFullName,
 							"score":game.score,
-							"teamLogoUrl": "https://s3-us-west-2.amazonaws.com/teamlogo/world_cup/default.png"
+							"teamLogoUrl": teamLogoService.getTeamLogo(gameFullName)
 						]
 				]
 				gamesMap.putAt(eventKey, gameInfo)
@@ -270,9 +271,9 @@ class SportsDataService {
 				}
 			
 				if (!gamesMapValue.away){
-					gamesMapValue.away = ["teamname":gameFullName, "score":game.score, "teamLogoUrl": "https://s3-us-west-2.amazonaws.com/teamlogo/world_cup/default.png"]
+					gamesMapValue.away = ["teamname":gameFullName, "score":game.score, "teamLogoUrl": teamLogoService.getTeamLogo(gameFullName)]
 				}else{
-					gamesMapValue.home = ["teamname":gameFullName, "score":game.score, "teamLogoUrl": "https://s3-us-west-2.amazonaws.com/teamlogo/world_cup/default.png"]
+					gamesMapValue.home = ["teamname":gameFullName, "score":game.score, "teamLogoUrl": teamLogoService.getTeamLogo(gameFullName)]
 				}
 				gamesList.add(gamesMapValue)
 				

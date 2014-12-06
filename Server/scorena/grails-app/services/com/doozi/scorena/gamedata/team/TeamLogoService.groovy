@@ -107,8 +107,11 @@ class TeamLogoService {
 	public static final String USA_TEAMNAME = "United States"
 	public static final String URUGUAY_TEAMNAME = "Uruguay"
 	
-    String getTeamLogo(String teamId) {
-		switch (teamId){
+	
+	
+	
+    String getTeamLogo(String teamName) {
+		switch (teamName){
 			case ALGERIA_TEAMNAME:
 				return ALGERIA_LOGO_URL
 			case ARGENTINA_TEAMNAME:
