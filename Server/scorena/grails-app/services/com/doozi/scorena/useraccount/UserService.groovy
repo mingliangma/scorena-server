@@ -86,10 +86,15 @@ class UserService {
 			currentBalance = account.currentBalance
 		}
 		
-		//TODO: automatically add facebook friends to scorena friend system
-		Map facebookFriendsUserProfiles = parseService.retrieveUserListByFBIds(facebookIds)		
-		println "facebookFriendsUserProfiles="+facebookFriendsUserProfiles
-
+		//automatically add facebook friends to scorena friend system
+		def tips = []
+		List facebookFriendUserIdList = getFacebookFrdsUserId(facebookIds)
+		def currentUserId = account.userId
+		for(String facebookFriendUserId: facebookFriendUserIdList) {
+			tips = friendSystemService.addFacebookFriend(currentUserId, facebookFriendUserId)
+		}
+		println "tips:" + tips
+		
 		def result = userProfileMapRender(sessionToken, currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name, 
 		userProfile.objectId, "", "", userProfile.email, userProfile.pictureURL)
 		
@@ -283,7 +288,18 @@ class UserService {
 	}
 
 	private List getFacebookFrdsUserId(List facebookIds){
-		Map userProfiles = parseService.retrieveUserListByFBIds(facebookIds)
+		Map userProfilesMap = parseService.retrieveUserListByFBIds(facebookIds)
+		
+		println "userProfiles:" + userProfilesMap
+		
+		List userProfileList = userProfilesMap.results	//TODO format of Map userProfiles
+		List userIdList = []
+		
+		for(Map userProfile: userProfileList) {
+			userIdList.add(userProfile.objectId)
+		}
+		
+		return userIdList
 	}
 
 
