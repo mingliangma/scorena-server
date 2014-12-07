@@ -155,6 +155,7 @@ environments {
 		grails.logging.jul.usebridge = true
 		parse.parseApplicationId='0A3t5j5PjNlNEEGeP2DFPvFyNdGHJTXfG1fs0vJs'
 		parse.parseRestApiKey ='2c08ezR05XjsWfYpX853Zh4uQSY9xLV9aqMzTd9B'
+		parse.parseMasterKey ='9hmBGNzQYJ2RMamZ2ZJUizymKI8gfIwiISVHTFOX'
 	}
 }
 
