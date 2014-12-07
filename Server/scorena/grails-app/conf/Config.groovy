@@ -92,6 +92,8 @@ environments {
         grails.logging.jul.usebridge = true
 		parse.parseApplicationId='kEepaeRdIInsSbptLl4lZ6xiZg7nv7bEOV56ym9m'
 		parse.parseRestApiKey ='QSBmZXNUjRMtKwWcqB7jLQgtZizCSMBBeoBQHIql'
+		parse.parseMasterKey ='yJmLOwQM0z6GaD1d794Kb90086nsLiWXKgaRIh5I'
+		
     }
 	
 	awsdev {
@@ -100,6 +102,7 @@ environments {
 //		parse.parseRestApiKey =System.getProperty("PARAM2")
 		parse.parseApplicationId='b2cfHtl3JqMwg7rKfkoGJ7sh6LluiZc8RdjWCeQY'
 		parse.parseRestApiKey ='k6ybcRnaDAdfUBbLkSBfqiesECFQinEr6D0Lx8dL'
+		parse.parseMasterKey ='PrEDT2TQfCQcrkY0oFr6XaW4XvdKhzyeMp3F6XsC'
 	}
 	
 	test{
@@ -139,6 +142,7 @@ environments {
 		grails.logging.jul.usebridge = true
 		parse.parseApplicationId='fTRyi6N1Mbiguvr5MnpUgbyfoz0mOUF5YomNHDlj'
 		parse.parseRestApiKey ='7vZeox8CEOLh8RSBw7E7SbOtBmdxDIoLjL8e5gus'
+		parse.parseMasterKey =''
 	}
 	
 	joel {

@@ -212,7 +212,7 @@ class FriendSystemService {
 					}
 				}
 				else {
-					println(user1.userId + " and " + user2.userId + " successfully become friend")
+					println(user1.username + " and " + user2.username + " successfully become friend")
 					tips = []
 				}
 			}

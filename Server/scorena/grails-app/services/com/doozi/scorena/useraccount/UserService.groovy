@@ -66,7 +66,7 @@ class UserService {
 		return [username: userAccount.username, userId: userAccount.userId, currentBalance: userAccount.currentBalance, newCoinsAmount: FREE_COIN_AMOUNT]
 	}
 	
-	def createSocialNetworkUser(String sessionToken, List facebookIds){
+	def createSocialNetworkUser(String sessionToken){
 		int currentBalance = SOCIALNETWORK_INITIAL_BALANCE
 		RestBuilder rest = new RestBuilder()
 		
@@ -82,18 +82,20 @@ class UserService {
 			if (accountCreationResult!=[:]){
 				return accountCreationResult
 			}
+			
+			//automatically add facebook friends to scorena friend system
+			def tips = []
+			List facebookFriendUserIdList = getFacebookFrdsUserId((List)userProfile.fbFriends)
+			def currentUserId = userProfile.objectId
+			for(String facebookFriendUserId: facebookFriendUserIdList) {
+				tips = friendSystemService.addFacebookFriend(currentUserId, facebookFriendUserId)
+			}
+			println "tips:" + tips
 		}else{
 			currentBalance = account.currentBalance
 		}
 		
-		//automatically add facebook friends to scorena friend system
-		def tips = []
-		List facebookFriendUserIdList = getFacebookFrdsUserId(facebookIds)
-		def currentUserId = account.userId
-		for(String facebookFriendUserId: facebookFriendUserIdList) {
-			tips = friendSystemService.addFacebookFriend(currentUserId, facebookFriendUserId)
-		}
-		println "tips:" + tips
+
 		
 		def result = userProfileMapRender(sessionToken, currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name, 
 		userProfile.objectId, "", "", userProfile.email, userProfile.pictureURL)
