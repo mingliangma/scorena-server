@@ -2,7 +2,7 @@ package com.doozi.scorena.gamedata.team
 
 import grails.transaction.Transactional
 
-@Transactional
+
 class TeamLogoService {
 
 	
@@ -40,6 +40,8 @@ class TeamLogoService {
 	public static final String URUGUAY_TEAMID = "o.fifa.com-t.2300"
 	
 	
+	//World Cup Logo URL
+	public static final String DEFAULT_LOGO_URL = "https://s3-us-west-2.amazonaws.com/teamlogo/world_cup/default.png"
 	public static final String ALGERIA_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/world_cup/Algeria.png'
 	public static final String ARGENTINA_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/world_cup/Argentina.png'
 	public static final String AUSTRALIA_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/world_cup/Australia.png'
@@ -72,7 +74,29 @@ class TeamLogoService {
 	public static final String SWITZERLAND_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/world_cup/Switzerland.png'
 	public static final String USA_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/world_cup/USA.png'
 	public static final String URUGUAY_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/world_cup/Uruguay.png'
-	public static final String DEFAULT_LOGO_URL = ""
+	
+	//EPL LOGO URL
+	public static final String ARSENAL_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/Arsenal+FC.png'
+	public static final String ASTON_VILLA_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/Aston+Villa+FC.png'
+	public static final String BURNLEY_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/Burnley_Football_Club.png'
+	public static final String CHELSEA_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/Chelsea+FC.png'
+	public static final String CRYSTAL_PALACE_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/Crystal+Palace.png'
+	public static final String EVERTON_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/Everton+FC.png'
+	public static final String FULHAM_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/Fulham+FC.png'
+	public static final String HULL_CITY_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/Hull_City_AFC_logo.png'
+	public static final String LEICESTER_CITY_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/Leicester_City_FC_logo.png'
+	public static final String LIVERPOOL_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/Liverpool+FC.png'
+	public static final String MANCITY_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/Manchester+City+FC.png'
+	public static final String MANUNITED_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/Manchester+United+FC.png'
+	public static final String NEWCASTLE_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/Newcastle+United+FC.png'
+	public static final String QPR_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/Queens+Park+Rangers+FC.png'
+	public static final String SOUTHAMPTON_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/Southampton+FC.png'
+	public static final String STOKE_CITY_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/Stoke+City+FC.png'
+	public static final String SUNDERLAND_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/Sunderland+FC.png'
+	public static final String SWANSEA_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/Swansea+City+AFC.png'
+	public static final String TOTTENHAM_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/Tottenham+Hotspur+FC.png'
+	public static final String WEST_BROM_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/West+Bromwich+Albion+FC.png'
+	public static final String WEST_HAM_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/West+Ham+United+FC.png'
 	
 	public static final String ALGERIA_TEAMNAME = "Algeria"
 	public static final String ARGENTINA_TEAMNAME = "Argentina"
@@ -107,77 +131,144 @@ class TeamLogoService {
 	public static final String USA_TEAMNAME = "United States"
 	public static final String URUGUAY_TEAMNAME = "Uruguay"
 	
-	
+	public static final String ARSENAL_TEAMNAME = "Arsenal"
+	public static final String ASTON_VILLA_TEAMNAME = "Aston Villa"
+	public static final String BURNLEY_TEAMNAME = "Burnley"
+	public static final String CHELSEA_TEAMNAME = "Chelsea"
+	public static final String CRYSTAL_PALACE_TEAMNAME = "Crystal Palace"
+	public static final String EVERTON_TEAMNAME = "Everton"
+	public static final String FULHAM_TEAMNAME = "Fulham"
+	public static final String HULL_CITY_TEAMNAME = "Hull City"
+	public static final String LEICESTER_CITY_TEAMNAME = "Leicester City"
+	public static final String LIVERPOOL_TEAMNAME = "Liverpool"
+	public static final String MANCITY_TEAMNAME = "Manchester City"
+	public static final String MANUNITED_TEAMNAME = "Manchester United"
+	public static final String NEWCASTLE_TEAMNAME = "Newcastle"
+	public static final String QPR_TEAMNAME = "Queens Park Rangers"
+	public static final String SOUTHAMPTON_TEAMNAME = "Southampton"
+	public static final String STOKE_CITY_TEAMNAME = "Stoke City"
+	public static final String SUNDERLAND_TEAMNAME = "Sunderland"
+	public static final String SWANSEA_TEAMNAME = "Swansea"
+	public static final String TOTTENHAM_TEAMNAME = "Tottenham"
+	public static final String WEST_BROM_TEAMNAME = "West Bromwich"
+	public static final String WEST_HAM_TEAMNAME = "West Ham"
 	
 	
     String getTeamLogo(String teamName) {
-		switch (teamName){
-			case ALGERIA_TEAMNAME:
+		
+		switch (teamName.toLowerCase()){
+			case ALGERIA_TEAMNAME.toLowerCase():
 				return ALGERIA_LOGO_URL
-			case ARGENTINA_TEAMNAME:
+			case ARGENTINA_TEAMNAME.toLowerCase():
 				return ARGENTINA_LOGO_URL
-			case AUSTRALIA_TEAMNAME:
+			case AUSTRALIA_TEAMNAME.toLowerCase():
 				return AUSTRALIA_LOGO_URL
-			case BELGIUM_TEAMNAME:
+			case BELGIUM_TEAMNAME.toLowerCase():
 				return BELGIUM_LOGO_URL
-			case BOSNIA_TEAMNAME:
+			case BOSNIA_TEAMNAME.toLowerCase():
 				return BOSNIA_LOGO_URL
-			case BRAZIL_TEAMNAME:
+			case BRAZIL_TEAMNAME.toLowerCase():
 				return BRAZIL_LOGO_URL
-			case CAMEROON_TEAMNAME:
+			case CAMEROON_TEAMNAME.toLowerCase():
 				return CAMEROON_LOGO_URL
-			case CHILE_TEAMNAME:
+			case CHILE_TEAMNAME.toLowerCase():
 				return CHILE_LOGO_URL
-			case COLOMBIA_TEAMNAME:
+			case COLOMBIA_TEAMNAME.toLowerCase():
 				return COLOMBIA_LOGO_URL
-			case COSTARICA_TEAMNAME:
+			case COSTARICA_TEAMNAME.toLowerCase():
 				return COSTARICA_LOGO_URL
-			case COTEDIVIRE_TEAMNAME:
+			case COTEDIVIRE_TEAMNAME.toLowerCase():
 				return COTEDIVIRE_LOGO_URL
-			case CROATIA_TEAMNAME:
+			case CROATIA_TEAMNAME.toLowerCase():
 				return CROATIA_LOGO_URL
-			case ECUADOR_TEAMNAME:
+			case ECUADOR_TEAMNAME.toLowerCase():
 				return ECUADOR_LOGO_URL
-			case ENGLAND_TEAMNAME:
+			case ENGLAND_TEAMNAME.toLowerCase():
 				return ENGLAND_LOGO_URL
-			case FRANCE_TEAMNAME:
+			case FRANCE_TEAMNAME.toLowerCase():
 				return FRANCE_LOGO_URL
-			case GERMAN_TEAMNAME:
+			case GERMAN_TEAMNAME.toLowerCase():
 				return GERMAN_LOGO_URL
-			case GHANA_TEAMNAME:
+			case GHANA_TEAMNAME.toLowerCase():
 				return GHANA_LOGO_URL
-			case GREECE_TEAMNAME:
+			case GREECE_TEAMNAME.toLowerCase():
 				return GREECE_LOGO_URL
-			case HONDURAS_TEAMNAME:
+			case HONDURAS_TEAMNAME.toLowerCase():
 				return HONDURAS_LOGO_URL
-			case IRAN_TEAMNAME:
+			case IRAN_TEAMNAME.toLowerCase():
 				return IRAN_LOGO_URL
-			case ITALY_TEAMNAME:
+			case ITALY_TEAMNAME.toLowerCase():
 				return ITALY_LOGO_URL
-			case JAPAN_TEAMNAME:
+			case JAPAN_TEAMNAME.toLowerCase():
 				return JAPAN_LOGO_URL
-			case MEXICO_TEAMNAME:
+			case MEXICO_TEAMNAME.toLowerCase():
 				return MEXICO_LOGO_URL
-			case NETHERLANDS_TEAMNAME:
+			case NETHERLANDS_TEAMNAME.toLowerCase():
 				return NETHERLANDS_LOGO_URL
-			case NIGERIA_TEAMNAME:
+			case NIGERIA_TEAMNAME.toLowerCase():
 				return NIGERIA_LOGO_URL
-			case PORTUGAL_TEAMNAME:
+			case PORTUGAL_TEAMNAME.toLowerCase():
 				return PORTUGAL_LOGO_URL
-			case RUSSIA_TEAMNAME:
+			case RUSSIA_TEAMNAME.toLowerCase():
 				return RUSSIA_LOGO_URL
-			case SOUTHKOREA_TEAMNAME:
+			case SOUTHKOREA_TEAMNAME.toLowerCase():
 				return SOUTHKOREA_LOGO_URL
-			case SPAIN_TEAMNAME:
+			case SPAIN_TEAMNAME.toLowerCase():
 				return SPAIN_LOGO_URL
-			case SWITZERLAND_TEAMNAME:
+			case SWITZERLAND_TEAMNAME.toLowerCase():
 				return SWITZERLAND_LOGO_URL
-			case USA_TEAMNAME:
+			case USA_TEAMNAME.toLowerCase():
 				return USA_LOGO_URL
-			case URUGUAY_TEAMNAME:
+			case URUGUAY_TEAMNAME.toLowerCase():
 				return URUGUAY_LOGO_URL
+			case ARSENAL_TEAMNAME.toLowerCase():
+				return ARSENAL_LOGO_URL
+			case ASTON_VILLA_TEAMNAME.toLowerCase():
+				return ASTON_VILLA_LOGO_URL
+			case BURNLEY_TEAMNAME.toLowerCase():
+				return BURNLEY_LOGO_URL
+			case CHELSEA_TEAMNAME.toLowerCase():
+				return CHELSEA_LOGO_URL
+			case CRYSTAL_PALACE_TEAMNAME.toLowerCase():
+				return CRYSTAL_PALACE_LOGO_URL
+			case CHELSEA_TEAMNAME.toLowerCase():
+				return CHELSEA_LOGO_URL
+			case EVERTON_TEAMNAME.toLowerCase():
+				return EVERTON_LOGO_URL
+			case FULHAM_TEAMNAME.toLowerCase():
+				return FULHAM_LOGO_URL
+			case HULL_CITY_TEAMNAME.toLowerCase():
+				return HULL_CITY_LOGO_URL
+			case LEICESTER_CITY_TEAMNAME.toLowerCase():
+				return LEICESTER_CITY_LOGO_URL
+			case LIVERPOOL_TEAMNAME.toLowerCase():
+				return LIVERPOOL_LOGO_URL
+			case MANCITY_TEAMNAME.toLowerCase():
+				return MANCITY_LOGO_URL
+			case MANUNITED_TEAMNAME.toLowerCase():
+				return MANUNITED_LOGO_URL
+			case NEWCASTLE_TEAMNAME.toLowerCase():
+				return NEWCASTLE_LOGO_URL
+			case QPR_TEAMNAME.toLowerCase():
+				return QPR_LOGO_URL
+			case SOUTHAMPTON_TEAMNAME.toLowerCase():
+				return SOUTHAMPTON_LOGO_URL
+			case STOKE_CITY_TEAMNAME.toLowerCase():
+				return STOKE_CITY_LOGO_URL
+			case SUNDERLAND_TEAMNAME.toLowerCase():
+				return SUNDERLAND_LOGO_URL
+			case SWANSEA_TEAMNAME.toLowerCase():
+				return SWANSEA_LOGO_URL
+			case TOTTENHAM_TEAMNAME.toLowerCase():
+				return TOTTENHAM_LOGO_URL
+			case WEST_BROM_TEAMNAME.toLowerCase():
+				return WEST_BROM_LOGO_URL
+			case WEST_HAM_TEAMNAME.toLowerCase():
+				return WEST_HAM_LOGO_URL
+			default:
+				return DEFAULT_LOGO_URL
 		}
-		return DEFAULT_LOGO_URL
+		
 
 	}
 }

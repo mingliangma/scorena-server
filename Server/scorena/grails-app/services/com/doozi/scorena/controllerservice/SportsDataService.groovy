@@ -223,6 +223,7 @@ class SportsDataService {
 			def gamesMapValue = gamesMap.get(eventKey)
 			def gameFullName = game.fullName.trim()
 			
+			
 			String matchDateString = helperService.setUTCFormat(game.startDateTime)
 			def matchDate = helperService.parseDateFromString(matchDateString)
 			
