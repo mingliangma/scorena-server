@@ -19,7 +19,7 @@ class PushController {
 	
 	def getUserInstallationID()
 	{
-		def installation = pushService.getInstallationByUsername(params.user)
+		def installation = pushService.getInstallationByUserID(params.user)
 		render installation 
 	//	render installation as JSON
 	}
