@@ -67,7 +67,7 @@ class BetTransactionService {
 		
 		def rest = new RestBuilder()
 		// gets the users decvice installation ID by username
-		String objectID = pushService.getInstallationByUsername(rest, playerAccount.username)
+		String objectID = pushService.getInstallationByUserID(rest, playerAccount.userId)
 		
 		// preps event key for pars channel. parse does not allow for  '.' in a channel name, replase it with a "_"
 		String parse_channel = question.eventKey.replace(".","_")

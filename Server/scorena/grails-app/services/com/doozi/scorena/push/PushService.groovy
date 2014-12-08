@@ -47,11 +47,11 @@ class PushService {
 		return resp.json.toString()
 	}
 	
-	def getInstallationByUsername(def rest, String user)
+	def getInstallationByUserID(def rest, String userid)
 	{
 		def parseConfig = grailsApplication.config.parse
 		
-		def param = ["username": (user)]
+		def param = ["userId": (userid)]
 		def resp = rest.get("https://api.parse.com/1/installations/")
 		{
 			header 	"X-Parse-Application-Id", parseConfig.parseApplicationId
@@ -95,12 +95,12 @@ class PushService {
 		return resp.json.toString()
 	}
 	
- def endOfGamePush(def rest, String eventKey,String user, String msg)
+ def endOfGamePush(def rest, String eventKey,String userid, String msg)
  {
 	 def parseConfig = grailsApplication.config.parse
 	 def Map game = gameService.getGame(eventKey)
 	 
-	 def userParam = ["username": (user)]
+	 def userParam = ["userId": (userid)]
 	 def chanParam = ["channels":['$in':[(eventKey)]]]
 	 def alertParam = ["alert": (msg)]
 	 def resp = rest.post("https://api.parse.com/1/push")
