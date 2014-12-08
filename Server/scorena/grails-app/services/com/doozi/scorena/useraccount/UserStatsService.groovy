@@ -73,11 +73,11 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 	
 	def gameStats = [totalScore:[total:0,leagues:getLeagueScores(userScores)],
 		totalMedal:[question:0,bronze:0,silver:0,gold:0,leagues:getLeagueMedals(userScores)],
-		all:[netGain:0, wins:0, losses:0, ties:0, leagues:getLeagueStats(accountId)],
+		all:[coinGain:0, coinLosses:0, netGain:0, wins:0, losses:0, ties:0, leagues:getLeagueStats(accountId)],
 		month:helperService.getMonthString(month, firstOfMonth),
 		monthScore:[total:0,leagues:getLeagueScoresMonth(userScores,firstOfMonth,lastOfMonth)],
 		monthMedal:[question:0,bronze:0,silver:0,gold:0,leagues:getLeagueMedalsMonth(userScores,firstOfMonth,lastOfMonth)],
-		monthly:[netGain:0, wins:0, losses:0, ties:0,leagues:getLeagueStats(accountId)]
+		monthly:[coinGain:0, coinLosses:0,netGain:0, wins:0, losses:0, ties:0,leagues:getLeagueStats(accountId)]
 	//	weekly:[netGain:0, wins:0, losses:0, ties:0,leagues:getLeagueStats(accountId)]
 		]
 	
@@ -143,32 +143,48 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 	{
 		if (tran.createdAt > firstOfMonth && tran.createdAt < lastOfMonth)
 		{
-			gameStats.monthly.netGain+=(tran.transactionAmount - tran.initialWager)
-			gameStats.all.netGain+=(tran.transactionAmount - tran.initialWager)
-			if (tran.winnerPick==0){
+			gameStats.monthly.netGain+=tran.profit
+			gameStats.all.netGain+=tran.profit
+			if (tran.playResult==0){
 				gameStats.monthly.ties+=1
 				gameStats.all.ties+=1
 				continue
-			}else if(tran.winnerPick != tran.pick){
+			}else if(tran.playResult==2){
 				gameStats.monthly.losses+=1
 				gameStats.all.losses+=1
-			}else if (tran.winnerPick == tran.pick){
+				gameStats.monthly.coinLosses+= tran.profit
+				gameStats.all.coinLosses+=tran.profit
+				
+				if (tran.initialWager != -tran.profit){
+					println "ERROR: wager and profit doesn not match in the lossing payout tran.eventKey:"+tran.eventKey + "  tran.initialWager:"+tran.initialWager + "  tran.profit:"+ -tran.profit				
+				}
+			}else if (tran.playResult==1){
 				gameStats.monthly.wins+=1
 				gameStats.all.wins+=1
+				gameStats.monthly.coinGain+= tran.profit
+				gameStats.all.coinGain+=tran.profit
 
 			}else{
 				println "ERROR: UserService::getBetStats(): should not go in here"
 			}
 			continue
 		}
-		gameStats.all.netGain+=(tran.transactionAmount - tran.initialWager)
-		if (tran.winnerPick==0){
+		gameStats.all.netGain+=tran.profit
+		if (tran.playResult==0){
 			gameStats.all.ties+=1
 			continue
-		}else if(tran.winnerPick != tran.pick){
+		}else if(tran.playResult==2){
 			gameStats.all.losses+=1
-		}else if (tran.winnerPick == tran.pick){
+			gameStats.all.coinLosses+=tran.profit
+			
+			if (tran.initialWager != -tran.profit){
+				println "ERROR: wager and profit doesn not match in the lossing payout tran.eventKey:"+tran.eventKey + "  tran.initialWager:"+tran.initialWager + "  tran.profit:"+ -tran.profit				
+			}		
+			
+		}else if (tran.playResult==1){
 			gameStats.all.wins+=1
+			gameStats.all.coinGain+=tran.profit
+			
 
 		}else{
 			println "ERROR: UserService::getBetStats(): should not go in here"
@@ -178,88 +194,6 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 	return gameStats
 	
 }
-
-
-def getBetStats(userPayoutTrans, accountId){
-		
-//		def stats = [all:[netGain:0, wins:0, losses:0, ties:0, leagues:[premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]], 
-//			monthly:[netGain:0, wins:0, losses:0, ties:0,leagues:[premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]], 
-//			weekly:[netGain:0, wins:0, losses:0, ties:0,leagues:[premier:[netGain:0,wins:0,netLose:0,losses:0,ties:0],champ:[netGain:0,wins:0,netLose:0,losses:0,ties:0],brazil:[netGain:0,wins:0,netLose:0,losses:0,ties:0]]]]
-		
-		def stats = [all:[netGain:0, wins:0, losses:0, ties:0, leagues:getLeagueStats(accountId)],
-			monthly:[netGain:0, wins:0, losses:0, ties:0,leagues:getLeagueStats(accountId)],
-			weekly:[netGain:0, wins:0, losses:0, ties:0,leagues:getLeagueStats(accountId)]]
-		
-		
-		if (userPayoutTrans==null || userPayoutTrans.size()==0){
-			return stats
-		}
-		
-		def firstDateOfCurrentWeek = getFirstDateOfCurrentWeek()
-		def firstDateOfCurrentMonth = getFirstDateOfCurrentMonth()
-		
-		for (PayoutTransaction tran: userPayoutTrans){
-			
-			if (tran.createdAt > firstDateOfCurrentWeek){
-				
-				stats.all.netGain += (tran.transactionAmount - tran.initialWager)
-				stats.monthly.netGain+=(tran.transactionAmount - tran.initialWager)
-				stats.weekly.netGain+=(tran.transactionAmount - tran.initialWager)
-				if (tran.winnerPick==0){
-					stats.all.ties+=1
-					stats.monthly.ties+=1
-					stats.weekly.ties+=1					
-				}else if(tran.winnerPick != tran.pick){
-					stats.all.losses+=1
-					stats.monthly.losses+=1
-					stats.weekly.losses+=1
-				}else if (tran.winnerPick == tran.pick){
-					stats.all.wins+=1
-					stats.monthly.wins+=1
-					stats.weekly.wins+=1					
-									
-				}else{
-					println "ERROR: UserService::getBetStats(): should not go in here"
-				}
-				continue
-			}
-			
-			if (tran.createdAt > firstDateOfCurrentMonth){
-				stats.monthly.netGain+=(tran.transactionAmount - tran.initialWager)
-				stats.all.netGain+=(tran.transactionAmount - tran.initialWager)
-				if (tran.winnerPick==0){					
-					stats.monthly.ties+=1
-					stats.all.ties+=1
-					continue
-				}else if(tran.winnerPick != tran.pick){					
-					stats.monthly.losses+=1
-					stats.all.losses+=1
-				}else if (tran.winnerPick == tran.pick){					
-					stats.monthly.wins+=1
-					stats.all.wins+=1										
-
-				}else{
-					println "ERROR: UserService::getBetStats(): should not go in here"
-				}
-				continue
-			}
-			stats.all.netGain+=(tran.transactionAmount - tran.initialWager)
-			if (tran.winnerPick==0){				
-				stats.all.ties+=1
-				continue
-			}else if(tran.winnerPick != tran.pick){
-				stats.all.losses+=1
-			}else if (tran.winnerPick == tran.pick){
-				stats.all.wins+=1
-
-			}else{
-				println "ERROR: UserService::getBetStats(): should not go in here"
-			}						
-		}
-		
-		
-		return stats
-	}
 
 
 

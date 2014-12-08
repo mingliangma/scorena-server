@@ -98,6 +98,36 @@ class TeamLogoService {
 	public static final String WEST_BROM_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/West+Bromwich+Albion+FC.png'
 	public static final String WEST_HAM_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/EPL/West+Ham+United+FC.png'
 	
+	//NBA team logo URL
+	public static final String CLIPPERS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/1200px-Los_Angeles_Clippers_logo.svg.png'
+	public static final String MAGIC_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/716px-Orlando_Magic.svg.png'
+	public static final String HAWKS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Atlanta_Hawks.svg.png'
+	public static final String CELTICS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Boston_Celtics.svg.png'
+	public static final String BULLS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Chicago_Bulls_logo.svg.png'
+	public static final String CAVALIERS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Cleveland_Cavaliers_2010.svg.png'
+	public static final String MAVERICKS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Dallas_Mavericks_logo.svg.png'
+	public static final String NUGGETS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Denver_Nuggets.svg.png'
+	public static final String PISTONS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Detroit_Pistons_logo.svg.png'
+	public static final String WARRIORS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Golden_State_Warriors_logo.svg.png'
+	public static final String ROCKETS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Houston_Rockets.svg.png'
+	public static final String PACERS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Indiana_Pacers.svg.png'
+	public static final String LAKERS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/LosAngeles_Lakers_logo.svg.png'
+	public static final String GRIZZZILIES_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Memphis_Grizzlies.svg.png'
+	public static final String HEAT_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Miami_Heat_logo.svg.png'
+	public static final String BUCKS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Milwaukee_Bucks.svg.png'
+	public static final String TIMBERWOLVES_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Minnesota_Timberwolves.svg.png'
+	public static final String KNICKS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/NewYorkKnicks.png'
+	public static final String THUNDER_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Oklahoma_City_Thunder.svg.png'
+	public static final String PELICANTS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/New_Orleans_Pelicans.png'
+	public static final String SEVENTYSIXERS_LOGO_URL = 'hhttps://s3-us-west-2.amazonaws.com/teamlogo/NBA/Philadelphia_76ers_Logo.svg.png'
+	public static final String SUNS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Phoenix_Suns.svg.png'
+	public static final String BLAZERS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Portland_Trail_Blazers.svg.png'
+	public static final String SPURS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/San_Antonio_Spurs.svg.png'
+	public static final String RAPTORS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Toronto_Raptors.svg.png'
+	public static final String JAZZ_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Utah_Jazz_script_logo%2C_(2010_%27new_look%27).svg.png'
+	public static final String WIZARDS_LOGO_URL = 'hhttps://s3-us-west-2.amazonaws.com/teamlogo/NBA/Washington_Wizards_Logo.svg.png'
+	
+	
 	public static final String ALGERIA_TEAMNAME = "Algeria"
 	public static final String ARGENTINA_TEAMNAME = "Argentina"
 	public static final String AUSTRALIA_TEAMNAME = "Australia"
@@ -153,6 +183,33 @@ class TeamLogoService {
 	public static final String WEST_BROM_TEAMNAME = "West Bromwich"
 	public static final String WEST_HAM_TEAMNAME = "West Ham"
 	
+	public static final String CLIPPERS_TEAMNAME = 'Clippers'
+	public static final String MAGIC_TEAMNAME = 'Magic'
+	public static final String HAWKS_TEAMNAME = 'Hawks'
+	public static final String CELTICS_TEAMNAME = 'Celtics'
+	public static final String BULLS_TEAMNAME = 'Bulls'
+	public static final String CAVALIERS_TEAMNAME = 'Cavaliers'
+	public static final String MAVERICKS_TEAMNAME = 'Mavericks'
+	public static final String NUGGETS_TEAMNAME = 'Nuggets'
+	public static final String PISTONS_TEAMNAME = 'Pistons'
+	public static final String WARRIORS_TEAMNAME = 'Warriors'
+	public static final String ROCKETS_TEAMNAME = 'Rockets'
+	public static final String PACERS_TEAMNAME = 'Pacers'
+	public static final String LAKERS_TEAMNAME = 'Lakers'
+	public static final String GRIZZZILIES_TEAMNAME = 'Grizzlies'
+	public static final String HEAT_TEAMNAME = 'Heat'
+	public static final String BUCKS_TEAMNAME = 'Bucks'
+	public static final String TIMBERWOLVES_TEAMNAME = 'Timberwolves'
+	public static final String KNICKS_TEAMNAME = 'Knicks'
+	public static final String THUNDER_TEAMNAME = 'Thunder'
+	public static final String PELICANTS_TEAMNAME = 'Pelicans'
+	public static final String SEVENTYSIXERS_TEAMNAME = '76ers'
+	public static final String SUNS_TEAMNAME = 'Suns'
+	public static final String BLAZERS_TEAMNAME = 'Blazers'
+	public static final String SPURS_TEAMNAME = 'Spurs'
+	public static final String RAPTORS_TEAMNAME = 'Raptors'
+	public static final String JAZZ_TEAMNAME = 'Jazz'
+	public static final String WIZARDS_TEAMNAME = 'Wizards'
 	
     String getTeamLogo(String teamName) {
 		
@@ -221,6 +278,7 @@ class TeamLogoService {
 				return USA_LOGO_URL
 			case URUGUAY_TEAMNAME.toLowerCase():
 				return URUGUAY_LOGO_URL
+			
 			case ARSENAL_TEAMNAME.toLowerCase():
 				return ARSENAL_LOGO_URL
 			case ASTON_VILLA_TEAMNAME.toLowerCase():
@@ -265,6 +323,59 @@ class TeamLogoService {
 				return WEST_BROM_LOGO_URL
 			case WEST_HAM_TEAMNAME.toLowerCase():
 				return WEST_HAM_LOGO_URL
+				
+			case CLIPPERS_TEAMNAME.toLowerCase():
+				return CLIPPERS_LOGO_URL
+			case MAGIC_TEAMNAME.toLowerCase():
+				return MAGIC_LOGO_URL
+			case HAWKS_TEAMNAME.toLowerCase():
+				return HAWKS_LOGO_URL
+			case CELTICS_TEAMNAME.toLowerCase():
+				return CELTICS_LOGO_URL
+			case BULLS_TEAMNAME.toLowerCase():
+				return BULLS_LOGO_URL
+			case CAVALIERS_TEAMNAME.toLowerCase():
+				return CAVALIERS_LOGO_URL
+			case MAVERICKS_TEAMNAME.toLowerCase():
+				return MAVERICKS_LOGO_URL
+			case NUGGETS_TEAMNAME.toLowerCase():
+				return NUGGETS_LOGO_URL
+			case PISTONS_TEAMNAME.toLowerCase():
+				return PISTONS_LOGO_URL
+			case WARRIORS_TEAMNAME.toLowerCase():
+				return WARRIORS_LOGO_URL
+			case ROCKETS_TEAMNAME.toLowerCase():
+				return ROCKETS_LOGO_URL
+			case PACERS_TEAMNAME.toLowerCase():
+				return PACERS_LOGO_URL
+			case LAKERS_TEAMNAME.toLowerCase():
+				return LAKERS_LOGO_URL
+			case GRIZZZILIES_TEAMNAME.toLowerCase():
+				return GRIZZZILIES_LOGO_URL
+			case HEAT_TEAMNAME.toLowerCase():
+				return HEAT_LOGO_URL
+			case BUCKS_TEAMNAME.toLowerCase():
+				return  BUCKS_LOGO_URL
+			case TIMBERWOLVES_TEAMNAME.toLowerCase():
+				return TIMBERWOLVES_LOGO_URL
+			case KNICKS_TEAMNAME.toLowerCase():
+				return KNICKS_LOGO_URL
+			case THUNDER_TEAMNAME.toLowerCase():
+				return THUNDER_LOGO_URL
+			case PELICANTS_TEAMNAME.toLowerCase():
+				return PELICANTS_LOGO_URL
+			case SEVENTYSIXERS_TEAMNAME.toLowerCase():
+				return SEVENTYSIXERS_LOGO_URL
+			case SUNS_TEAMNAME.toLowerCase():
+				return SUNS_LOGO_URL
+			case BLAZERS_TEAMNAME.toLowerCase():
+				return BLAZERS_LOGO_URL
+			case SPURS_TEAMNAME.toLowerCase():
+				return SPURS_LOGO_URL
+			case JAZZ_TEAMNAME.toLowerCase():
+				return JAZZ_LOGO_URL
+			case WIZARDS_TEAMNAME.toLowerCase():
+				return WIZARDS_LOGO_URL
 			default:
 				return DEFAULT_LOGO_URL
 		}
