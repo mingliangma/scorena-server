@@ -81,7 +81,7 @@ class UserController {
 			return
 		}
 		
-		def resp = userService.login(params.username.decodeURL(), params.password.decodeURL())
+		def resp = userService.login(params.username.decodeURL().toLowerCase(), params.password.decodeURL())
 		if (resp.code){
 			response.status =400
 			render resp as JSON

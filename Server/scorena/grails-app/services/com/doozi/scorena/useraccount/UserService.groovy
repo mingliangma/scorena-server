@@ -104,11 +104,11 @@ class UserService {
 	}
 			
 	def createUser(String username, String email, String password, String gender, String region){
-		return createUser(username, email, password, gender, region, AccountType.USER, "", "")
+		return createUser(username.toLowerCase(), email, password, gender, region, AccountType.USER, "", "")
 	}
 	
 	def createTestUser(String username, String email, String password, String gender, String region, String pictureURL, String facebookId){
-		return createUser(username, email, password, gender, region, AccountType.TEST, pictureURL, facebookId)
+		return createUser(username.toLowerCase(), email, password, gender, region, AccountType.TEST, pictureURL, facebookId)
 	}
 			
 	def createUser(String username, String email, String password, String gender, String region, int accountType, String pictureURL, String facebookId){
