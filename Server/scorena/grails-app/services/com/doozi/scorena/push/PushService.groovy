@@ -1,8 +1,15 @@
 package com.doozi.scorena.push
 
 import grails.plugins.rest.client.RestBuilder
+import java.net.URLEncoder;
+import org.apache.http.util.EntityUtils;
 import com.doozi.scorena.transaction.PayoutTransaction
 import com.doozi.scorena.transaction.AbstractTransaction
+import org.apache.http.HttpResponse
+import org.apache.http.client.HttpClient
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.impl.client.DefaultHttpClient
+import org.codehaus.groovy.grails.web.json.JSONObject
 import grails.transaction.Transactional
 
 @Transactional
@@ -47,25 +54,25 @@ class PushService {
 		return resp.json.toString()
 	}
 	
-	def getInstallationByUserID(def rest, String userid)
+	def getInstallationByUserID(String userId)
 	{
-		def parseConfig = grailsApplication.config.parse
+		def parseConfig = grailsApplication.config.parse		
+
+		String whereContraintsString = URLEncoder.encode('{"userId":"' + userId + '"}', "UTF-8")
 		
-		def param = ["userId": (userid)]
-		def resp = rest.get("https://api.parse.com/1/installations/")
-		{
-			header 	"X-Parse-Application-Id", parseConfig.parseApplicationId
-			header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
-			header  "X-Parse-Master-Key", parseConfig.parseMasterKey
-			contentType "application/json"
-			json{
-				where = param
-				}
-		}
+		String url = "https://api.parse.com/1/installations/?where="+ whereContraintsString 
 		
-		//return resp.json
-		System.out.println(resp.json.results[0].objectId.toString())
-		return resp.json.results[0].objectId.toString()
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpGet httpget = new HttpGet(url);
+				
+		httpget.addHeader("X-Parse-Application-Id", parseConfig.parseApplicationId);
+		httpget.addHeader("X-Parse-REST-API-Key", parseConfig.parseRestApiKey);
+		httpget.addHeader("X-Parse-Master-Key", parseConfig.parseMasterKey);
+		
+		HttpResponse httpResponse = httpclient.execute(httpget);
+		JSONObject resultJson = new JSONObject(EntityUtils.toString(httpResponse.getEntity()));
+	
+		return resultJson.results.objectId 		
 	}
 	
 	def sendGameStartPush(def rest, String eventKey)
@@ -95,13 +102,13 @@ class PushService {
 		return resp.json.toString()
 	}
 	
- def endOfGamePush(def rest, String eventKey,String userid, String msg)
+ def endOfGamePush(def rest, String eventKey,String userId, String msg)
  {
 	 def parseConfig = grailsApplication.config.parse
 	 def Map game = gameService.getGame(eventKey)
 	 
-	 def userParam = ["userId": (userid)]
-	 def chanParam = ["channels":['$in':[(eventKey)]]]
+	 def userParam = ["userId": (userId)]
+//	 def chanParam = ["channels":['$in':[(eventKey)]]]
 	 def alertParam = ["alert": (msg)]
 	 def resp = rest.post("https://api.parse.com/1/push")
 	 {
