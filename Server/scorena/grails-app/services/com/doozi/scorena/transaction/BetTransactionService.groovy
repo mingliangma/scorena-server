@@ -21,14 +21,31 @@ class BetTransactionService {
 	def pushService
 	
 	Map createBetTrans(int playerWager, int playerPick, String userId, long quesitonId) {
-		return createBetTrans( playerWager, playerPick, userId, quesitonId, new Date(), true)
+		
+		return createBetTrans( playerWager, playerPick, userId, quesitonId, new Date(), new RestBuilder(), true)
+	}
+	
+	void updateUserBalance(String userId, int balanceDelta){
+		
+		int retryCount = 0
+		while (retryCount<5){
+			try{
+				Account playerAccount = Account.findByUserId(userId, [lock: true])
+				playerAccount.currentBalance += balanceDelta
+				playerAccount.save(flush: true)
+				break;
+			}catch(org.springframework.dao.CannotAcquireLockException e){
+				println "updateUserBalance ERROR: "+e.message
+				Thread.sleep(500)
+				retryCount++
+			}
+		}
 	}
 	
 	@Transactional
-	Map createBetTrans(int playerWager, int playerPick, String userId, long quesitonId, Date transactionDate, boolean toValidate) {
-		
+	Map createBetTrans(int playerWager, int playerPick, String userId, long quesitonId, Date transactionDate, def rest, boolean toValidate) {
 		Account playerAccount = Account.findByUserId(userId)
-		Question question = Question.findById(quesitonId)
+		Question question = Question.get(quesitonId)
 		Map game = gameService.getGame(question.eventKey)
 		if (toValidate){
 			//Find the bet transaction that associated with the given userId and questionId 
@@ -41,31 +58,25 @@ class BetTransactionService {
 			}
 		}
 		
-		BetTransaction newBetTransaction = new BetTransaction(transactionAmount: playerWager, createdAt: transactionDate, 
-			pick: playerPick, eventKey: question.eventKey, league: sportsDataService.getLeagueCodeFromEventKey(question.eventKey), gameStartTime:helperService.parseDateFromString(game.date))
-		
-		//String awayTeam = game.away.teamname
-		//String homeTeam = game.home.teamname
-		
-		
-		
-		playerAccount.addToTrans(newBetTransaction)
-		question.addToBetTrans(newBetTransaction)
+		try{
 
-		
-		playerAccount.currentBalance -= playerWager
-		
-		if (!playerAccount.save(failOnError:true)){
-			System.out.println("---------------account save failed")
-			return [code:202, error: "account data is not saved"]
+			BetTransaction newBetTransaction = new BetTransaction(transactionAmount: playerWager, createdAt: transactionDate, 
+				pick: playerPick, eventKey: question.eventKey, league: sportsDataService.getLeagueCodeFromEventKey(question.eventKey), 
+				gameStartTime:helperService.parseDateFromString(game.date))
+					
+			playerAccount.addToTrans(newBetTransaction)	
+			question.addToBetTrans(newBetTransaction)				
+			playerAccount.save(flush: true)
+			question.save(flush: true)
+			updateUserBalance(userId, -playerWager)
+		}catch(org.springframework.dao.OptimisticLockingFailureException e){
+			println "OptimisticLockingFailureException: playerAccount: "+playerAccount + " currentBalance: " +playerAccount.currentBalance + "question: "+question + "newBetTransaction: "+newBetTransaction			
+			playerAccount = playerAccount.merge()
+			println "OptimisticLockingFailureException: playerAccount: "+playerAccount + " currentBalance: " +playerAccount.currentBalance + "question: "+question + "newBetTransaction: "+newBetTransaction
 		}
 		
-		if (!question.save(failOnError:true)){
-			System.out.println("---------------q save failed")
-			return [code:202, error: "Question data is not saved"]
-		}		
 		
-		def rest = new RestBuilder()
+		
 		// gets the users decvice installation ID by username
 		String objectID = pushService.getInstallationByUserID(rest, playerAccount.userId)
 		

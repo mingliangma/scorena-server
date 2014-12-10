@@ -5,7 +5,7 @@ class SimulateBetJob {
 	def simulateBetService
 	def simulateCommentService
 	static triggers = {
-	  simple name: 'simulateBetTrigger', repeatInterval: 20*60*1000 // execute job once in 15 minutes
+	  simple name: 'simulateBetTrigger', startDelay: 30 * 60000, repeatInterval: 20*60*1000 // execute job once in 15 minutes
 	}
 
 	def execute() {

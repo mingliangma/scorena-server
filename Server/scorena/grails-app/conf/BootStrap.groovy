@@ -4,6 +4,7 @@ import com.doozi.scorena.utils.AccountType;
 
 import java.util.Date;
 
+import grails.plugins.rest.client.RestBuilder
 import grails.util.Environment
 
 class BootStrap {
@@ -277,7 +278,7 @@ class BootStrap {
 		
 //			def gameService = ctx.getBean("gameService")
 //			def betService = ctx.getBean("betService")
-			
+			def rest = new RestBuilder()
 			println "============simulateBetPast() starts==============="
 			Random random = new Random()
 			def accounts = Account.findAll()
@@ -318,7 +319,7 @@ class BootStrap {
 						}
 						
 						
-						betTransactionService.createBetTrans(_wager,_pick, account.userId, questionId, _time, false)
+						betTransactionService.createBetTrans(_wager,_pick, account.userId, questionId, _time, rest, false)
 					}
 				}
 			}
@@ -493,7 +494,7 @@ class BootStrap {
 		String _gender = "male"
 		String _region = "Japan"
 		Random random = new Random()
-		for(int i = 0; i<_displayNames.size()/3; i++){
+		for(int i = 0; i<_displayNames.size(); i++){
 			String _email = _displayNames[i]+random.nextInt(100000)+"@scorena.ca"
 			String pictureURL = ""
 			if (i<pictureURLs.size()){

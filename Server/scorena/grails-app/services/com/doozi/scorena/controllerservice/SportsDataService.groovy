@@ -245,7 +245,7 @@ class SportsDataService {
 					println "SportsDataService::getAllPastGames():wrong event: "+ game.eventKey
 					println "eventStatus: " +game.eventStatus
 					println "score: " +game.score
-					println "team: " +pastGameFullName
+					println "team: " +gameFullName
 				}
 			}
 			if (!gamesMapValue){
