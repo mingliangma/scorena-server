@@ -78,14 +78,21 @@ class BetTransactionService {
 		
 		
 		// gets the users decvice installation ID by username
-		String objectID = pushService.getInstallationByUserID(rest, playerAccount.userId)
+		List objectID = pushService.getInstallationByUserID(rest, playerAccount.userId)
+	
 		
-		// preps event key for pars channel. parse does not allow for  '.' in a channel name, replase it with a "_"
-		String parse_channel = question.eventKey.replace(".","_")
-		
-		// Registers user device into push channel for game event key
-		def test = pushService.updateGameChannel(rest, objectID, parse_channel)
-
+		if ( objectIDs != null || objectIDs != "" )
+		{
+			// preps event key for pars channel. parse does not allow for  '.' in a channel name, replaces it with a "_"
+			String parse_channel = question.eventKey.replace(".","_")
+			
+			
+			for (String objectId: objectIDs)
+			{
+			// Registers user device into push channel for game event key
+			def test = pushService.updateGameChannel(rest, objectId, parse_channel)
+			}
+		}
 		return [:]
 	}	
 	
