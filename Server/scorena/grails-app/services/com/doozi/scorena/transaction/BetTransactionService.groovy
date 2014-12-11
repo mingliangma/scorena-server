@@ -6,11 +6,12 @@ import com.doozi.scorena.Account;
 import com.doozi.scorena.Question;
 import com.doozi.scorena.transaction.BetTransaction
 import com.doozi.scorena.transaction.PayoutTransaction
+import com.doozi.scorena.utils.*
 
 import org.hibernate.criterion.CriteriaSpecification
 
 import grails.plugins.rest.client.RestBuilder
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 
 class BetTransactionService {
@@ -19,27 +20,11 @@ class BetTransactionService {
 	def customGameService	
 	def helperService
 	def pushService
+	def userService
 	
 	Map createBetTrans(int playerWager, int playerPick, String userId, long quesitonId) {
 		
 		return createBetTrans( playerWager, playerPick, userId, quesitonId, new Date(), new RestBuilder(), true)
-	}
-	
-	void updateUserBalance(String userId, int balanceDelta){
-		
-		int retryCount = 0
-		while (retryCount<5){
-			try{
-				Account playerAccount = Account.findByUserId(userId, [lock: true])
-				playerAccount.currentBalance += balanceDelta
-				playerAccount.save(flush: true)
-				break;
-			}catch(org.springframework.dao.CannotAcquireLockException e){
-				println "updateUserBalance ERROR: "+e.message
-				Thread.sleep(500)
-				retryCount++
-			}
-		}
 	}
 	
 	@Transactional
@@ -68,30 +53,34 @@ class BetTransactionService {
 			question.addToBetTrans(newBetTransaction)				
 			playerAccount.save(flush: true)
 			question.save(flush: true)
-			updateUserBalance(userId, -playerWager)
+			userService.updateUserBalance(userId, -playerWager)
 		}catch(org.springframework.dao.OptimisticLockingFailureException e){
 			println "OptimisticLockingFailureException: playerAccount: "+playerAccount + " currentBalance: " +playerAccount.currentBalance + "question: "+question + "newBetTransaction: "+newBetTransaction			
 			playerAccount = playerAccount.merge()
 			println "OptimisticLockingFailureException: playerAccount: "+playerAccount + " currentBalance: " +playerAccount.currentBalance + "question: "+question + "newBetTransaction: "+newBetTransaction
 		}
-		
-		
-		
-		// gets the users decvice installation ID by username
-		List objectID = pushService.getInstallationByUserID(rest, playerAccount.userId)
-	
-		
-		if ( objectIDs != null || objectIDs != "" )
-		{
-			// preps event key for pars channel. parse does not allow for  '.' in a channel name, replaces it with a "_"
-			String parse_channel = question.eventKey.replace(".","_")
+		try{
+			if (playerAccount.accountType == AccountType.USER){
 			
+				// gets the users decvice installation ID by username
+				List objectIDs = pushService.getInstallationByUserID(playerAccount.userId)
 			
-			for (String objectId: objectIDs)
-			{
-			// Registers user device into push channel for game event key
-			def test = pushService.updateGameChannel(rest, objectId, parse_channel)
+				
+				if ( objectIDs != null || objectIDs != "" )
+				{
+					// preps event key for pars channel. parse does not allow for  '.' in a channel name, replaces it with a "_"
+					String parse_channel = question.eventKey.replace(".","_")
+					
+					
+					for (String objectId: objectIDs)
+					{
+					// Registers user device into push channel for game event key
+					def test = pushService.updateGameChannel(rest, objectId, parse_channel)
+					}
+				}
 			}
+		}catch(Exception e){
+			println "BetTransactionService: createBetTrans():: ERROR register user device to push notification channcel. Message: "+e.message
 		}
 		return [:]
 	}	
@@ -199,7 +188,8 @@ class BetTransactionService {
 		}
 		
 		if (account.currentBalance < playerWager){
-			return [code:202, error: "The user does not have enough coins to make a bet"]
+			return [code:202, error: "The user does not have enough coins to make a bet. Username="+account.username+" user balance="+account.currentBalance
+				+ " user wager=" + playerWager]
 		}
 		
 		if (playerWager < 0){

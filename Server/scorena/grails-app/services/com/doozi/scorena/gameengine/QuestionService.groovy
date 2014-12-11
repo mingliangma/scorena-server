@@ -12,7 +12,7 @@ import com.doozi.scorena.utils.*
 import com.doozi.scorena.processengine.*
 
 import grails.plugins.rest.client.RestBuilder
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 import java.text.DecimalFormat
 import java.util.List;

@@ -10,7 +10,7 @@ import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.DefaultHttpClient
 import org.codehaus.groovy.grails.web.json.JSONObject
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 @Transactional
 class PushService {

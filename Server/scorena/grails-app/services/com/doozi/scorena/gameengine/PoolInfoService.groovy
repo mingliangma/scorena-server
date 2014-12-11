@@ -5,7 +5,7 @@ import java.util.List;
 import com.doozi.scorena.transaction.BetTransaction
 import com.doozi.scorena.utils.*
 
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 
 class PoolInfoService {

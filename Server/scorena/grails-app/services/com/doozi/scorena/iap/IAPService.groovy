@@ -20,7 +20,7 @@ import com.google.gson.JsonObject
 
 import org.codehaus.groovy.grails.web.json.JSONObject
 
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 @Transactional
 class IAPService {
 	public Nonce nonce

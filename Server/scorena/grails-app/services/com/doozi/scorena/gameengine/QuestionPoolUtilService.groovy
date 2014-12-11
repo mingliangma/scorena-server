@@ -1,6 +1,6 @@
 package com.doozi.scorena.gameengine
 
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 
 

@@ -9,7 +9,7 @@ import com.doozi.scorena.score.QuestionScore
 import com.doozi.scorena.utils.*
 
 import grails.converters.JSON
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 import org.codehaus.groovy.grails.web.json.JSONObject
 

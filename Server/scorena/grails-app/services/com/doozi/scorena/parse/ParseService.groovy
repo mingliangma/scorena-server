@@ -2,7 +2,7 @@ package com.doozi.scorena.parse
 
 import java.net.URLEncoder;
 
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 import grails.converters.JSON
 import grails.plugins.rest.client.RestBuilder
 

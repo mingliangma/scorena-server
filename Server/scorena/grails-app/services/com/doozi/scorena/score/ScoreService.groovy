@@ -10,7 +10,7 @@ import com.doozi.scorena.processengine.GameProcessRecord
 import com.doozi.scorena.transaction.LeagueTypeEnum
 import com.doozi.scorena.transaction.PayoutTransaction
 
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 //@Transactional
 class ScoreService {
@@ -21,6 +21,11 @@ class ScoreService {
 		String query = "from AbstractScore as s where (s.class=com.doozi.scorena.score.NoMetalScore or s.class=com.doozi.scorena.score.GoldMetalScore "+
 		"or s.class=com.doozi.scorena.score.SilverMetalScore or s.class=com.doozi.scorena.score.BronzeMetalScore) and s.account.userId=:userId and s.eventKey in (:eventKeys)"
 				
+		List<AbstractScore> metalScoreTransactionList = AbstractScore.findAll(query, [userId:userId,eventKeys: eventKeys])
+	}
+	
+	List<AbstractScore> listScoresByUserIdAndPastGames(String userId, List eventKeys){
+		String query = "from AbstractScore as s where s.account.userId=:userId and s.eventKey in (:eventKeys)"				
 		List<AbstractScore> metalScoreTransactionList = AbstractScore.findAll(query, [userId:userId,eventKeys: eventKeys])
 	}
 	

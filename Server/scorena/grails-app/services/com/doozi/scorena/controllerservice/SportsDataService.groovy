@@ -2,7 +2,7 @@ package com.doozi.scorena.controllerservice
 import com.doozi.scorena.sportsdata.*;
 import com.doozi.scorena.transaction.LeagueTypeEnum;
 
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 @Transactional
 class SportsDataService {

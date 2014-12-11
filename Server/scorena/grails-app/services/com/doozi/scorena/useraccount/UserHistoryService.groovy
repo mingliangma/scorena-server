@@ -2,7 +2,7 @@ package com.doozi.scorena.useraccount
 
 import java.util.List;
 
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 import com.doozi.scorena.transaction.BetTransaction
 import com.doozi.scorena.score.AbstractScore
@@ -49,29 +49,9 @@ class UserHistoryService {
 		if (userId == null) {
 			return [message:"invalid userId!(UserHistoryService::listPastGames)"]
 		}
-		
 		List userHistoryGames = []
-		List pastGamesResult = listPastGamesData()
-		List pastGameIds = gameService.getGameIdsFromGameData(pastGamesResult)
-		List<BetTransaction> betsInPastGames = betTransactionService.listBetTransByGameIds(pastGameIds)
-		
-		List<AbstractScore> metalScoreTransactionList = scoreService.listBadgeScoresByUserIdAndPastGames(userId, pastGameIds)
-		
-		println "metalScoreTransactionList size = "+metalScoreTransactionList.size()
-		
-		for (def pastGame: pastGamesResult){
-			if (pastGame.gameStatus != "post-event"){
-				println "userHistoryService::listPastGames():wrong event: "+ pastGame
-			}
-			
-			List<BetTransaction> allBetsInGame = gameService.getAllBetsByGameId(pastGame.gameId, betsInPastGames)
-			pastGame.numPeople = gameService.getNumUsersInGame(allBetsInGame)
-			
-			AbstractScore scoreTransaction = gameService.getScoreTransactionByGameId(pastGame.gameId, metalScoreTransactionList)
-		
-			List<BetTransaction> userBetsInTheGame = gameService.getUserBetsFromGame(userId, allBetsInGame)				
-			pastGame.userInfo = gameUserInfoService.getPastGamesUserInfo(pastGame, userBetsInTheGame, userId, scoreTransaction)
-			
+		List pastGames = gameService.listPastGames(userId, "all", "all")
+		for (Map pastGame : pastGames){
 			if (pastGame.userInfo.placedBet == true) {
 				userHistoryGames.add(pastGame)
 			}
