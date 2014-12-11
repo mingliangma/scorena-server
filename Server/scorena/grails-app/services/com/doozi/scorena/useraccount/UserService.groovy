@@ -292,6 +292,7 @@ class UserService {
 			}
 		}
 	}
+
 	
 	private List getFacebookFrdsUserId(List facebookIds){
 		Map userProfilesMap = parseService.retrieveUserListByFBIds(facebookIds)
