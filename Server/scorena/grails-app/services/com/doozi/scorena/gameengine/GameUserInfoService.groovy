@@ -58,7 +58,7 @@ class GameUserInfoService {
 			userinfo.totalScore = totalScore
 			
 		}else{
-			userinfo.isGameProcessed = null
+			userinfo.isGameProcessed = false
 			userinfo.rank= null
 			userinfo.badge= null
 			userinfo.badgeScore= null
