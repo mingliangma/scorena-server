@@ -27,28 +27,25 @@ class QuestionUserInfoService {
 				
 		if (!userBet){ // user did not make a bet
 			placedBet = false
-			isGameProcessed = false
 			userPick = -1
 			userPickStatus = -1
 			userWager = 0
 			questionWinningAmount = -1
 		}else if (userBet && !payout){ //user made a bet but game has not processed yet 
 			placedBet = true
-			isGameProcessed = false
 			userPick=userBet.pick
 			userPickStatus = -1
 			userWager = userBet.transactionAmount
 			questionWinningAmount = -1
 		}else { // user made a bet and the game is processed 
 			placedBet = true
-			isGameProcessed = true
 			userPick=userBet.pick
 			userPickStatus = payout.playResult
 			userWager = userBet.transactionAmount
 			questionWinningAmount = payout.profit
 		}
 
-		return [placedBet:placedBet, isGameProcessed:isGameProcessed, userPickStatus:userPickStatus, userPick:userPick, questionWinningAmount:questionWinningAmount, userWager:userWager]
+		return [placedBet:placedBet, userPickStatus:userPickStatus, userPick:userPick, questionWinningAmount:questionWinningAmount, userWager:userWager]
 	}
 	
 	int getProfitInQuestion(int winnerPick, BetTransaction bet){		

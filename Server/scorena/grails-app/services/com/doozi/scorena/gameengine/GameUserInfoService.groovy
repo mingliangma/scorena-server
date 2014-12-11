@@ -32,7 +32,6 @@ class GameUserInfoService {
 
 		if (userinfo.placedBet && scoreTransactions.size() == 0){
 			
-			userinfo.isGameProcessed = false
 			userinfo.rank= null
 			userinfo.badge= null
 			userinfo.badgeScore= null
@@ -42,7 +41,6 @@ class GameUserInfoService {
 		} else if (userinfo.placedBet && scoreTransactions.size() > 0){
 //			userinfo.gameWinningAmount = getProfitInGame(game, userId, userBetsInTheGame)	
 			userinfo.gameWinningAmount = PayoutTransaction.executeQuery("select sum(p.transactionAmount) from PayoutTransaction as p where p.eventKey=? and p.account.userId=?)",[game.gameId, userId])[0]
-			userinfo.isGameProcessed = true
 			
 			int totalScore = 0
 			for (AbstractScore score : scoreTransactions){
@@ -58,7 +56,6 @@ class GameUserInfoService {
 			userinfo.totalScore = totalScore
 			
 		}else{
-			userinfo.isGameProcessed = false
 			userinfo.rank= null
 			userinfo.badge= null
 			userinfo.badgeScore= null

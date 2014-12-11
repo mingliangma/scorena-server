@@ -105,10 +105,14 @@ class QuestionService {
 			def pick1PayoutMultiple = questionPoolUtilService.calculatePick1PayoutMultiple(questionPoolInfo)
 			def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(questionPoolInfo)		
 
+			Boolean isGameProcessed = false
 			if (game.gameStatus.trim() == "post-event"){
 				GameProcessRecord processRecord = GameProcessRecord.findByEventKey(game.gameId)
-				if (processRecord && processRecord.transProcessStatus == TransactionProcessStatusEnum.PROCESSED)
+				if (processRecord && processRecord.transProcessStatus == TransactionProcessStatusEnum.PROCESSED 
+					&& processRecord.scoreProcessStatus == ScoreProcessStatusEnum.PROCESSED){
 					winnerPick = processEngineImplService.calculateWinningPick(game, q)
+					isGameProcessed = true
+				}					
 			}
 
 			if (userId != null){
@@ -142,6 +146,7 @@ class QuestionService {
 				playerPick = questionPoolInfo.getHighestBetPick() == 1 ? q.pick1 : q.pick2
 			}
 			
+
 			
 			resultList.add([
 				questionId: q.id,
@@ -159,6 +164,7 @@ class QuestionService {
 				friendPlayerPictureUrl: friendPlayerPictureUrl,
 				friendPlayerPick: friendPlayerPick,				
 				friendExistsInQuestion: friendExistsInQuestion,
+				isGameProcessed: isGameProcessed,
 				pool: [
 					pick1Amount: questionPoolInfo.getPick1Amount(),
 					pick1NumPeople: questionPoolInfo.getPick1NumPeople(),

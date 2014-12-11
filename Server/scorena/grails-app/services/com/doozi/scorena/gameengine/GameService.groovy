@@ -1,11 +1,13 @@
 package com.doozi.scorena.gameengine
 
 import com.doozi.scorena.Question;
+import com.doozi.scorena.processengine.GameProcessRecord
 import com.doozi.scorena.score.AbstractScore
 import com.doozi.scorena.transaction.BetTransaction
 import com.doozi.scorena.transaction.LeagueTypeEnum
+import com.doozi.scorena.processengine.*
 
-import grails.transaction.*
+import org.springframework.transaction.annotation.Transactional
 
 class GameService {
 	
@@ -146,7 +148,15 @@ class GameService {
 				
 				List<BetTransaction> userBetsInTheGame = getUserBetsFromGame(userId, allBetsInGame)				
 				pastGame.userInfo=gameUserInfoService.getPastGamesUserInfo(pastGame, userBetsInTheGame, userId, userGameScores)
-			}				
+			}
+			
+			Boolean isGameProcessed = false
+			GameProcessRecord gameRecord = GameProcessRecord.findByEventKey(pastGame.gameId)
+			if (gameRecord != null){ 
+				if (gameRecord.transProcessStatus == TransactionProcessStatusEnum.PROCESSED && gameRecord.scoreProcessStatus == ScoreProcessStatusEnum.PROCESSED)
+					isGameProcessed = true
+			}
+			pastGame.isGameProcessed = isGameProcessed
 		}
 		return pastGamesResult
 	}
