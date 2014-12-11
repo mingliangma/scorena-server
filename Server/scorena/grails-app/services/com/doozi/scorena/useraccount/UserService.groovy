@@ -3,7 +3,7 @@ package com.doozi.scorena.useraccount
 import java.util.List;
 import java.util.Map;
 
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 import grails.converters.JSON
 import grails.web.JSONBuilder
 import groovy.util.slurpersupport.GPathResult
@@ -255,24 +255,7 @@ class UserService {
 		
 		return[currentBalance:account.currentBalance, inWager:inWager]
 		
-	}
-	
-	private int getUserInWagerCoins(userId){
-		int inWager = 0
-		def unpaidTransactions = betTransactionService.listUnpaidBetsByUserId(userId)
-		for (BetTransaction unpaidTransaction: unpaidTransactions){
-			inWager += unpaidTransaction.transactionAmount
-		}
-		return inWager
-	}
-	
-	def updateUserProfile(String sessionToken, String userId, JSON updateUserData){
-		def rest = new RestBuilder()
-		def resp = parseService.updateUser(rest, sessionToken, userId, updateUserData)
-		return resp.json
-	}
-	
-	
+	}	
 	
 	Boolean accountExists(String userId){
 		def account = Account.findByUserId(userId)
@@ -289,6 +272,28 @@ class UserService {
 	
 	}
 
+
+	
+	@Transactional
+	void updateUserBalance(String userId, int balanceDelta){
+		
+		int retryCount = 0
+		while (retryCount<5){
+			try{
+				Account playerAccount = Account.findByUserId(userId, [lock: true])
+				playerAccount.previousBalance = playerAccount.currentBalance
+				playerAccount.currentBalance += balanceDelta
+				playerAccount.save(flush: true)
+				break;
+			}catch(org.springframework.dao.CannotAcquireLockException e){
+				println "updateUserBalance ERROR: "+e.message
+				Thread.sleep(500)
+				retryCount++
+			}
+		}
+	}
+
+	
 	private List getFacebookFrdsUserId(List facebookIds){
 		Map userProfilesMap = parseService.retrieveUserListByFBIds(facebookIds)
 		
@@ -303,8 +308,7 @@ class UserService {
 		
 		return userIdList
 	}
-
-
+	
 	private Map userLogin(RestBuilder rest, String username, String password){
 		println username
 		println password
@@ -445,6 +449,22 @@ class UserService {
 			]
 			return result
 		}
+		return resp.json
+	}
+	
+	
+	private int getUserInWagerCoins(userId){
+		int inWager = 0
+		def unpaidTransactions = betTransactionService.listUnpaidBetsByUserId(userId)
+		for (BetTransaction unpaidTransaction: unpaidTransactions){
+			inWager += unpaidTransaction.transactionAmount
+		}
+		return inWager
+	}
+	
+	def updateUserProfile(String sessionToken, String userId, JSON updateUserData){
+		def rest = new RestBuilder()
+		def resp = parseService.updateUser(rest, sessionToken, userId, updateUserData)
 		return resp.json
 	}
 	

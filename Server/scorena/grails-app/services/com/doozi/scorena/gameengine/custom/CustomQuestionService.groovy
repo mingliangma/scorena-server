@@ -4,7 +4,7 @@ import com.doozi.scorena.Pool
 import com.doozi.scorena.Question
 import com.doozi.scorena.QuestionContent
 
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 @Transactional
 class CustomQuestionService {	

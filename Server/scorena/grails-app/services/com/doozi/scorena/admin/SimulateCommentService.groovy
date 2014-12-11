@@ -3,7 +3,7 @@ package com.doozi.scorena.admin
 import com.doozi.scorena.Account
 import com.doozi.scorena.Question
 import com.doozi.scorena.utils.AccountType
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 @Transactional
 class SimulateCommentService {

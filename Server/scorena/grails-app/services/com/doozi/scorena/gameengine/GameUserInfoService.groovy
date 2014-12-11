@@ -4,8 +4,10 @@ import com.doozi.scorena.Question;
 import com.doozi.scorena.controllerservice.*
 import com.doozi.scorena.score.*
 import com.doozi.scorena.transaction.BetTransaction
+import com.doozi.scorena.transaction.PayoutTransaction
 
-import grails.transaction.Transactional
+
+import org.springframework.transaction.annotation.Transactional
 
 
 class GameUserInfoService {
@@ -24,33 +26,44 @@ class GameUserInfoService {
 		return userinfo
     }
 	
-	Map getPastGamesUserInfo(Map game, List<BetTransaction> userBetsInTheGame, String userId, AbstractScore scoreTransaction){
+	Map getPastGamesUserInfo(Map game, List<BetTransaction> userBetsInTheGame, String userId, List<AbstractScore> scoreTransactions){
 		Map userinfo=[:]
 		userinfo.placedBet = getPlacedBet(userBetsInTheGame)
 
-		if (scoreTransaction == null){
+		if (userinfo.placedBet && scoreTransactions.size() == 0){
 			
 			userinfo.isGameProcessed = false
-			userinfo.rank=-1
-			userinfo.badge=""
-			userinfo.badgeScore=0
-			userinfo.gameWinningAmount =0
+			userinfo.rank= null
+			userinfo.badge= null
+			userinfo.badgeScore= null
+			userinfo.gameWinningAmount = null
+			userinfo.totalScore = null
+			
+		} else if (userinfo.placedBet && scoreTransactions.size() > 0){
+//			userinfo.gameWinningAmount = getProfitInGame(game, userId, userBetsInTheGame)	
+			userinfo.gameWinningAmount = PayoutTransaction.executeQuery("select sum(p.transactionAmount) from PayoutTransaction as p where p.eventKey=? and p.account.userId=?)",[game.gameId, userId])[0]
+			userinfo.isGameProcessed = true
+			
+			int totalScore = 0
+			for (AbstractScore score : scoreTransactions){
+				if (score.class.getSimpleName() == GoldMetalScore.class.getSimpleName() ||
+					score.class.getSimpleName() == SilverMetalScore.class.getSimpleName() ||
+					score.class.getSimpleName() == BronzeMetalScore.class.getSimpleName()){
+					userinfo.badgeScore = score.score
+					userinfo.rank = score.rank
+					userinfo.badge = score.class.getSimpleName()
+				}
+				totalScore += score.score
+			}
+			userinfo.totalScore = totalScore
 			
 		}else{
-			userinfo.gameWinningAmount = getProfitInGame(game, userId, userBetsInTheGame)		
-			userinfo.isGameProcessed = true
-			userinfo.rank = scoreTransaction.rank
-			userinfo.badge = scoreTransaction.class.getSimpleName()
-			
-			if (GoldMetalScore.class.getSimpleName() == scoreTransaction.class.getSimpleName()){
-				userinfo.badgeScore = ScoreConstant.GOLD_SCORE
-			}else if (SilverMetalScore.class.getSimpleName() == scoreTransaction.class.getSimpleName()){
-				userinfo.badgeScore = ScoreConstant.SILVER_SCORE
-			}else if (BronzeMetalScore.class.getSimpleName() == scoreTransaction.class.getSimpleName()){
-				userinfo.badgeScore = ScoreConstant.BRONZE_SCORE
-			}else{
-				userinfo.badgeScore = ScoreConstant.NO_SCORE
-			}
+			userinfo.isGameProcessed = false
+			userinfo.rank= null
+			userinfo.badge= null
+			userinfo.badgeScore= null
+			userinfo.gameWinningAmount = null
+			userinfo.totalScore = null
 		}
 		return userinfo
 	}

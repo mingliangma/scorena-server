@@ -6,11 +6,12 @@ import com.doozi.scorena.Account;
 import com.doozi.scorena.Question;
 import com.doozi.scorena.transaction.BetTransaction
 import com.doozi.scorena.transaction.PayoutTransaction
+import com.doozi.scorena.utils.*
 
 import org.hibernate.criterion.CriteriaSpecification
 
 import grails.plugins.rest.client.RestBuilder
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 
 class BetTransactionService {
@@ -19,16 +20,17 @@ class BetTransactionService {
 	def customGameService	
 	def helperService
 	def pushService
+	def userService
 	
 	Map createBetTrans(int playerWager, int playerPick, String userId, long quesitonId) {
-		return createBetTrans( playerWager, playerPick, userId, quesitonId, new Date(), true)
+		
+		return createBetTrans( playerWager, playerPick, userId, quesitonId, new Date(), new RestBuilder(), true)
 	}
 	
 	@Transactional
-	Map createBetTrans(int playerWager, int playerPick, String userId, long quesitonId, Date transactionDate, boolean toValidate) {
-		
+	Map createBetTrans(int playerWager, int playerPick, String userId, long quesitonId, Date transactionDate, def rest, boolean toValidate) {
 		Account playerAccount = Account.findByUserId(userId)
-		Question question = Question.findById(quesitonId)
+		Question question = Question.get(quesitonId)
 		Map game = gameService.getGame(question.eventKey)
 		if (toValidate){
 			//Find the bet transaction that associated with the given userId and questionId 
@@ -40,48 +42,54 @@ class BetTransactionService {
 				return validationResult
 			}
 		}
-		
-		BetTransaction newBetTransaction = new BetTransaction(transactionAmount: playerWager, createdAt: transactionDate, 
-			pick: playerPick, eventKey: question.eventKey, league: sportsDataService.getLeagueCodeFromEventKey(question.eventKey), gameStartTime:helperService.parseDateFromString(game.date))
-		
-		//String awayTeam = game.away.teamname
-		//String homeTeam = game.home.teamname
-		
-		
-		
-		playerAccount.addToTrans(newBetTransaction)
-		question.addToBetTrans(newBetTransaction)
 
-		
-		playerAccount.currentBalance -= playerWager
-		
-		if (!playerAccount.save(failOnError:true)){
-			System.out.println("---------------account save failed")
-			return [code:202, error: "account data is not saved"]
-		}
-		
-		if (!question.save(failOnError:true)){
-			System.out.println("---------------q save failed")
-			return [code:202, error: "Question data is not saved"]
-		}		
-		
-		def rest = new RestBuilder()
-		// gets the users decvice installation IDs by userID
-		List objectIDs = pushService.getInstallationByUserID(playerAccount.userId)
-		
-		System.out.println(objectIDs)
-		
-		if ( objectIDs != null || objectIDs != "" )
-		{
-			// preps event key for pars channel. parse does not allow for  '.' in a channel name, replaces it with a "_"
-			String parse_channel = question.eventKey.replace(".","_")
+			BetTransaction newBetTransaction = new BetTransaction(transactionAmount: playerWager, createdAt: transactionDate, 
+				pick: playerPick, eventKey: question.eventKey, league: sportsDataService.getLeagueCodeFromEventKey(question.eventKey), 
+				gameStartTime:helperService.parseDateFromString(game.date))
 			
-			
-			for (String objectId: objectIDs)
-			{
-			// Registers user device into push channel for game event key
-			def test = pushService.updateGameChannel(rest, objectId, parse_channel)
+			int retryCount = 0
+			while (retryCount<5){
+				try{
+					println "BetTransactionService: createBetTrans():: Acquiring Account lock for userId=" + userId
+					Account lockedAccount = Account.findByUserId(userId, [lock: true])
+					println "BetTransactionService: createBetTrans():: SUCCESSFULLY acquired Account lock for userId=" + userId
+					lockedAccount.addToTrans(newBetTransaction)	
+					lockedAccount.previousBalance = playerAccount.currentBalance
+					lockedAccount.currentBalance -= playerWager
+					question.addToBetTrans(newBetTransaction)
+					lockedAccount.save(flush: true)					
+					question.save(flush: true)
+					println "BetTransactionService: createBetTrans():: SUCCESSFULLY released Account lock for userId=" + userId
+					break;
+				}catch(org.springframework.dao.CannotAcquireLockException e){
+					println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
+					Thread.sleep(500)
+					retryCount++
+				}
 			}
+
+		try{
+			if (playerAccount.accountType == AccountType.USER){
+			
+				// gets the users decvice installation ID by username
+				List objectIDs = pushService.getInstallationByUserID(playerAccount.userId)
+			
+				
+				if ( objectIDs != null || objectIDs != "" )
+				{
+					// preps event key for pars channel. parse does not allow for  '.' in a channel name, replaces it with a "_"
+					String parse_channel = question.eventKey.replace(".","_")
+					
+					
+					for (String objectId: objectIDs)
+					{
+					// Registers user device into push channel for game event key
+					def test = pushService.updateGameChannel(rest, objectId, parse_channel)
+					}
+				}
+			}
+		}catch(Exception e){
+			println "BetTransactionService: createBetTrans():: ERROR register user device to push notification channcel. Message: "+e.message
 		}
 		return [:]
 	}	
@@ -189,7 +197,8 @@ class BetTransactionService {
 		}
 		
 		if (account.currentBalance < playerWager){
-			return [code:202, error: "The user does not have enough coins to make a bet"]
+			return [code:202, error: "The user does not have enough coins to make a bet. Username="+account.username+" user balance="+account.currentBalance
+				+ " user wager=" + playerWager]
 		}
 		
 		if (playerWager < 0){

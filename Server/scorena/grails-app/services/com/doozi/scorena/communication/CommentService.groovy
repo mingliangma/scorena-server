@@ -1,6 +1,6 @@
 package com.doozi.scorena.communication
 
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 import java.util.List
 
 import com.doozi.scorena.Question

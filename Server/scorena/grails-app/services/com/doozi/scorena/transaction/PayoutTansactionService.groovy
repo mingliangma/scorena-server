@@ -5,12 +5,14 @@ import com.doozi.scorena.Question;
 import com.doozi.scorena.transaction.BetTransaction
 import com.doozi.scorena.transaction.PayoutTransaction
 
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
+
 
 
 class PayoutTansactionService {	
 	def sportsDataService
 	def questionUserInfoService
+	def userService
 	
 	/**
 	 * 
@@ -24,34 +26,34 @@ class PayoutTansactionService {
 	 * @return -1 on error, 0 on success
 	 */
 	@Transactional
-	def createPayoutTrans(Account playerAccount, Question q, int payout, int winnerPick, int wager, int userPick, int playResult, Date gameStartTime){		
-//		println "PayoutTansactionService::createPayoutTrans(): qId="+q.id + ",accountId=" + playerAccount.id+", payout="+payout
-		
-		PayoutTransaction payoutTransaction = new PayoutTransaction(transactionAmount: payout, createdAt: new Date(), winnerPick: winnerPick, pick: userPick, initialWager:wager, 
-			eventKey: q.eventKey, playResult: playResult, league: sportsDataService.getLeagueCodeFromEventKey(q.eventKey), profit: payout-wager, gameStartTime:gameStartTime)
-		
-		def newBalance = playerAccount.currentBalance + payout
-		playerAccount.previousBalance = playerAccount.currentBalance
-		playerAccount.currentBalance = newBalance
-				
-		playerAccount.addToTrans(payoutTransaction)
-		q.addToPayoutTrans(payoutTransaction)
-		int result = 0
-		if (!playerAccount.save()){
-			    playerAccount.errors.each {
-			        println it
-			    }
-			result = -1
-		}
-		
-		if (!q.save()){
-			    q.errors.each {
-			        println it
-			    }
-			result = -1
-		}
-		
-		return result
+	def createPayoutTrans(Account playerAccount, Question q, int payout, int winnerPick, int wager, int userPick, int playResult, Date gameStartTime) throws Exception{		
+		println "PayoutTansactionService::createPayoutTrans(): qId="+q.id + ",accountId=" + playerAccount.id+", payout="+payout
+			PayoutTransaction payoutTransaction = new PayoutTransaction(transactionAmount: payout, createdAt: new Date(), winnerPick: winnerPick, pick: userPick, initialWager:wager, 
+				eventKey: q.eventKey, playResult: playResult, league: sportsDataService.getLeagueCodeFromEventKey(q.eventKey), profit: payout-wager, gameStartTime:gameStartTime)
+			
+			int retryCount = 0
+			while (retryCount<5){
+				try{
+					println "PayoutTansactionService: createPayoutTrans():: Acquiring Account lock for userId=" + playerAccount.userId
+					Account lockedAccount = Account.findByUserId(playerAccount.userId, [lock: true])
+					println "PayoutTansactionService: createPayoutTrans():: SUCCESSFULLY acquired Account lock for userId=" + playerAccount.userId
+					lockedAccount.addToTrans(payoutTransaction)
+					lockedAccount.previousBalance = playerAccount.currentBalance
+					lockedAccount.currentBalance += payout
+					q.addToPayoutTrans(payoutTransaction)
+					lockedAccount.save(flush: true)
+					q.save(flush: true)
+					println "PayoutTansactionService: createPayoutTrans():: SUCCESSFULLY released Account lock for userId=" + playerAccount.userId
+					break;
+				}catch(org.springframework.dao.CannotAcquireLockException e){
+					println "createPayoutTrans(): CannotAcquireLockException ERROR: "+e.message
+					Thread.sleep(500)
+					retryCount++
+				}
+			}
+			
+			userService.updateUserBalance(playerAccount.userId, payout)
+
 	}
 	
 	def getPayoutTransByQuestion(Question q){

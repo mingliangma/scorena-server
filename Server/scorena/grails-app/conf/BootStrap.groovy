@@ -4,6 +4,7 @@ import com.doozi.scorena.utils.AccountType;
 
 import java.util.Date;
 
+import grails.plugins.rest.client.RestBuilder
 import grails.util.Environment
 
 class BootStrap {
@@ -22,16 +23,12 @@ class BootStrap {
 					createQuestions()					
 				}
 				
-//				if (!Account.countByAccountType(AccountType.TEST)){
-//					createTestUsers()
-//				}
-				
 				if (!Account.count()){
 					createTestUsers()
-					//createUsers()
+					addFriends()
 					simulateBetUpcoming()
 					simulateBetPast()
-					addFriends()
+					
 				}
 				
 				
@@ -51,9 +48,9 @@ class BootStrap {
 				if (!Account.count()){
 //					createUsers()
 					createTestUsers()
+					addFriends()
 					simulateBetUpcoming()
 					simulateBetPast()
-					addFriends()
 				}
 				
 				println "bootstrap ended"
@@ -277,7 +274,7 @@ class BootStrap {
 		
 //			def gameService = ctx.getBean("gameService")
 //			def betService = ctx.getBean("betService")
-			
+			def rest = new RestBuilder()
 			println "============simulateBetPast() starts==============="
 			Random random = new Random()
 			def accounts = Account.findAll()
@@ -302,7 +299,7 @@ class BootStrap {
 					def questionId = q.id
 					Date _time = new Date() - (random.nextInt(6) + 18)
 					for (Account account: accounts){
-						if (random.nextInt(15) == 1){
+						if (random.nextInt(2) == 1){
 							continue
 						}
 						
@@ -318,7 +315,7 @@ class BootStrap {
 						}
 						
 						
-						betTransactionService.createBetTrans(_wager,_pick, account.userId, questionId, _time, false)
+						betTransactionService.createBetTrans(_wager,_pick, account.userId, questionId, _time, rest, false)
 					}
 				}
 			}

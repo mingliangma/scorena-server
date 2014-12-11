@@ -10,7 +10,7 @@ import com.doozi.scorena.processengine.GameProcessRecord
 import com.doozi.scorena.transaction.LeagueTypeEnum
 import com.doozi.scorena.transaction.PayoutTransaction
 
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 //@Transactional
 class ScoreService {
@@ -21,6 +21,11 @@ class ScoreService {
 		String query = "from AbstractScore as s where (s.class=com.doozi.scorena.score.NoMetalScore or s.class=com.doozi.scorena.score.GoldMetalScore "+
 		"or s.class=com.doozi.scorena.score.SilverMetalScore or s.class=com.doozi.scorena.score.BronzeMetalScore) and s.account.userId=:userId and s.eventKey in (:eventKeys)"
 				
+		List<AbstractScore> metalScoreTransactionList = AbstractScore.findAll(query, [userId:userId,eventKeys: eventKeys])
+	}
+	
+	List<AbstractScore> listScoresByUserIdAndPastGames(String userId, List eventKeys){
+		String query = "from AbstractScore as s where s.account.userId=:userId and s.eventKey in (:eventKeys)"				
 		List<AbstractScore> metalScoreTransactionList = AbstractScore.findAll(query, [userId:userId,eventKeys: eventKeys])
 	}
 	
@@ -169,18 +174,24 @@ class ScoreService {
 		
 		GoldMetalScore gs = new GoldMetalScore(gameStartTime:gameStartTime, league:sportsDataService.getLeagueCodeFromEventKey(eventKey), score: score, 
 			createdAt: createdAt, eventKey:eventKey, topPercentage:topPercentage, profitCollected:profitCollected, rank: rank)
-
-		account.addToScore(gs)
 		
-		int result = 0
-		if (!account.save()){
-			account.errors.each {
-		        println it
-		    }		
- 			result = -1
+		int retryCount = 0
+		while (retryCount<5){
+			try{
+				println "BetTransactionService: createBetTrans():: Acquiring Account lock for userId=" + account.userId
+				Account lockedAccount = Account.findByUserId(account.userId, [lock: true])
+				println "BetTransactionService: createBetTrans():: SUCCESSFULLY acquired Account lock for userId=" + account.userId
+				lockedAccount.addToScore(gs)				
+				lockedAccount.save(flush: true)
+				println "BetTransactionService: createBetTrans():: SUCCESSFULLY released Account lock for userId=" + account.userId
+				break;
+			}catch(org.springframework.dao.CannotAcquireLockException e){
+				println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
+				Thread.sleep(500)
+				retryCount++
+			}
 		}
 		
-		return result
 	}
 	
 	private def insertSilverScore(int score, Date createdAt, String eventKey, Account account, BigDecimal topPercentage, int profitCollected,  Date gameStartTime, int rank){
@@ -188,34 +199,45 @@ class ScoreService {
 		SilverMetalScore ss = new SilverMetalScore(gameStartTime:gameStartTime, league:sportsDataService.getLeagueCodeFromEventKey(eventKey), score: score, 
 			createdAt: createdAt, eventKey:eventKey, topPercentage:topPercentage, profitCollected:profitCollected, rank: rank)
 		
-		account.addToScore(ss)
-		
-		int result = 0
-		if (!account.save()){
-		    account.errors.each {
-		        println it
-		    }			
-			result = -1
+		int retryCount = 0
+		while (retryCount<5){
+			try{
+				println "BetTransactionService: createBetTrans():: Acquiring Account lock for userId=" + account.userId
+				Account lockedAccount = Account.findByUserId(account.userId, [lock: true])
+				println "BetTransactionService: createBetTrans():: SUCCESSFULLY acquired Account lock for userId=" + account.userId
+				lockedAccount.addToScore(ss)				
+				lockedAccount.save(flush: true)
+				println "BetTransactionService: createBetTrans():: SUCCESSFULLY released Account lock for userId=" + account.userId
+				break;
+			}catch(org.springframework.dao.CannotAcquireLockException e){
+				println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
+				Thread.sleep(500)
+				retryCount++
+			}
 		}
 		
-		return result
 	}
 	
 	private def insertBronzeScore(int score, Date createdAt, String eventKey, Account account, BigDecimal topPercentage, int profitCollected,  Date gameStartTime, int rank){
 		BronzeMetalScore bs = new BronzeMetalScore(gameStartTime:gameStartTime, league:sportsDataService.getLeagueCodeFromEventKey(eventKey), score: score, 
 			createdAt: createdAt, eventKey:eventKey, topPercentage:topPercentage, profitCollected:profitCollected, rank: rank)
 			
-		account.addToScore(bs)
-		
-		int result = 0
-		if (!account.save()){
-		    account.errors.each {
-		        println it
-		    }
-			result = -1
+		int retryCount = 0
+		while (retryCount<5){
+			try{
+				println "BetTransactionService: createBetTrans():: Acquiring Account lock for userId=" + account.userId
+				Account lockedAccount = Account.findByUserId(account.userId, [lock: true])
+				println "BetTransactionService: createBetTrans():: SUCCESSFULLY acquired Account lock for userId=" + account.userId
+				lockedAccount.addToScore(bs)				
+				lockedAccount.save(flush: true)
+				println "BetTransactionService: createBetTrans():: SUCCESSFULLY released Account lock for userId=" + account.userId
+				break;
+			}catch(org.springframework.dao.CannotAcquireLockException e){
+				println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
+				Thread.sleep(500)
+				retryCount++
+			}
 		}
-		
-		return result
 	}
 	
 	private def insertNoScore(int score, Date createdAt, String eventKey, Account account, BigDecimal topPercentage, int profitCollected,  Date gameStartTime, int rank){
@@ -225,40 +247,48 @@ class ScoreService {
 		NoMetalScore ns = new NoMetalScore(gameStartTime:gameStartTime, league:sportsDataService.getLeagueCodeFromEventKey(eventKey), score: score,
 			createdAt: createdAt, eventKey:eventKey, topPercentage:topPercentage, profitCollected:profitCollected, rank: rank)
 
-		account.addToScore(ns)
-		
-		int result = 0
-		if (!account.save()){
-			account.errors.each {
-				println it
+		int retryCount = 0
+		while (retryCount<5){
+			try{
+				println "BetTransactionService: createBetTrans():: Acquiring Account lock for userId=" + account.userId
+				Account lockedAccount = Account.findByUserId(account.userId, [lock: true])
+				println "BetTransactionService: createBetTrans():: SUCCESSFULLY acquired Account lock for userId=" + account.userId
+				lockedAccount.addToScore(ns)				
+				lockedAccount.save(flush: true)
+				println "BetTransactionService: createBetTrans():: SUCCESSFULLY released Account lock for userId=" + account.userId
+				break;
+			}catch(org.springframework.dao.CannotAcquireLockException e){
+				println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
+				Thread.sleep(500)
+				retryCount++
 			}
-			 result = -1
 		}
-		
-		return result
 	}
 	
 	private def insertQuestionScore(int score, Date createdAt, String eventKey, Account account, Question question, Date gameStartTime){
 		
 		QuestionScore qs = new QuestionScore(score: score, createdAt: createdAt, eventKey:eventKey, gameStartTime:gameStartTime, league:sportsDataService.getLeagueCodeFromEventKey(eventKey))
-		account.addToScore(qs)
-		question.addToScore(qs)
+
 		
-		int result = 0
-		if (!account.save()){
-			    account.errors.each {
-			        println it
-			    }			
-				result = -1
+		int retryCount = 0
+		while (retryCount<5){
+			try{
+				println "BetTransactionService: createBetTrans():: Acquiring Account lock for userId=" + account.userId
+				Account lockedAccount = Account.findByUserId(account.userId, [lock: true])
+				println "BetTransactionService: createBetTrans():: SUCCESSFULLY acquired Account lock for userId=" + account.userId
+				lockedAccount.addToScore(qs)
+				question.addToScore(qs)
+				question.save()
+				lockedAccount.save(flush: true)
+				
+				println "BetTransactionService: createBetTrans():: SUCCESSFULLY released Account lock for userId=" + account.userId
+				break;
+			}catch(org.springframework.dao.CannotAcquireLockException e){
+				println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
+				Thread.sleep(500)
+				retryCount++
+			}
 		}
 		
-		if (!question.save()){
-			    question.errors.each {
-			        println it
-			    }			
-				result = -1
-		}
-		
-		return result
 	}
 }

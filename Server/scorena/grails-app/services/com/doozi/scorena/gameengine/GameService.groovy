@@ -118,10 +118,10 @@ class GameService {
 		List pastGamesResult=listPastGamesData(sportType, leagueType)
 		List pastGameIds = getGameIdsFromGameData(pastGamesResult)
 		List<BetTransaction> betsInPastGames = []
-		List<AbstractScore> metalScoreTransactionList = []
+		List<AbstractScore> scoreTransactionList = []
 		if (pastGameIds!=[]){
 			betsInPastGames = betTransactionService.listBetTransByGameIds(pastGameIds)
-			metalScoreTransactionList = scoreService.listBadgeScoresByUserIdAndPastGames(userId, pastGameIds)
+			scoreTransactionList = scoreService.listScoresByUserIdAndPastGames(userId, pastGameIds)
 		}
 		 		
 		for (def pastGame: pastGamesResult){
@@ -134,10 +134,18 @@ class GameService {
 			
 			
 			if (userId != null){
-				AbstractScore scoreTransaction = getScoreTransactionByGameId(pastGame.gameId, metalScoreTransactionList)
-			
+				
+				List<AbstractScore> userGameScores = []
+				println "scoreTransactionList size: "+scoreTransactionList.size()
+				for (AbstractScore scoreTransaction: scoreTransactionList){
+					if (scoreTransaction.eventKey == pastGame.gameId){
+						userGameScores.add(scoreTransaction)
+					}
+				}
+				
+				
 				List<BetTransaction> userBetsInTheGame = getUserBetsFromGame(userId, allBetsInGame)				
-				pastGame.userInfo=gameUserInfoService.getPastGamesUserInfo(pastGame, userBetsInTheGame, userId, scoreTransaction)
+				pastGame.userInfo=gameUserInfoService.getPastGamesUserInfo(pastGame, userBetsInTheGame, userId, userGameScores)
 			}				
 		}
 		return pastGamesResult

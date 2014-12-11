@@ -5,7 +5,7 @@ import com.doozi.scorena.*
 class CheckNewTransSchedulerJob {
     def processEngineManagerService
 	static triggers = {
-	  simple name: 'newGameResultTrigger', startDelay: 15 * 60000, repeatInterval: 30*60*1000 // execute job once in 30 minutes
+	  simple name: 'newGameResultTrigger', startDelay: 80 * 60000, repeatInterval: 30*60*1000 // execute job once in 30 minutes
 	}
 
 	def execute() {	

@@ -1,6 +1,6 @@
 package com.doozi.scorena.innersocialnetwork
 
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 import com.doozi.scorena.Account
 import com.doozi.scorena.FriendSystem

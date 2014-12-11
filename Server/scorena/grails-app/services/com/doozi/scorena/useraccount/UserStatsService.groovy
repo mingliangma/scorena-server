@@ -8,7 +8,7 @@ import com.doozi.scorena.transaction.LeagueTypeEnum;
 import com.doozi.scorena.transaction.PayoutTransaction
 import com.doozi.scorena.score.AbstractScore
 
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 import com.doozi.scorena.utils.*
 //@Transactional

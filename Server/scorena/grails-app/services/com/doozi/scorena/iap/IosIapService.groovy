@@ -1,6 +1,6 @@
 package com.doozi.scorena.iap
 
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;

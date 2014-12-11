@@ -9,7 +9,7 @@ import com.doozi.scorena.score.QuestionScore
 import com.doozi.scorena.utils.*
 
 import grails.converters.JSON
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 import org.codehaus.groovy.grails.web.json.JSONObject
 
@@ -19,6 +19,8 @@ import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 
+
+//The ranking page service
 @Transactional
 class ScoreRankingService {
 	def parseService

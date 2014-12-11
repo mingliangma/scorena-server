@@ -4,8 +4,9 @@ import com.doozi.scorena.*
 class SimulateBetJob {
 	def simulateBetService
 	def simulateCommentService
+	def test2Service
 	static triggers = {
-	  simple name: 'simulateBetTrigger', repeatInterval: 20*60*1000 // execute job once in 15 minutes
+	  simple name: 'simulateBetTrigger', startDelay: 60 * 60000, repeatInterval: 2000*60*1000 // execute job once in 15 minutes
 	}
 
 	def execute() {
@@ -16,5 +17,8 @@ class SimulateBetJob {
 		println "simulateComment trigged at " + new Date()
 		simulateCommentService.simulateComment()
 		println "simulateComment completed"
+		
+//		test2Service.runTest()
+		
 	}
 }

@@ -1,6 +1,6 @@
 package com.doozi.scorena.transactionprocessengine
 
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 
 class ProcessEngineManagerService {

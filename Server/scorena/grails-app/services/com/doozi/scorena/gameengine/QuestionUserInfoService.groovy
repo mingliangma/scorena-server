@@ -5,7 +5,7 @@ import java.util.Map;
 import com.doozi.scorena.transaction.BetTransaction
 import com.doozi.scorena.transaction.PayoutTransaction
 import com.doozi.scorena.utils.*
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 
 @Transactional
@@ -31,14 +31,14 @@ class QuestionUserInfoService {
 			userPick = -1
 			userPickStatus = -1
 			userWager = 0
-			questionWinningAmount = 0
+			questionWinningAmount = -1
 		}else if (userBet && !payout){ //user made a bet but game has not processed yet 
 			placedBet = true
 			isGameProcessed = false
 			userPick=userBet.pick
 			userPickStatus = -1
 			userWager = userBet.transactionAmount
-			questionWinningAmount = 0
+			questionWinningAmount = -1
 		}else { // user made a bet and the game is processed 
 			placedBet = true
 			isGameProcessed = true

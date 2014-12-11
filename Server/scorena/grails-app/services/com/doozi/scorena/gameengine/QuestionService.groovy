@@ -12,7 +12,7 @@ import com.doozi.scorena.utils.*
 import com.doozi.scorena.processengine.*
 
 import grails.plugins.rest.client.RestBuilder
-import grails.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 
 import java.text.DecimalFormat
 import java.util.List;
@@ -73,6 +73,7 @@ class QuestionService {
 		def game = gameService.getGame(eventKey)
 		List<PayoutTransaction> userPayouts = payoutTansactionService.listPayoutTransByGameIdAndUserId(eventKey, userId)
 		List<BetTransaction> userBets = betTransactionService.listBetsByUserIdAndGameId(eventKey, userId)
+		List<Map> userFriendsList = friendSystemService.listFriends(userId)
 		
 		def rest = new RestBuilder()
 		for (Question q: questions){
@@ -100,7 +101,7 @@ class QuestionService {
 				continue
 						
 			
-			PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(q.id)
+			PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(q.id, userFriendsList)
 			def pick1PayoutMultiple = questionPoolUtilService.calculatePick1PayoutMultiple(questionPoolInfo)
 			def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(questionPoolInfo)		
 
@@ -114,14 +115,32 @@ class QuestionService {
 				userInfo = questionUserInfoService.getQuestionsUserInfo(userPayoutInThisQuestion, userBetInThisQuestion)
 			}
 			
-			String playerPictureUrl = ""
 			
-			def resp = parseService.retrieveUser(rest, questionPoolInfo.getHighestBetUserId())
-
-			if (resp.status == 200){
-				playerPictureUrl = resp.json.pictureURL
+			String friendPlayerPictureUrl = null
+			int friendPlayerBetAmount = -1
+			String friendPlayerPick = null
+			boolean friendExistsInQuestion = false
+			
+			String playerPictureUrl = null
+			int playerBetAmount = -1
+			String playerPick = null
+			
+			
+			if (questionPoolInfo.getFriendsExist()){ //friends are playing in this question, use friend's profile in question player icon
+				friendPlayerPictureUrl = questionPoolInfo.getFriendPictureUrl()
+				friendPlayerBetAmount = questionPoolInfo.getFriendBetAmount()
+				friendPlayerPick = questionPoolInfo.getFriendBetPick() == 1 ? q.pick1 : q.pick2
+				friendExistsInQuestion = true
 			}
-			
+
+			if (questionPoolInfo.getHighestBetUserId() != null){ 	 //no friends are playing, use highest bet user	
+				def resp = parseService.retrieveUser(rest, questionPoolInfo.getHighestBetUserId())
+				if (resp.status == 200){
+					playerPictureUrl = resp.json.pictureURL
+				}
+				playerBetAmount = questionPoolInfo.getHighestBetAmount()
+				playerPick = questionPoolInfo.getHighestBetPick() == 1 ? q.pick1 : q.pick2
+			}
 			
 			
 			resultList.add([
@@ -133,9 +152,13 @@ class QuestionService {
 				pick2LogoUrl: teamLogoService.getTeamLogo(q.pick2.trim()),
 				userInfo:userInfo,
 				winnerPick:winnerPick,
-				playerBetAmount: questionPoolInfo.getHighestBetAmount(), //the question preview player bet amount
-				playerPictureUrl: playerPictureUrl,						 // the question preview player picture URL
-				playerPick: questionPoolInfo.getHighestBetPick() == 1 ? q.pick1 : q.pick2, // the question preview player pick
+				playerBetAmount: playerBetAmount, //the question preview player bet amount
+				playerPictureUrl: playerPictureUrl,	// the question preview player picture URL
+				playerPick: playerPick, // the question preview player pick				
+				friendPlayerBetAmount: friendPlayerBetAmount,
+				friendPlayerPictureUrl: friendPlayerPictureUrl,
+				friendPlayerPick: friendPlayerPick,				
+				friendExistsInQuestion: friendExistsInQuestion,
 				pool: [
 					pick1Amount: questionPoolInfo.getPick1Amount(),
 					pick1NumPeople: questionPoolInfo.getPick1NumPeople(),
