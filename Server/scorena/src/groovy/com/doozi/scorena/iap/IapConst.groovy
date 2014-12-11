@@ -5,9 +5,12 @@ import java.util.Date;
 
 class IapConst {
 	// Coin Packages
-	public static final int COIN_PK_20K = 20000
-	public static final int COIN_PK_45K = 45000
-	public static final int COIN_PK_100K = 100000
+	public static final int COIN_PK_1 = 100
+	public static final int COIN_PK_2 = 250
+	public static final int COIN_PK_3 = 500
+	public static final int COIN_PK_4 = 1000
+	public static final int COIN_PK_5 = 2500
+	
 	
 	// URL for IOS Sandbox receipt verification
 	public static final String IOS_Sandbox = "https://sandbox.itunes.apple.com/verifyReceipt"
@@ -16,8 +19,7 @@ class IapConst {
 	public static final String IOS_Production = "https://buy.itunes.apple.com/verifyReceipt"
 	
 	// Public Key for the iap test app in google play store
-	String alpha_pk = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAh1RX3rE7GAbGRiMglxVbPYI1XAcr3o1/gr6Mzc70Ut3c+zv7gnKUhpnXEZz/1x8KY8hGNxFIPQebo/KVI0WuKBXy+hSA52RlSspWZIhYRduE7RFZHzigSOrKGc0bUnwryHb4x9p9R71QDtQd/KbP3hEbOwQt/l7SLj/lk7LpmlBsI5jM4n65yrJJGoG61+1F9VaujhFf4/7TTk/GWmIKGgT3FA4TqNtfZ+aJj5bCy1IvdKU7oBgGd88O6oWPYSf+iQ/HSXIGeKnk17/Lcqd++BmEoRVtCT315KsyOqWFpvqRxyMHP0iWX5SBCUnPHZW+twYjfP3dLQ/aWY3YHW+b0QIDAQAB"
-	
+	String alpha_pk = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhIE6kTRI1o8Ud+iNjhDmvt8uteEHPcfzZgv0gGYwRMCBAuYCAA1U5OOody7mhG5ryXYLqt5vBJwdNtp7lWDLUeyOp6mENZOCJOtInQrTBaa0ukDElDk2qHDjtWAAbZvDCfiaXU6Wq7UM0DWeghXId9HwcWulAPYB+LiywyPkBm0pZWnHL7LAe33TroF0wiuQFDkSn1rzbnK+s+gclivvADtYRHNb2K/+czEJSYPNqn4K8VMencatRpYpql1aRPzIVD3zDs2wLAfRQY5EmJZ6QESUnKtD7x047rnijzrOh83o0hIgF5WxWWwMKRN9ev7KuwroNMURLBRLBNxauY+X2wIDAQAB"
 	// TODO: replace with real public key for Scorena app
 	String pk = ""
 	
@@ -41,22 +43,34 @@ class IapConst {
 		return IOS_Production
 	}
 	
-	// returns 20k coin pack value 
-	public int get20k()
+	// returns coin_pk_1 value 
+	public int getPK_1()
 	{
-		return COIN_PK_20K
+		return COIN_PK_1
 	}
 	
-	// returns 45k coin pack value
-	public int get45k()
+	// returns coin_pk_2  value
+	public int getPK_2()
 	{
-		return COIN_PK_45K
+		return COIN_PK_2
 	}
 	
-	// returns 100k coin pack value
-	public int get100k()
+	// returns coin_pk_3 value
+	public int getPK_3()
 	{
-		return COIN_PK_100K
+		return COIN_PK_3
+	}
+	
+	// returns coin_pk_4 value
+	public int getPK_4()
+	{
+		return COIN_PK_4
+	}
+	
+	// returns coin_pk_5 value
+	public int getPK_5()
+	{
+		return COIN_PK_5
 	}
 	
 	/* removes time zone and converts date string to UTC date time
