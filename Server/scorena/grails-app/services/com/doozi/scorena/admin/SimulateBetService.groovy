@@ -13,7 +13,7 @@ class SimulateBetService {
 	def simulateBetUpcoming(){
 		
 		Random random = new Random()
-		def accounts = Account.findAllByAccountType(AccountType.TEST, [max: 10])
+		def accounts = Account.findAllByAccountType(AccountType.TEST)
 		def upcomingGames = gameService.listUpcomingGamesData("all", "all")
 		for (int i=0; i < upcomingGames.size(); i++){
 			if (random.nextInt(4) == 1){
@@ -27,6 +27,10 @@ class SimulateBetService {
 				long questionId = q.id
 				
 				for (Account account: accounts){
+					if (random.nextInt(5) != 1){
+						continue
+					}
+					
 					int _wager =  (random.nextInt(6)+1)*20
 					int _pick
 					

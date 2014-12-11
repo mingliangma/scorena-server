@@ -30,11 +30,28 @@ class PayoutTansactionService {
 		println "PayoutTansactionService::createPayoutTrans(): qId="+q.id + ",accountId=" + playerAccount.id+", payout="+payout
 			PayoutTransaction payoutTransaction = new PayoutTransaction(transactionAmount: payout, createdAt: new Date(), winnerPick: winnerPick, pick: userPick, initialWager:wager, 
 				eventKey: q.eventKey, playResult: playResult, league: sportsDataService.getLeagueCodeFromEventKey(q.eventKey), profit: payout-wager, gameStartTime:gameStartTime)
-					
-			playerAccount.addToTrans(payoutTransaction)
-			q.addToPayoutTrans(payoutTransaction)
-			playerAccount.save(flush: true)
-			q.save(flush: true)
+			
+			int retryCount = 0
+			while (retryCount<5){
+				try{
+					println "PayoutTansactionService: createPayoutTrans():: Acquiring Account lock for userId=" + playerAccount.userId
+					Account lockedAccount = Account.findByUserId(playerAccount.userId, [lock: true])
+					println "PayoutTansactionService: createPayoutTrans():: SUCCESSFULLY acquired Account lock for userId=" + playerAccount.userId
+					lockedAccount.addToTrans(payoutTransaction)
+					lockedAccount.previousBalance = playerAccount.currentBalance
+					lockedAccount.currentBalance += payout
+					q.addToPayoutTrans(payoutTransaction)
+					lockedAccount.save(flush: true)
+					q.save(flush: true)
+					println "PayoutTansactionService: createPayoutTrans():: SUCCESSFULLY released Account lock for userId=" + playerAccount.userId
+					break;
+				}catch(org.springframework.dao.CannotAcquireLockException e){
+					println "createPayoutTrans(): CannotAcquireLockException ERROR: "+e.message
+					Thread.sleep(500)
+					retryCount++
+				}
+			}
+			
 			userService.updateUserBalance(playerAccount.userId, payout)
 
 	}

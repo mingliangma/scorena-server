@@ -19,6 +19,8 @@ import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 
+
+//The ranking page service
 @Transactional
 class ScoreRankingService {
 	def parseService

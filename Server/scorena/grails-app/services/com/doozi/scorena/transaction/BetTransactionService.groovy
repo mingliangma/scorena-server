@@ -42,23 +42,32 @@ class BetTransactionService {
 				return validationResult
 			}
 		}
-		
-		try{
 
 			BetTransaction newBetTransaction = new BetTransaction(transactionAmount: playerWager, createdAt: transactionDate, 
 				pick: playerPick, eventKey: question.eventKey, league: sportsDataService.getLeagueCodeFromEventKey(question.eventKey), 
 				gameStartTime:helperService.parseDateFromString(game.date))
-					
-			playerAccount.addToTrans(newBetTransaction)	
-			question.addToBetTrans(newBetTransaction)				
-			playerAccount.save(flush: true)
-			question.save(flush: true)
-			userService.updateUserBalance(userId, -playerWager)
-		}catch(org.springframework.dao.OptimisticLockingFailureException e){
-			println "OptimisticLockingFailureException: playerAccount: "+playerAccount + " currentBalance: " +playerAccount.currentBalance + "question: "+question + "newBetTransaction: "+newBetTransaction			
-			playerAccount = playerAccount.merge()
-			println "OptimisticLockingFailureException: playerAccount: "+playerAccount + " currentBalance: " +playerAccount.currentBalance + "question: "+question + "newBetTransaction: "+newBetTransaction
-		}
+			
+			int retryCount = 0
+			while (retryCount<5){
+				try{
+					println "BetTransactionService: createBetTrans():: Acquiring Account lock for userId=" + userId
+					Account lockedAccount = Account.findByUserId(userId, [lock: true])
+					println "BetTransactionService: createBetTrans():: SUCCESSFULLY acquired Account lock for userId=" + userId
+					lockedAccount.addToTrans(newBetTransaction)	
+					lockedAccount.previousBalance = playerAccount.currentBalance
+					lockedAccount.currentBalance -= playerWager
+					question.addToBetTrans(newBetTransaction)
+					lockedAccount.save(flush: true)					
+					question.save(flush: true)
+					println "BetTransactionService: createBetTrans():: SUCCESSFULLY released Account lock for userId=" + userId
+					break;
+				}catch(org.springframework.dao.CannotAcquireLockException e){
+					println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
+					Thread.sleep(500)
+					retryCount++
+				}
+			}
+
 		try{
 			if (playerAccount.accountType == AccountType.USER){
 			
