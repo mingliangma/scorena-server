@@ -29,7 +29,7 @@ class QuestionUserInfoService {
 			placedBet = false
 			userPick = -1
 			userPickStatus = -1
-			userWager = 0
+			userWager = -1
 			questionWinningAmount = -1
 		}else if (userBet && !payout){ //user made a bet but game has not processed yet 
 			placedBet = true
@@ -108,8 +108,8 @@ class QuestionUserInfoService {
 	Map getPostEventQuestionUserInfo(String userId, long questionId, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple,
 		pick1WinningPayoutPercentage,pick2WinningPayoutPercentage){
 		
-		def userWinningAmount = 0
-		def userPayoutPercent = 0
+		def userWinningAmount = -1
+		def userPayoutPercent = -1
 		def userBetAmount = 0
 		def userPick =-1
 		

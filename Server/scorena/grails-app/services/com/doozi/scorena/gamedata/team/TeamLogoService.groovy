@@ -119,13 +119,13 @@ class TeamLogoService {
 	public static final String KNICKS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/NewYorkKnicks.png'
 	public static final String THUNDER_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Oklahoma_City_Thunder.svg.png'
 	public static final String PELICANTS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/New_Orleans_Pelicans.png'
-	public static final String SEVENTYSIXERS_LOGO_URL = 'hhttps://s3-us-west-2.amazonaws.com/teamlogo/NBA/Philadelphia_76ers_Logo.svg.png'
+	public static final String SEVENTYSIXERS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Philadelphia_76ers_Logo.svg.png'
 	public static final String SUNS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Phoenix_Suns.svg.png'
 	public static final String BLAZERS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Portland_Trail_Blazers.svg.png'
 	public static final String SPURS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/San_Antonio_Spurs.svg.png'
 	public static final String RAPTORS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Toronto_Raptors.svg.png'
 	public static final String JAZZ_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Utah_Jazz_script_logo%2C_(2010_%27new_look%27).svg.png'
-	public static final String WIZARDS_LOGO_URL = 'hhttps://s3-us-west-2.amazonaws.com/teamlogo/NBA/Washington_Wizards_Logo.svg.png'
+	public static final String WIZARDS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Washington_Wizards_Logo.svg.png'
 	
 	
 	public static final String ALGERIA_TEAMNAME = "Algeria"

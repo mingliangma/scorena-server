@@ -32,15 +32,18 @@ class GameUserInfoService {
 
 		if (userinfo.placedBet && scoreTransactions.size() == 0){
 			
-			userinfo.rank= null
-			userinfo.badge= null
-			userinfo.badgeScore= null
-			userinfo.gameWinningAmount = null
-			userinfo.totalScore = null
+			userinfo.rank= -1
+			userinfo.badge= ""
+			userinfo.badgeScore= -1
+			userinfo.gameWinningAmount = -1
+			userinfo.totalScore = -1
 			
 		} else if (userinfo.placedBet && scoreTransactions.size() > 0){
 //			userinfo.gameWinningAmount = getProfitInGame(game, userId, userBetsInTheGame)	
-			userinfo.gameWinningAmount = PayoutTransaction.executeQuery("select sum(p.transactionAmount) from PayoutTransaction as p where p.eventKey=? and p.account.userId=?)",[game.gameId, userId])[0]
+			userinfo.gameWinningAmount = PayoutTransaction.executeQuery("select sum(p.profit) from PayoutTransaction as p where p.eventKey=? and p.account.userId=?)",[game.gameId, userId])[0]
+			userinfo.badgeScore = -1
+			userinfo.rank = -1
+			userinfo.badge = ""
 			
 			int totalScore = 0
 			for (AbstractScore score : scoreTransactions){
@@ -50,17 +53,21 @@ class GameUserInfoService {
 					userinfo.badgeScore = score.score
 					userinfo.rank = score.rank
 					userinfo.badge = score.class.getSimpleName()
+				}else if (score.class.getSimpleName() == NoMetalScore.class.getSimpleName()){
+					userinfo.rank = score.rank
+					userinfo.badge = score.class.getSimpleName()
+					userinfo.badgeScore = score.score
 				}
 				totalScore += score.score
 			}
 			userinfo.totalScore = totalScore
 			
 		}else{
-			userinfo.rank= null
-			userinfo.badge= null
-			userinfo.badgeScore= null
-			userinfo.gameWinningAmount = null
-			userinfo.totalScore = null
+			userinfo.rank= -1
+			userinfo.badge= ""
+			userinfo.badgeScore= -1
+			userinfo.gameWinningAmount = -1
+			userinfo.totalScore = -1
 		}
 		return userinfo
 	}

@@ -120,14 +120,14 @@ class QuestionService {
 			}
 			
 			
-			String friendPlayerPictureUrl = null
+			String friendPlayerPictureUrl = ""
 			int friendPlayerBetAmount = -1
-			String friendPlayerPick = null
+			String friendPlayerPick = ""
 			boolean friendExistsInQuestion = false
 			
-			String playerPictureUrl = null
+			String playerPictureUrl = ""
 			int playerBetAmount = -1
-			String playerPick = null
+			String playerPick = ""
 			
 			
 			if (questionPoolInfo.getFriendsExist()){ //friends are playing in this question, use friend's profile in question player icon
