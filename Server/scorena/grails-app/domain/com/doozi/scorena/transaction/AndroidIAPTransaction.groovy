@@ -7,5 +7,6 @@ class AndroidIAPTransaction extends AbstractTransaction{
 	Date purchaseTime
 	
     static constraints = {
+		account (unique: ['orderId'])
     }
 }

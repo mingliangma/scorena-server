@@ -18,5 +18,6 @@ class PayoutTransaction extends AbstractTransaction{
 	static belongsTo = [question: Question]
 	
     static constraints = {
+		account (unique: ['class','question'])
     }
 }

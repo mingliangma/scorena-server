@@ -63,7 +63,7 @@ class CustomGameService {
 	def getAllPastGames(){
 		def todayDate = new Date()
 		def pastDate = todayDate - PAST_DATE_RANGE;
-		def pastGames = CustomGame.findAll("from CustomGame as g where g.startDateTime>? and g.startDateTime<? and g.eventStatus='post-event' order by g.startDateTime", [pastDate, todayDate+1])
+		def pastGames = CustomGame.findAll("from CustomGame as g where g.startDateTime>? and g.startDateTime<? and g.eventStatus='post-event' order by g.startDateTime desc", [pastDate, todayDate+1])
 
 		List pastGamesList = sportsDataService.constructGameList(pastGames, sportsDataService.PREEVENT, todayDate)		
 		return pastGamesList

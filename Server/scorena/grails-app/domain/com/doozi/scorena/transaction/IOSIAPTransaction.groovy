@@ -12,5 +12,6 @@ class IOSIAPTransaction extends AbstractTransaction{
 	Date purchaseTime
 	
     static constraints = {
+		account (unique: ['class','transactionId'])
     }
 }

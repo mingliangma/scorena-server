@@ -18,6 +18,7 @@ import org.springframework.http.MediaType
 import com.doozi.scorena.utils.*;
 import com.doozi.scorena.*;
 import com.doozi.scorena.transaction.BetTransaction
+import com.doozi.scorena.transaction.OpenAccountTransaction
 import com.doozi.scorena.transaction.PayoutTransaction
 
 import grails.plugins.rest.client.RestBuilder
@@ -78,7 +79,7 @@ class UserService {
 		def account = Account.findByUserId(userProfile.objectId)
 		
 		if (account == null){
-			Map accountCreationResult = createUserAccount(rest, userProfile.objectId, userProfile.username, SOCIALNETWORK_INITIAL_BALANCE, SOCIALNETWORK_INITIAL_BALANCE, userProfile.sessionToken, AccountType.USER)
+			Map accountCreationResult = createUserAccount(rest, userProfile.objectId, userProfile.username, SOCIALNETWORK_INITIAL_BALANCE, SOCIALNETWORK_INITIAL_BALANCE, userProfile.sessionToken, AccountType.FACEBOOK_USER)
 			if (accountCreationResult!=[:]){
 				return accountCreationResult
 			}
@@ -412,8 +413,15 @@ class UserService {
 			return result
 		}
 		def account = new Account(userId:userId, username:username, currentBalance:initialBalance,previousBalance:previousBalance, accountType: accountType)
-		if (!account.save()){
+		def openAccountTransaction = new OpenAccountTransaction(transactionAmount: initialBalance, createdAt: new Date(), accountType: accountType)
+		
+		account.addToTrans(openAccountTransaction)
+		
+		if (!account.save() || !openAccountTransaction.save()){
 			account.errors.each{
+				println it
+			}
+			openAccountTransaction.errors.each{
 				println it
 			}
 			def delResp = parseService.deleteUser(rest, sessionToken, userId)

@@ -683,6 +683,8 @@ class QuestionService {
 		bettersList.addAll(isFriendUserProfileGroup)
 		bettersList.addAll(noneFriendUserProfileGroup)
 		
+		println "bettersList: "+bettersList
+		
 		return bettersList
 	}
 	

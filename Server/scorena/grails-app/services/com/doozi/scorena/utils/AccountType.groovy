@@ -4,5 +4,6 @@ class AccountType {
 	public static final int USER = 1
 	public static final int ADMIN= 2
 	public static final int TEST= 3
+	public static final int FACEBOOK_USER= 4
 	
 }

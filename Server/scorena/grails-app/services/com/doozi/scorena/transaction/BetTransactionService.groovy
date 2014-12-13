@@ -32,7 +32,7 @@ class BetTransactionService {
 		Account playerAccount = Account.findByUserId(userId)
 		Question question = Question.get(quesitonId)
 		Map game = gameService.getGame(question.eventKey)
-		if (toValidate){
+		if (false){
 			//Find the bet transaction that associated with the given userId and questionId 
 			BetTransaction betTrans = BetTransaction.find("from BetTransaction as b where (b.question.id=? and b.account.id=?)", question.id, playerAccount.id)
 			
