@@ -57,17 +57,19 @@ class BetTransactionService {
 					lockedAccount.previousBalance = playerAccount.currentBalance
 					lockedAccount.currentBalance -= playerWager
 					question.addToBetTrans(newBetTransaction)
-					lockedAccount.save(flush: true)					
-					question.save(flush: true)
+					lockedAccount.save()					
+					question.save()
 					println "BetTransactionService: createBetTrans():: SUCCESSFULLY released Account lock for userId=" + userId
 					break;
 				}catch(org.springframework.dao.CannotAcquireLockException e){
 					println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
 					Thread.sleep(500)
 					retryCount++
-				}
+				}catch(org.hibernate.AssertionFailure e2){
+					println "createBetTrans(): AssertionFailure ERROR: "+e.message				
+				} 
 			}
-
+			println "newBetTransaction="+newBetTransaction
 		try{
 			if (playerAccount.accountType == AccountType.USER){
 			
