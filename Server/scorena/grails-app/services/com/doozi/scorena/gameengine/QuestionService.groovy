@@ -101,7 +101,7 @@ class QuestionService {
 				continue
 						
 			
-			PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(q.id, userFriendsList)
+			PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(userFriendsList, q.id)
 			def pick1PayoutMultiple = questionPoolUtilService.calculatePick1PayoutMultiple(questionPoolInfo)
 			def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(questionPoolInfo)		
 
@@ -333,6 +333,7 @@ class QuestionService {
 	
 	private def getPostEventQuestion(Question q, String userId, Map game){
 
+		List<BetTransaction> betTransList = betTransactionService.listAllBetsByQId(q.id)
 		int winnerPick = processEngineImplService.calculateWinningPick(game, q)
 		
 		def pick1WinningPayoutMultiple=0
@@ -342,8 +343,7 @@ class QuestionService {
 		 
 		DecimalFormat df = new DecimalFormat("###.##")
 
-		
-		PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(q.id)
+		PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(betTransList)
 		
 		def pick1PayoutMultiple = questionPoolUtilService.calculatePick1PayoutMultiple(questionPoolInfo)
 		def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(questionPoolInfo)				
@@ -384,9 +384,13 @@ class QuestionService {
 		if (userService.accountExists(userId)){
 			userInfo = questionUserInfoService.getPostEventQuestionUserInfo(userId, q.id, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple,
 		pick1WinningPayoutPercentage,pick2WinningPayoutPercentage)
-			betters = getBetters(q.id, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple, userInfo, userId)
+			
+			
+			List<String> userFriendsList = friendSystemService.listFriendUserIds(userId)
+			List<BetTransaction> friendBets = betTransactionService.listAllFriendsBetsByQId(q.id, userFriendsList)			
+			betters = getBetters(betTransList, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple, userInfo, userId, friendBets)
 		}else{
-			betters = getBetters(q.id, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple, userInfo)
+			betters = getBetters(betTransList, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple, userInfo)
 		}
 		
 //		def currentOddsPick1=1
@@ -460,8 +464,9 @@ class QuestionService {
 		DecimalFormat df = new DecimalFormat("###.##")
 		Map betters = [:]
 		Map userInfo = [:]
-				
-		PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(q.id)
+		List<BetTransaction> betTransList = betTransactionService.listAllBetsByQId(q.id)
+		PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(betTransList)
+	
 		
 		def pick1PayoutMultiple = questionPoolUtilService.calculatePick1PayoutMultiple(questionPoolInfo)
 		def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(questionPoolInfo)	
@@ -470,9 +475,11 @@ class QuestionService {
 		
 		if (userService.accountExists(userId)){
 			userInfo = questionUserInfoService.getPreEventQuestionUserInfo(userId, q.id)
-			betters = getBetters(q.id, pick1PayoutMultiple, pick2PayoutMultiple, userInfo, userId)
+			List<String> userFriendsList = friendSystemService.listFriendUserIds(userId)
+			List<BetTransaction> friendBets = betTransactionService.listAllFriendsBetsByQId(q.id, userFriendsList)			
+			betters = getBetters(betTransList, pick1PayoutMultiple, pick2PayoutMultiple, userInfo, userId, friendBets)
 		}else{
-			betters = getBetters(q.id, pick1PayoutMultiple, pick2PayoutMultiple, userInfo)
+			betters = getBetters(betTransList, pick1PayoutMultiple, pick2PayoutMultiple, userInfo)
 		}
 
 		
@@ -592,75 +599,116 @@ class QuestionService {
 		return unpickedQuestionList
 	}
 	
-	private Map getBetters(qId, pick1PayoutMultiple, pick2PayoutMultiple, userInfo){
-		return getBetters(qId, pick1PayoutMultiple, pick2PayoutMultiple, userInfo, null)
+	private Map getBetters(List<BetTransaction> betTransactions, def pick1PayoutMultiple, def pick2PayoutMultiple, Map userInfo){
+		return getBetters(betTransactions, pick1PayoutMultiple, pick2PayoutMultiple, userInfo, null, [])
+		
 	}
 	
-	private Map getBetters(qId, pick1PayoutMultiple, pick2PayoutMultiple, userInfo, userId){
+	
+	private Map getBetters(List<BetTransaction> betTransactions, def pick1PayoutMultiple, def pick2PayoutMultiple, Map userInfo, String userId, List<BetTransaction> friendBetList){
 		Map pick1BettersMap = [:]
 		Map pick2BettersMap = [:]
 		def currentUserAdded = false
 		Boolean isFriend = false	//indicator weather better is current user's friends or not 
-		Boolean isFriendMySelf = true	//indicator weather current user is current user's friends or not 
-		
+		Boolean isFriendMySelf = false	//indicator weather current user is current user's friends or not 
+		Boolean isBettersMapFull = false
 		String username = ""
-		if (userId != null)
+		
+		if (userId != null){
 			username = userService.getUserDisplayName(userId)
-		
-		def betTransactions = betTransactionService.listAllBetsByQId(qId)
-		
-		for (BetTransaction betTrans: betTransactions){
-
-			Account betterAccount = betTrans.account
-		
+			if (userInfo!=[:]){
+				if (userInfo.userPick==1){
+					pick1BettersMap.put(userId,[name:username, userId:userId, wager:userInfo.userWager,expectedWinning: Math.round(pick1PayoutMultiple * userInfo.userWager), isFriend: isFriendMySelf])
+				}else if (userInfo.userPick==2){
+					pick2BettersMap.put(userId,[name:username, userId:userId, wager:userInfo.userWager,expectedWinning: Math.round(pick2PayoutMultiple * userInfo.userWager), isFriend: isFriendMySelf])
+				}
+			}
+		}
+			
+		for (BetTransaction friendTransaction: friendBetList){
+			Account betterAccount = friendTransaction.account			
 			String betterUsername = betterAccount.username
 			String betterUserId =  betterAccount.userId
 			
-			if(userId != null) 	{
-				isFriend = friendSystemService.isFriend(userId,betterUserId)
-			}
-			
-			if (betTrans.pick==Pick.PICK1){
+			if (friendTransaction.pick==Pick.PICK1){
 				
 				if (pick1BettersMap.size() <=8){
-					if ( betterUsername != username){
+					if (betterUserId != userId){
 						pick1BettersMap.put(betterUserId,[
 							name:betterUsername,
 							userId:betterUserId,
-							wager:betTrans.transactionAmount,
-							expectedWinning: Math.round(pick1PayoutMultiple * betTrans.transactionAmount),
-							isFriend: isFriend])
+							wager:friendTransaction.transactionAmount,
+							expectedWinning: Math.round(pick1PayoutMultiple * friendTransaction.transactionAmount),
+							isFriend: true])
 					}
 				}
 			}else{
 				if (pick2BettersMap.size() <=8){
-					if (betterUsername != username){
+					if (betterUserId != userId){
 						pick2BettersMap.put(betterUserId, [
 							name:betterUsername,
 							userId:betterUserId,
-							wager:betTrans.transactionAmount,
-							expectedWinning: Math.round(pick2PayoutMultiple * betTrans.transactionAmount),
-							isFriend: isFriend])				
+							wager:friendTransaction.transactionAmount,
+							expectedWinning: Math.round(pick2PayoutMultiple * friendTransaction.transactionAmount),
+							isFriend: true])
 					}
 				}
 			}
-			if (pick2BettersMap.size() >8 && pick1BettersMap.size() >8)
+			if (pick2BettersMap.size() >8 && pick1BettersMap.size() >8){
+				isBettersMapFull = true
 				break
-		}		
-		
-		if ( currentUserAdded == false && userInfo!=[:] && username!="" ){
-			if (userInfo.userPick==1){
-				pick1BettersMap.put(userId,[name:username, userId:userId, wager:userInfo.userWager,expectedWinning: Math.round(pick1PayoutMultiple * userInfo.userWager), isFriend: isFriendMySelf])
-			}else if (userInfo.userPick==2){
-				pick2BettersMap.put(userId,[name:username, userId:userId, wager:userInfo.userWager,expectedWinning: Math.round(pick2PayoutMultiple * userInfo.userWager), isFriend: isFriendMySelf])			
 			}
 		}
+				
+		if (!isBettersMapFull){
+			for (BetTransaction betTrans: betTransactions){
+	
+				Account betterAccount = betTrans.account		
+				String betterUsername = betterAccount.username
+				String betterUserId =  betterAccount.userId
+				
+				if (pick1BettersMap.containsKey(betterUserId) || pick2BettersMap.containsKey(betterUserId)){
+					continue
+				}
+				
+				if(userId != null) 	{
+					isFriend = friendSystemService.isFriend(userId,betterUserId)
+				}
+				
+				if (betTrans.pick==Pick.PICK1){
+					
+					if (pick1BettersMap.size() <=8){
+						if (betterUserId != userId){
+							pick1BettersMap.put(betterUserId,[
+								name:betterUsername,
+								userId:betterUserId,
+								wager:betTrans.transactionAmount,
+								expectedWinning: Math.round(pick1PayoutMultiple * betTrans.transactionAmount),
+								isFriend: isFriend])
+						}
+					}
+				}else{
+					if (pick2BettersMap.size() <=8){
+						if (betterUserId != userId){
+							pick2BettersMap.put(betterUserId, [
+								name:betterUsername,
+								userId:betterUserId,
+								wager:betTrans.transactionAmount,
+								expectedWinning: Math.round(pick2PayoutMultiple * betTrans.transactionAmount),
+								isFriend: isFriend])				
+						}
+					}
+				}
+				if (pick2BettersMap.size() >8 && pick1BettersMap.size() >8)
+					break
+			}
+		}		
 		
 		def homeBettersArr = getBettersProfile(pick1BettersMap)
 		def awayBettersArr = getBettersProfile(pick2BettersMap)
 		
-		homeBettersArr = getBettersOrderedByIsFriend(homeBettersArr)	//get betters presented in order by it is current user's friend or not
-		awayBettersArr = getBettersOrderedByIsFriend(awayBettersArr)	//get betters presented in order by it is current user's friend or not
+//		homeBettersArr = getBettersOrderedByIsFriend(homeBettersArr)	//get betters presented in order by it is current user's friend or not
+//		awayBettersArr = getBettersOrderedByIsFriend(awayBettersArr)	//get betters presented in order by it is current user's friend or not
 		
 		def betters=[
 			pick1Betters: homeBettersArr,

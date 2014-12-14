@@ -99,7 +99,7 @@ class FriendSystemService {
 		return tips
 	}
 	
-	List listFriends(userId) {
+	List listFriendUserIds(userId){
 		if (userId==null || userId==""){
 			return []
 		}
@@ -110,13 +110,13 @@ class FriendSystemService {
 		"WHERE status=1 AND (user1=? OR user2=?) AND (user1!=? OR user2!=?)"
 		final int USERID1_QUERY_INDEX = 0
 		final int USERID2_QUERY_INDEX = 1
+		List allFriendUserIdList = []
 		
 		if(user != null) {
 			//find all friend of user by SQL Query
 			def allFriendResult = FriendSystem.executeQuery(friendListQuery,[user,user,user,user])
 			
-			List allFriendList = []
-			def allFriendProfileList = []
+			
 			int allFriendSize = allFriendResult.size()
 			
 			for(int i=0;i<allFriendSize;i++) {
@@ -124,29 +124,34 @@ class FriendSystemService {
 				
 				if(friendSystem[USERID1_QUERY_INDEX]==user.userId && friendSystem[USERID2_QUERY_INDEX]!=user.userId) {
 					String friendUserId = friendSystem[USERID2_QUERY_INDEX]
-					allFriendList.add(friendUserId)
+					allFriendUserIdList.add(friendUserId)
 				}
 				
 				if(friendSystem[USERID2_QUERY_INDEX]==user.userId && friendSystem[USERID1_QUERY_INDEX]!=user.userId) {
 					String friendUserId = friendSystem[USERID1_QUERY_INDEX]
-					allFriendList.add(friendUserId)
+					allFriendUserIdList.add(friendUserId)
 				}
 			}
-			
-			int allFriendListSize = allFriendList.size()
-			if (allFriendListSize != 0) {
-				allFriendProfileList = getUserProfile(allFriendList)
-			}
-			
-			return allFriendProfileList			
 		}
-		else {
-			def error = ["invalid userID!"]
-			return error
-		}
+		return allFriendUserIdList
 	}
 	
-	List getUserProfile (List userIdList) {
+	List listFriends(userId) {
+		if (userId==null || userId==""){
+			return []
+		}
+		List<Map> allFriendProfileList = []
+		List allFriendList = listFriendUserIds(userId)
+		
+		int allFriendListSize = allFriendList.size()
+		if (allFriendListSize != 0) {
+			allFriendProfileList = getUserProfile(allFriendList)
+		}
+		
+		return allFriendProfileList			
+	}
+	
+	List<Map> getUserProfile (List userIdList) {
 		def userProfileList = []
 		def userProfileResultList = []
 		

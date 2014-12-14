@@ -11,14 +11,27 @@ import org.springframework.transaction.annotation.Transactional
 class PoolInfoService {
 	def betTransactionService
 	
-	public PoolInfo getQuestionPoolInfo(qId){
-		return getQuestionPoolInfo(qId, [])
+	public PoolInfo getQuestionPoolInfo(long qId){
+		return getQuestionPoolInfo([], betTransactionService.listAllBetsByQId(qId))
 	}
 	
-	public PoolInfo getQuestionPoolInfo(qId, List<Map> userFriendsList){
-		PoolInfo questionPoolInfo = new PoolInfo()		
-		List<BetTransaction> betTransList = betTransactionService.listAllBetsByQId(qId)
+	public PoolInfo getQuestionPoolInfo(List<BetTransaction> betTransList){
+		return getQuestionPoolInfo([], betTransList)
+	}
+	
+	public PoolInfo getQuestionPoolInfo(List<Map> userFriendsList, long qId){
+		return getQuestionPoolInfo(userFriendsList, betTransactionService.listAllBetsByQId(qId))
+	}
+	
+	public PoolInfo getQuestionPoolInfo(List<Map> userFriendsList, List<BetTransaction> betTransList){
+		PoolInfo questionPoolInfo = new PoolInfo()
+		List<BetTransaction> betTransactionsList=[]
 		
+		if (betTransList == []){
+			betTransactionsList = betTransactionService.listAllBetsByQId(qId)
+		}else{
+			betTransactionsList = betTransList
+		}
 		Map userFriendsMap = [:]
 		for (Map friendProfile : userFriendsList) {
 			userFriendsMap.put(friendProfile.userId, friendProfile)
@@ -38,7 +51,7 @@ class PoolInfoService {
 		int highestFriendBetPick = 0
 		boolean friendExist = false
 		
-		for (BetTransaction bet: betTransList){
+		for (BetTransaction bet: betTransactionsList){
 			if (bet.pick == Pick.PICK1){
 				pick1BetAmount += bet.transactionAmount
 				Pick1NumPeople++

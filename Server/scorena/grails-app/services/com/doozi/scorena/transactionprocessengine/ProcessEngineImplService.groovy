@@ -225,7 +225,9 @@ class ProcessEngineImplService {
 			def payoutMultipleOfWager			
 			boolean processSuccess = true
 			boolean onePickHasNoBet = false
-			PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(q.id)						
+			List<BetTransaction> betTransactions = betTransactionService.listAllBetsByQId(q.id)
+			PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(betTransactions)	
+								
 				
 			//Calculate the payout multiple for the winning side. If there is one side that has no one bet on, the variable "onePickHasNoBet" is set to true,
 			//and later, we give the coins back to the users
@@ -250,7 +252,7 @@ class ProcessEngineImplService {
 				return -1
 			}
 			
-			List<BetTransaction> betTransactions = betTransactionService.listAllBetsByQId(q.id)
+			
 
 			def rest = new RestBuilder()
 			for (BetTransaction bet: betTransactions){
