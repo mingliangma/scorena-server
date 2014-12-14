@@ -25,13 +25,7 @@ class PoolInfoService {
 	
 	public PoolInfo getQuestionPoolInfo(List<Map> userFriendsList, List<BetTransaction> betTransList){
 		PoolInfo questionPoolInfo = new PoolInfo()
-		List<BetTransaction> betTransactionsList=[]
-		
-		if (betTransList == []){
-			betTransactionsList = betTransactionService.listAllBetsByQId(qId)
-		}else{
-			betTransactionsList = betTransList
-		}
+
 		Map userFriendsMap = [:]
 		for (Map friendProfile : userFriendsList) {
 			userFriendsMap.put(friendProfile.userId, friendProfile)
@@ -51,7 +45,7 @@ class PoolInfoService {
 		int highestFriendBetPick = 0
 		boolean friendExist = false
 		
-		for (BetTransaction bet: betTransactionsList){
+		for (BetTransaction bet: betTransList){
 			if (bet.pick == Pick.PICK1){
 				pick1BetAmount += bet.transactionAmount
 				Pick1NumPeople++
