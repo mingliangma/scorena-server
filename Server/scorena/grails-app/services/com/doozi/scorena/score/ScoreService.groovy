@@ -178,12 +178,12 @@ class ScoreService {
 		int retryCount = 0
 		while (retryCount<5){
 			try{
-				println "BetTransactionService: createBetTrans():: Acquiring Account lock for userId=" + account.userId
+//				println "BetTransactionService: createBetTrans():: Acquiring Account lock for userId=" + account.userId
 				Account lockedAccount = Account.findByUserId(account.userId, [lock: true])
-				println "BetTransactionService: createBetTrans():: SUCCESSFULLY acquired Account lock for userId=" + account.userId
+//				println "BetTransactionService: createBetTrans():: SUCCESSFULLY acquired Account lock for userId=" + account.userId
 				lockedAccount.addToScore(gs)				
 				lockedAccount.save(flush: true)
-				println "BetTransactionService: createBetTrans():: SUCCESSFULLY released Account lock for userId=" + account.userId
+//				println "BetTransactionService: createBetTrans():: SUCCESSFULLY released Account lock for userId=" + account.userId
 				break;
 			}catch(org.springframework.dao.CannotAcquireLockException e){
 				println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
@@ -202,12 +202,12 @@ class ScoreService {
 		int retryCount = 0
 		while (retryCount<5){
 			try{
-				println "BetTransactionService: createBetTrans():: Acquiring Account lock for userId=" + account.userId
+//				println "BetTransactionService: createBetTrans():: Acquiring Account lock for userId=" + account.userId
 				Account lockedAccount = Account.findByUserId(account.userId, [lock: true])
-				println "BetTransactionService: createBetTrans():: SUCCESSFULLY acquired Account lock for userId=" + account.userId
+//				println "BetTransactionService: createBetTrans():: SUCCESSFULLY acquired Account lock for userId=" + account.userId
 				lockedAccount.addToScore(ss)				
 				lockedAccount.save(flush: true)
-				println "BetTransactionService: createBetTrans():: SUCCESSFULLY released Account lock for userId=" + account.userId
+//				println "BetTransactionService: createBetTrans():: SUCCESSFULLY released Account lock for userId=" + account.userId
 				break;
 			}catch(org.springframework.dao.CannotAcquireLockException e){
 				println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
@@ -225,12 +225,12 @@ class ScoreService {
 		int retryCount = 0
 		while (retryCount<5){
 			try{
-				println "BetTransactionService: createBetTrans():: Acquiring Account lock for userId=" + account.userId
+//				println "BetTransactionService: createBetTrans():: Acquiring Account lock for userId=" + account.userId
 				Account lockedAccount = Account.findByUserId(account.userId, [lock: true])
-				println "BetTransactionService: createBetTrans():: SUCCESSFULLY acquired Account lock for userId=" + account.userId
+//				println "BetTransactionService: createBetTrans():: SUCCESSFULLY acquired Account lock for userId=" + account.userId
 				lockedAccount.addToScore(bs)				
 				lockedAccount.save(flush: true)
-				println "BetTransactionService: createBetTrans():: SUCCESSFULLY released Account lock for userId=" + account.userId
+//				println "BetTransactionService: createBetTrans():: SUCCESSFULLY released Account lock for userId=" + account.userId
 				break;
 			}catch(org.springframework.dao.CannotAcquireLockException e){
 				println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
@@ -250,12 +250,12 @@ class ScoreService {
 		int retryCount = 0
 		while (retryCount<5){
 			try{
-				println "BetTransactionService: createBetTrans():: Acquiring Account lock for userId=" + account.userId
+//				println "BetTransactionService: insertNoScore():: Acquiring Account lock for userId=" + account.userId
 				Account lockedAccount = Account.findByUserId(account.userId, [lock: true])
-				println "BetTransactionService: createBetTrans():: SUCCESSFULLY acquired Account lock for userId=" + account.userId
+//				println "BetTransactionService: insertNoScore():: SUCCESSFULLY acquired Account lock for userId=" + account.userId
 				lockedAccount.addToScore(ns)				
 				lockedAccount.save(flush: true)
-				println "BetTransactionService: createBetTrans():: SUCCESSFULLY released Account lock for userId=" + account.userId
+//				println "BetTransactionService: insertNoScore():: SUCCESSFULLY released Account lock for userId=" + account.userId
 				break;
 			}catch(org.springframework.dao.CannotAcquireLockException e){
 				println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
@@ -273,15 +273,15 @@ class ScoreService {
 		int retryCount = 0
 		while (retryCount<5){
 			try{
-				println "BetTransactionService: createBetTrans():: Acquiring Account lock for userId=" + account.userId
+//				println "BetTransactionService: createBetTrans():: Acquiring Account lock for userId=" + account.userId
 				Account lockedAccount = Account.findByUserId(account.userId, [lock: true])
-				println "BetTransactionService: createBetTrans():: SUCCESSFULLY acquired Account lock for userId=" + account.userId
+//				println "BetTransactionService: createBetTrans():: SUCCESSFULLY acquired Account lock for userId=" + account.userId
 				lockedAccount.addToScore(qs)
 				question.addToScore(qs)
 				question.save()
 				lockedAccount.save(flush: true)
 				
-				println "BetTransactionService: createBetTrans():: SUCCESSFULLY released Account lock for userId=" + account.userId
+//				println "BetTransactionService: createBetTrans():: SUCCESSFULLY released Account lock for userId=" + account.userId
 				break;
 			}catch(org.springframework.dao.CannotAcquireLockException e){
 				println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message

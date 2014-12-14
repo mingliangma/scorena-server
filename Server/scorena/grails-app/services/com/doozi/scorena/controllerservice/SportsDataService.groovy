@@ -4,7 +4,7 @@ import com.doozi.scorena.transaction.LeagueTypeEnum;
 
 import org.springframework.transaction.annotation.Transactional
 
-@Transactional
+
 class SportsDataService {
 	final static String PREMIER_LEAGUE = "l.premierlea"
 	final static String CHAMP_LEAGUE = "l.uefa.org."
@@ -33,6 +33,7 @@ class SportsDataService {
 	def helperService
 	def customGameService
 	def teamLogoService
+	static datasource = 'sportsData'
 		
 	public String getLeagueNameFromEventKey(String eventKey){
 
@@ -201,7 +202,11 @@ class SportsDataService {
 	}
 	
 	Map getGame(def eventKey){
-		def games = ScorenaAllGames.findAllByEventKey(eventKey)
+//		def games = ScorenaAllGames.findAllByEventKey(eventKey)
+		def c = ScorenaAllGames.createCriteria()
+		def games = c.list {
+			eq("eventKey", eventKey)
+		}
 		def todayDate = new Date()
 		
 		def gameInfo = constructGameList(games, ALLEVENT, todayDate)[0]

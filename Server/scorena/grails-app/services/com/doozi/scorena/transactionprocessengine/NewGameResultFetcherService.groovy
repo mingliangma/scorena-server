@@ -47,8 +47,12 @@ class NewGameResultFetcherService {
 			if (unprocessed == true){
 				println "NewGameResultFetcherService::getUnprocessedPastGame(): Event " + pastGame.gameId + " is added to the GameProcessRecord table"
 				def newProcessRecord = new GameProcessRecord(eventKey: pastGame.gameId, transProcessStatus: TransactionProcessStatusEnum.NOT_PROCESSED, 
-					scoreProcessStatus: ScoreProcessStatusEnum.NOT_PROCESSED, startDateTime: helperService.parseDateFromString(pastGame.date), lastUpdate: new Date())
-				newProcessRecord.save(flush: true)		
+					scoreProcessStatus: ScoreProcessStatusEnum.NOT_PROCESSED, startDateTime: helperService.parseDateFromString(pastGame.date), lastUpdate: new Date(), errorMessage: "")
+				if (!newProcessRecord.save(flush: true)){
+					newProcessRecord.errors.each {
+						println it
+					}
+				}	
 				gameRecordAdded++
 			}
 		}

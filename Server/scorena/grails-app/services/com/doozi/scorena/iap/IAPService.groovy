@@ -83,38 +83,39 @@ class IAPService {
 			
 			// creates a new transaction recored for user by iap product id
 			// and updates users current balance and previous balance
+			AndroidIAPTransaction action
 			switch(product_id)
 				{
 					case "coins100":
-					AndroidIAPTransaction action = new AndroidIAPTransaction(transactionAmount: iap.getPK_1(), createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
+					 action = new AndroidIAPTransaction(transactionAmount: iap.getPK_1(), createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
 					userAccount.addToTrans(action)
 					userAccount.previousBalance = userAccount.currentBalance
 					userAccount.currentBalance = userAccount.currentBalance + iap.getPK_1()
 					break;
 					
 					case "coins250":
-					AndroidIAPTransaction action = new AndroidIAPTransaction(transactionAmount: iap.getPK_2(), createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
+					 action = new AndroidIAPTransaction(transactionAmount: iap.getPK_2(), createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
 					userAccount.addToTrans(action)
 					userAccount.previousBalance = userAccount.currentBalance
 					userAccount.currentBalance = userAccount.currentBalance + iap.getPK_2()
 					break;
 					
 					case "coins500":
-					AndroidIAPTransaction action = new AndroidIAPTransaction(transactionAmount: iap.getPK_3(), createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
+					 action = new AndroidIAPTransaction(transactionAmount: iap.getPK_3(), createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
 					userAccount.addToTrans(action)
 					userAccount.previousBalance = userAccount.currentBalance
 					userAccount.currentBalance = userAccount.currentBalance + iap.getPK_3()
 					break;
 					
 					case "coins1000":
-					AndroidIAPTransaction action = new AndroidIAPTransaction(transactionAmount: iap.getPK_4(), createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
+					 action = new AndroidIAPTransaction(transactionAmount: iap.getPK_4(), createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
 					userAccount.addToTrans(action)
 					userAccount.previousBalance = userAccount.currentBalance
 					userAccount.currentBalance = userAccount.currentBalance + iap.getPK_4()
 					break;
 					
 					case "coins2500":
-					AndroidIAPTransaction action = new AndroidIAPTransaction(transactionAmount: iap.getPK_5(), createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
+					 action = new AndroidIAPTransaction(transactionAmount: iap.getPK_5(), createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
 					userAccount.addToTrans(action)
 					userAccount.previousBalance = userAccount.currentBalance
 					userAccount.currentBalance = userAccount.currentBalance + iap.getPK_5()
@@ -123,7 +124,7 @@ class IAPService {
 					// TODO: test case google play store; remove in production
 					// test case google play store
 					case "Coins3000":
-					AndroidIAPTransaction action = new AndroidIAPTransaction(transactionAmount: 3000, createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
+					 action = new AndroidIAPTransaction(transactionAmount: 3000, createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
 					userAccount.addToTrans(action)
 					userAccount.previousBalance = userAccount.currentBalance
 					userAccount.currentBalance = userAccount.currentBalance + 3000
@@ -132,14 +133,36 @@ class IAPService {
 					// TODO: test case static response; remove in production
 					// test case static response 
 					case "android.test.purchased":
-					AndroidIAPTransaction action = new AndroidIAPTransaction(transactionAmount: 3000, createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
+					 action = new AndroidIAPTransaction(transactionAmount: 3000, createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
 					userAccount.addToTrans(action)
 					userAccount.previousBalance = userAccount.currentBalance
 					userAccount.currentBalance = userAccount.currentBalance + 3000
 					break;
 					
 				}
-			
+				if (!action.validate()) {
+					String errorMessage = ""
+					action.errors.each {
+						println it
+						errorMessage += it
+					}
+					AndroidIAPTransaction.withSession { session ->
+						session.clear()
+					}
+					return [code:202, error: "IAPService:: applyPurchase(): "+errorMessage]
+				}
+				
+				if (!userAccount.validate()) {
+					String errorMessage = ""
+					userAccount.errors.each {
+						println it
+						errorMessage += it
+					}
+					AndroidIAPTransaction.withSession { session ->
+						session.clear()
+					}
+					return [code:202, error: "IAPService:: applyPurchase(): "+errorMessage]
+				}
 				// user account failed to save
 				if (!userAccount.save(failOnError:true)){
 					System.out.println("---------------account save failed")

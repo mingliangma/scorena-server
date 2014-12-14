@@ -29,49 +29,60 @@ class BetTransactionService {
 	
 	@Transactional
 	Map createBetTrans(int playerWager, int playerPick, String userId, long quesitonId, Date transactionDate, def rest, boolean toValidate) {
-		Account playerAccount = Account.findByUserId(userId)
-		Question question = Question.get(quesitonId)
-		Map game = gameService.getGame(question.eventKey)
-		if (false){
-			//Find the bet transaction that associated with the given userId and questionId 
-			BetTransaction betTrans = BetTransaction.find("from BetTransaction as b where (b.question.id=? and b.account.id=?)", question.id, playerAccount.id)
-			
-			Map validationResult =  validateBetTrans(playerWager, playerPick, playerAccount, question, betTrans, game)		
-			
-			if (validationResult!=[:]){
-				return validationResult
+		println "createBetTrans: playerWager="+playerWager + " playerPick="+playerPick +" userId="+userId + " quesitonId="+quesitonId
+		try{
+			Account playerAccount = Account.findByUserId(userId)
+			Question question = Question.get(quesitonId)
+			Map game = gameService.getGame(question.eventKey)
+			if (false){
+				//Find the bet transaction that associated with the given userId and questionId 
+				BetTransaction betTrans = BetTransaction.find("from BetTransaction as b where (b.question.id=? and b.account.id=?)", question.id, playerAccount.id)
+				
+				Map validationResult =  validateBetTrans(playerWager, playerPick, playerAccount, question, betTrans, game)		
+				
+				if (validationResult!=[:]){
+					return validationResult
+				}
 			}
-		}
-
 			BetTransaction newBetTransaction = new BetTransaction(transactionAmount: playerWager, createdAt: transactionDate, 
 				pick: playerPick, eventKey: question.eventKey, league: sportsDataService.getLeagueCodeFromEventKey(question.eventKey), 
 				gameStartTime:helperService.parseDateFromString(game.date))
-			
-			int retryCount = 0
-			while (retryCount<5){
-				try{
-					println "BetTransactionService: createBetTrans():: Acquiring Account lock for userId=" + userId
-					Account lockedAccount = Account.findByUserId(userId, [lock: true])
-					println "BetTransactionService: createBetTrans():: SUCCESSFULLY acquired Account lock for userId=" + userId
-					lockedAccount.addToTrans(newBetTransaction)	
-					lockedAccount.previousBalance = playerAccount.currentBalance
-					lockedAccount.currentBalance -= playerWager
-					question.addToBetTrans(newBetTransaction)
-					lockedAccount.save()					
-					question.save()
-					println "BetTransactionService: createBetTrans():: SUCCESSFULLY released Account lock for userId=" + userId
-					break;
-				}catch(org.springframework.dao.CannotAcquireLockException e){
-					println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
-					Thread.sleep(500)
-					retryCount++
-				}catch(org.hibernate.AssertionFailure e2){
-					println "createBetTrans(): AssertionFailure ERROR: "+e.message				
-				} 
+
+//			println "BetTransactionService: createBetTrans():: Acquiring Account lock for userId=" + userId
+			Account lockedAccount = Account.findByUserId(userId, [lock: true])
+//			println "BetTransactionService: createBetTrans():: SUCCESSFULLY acquired Account lock for userId=" + userId
+			lockedAccount.addToTrans(newBetTransaction)	
+			lockedAccount.previousBalance = playerAccount.currentBalance
+			lockedAccount.currentBalance -= playerWager
+			question.addToBetTrans(newBetTransaction)
+
+			if (!newBetTransaction.validate()) {
+				newBetTransaction.errors.each {
+					println it
+				}
+				BetTransaction.withSession { session ->
+				    session.clear()
+				}
+				return [code:202, error: "the bet transaction already exsists"]
 			}
-			println "newBetTransaction="+newBetTransaction
-		try{
-			if (playerAccount.accountType == AccountType.USER){
+			
+			if (!lockedAccount.validate()) {
+				String errorMessage = ""
+				lockedAccount.errors.each {
+					println it
+					errorMessage += it
+				}
+				BetTransaction.withSession { session ->
+					session.clear()
+				}
+				return [code:202, error: "createBetTran error: "+errorMessage]
+			}
+			lockedAccount.save(flush: true)					
+			question.save(flush: true)
+//			println "BetTransactionService: createBetTrans():: SUCCESSFULLY released Account lock for userId=" + userId
+
+
+			if (playerAccount.accountType == AccountType.USER || playerAccount.accountType == AccountType.FACEBOOK_USER){
 			
 				// gets the users decvice installation ID by username
 				List objectIDs = pushService.getInstallationByUserID(playerAccount.userId)
@@ -90,8 +101,24 @@ class BetTransactionService {
 					}
 				}
 			}
-		}catch(Exception e){
-			println "BetTransactionService: createBetTrans():: ERROR register user device to push notification channcel. Message: "+e.message
+		}catch(org.springframework.dao.CannotAcquireLockException e){
+			println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
+			BetTransaction.withSession { session ->
+				session.clear()
+			}
+			return [code:202, error: "Your Bet failed to process, Please try again"]
+		}catch(org.hibernate.AssertionFailure e2){
+			println "createBetTrans(): AssertionFailure ERROR: "+e2.message
+			BetTransaction.withSession { session ->
+				session.clear()
+			}
+			return [code:202, error: "the bet transaction already exsists"]
+		}catch(Exception e3){
+			println "BetTransactionService: createBetTrans():: ERROR register user device to push notification channcel. Message: "+e3.message
+			BetTransaction.withSession { session ->
+				session.clear()
+			}
+			return [code:202, error: e3.message]
 		}
 		return [:]
 	}	

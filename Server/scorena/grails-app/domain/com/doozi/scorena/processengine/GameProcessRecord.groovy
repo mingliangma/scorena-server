@@ -16,7 +16,9 @@ class GameProcessRecord {
 	ScoreProcessStatusEnum scoreProcessStatus
 	Date lastUpdate
 	Date startDateTime
+	String errorMessage
 	
     static constraints = {
+		errorMessage nullable: true
     }
 }

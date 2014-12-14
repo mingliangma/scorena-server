@@ -146,6 +146,7 @@ class ProcessEngineImplService {
 			
 			if (game==[:]){
 				gameProcessRecord.transProcessStatus = TransactionProcessStatusEnum.ERROR
+				gameProcessRecord.errorMessage = "ProcessEngineImplService::processGamePayout(): empty game data from eventkey="+gameProcessRecord.eventKey
 				gameProcessRecord.lastUpdate = new Date()
 				gameProcessRecord.save(flush: true)
 				gameRecordsProcessed++
@@ -159,6 +160,7 @@ class ProcessEngineImplService {
 						processPayout(q, game)
 					}catch(Exception e){
 						gameProcessRecord.transProcessStatus = TransactionProcessStatusEnum.ERROR
+						gameProcessRecord.errorMessage = e.message
 						gameProcessRecord.lastUpdate = new Date()
 						gameProcessRecord.save()
 						gameRecordsProcessed++

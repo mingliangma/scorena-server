@@ -26,34 +26,51 @@ class PayoutTansactionService {
 	 * @return -1 on error, 0 on success
 	 */
 	@Transactional
-	def createPayoutTrans(Account playerAccount, Question q, int payout, int winnerPick, int wager, int userPick, int playResult, Date gameStartTime) throws Exception{		
+	def createPayoutTrans(Account playerAccount, Question q, int payout, int winnerPick, int wager, int userPick, int playResult, Date gameStartTime){		
 		println "PayoutTansactionService::createPayoutTrans(): qId="+q.id + ",accountId=" + playerAccount.id+", payout="+payout
+		try{
 			PayoutTransaction payoutTransaction = new PayoutTransaction(transactionAmount: payout, createdAt: new Date(), winnerPick: winnerPick, pick: userPick, initialWager:wager, 
 				eventKey: q.eventKey, playResult: playResult, league: sportsDataService.getLeagueCodeFromEventKey(q.eventKey), profit: payout-wager, gameStartTime:gameStartTime)
 			
-			int retryCount = 0
-			while (retryCount<5){
-				try{
-					println "PayoutTansactionService: createPayoutTrans():: Acquiring Account lock for userId=" + playerAccount.userId
-					Account lockedAccount = Account.findByUserId(playerAccount.userId, [lock: true])
-					println "PayoutTansactionService: createPayoutTrans():: SUCCESSFULLY acquired Account lock for userId=" + playerAccount.userId
-					lockedAccount.addToTrans(payoutTransaction)
-					lockedAccount.previousBalance = playerAccount.currentBalance
-					lockedAccount.currentBalance += payout
-					q.addToPayoutTrans(payoutTransaction)
-					lockedAccount.save(flush: true)
-					q.save(flush: true)
-					println "PayoutTansactionService: createPayoutTrans():: SUCCESSFULLY released Account lock for userId=" + playerAccount.userId
-					break;
-				}catch(org.springframework.dao.CannotAcquireLockException e){
-					println "createPayoutTrans(): CannotAcquireLockException ERROR: "+e.message
-					Thread.sleep(500)
-					retryCount++
+				
+//			println "PayoutTansactionService: createPayoutTrans():: Acquiring Account lock for userId=" + playerAccount.userId
+			Account lockedAccount = Account.findByUserId(playerAccount.userId, [lock: true])
+//			println "PayoutTansactionService: createPayoutTrans():: SUCCESSFULLY acquired Account lock for userId=" + playerAccount.userId
+			lockedAccount.addToTrans(payoutTransaction)
+			lockedAccount.previousBalance = playerAccount.currentBalance
+			lockedAccount.currentBalance += payout
+			q.addToPayoutTrans(payoutTransaction)
+			
+			if (!payoutTransaction.validate()) {
+				payoutTransaction.errors.each {
+					println it
 				}
+				PayoutTransaction.withSession { session ->
+					session.clear()
+				}
+				return [code:202, error: "the bet transaction already exsists"]
 			}
 			
-			userService.updateUserBalance(playerAccount.userId, payout)
-
+			if (!lockedAccount.validate()) {
+				String errorMessage = ""
+				lockedAccount.errors.each {
+					println it
+					errorMessage += it
+				}
+				PayoutTransaction.withSession { session ->
+					session.clear()
+				}
+				return [code:202, error: "createBetTran error: "+errorMessage]
+			}
+			
+			lockedAccount.save(flush: true)
+			q.save(flush: true)
+//			println "PayoutTansactionService: createPayoutTrans():: SUCCESSFULLY released Account lock for userId=" + playerAccount.userId
+				
+			
+		}catch(org.springframework.dao.CannotAcquireLockException e){
+			println "createPayoutTrans(): CannotAcquireLockException ERROR: "+e.message
+		}
 	}
 	
 	def getPayoutTransByQuestion(Question q){

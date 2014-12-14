@@ -417,6 +417,31 @@ class UserService {
 		
 		account.addToTrans(openAccountTransaction)
 		
+		if (!openAccountTransaction.validate()) {
+			String errorMessage = ""
+			openAccountTransaction.errors.each {
+				println it
+				errorMessage += it
+			}
+			OpenAccountTransaction.withSession { session ->
+				session.clear()
+			}
+			return [code:202, error: "UserService:: createUserAccount(): "+errorMessage]
+		}
+		
+		if (!account.validate()) {
+			String errorMessage = ""
+			account.errors.each {
+				println it
+				errorMessage += it
+			}
+			BetTransaction.withSession { session ->
+				session.clear()
+			}
+			return [code:202, error: "UserService:: createUserAccount(): "+errorMessage]
+		}
+		
+		
 		if (!account.save() || !openAccountTransaction.save()){
 			account.errors.each{
 				println it

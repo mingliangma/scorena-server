@@ -100,6 +100,10 @@ class FriendSystemService {
 	}
 	
 	List listFriends(userId) {
+		if (userId==null || userId==""){
+			return []
+		}
+		
 		Account user = Account.findByUserId(userId)
 		//SQL Query find friend in FriendSystem where status=1
 		String friendListQuery = "SELECT user1.userId, user2.userId FROM FriendSystem "+
