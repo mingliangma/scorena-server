@@ -17,7 +17,7 @@ class ${className}Controller {
         }
     }
 
-    def show(String id) {
+    def show(Long id) {
         ${className}.async.get(id).then { ${propertyName} ->
             respond ${propertyName}
         }
@@ -41,7 +41,7 @@ class ${className}Controller {
 
             ${propertyName}.save flush:true
             request.withFormat {
-                form multipartForm {
+                form {
                     flash.message = message(code: 'default.created.message', args: [message(code: '${propertyName}.label', default: '${className}'), ${propertyName}.id])
                     redirect ${propertyName}
                 }
@@ -50,13 +50,13 @@ class ${className}Controller {
         }
     }
 
-    def edit(String id) {
+    def edit(Long id) {
         ${className}.async.get(id).then { ${propertyName} ->
             respond ${propertyName}
         }
     }
 
-    def update(String id) {
+    def update(Long id) {
         ${className}.async.withTransaction {
             def ${propertyName} = ${className}.get(id)
             if (${propertyName} == null) {
@@ -71,7 +71,7 @@ class ${className}Controller {
             }
 
             request.withFormat {
-                form multipartForm {
+                form {
                     flash.message = message(code: 'default.updated.message', args: [message(code: '${className}.label', default: '${className}'), ${propertyName}.id])
                     redirect ${propertyName}
                 }
@@ -80,7 +80,7 @@ class ${className}Controller {
         }
     }
 
-    def delete(String id) {
+    def delete(Long id) {
         ${className}.async.withTransaction {
             def ${propertyName} = ${className}.get(id)
             if (${propertyName} == null) {
@@ -91,7 +91,7 @@ class ${className}Controller {
             ${propertyName}.delete flush:true
 
             request.withFormat {
-                form multipartForm {
+                form {
                     flash.message = message(code: 'default.deleted.message', args: [message(code: '${className}.label', default: '${className}'), ${propertyName}.id])
                     redirect action:"index", method:"GET"
                 }
@@ -102,7 +102,7 @@ class ${className}Controller {
 
     protected void notFound() {
         request.withFormat {
-            form multipartForm {
+            form {
                 flash.message = message(code: 'default.not.found.message', args: [message(code: '${propertyName}.label', default: '${className}'), params.id])
                 redirect action: "index", method: "GET"
             }

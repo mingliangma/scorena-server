@@ -9,14 +9,18 @@ class ${className}ControllerSpec extends Specification {
 
     def populateValidParams(params) {
         assert params != null
-        // TODO: Populate valid properties like...
-        //params["name"] = 'someValidName'
+        // TODO: Populate valid properties in order to make the test pass
+    }
+
+    def populateInvalidParams(params) {
+        assert params != null
+        // TODO: Populate properties that fail validation in order to make the test pass
     }
 
     void "Test the index action returns the correct model"() {
 
         when:"The index action is executed"
-            controller.index()
+            controller.index().get()
 
         then:"The model is correct"
             !model.${modelName}List
@@ -34,10 +38,9 @@ class ${className}ControllerSpec extends Specification {
     void "Test the save action correctly persists an instance"() {
 
         when:"The save action is executed with an invalid instance"
-            request.contentType = FORM_CONTENT_TYPE
-            def ${propertyName} = new ${className}()
+            def ${propertyName}= new ${className}()
             ${propertyName}.validate()
-            controller.save(${propertyName})
+            controller.save(${propertyName}).get()
 
         then:"The create view is rendered again with the correct model"
             model.${modelName}!= null
@@ -46,73 +49,73 @@ class ${className}ControllerSpec extends Specification {
         when:"The save action is executed with a valid instance"
             response.reset()
             populateValidParams(params)
-            ${propertyName} = new ${className}(params)
+            ${propertyName}= new ${className}(params)
 
-            controller.save(${propertyName})
+            controller.save(${propertyName}).get()
 
         then:"A redirect is issued to the show action"
-            response.redirectedUrl == '/${propertyName}/show/1'
+            response.redirectedUrl == "/${propertyName}/show/\$${propertyName}.id"
             controller.flash.message != null
             ${className}.count() == 1
     }
 
     void "Test that the show action returns the correct model"() {
-        when:"The show action is executed with a null domain"
-            controller.show(null)
+        when:"The show action is execu ted with a null domain"
+            controller.show(null).get()
 
         then:"A 404 error is returned"
             response.status == 404
 
         when:"A domain instance is passed to the show action"
             populateValidParams(params)
-            def ${propertyName} = new ${className}(params)
-            controller.show(${propertyName})
+            def ${propertyName}= new ${className}(params).save(flush:true)
+
+            controller.show(${propertyName}.id).get()
 
         then:"A model is populated containing the domain instance"
-            model.${modelName} == ${propertyName}
+            model.${modelName}.id==${propertyName}.id
     }
 
     void "Test that the edit action returns the correct model"() {
         when:"The edit action is executed with a null domain"
-            controller.edit(null)
+            controller.edit(null).get()
 
         then:"A 404 error is returned"
             response.status == 404
 
         when:"A domain instance is passed to the edit action"
             populateValidParams(params)
-            def ${propertyName} = new ${className}(params)
-            controller.edit(${propertyName})
+            def ${propertyName}= new ${className}(params).save(flush:true)
+            controller.edit(${propertyName}?.id).get()
 
         then:"A model is populated containing the domain instance"
-            model.${modelName} == ${propertyName}
+            model.${modelName}.id==${propertyName}.id
     }
 
     void "Test the update action performs an update on a valid domain instance"() {
         when:"Update is called for a domain instance that doesn't exist"
-            request.contentType = FORM_CONTENT_TYPE
-            controller.update(null)
+            controller.update(null).get()
 
         then:"A 404 error is returned"
-            response.redirectedUrl == '/${propertyName}/index'
-            flash.message != null
-
+            status == 404
 
         when:"An invalid domain instance is passed to the update action"
             response.reset()
-            def ${propertyName} = new ${className}()
-            ${propertyName}.validate()
-            controller.update(${propertyName})
+            populateValidParams(params)
+            def ${propertyName}= new ${className}(params).save(flush:true)
+            params.clear()
+            populateInvalidParams(params)
+            controller.update(${propertyName}.id).get()
 
         then:"The edit view is rendered again with the invalid instance"
             view == 'edit'
-            model.${modelName} == ${propertyName}
+            model.${modelName}.id==${propertyName}.id
 
         when:"A valid domain instance is passed to the update action"
             response.reset()
+            params.clear()
             populateValidParams(params)
-            ${propertyName} = new ${className}(params).save(flush: true)
-            controller.update(${propertyName})
+            controller.update(${propertyName}.id).get()
 
         then:"A redirect is issues to the show action"
             response.redirectedUrl == "/${propertyName}/show/\$${propertyName}.id"
@@ -121,23 +124,21 @@ class ${className}ControllerSpec extends Specification {
 
     void "Test that the delete action deletes an instance if it exists"() {
         when:"The delete action is called for a null instance"
-            request.contentType = FORM_CONTENT_TYPE
-            controller.delete(null)
+            controller.delete(null).get()
 
         then:"A 404 is returned"
-            response.redirectedUrl == '/${propertyName}/index'
-            flash.message != null
+            status == 404
 
         when:"A domain instance is created"
             response.reset()
             populateValidParams(params)
-            def ${propertyName} = new ${className}(params).save(flush: true)
+            def ${propertyName}= new ${className}(params).save(flush: true)
 
         then:"It exists"
             ${className}.count() == 1
 
         when:"The domain instance is passed to the delete action"
-            controller.delete(${propertyName})
+            controller.delete(${propertyName}.id).get()
 
         then:"The instance is deleted"
             ${className}.count() == 0
