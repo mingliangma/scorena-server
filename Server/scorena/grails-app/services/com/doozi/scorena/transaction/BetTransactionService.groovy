@@ -128,7 +128,10 @@ class BetTransactionService {
 	}
 	
 	List<BetTransaction> listAllFriendsBetsByQId(def qId, List friendUserIds){
-		return BetTransaction.executeQuery("from BetTransaction as b where b.question.id=:qId and b.account.userId in :friendUserIds", [qId:qId, friendUserIds:friendUserIds],   [max: 20])
+		if (friendUserIds.size()>0)
+			return BetTransaction.executeQuery("from BetTransaction as b where b.question.id=:qId and b.account.userId in :friendUserIds", [qId:qId, friendUserIds:friendUserIds],   [max: 20])
+		else
+			return []
 	}
 	
 	List<BetTransaction> listAllBetsByQId(def qId){

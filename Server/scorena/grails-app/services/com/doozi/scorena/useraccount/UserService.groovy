@@ -116,7 +116,7 @@ class UserService {
 		println "UserService::createUser(): username="+username+"  email="+email + " facebookId="+facebookId
 		
 		int currentBalance = INITIAL_BALANCE
-		String usernameLowerCase = username.toLowerCase()
+		String usernameLowerCase = username.toLowerCase().trim()
 		String displayName = usernameLowerCase
 		RestBuilder rest = new RestBuilder()
 		
@@ -144,8 +144,9 @@ class UserService {
 	def login(String username, String password){
 		def rest = new RestBuilder()
 		
-		Map userProfile = userLogin(rest, username, password)
 		
+		Map userProfile = userLogin(rest, username, password)
+		println "userProfile: "+userProfile
 		
 		if (userProfile.code){
 			return userProfile

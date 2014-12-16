@@ -269,15 +269,21 @@ class ProcessEngineImplService {
 
 				payoutTansactionService.createPayoutTrans(account,q , payout, winnerPick, bet.transactionAmount, bet.pick, playResult, helperService.parseDateFromString(game.date))
 				
-				if (account.accountType == AccountType.USER){
+				if (account.accountType == AccountType.USER || account.accountType == AccountType.FACEBOOK_USER){
 					String msg = ""				
 					if (payout > 0)
 					{
 						msg = "Congratulations! You have won " + payout +" Coins in game "+ awayTeam +" vs "+ homeTeam
 					}
+					
+					else if (payout == 0)
+					{
+						msg = "Sorry, you did not win any Coins in game "+ awayTeam +" vs "+ homeTeam
+					}
+					
 					else
 					{
-						msg = "Sorry, You have lost "+payout+" Coins in game "+ awayTeam +" vs "+ homeTeam
+						msg = "Sorry, You have lost "+ Math.abs(payout) +" Coins in game "+ awayTeam +" vs "+ homeTeam
 					}
 					
 					// sends end of game push to user with amount of coins won or lost
