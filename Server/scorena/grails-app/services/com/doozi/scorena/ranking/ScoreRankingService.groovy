@@ -43,13 +43,13 @@ class ScoreRankingService {
 			// if userRanking is null, returns error
 			if (userRankingAll == null || userRankingAll == "")
 			{
-				return [type:"Error", message: "No Results"]
+				return [code:400, error: "No Results"]
 			}
 			// return user ranking
 			return returnScores(userRankingAll,"","","",0)
 		}
 		catch (Exception e){
-			return [type:"Error", message: e.getMessage()]
+			return [code: 400, error: e.getMessage()]
 		}
 	}
 	
@@ -63,7 +63,7 @@ class ScoreRankingService {
 			// if date_search is null
 			if (firstOfMonth == null) //(date_search == null  )
 			{
-				return [type:"Error", message: "Invalid month"]
+				return [code: 400, error: "Invalid month"]
 			}
 			
 			String rankMonth = helperService.getMonthByMonth(month)
@@ -76,7 +76,7 @@ class ScoreRankingService {
 			
 			if(date_search == null  )
 			{
-				return [type:"Error", message: "Invalid month"]
+				return [code: 400, error: "Invalid month"]
 			}
 			
 			// searches database
@@ -86,7 +86,7 @@ class ScoreRankingService {
 			// if userRanking is null, returns error
 			if (userRanking == null || userRanking == "")
 			{
-				return [type:"Error", message: "No Results"]
+				return [code: 400, error: "No Results"]
 			}
 			
 			// return user ranking
@@ -94,7 +94,7 @@ class ScoreRankingService {
 		}
 		catch (Exception e)
 		{
-			return [type:"Error", message: e.getMessage()]
+			return [code: 400, error: e.getMessage()]
 		}
 	}
 
@@ -110,7 +110,7 @@ class ScoreRankingService {
 			// if league Code is null, return error
 		/*	if(leagueCode == null)
 			{
-				return [type:"Error", message: "Invalid leagueCode"]
+				return [code: 400, message: "Invalid leagueCode"]
 			}
 			*/
 			// searches database
@@ -119,7 +119,7 @@ class ScoreRankingService {
 			// if userRanking is null, returns error
 			if (userRanking == null || userRanking == "")
 			{
-				return [type:"Error", message: "No Results"]
+				return [code: 400, error: "No Results"]
 			}
 			
 			// return user ranking 
@@ -127,7 +127,7 @@ class ScoreRankingService {
 		}
 		catch (Exception e)
 		{
-			return [type:"Error", message: e.getMessage()]
+			return [code: 400, error: e.getMessage()]
 		}
 	}
 	
@@ -142,7 +142,7 @@ class ScoreRankingService {
 			// if date_search is null
 			if (firstOfMonth == null) //(date_search == null  )
 			{
-				return [type:"Error", message: "Invalid month"]
+				return [code: 400, error: "Invalid month"]
 			}
 			
 			String rankMonth = helperService.getMonthByMonth(month)
@@ -154,7 +154,7 @@ class ScoreRankingService {
 			
 			if(date_search == null  )
 			{
-				return [type:"Error", message: "Invalid month"]
+				return [code: 400, error: "Invalid month"]
 			}
 			
 			
@@ -164,7 +164,7 @@ class ScoreRankingService {
 			// if league Code is null, return error
 		/*	if(leagueCode == null)
 			{
-				return [type:"Error", message: "Invalid leagueCode"]
+				return [code: 400, message: "Invalid leagueCode"]
 			}
 			*/
 			// searches database
@@ -173,7 +173,7 @@ class ScoreRankingService {
 			// if userRanking is null, return error
 			if (userRanking == null || userRanking == "")
 			{
-				return [type:"Error", message: "No Results"]
+				return [code: 400, error: "No Results"]
 			}
 			
 			// return user ranking
@@ -181,7 +181,7 @@ class ScoreRankingService {
 		}
 		catch (Exception e)
 		{
-			return [type:"Error", message: e.getMessage()]
+			return [code: 400, error: e.getMessage()]
 		}
 	}
 	
@@ -324,12 +324,7 @@ class ScoreRankingService {
 		}
 		
 		if (code == 0)
-		{
-			if(rankingAllSize == 0)
-			{
-				return [type:"Overall",rankScores: "No Results"]
-			}
-			
+		{			
 			return [type:"Overall",rankScores: rankingResultAll]
 		}
 		
@@ -337,27 +332,17 @@ class ScoreRankingService {
 		{
 			if(rankingAllSize == 0)
 			{
-				return [type:"Overall", date:month+" "+year ,rankScores: "No Results"]
+				return [type:"Overall", date:month+" "+year ,rankScores: rankingResultAll]
 			}
 			
 			return [type:"Month", date:month+" "+year ,rankScores: rankingResultAll]
 		}
 		else if (code == 2)
 		{
-			if(rankingAllSize == 0)
-			{
-				return [type:"Overall", league:league, rankScores: "No Results"]
-			}
-			
 			return [type:"League",league:league, rankScores: rankingResultAll]
 		}
 		else if (code == 3)
 		{
-			if(rankingAllSize == 0)
-			{
-				return [type:"Overall",date:month+" "+year , league:league, rankScores: "No Results"]
-			}
-			
 			return [type:"League&Month",date:month+" "+year ,league:league,rankScores: rankingResultAll]
 		}
 	}	
