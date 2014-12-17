@@ -222,7 +222,7 @@ class IAPService {
 					// validation: checks base64 encode, signature and public key are verified
 					// TODO: uncomment and remove (true) if testing from google playstore
 					// TODO: leave (true) if testing with static responses 
-					if(true)//(Security.verifyPurchase(Pk, app_data, signature))
+					if(Security.verifyPurchase(Pk, app_data, signature))
 					{
 						// adds order id to transaction list
 						transaction_list.add(orderID)
