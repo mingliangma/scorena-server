@@ -17,6 +17,7 @@ import org.springframework.http.MediaType
 
 import com.doozi.scorena.utils.*;
 import com.doozi.scorena.*;
+import com.doozi.scorena.score.AbstractScore
 import com.doozi.scorena.transaction.BetTransaction
 import com.doozi.scorena.transaction.OpenAccountTransaction
 import com.doozi.scorena.transaction.PayoutTransaction
@@ -224,7 +225,7 @@ class UserService {
 			return result
 		}	
 		
-		def userScores = scoreService.listScoresByUserId(userId)
+		List<AbstractScore> userScores = scoreService.listScoresByUserId(userId)
 		def userPayoutTrans = payoutTansactionService.listPayoutTransByUserId(userId)
 		Map userStats = userStatsService.getUserStats(userScores, userPayoutTrans, month,account)
 

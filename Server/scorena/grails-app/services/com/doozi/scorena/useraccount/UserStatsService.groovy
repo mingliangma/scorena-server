@@ -16,7 +16,7 @@ class UserStatsService {
 
 def sportsDataService
 def helperService
-Map getUserStats(def userScores,def userPayoutTrans,String month, def account){
+Map getUserStats(List<AbstractScore> userScores,def userPayoutTrans,String month, def account){
 	Map userStats = getAllStats(userScores,userPayoutTrans, month,account.id)
 //	Map userStats = getBetStats(userPayoutTrans, account.id)
 	//todo netgain/total wager in type 1
@@ -77,7 +77,7 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 		month:helperService.getMonthString(month, firstOfMonth),
 		monthScore:[total:0,leagues:getLeagueScoresMonth(userScores,firstOfMonth,lastOfMonth)],
 		monthMedal:[question:0,bronze:0,silver:0,gold:0,leagues:getLeagueMedalsMonth(userScores,firstOfMonth,lastOfMonth)],
-		monthly:[coinGain:0, coinLosses:0,netGain:0, wins:0, losses:0, ties:0,leagues:getLeagueStats(accountId)]
+		monthly:[coinGain:0, coinLosses:0,netGain:0, wins:0, losses:0, ties:0,leagues:getLeagueStats(accountId,firstOfMonth,lastOfMonth)]
 	//	weekly:[netGain:0, wins:0, losses:0, ties:0,leagues:getLeagueStats(accountId)]
 		]
 	
@@ -113,7 +113,7 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 				}
 				
 				// calculates total score and medals by month
-				if (scoreStat.createdAt > firstOfMonth && scoreStat.createdAt < lastOfMonth )
+				if (scoreStat.gameStartTime > firstOfMonth && scoreStat.gameStartTime < lastOfMonth )
 				{
 					gameStats.monthScore.total += scoreStat.score
 
@@ -141,7 +141,7 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 	// loops through payout data and  updates map accordingly
 	for (PayoutTransaction tran: userPayoutTrans)
 	{
-		if (tran.createdAt > firstOfMonth && tran.createdAt < lastOfMonth)
+		if (tran.gameStartTime > firstOfMonth && tran.gameStartTime < lastOfMonth)
 		{
 			gameStats.monthly.netGain+=tran.profit
 			gameStats.all.netGain+=tran.profit
@@ -242,7 +242,7 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 				scores.put(leagueName, scoreMap)
 			}
 			
-			if (scoreStat.getCreatedAt() > first && scoreStat.getCreatedAt() < last )
+			if (scoreStat.getGameStartTime() > first && scoreStat.getGameStartTime() < last )
 			{
 				scoreMap.score += scoreStat.getScore()
 			}
@@ -311,7 +311,7 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 				medals.put(leagueName, medalMap)
 			}
 			
-			if (medalStat.getCreatedAt() > first && medalStat.getCreatedAt() < last  )
+			if (medalStat.getGameStartTime() > first && medalStat.getGameStartTime() < last  )
 			{
 				switch(medalStat.class.getSimpleName())
 				{
@@ -339,21 +339,27 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 	
 
 	def getLeagueStats(def accountId){
-		def leagues=[:]
+		List<UserLeagueStats> stats = getUserLeaguesStats(accountId)		
+		return constructLeagueStats(stats)
+	}
 	
-		List<UserLeagueStats> stats = getUserLeaguesStats(accountId)
-		
-		
+	def getLeagueStats(def accountId, def firstOfMonth, def lastOfMonth){
+		List<UserLeagueStats> stats = getUserLeaguesStatsByMonth(accountId, firstOfMonth, lastOfMonth)			
+		return constructLeagueStats(stats)
+	}
+	
+	private Map constructLeagueStats(List<UserLeagueStats> stats ){
+		Map leagues=[:]
 		for (UserLeagueStats userStat : stats){
 			def leagueName = userStat.getLeague()
-			def leagueMap = [:] 
+			def leagueMap = [:]
 			leagueMap = leagues.get(leagueName)
 			if (leagueMap==null){
 				leagueMap = [netGain:0,wins:0,netLose:0,losses:0,ties:0]
 				leagues.put(leagueName, leagueMap)
 			}
 			if (userStat.getPlayResult()==PickStatus.USER_LOST){
-				int netGain 
+				int netGain
 				if (userStat.getNetGain()>0)
 					netGain=userStat.getNetGain()
 				else
@@ -374,18 +380,38 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 				leagueMap.wins=userStat.getNumGames()
 			}
 			
-			if (userStat.getPlayResult()==PickStatus.USER_TIE){					
+			if (userStat.getPlayResult()==PickStatus.USER_TIE){
 				leagueMap.ties=userStat.getNumGames()
-			}			
+			}
 		}
 		
 		
 		return leagues
 	}
+	
+	private List<UserLeagueStats> getUserLeaguesStatsByMonth(def accountId, def firstOfMonth, def lastOfMonth){
+		String query = "select t.account.id, "+
+		"t.league AS league, "+
+		"t.playResult, "+
+		"sum(t.profit) AS netGain, "+
+		"count(t.account.id) AS numGames "+
+		"from PayoutTransaction as t where t.account.id=? and t.gameStartTime>? and t.gameStartTime<?"+ 
+		"group by 1, 2,3"
+		List userLeagueStatsFromDB = PayoutTransaction.executeQuery(query, [accountId, firstOfMonth, lastOfMonth])
+		List<UserLeagueStats> stats = []
+		
+		for (List userStat : userLeagueStatsFromDB){
+//			String leagueName = sportsDataService.getLeagueCodeFromEventKey(userStat[1])
+			UserLeagueStats uls = new UserLeagueStats(userStat[0],userStat[1], userStat[2], userStat[3], userStat[4])
+			stats.add(uls)
+		}
+		
+		return stats
+	}
 
 	private List<UserLeagueStats> getUserLeaguesStats(def accountId){
 		String query = "select t.account.id, "+
-		"substring(t.eventKey,1,12) AS league, "+
+		"t.league AS league, "+
 		"t.playResult, "+
 		"(sum(t.transactionAmount) - sum(t.initialWager)) AS netGain, "+
 		"count(t.account.id) AS numGames "+
@@ -394,8 +420,8 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 		List<UserLeagueStats> stats = []
 		
 		for (List userStat : userLeagueStatsFromDB){
-			String leagueName = sportsDataService.getLeagueCodeFromEventKey(userStat[1])			
-			UserLeagueStats uls = new UserLeagueStats(userStat[0],leagueName, userStat[2], userStat[3], userStat[4])			
+//			String leagueName = sportsDataService.getLeagueCodeFromEventKey(userStat[1])			
+			UserLeagueStats uls = new UserLeagueStats(userStat[0],userStat[1], userStat[2], userStat[3], userStat[4])			
 			stats.add(uls)			
 		}
 		

@@ -1,15 +1,17 @@
 package com.doozi.scorena.useraccount
 
+import com.doozi.scorena.transaction.LeagueTypeEnum
+
 class UserLeagueStats {
 	private long accountId
-	private String league
+	private LeagueTypeEnum league
 	private int playResult
 	private long netGain
 	private long numGames
 	
 	def sportsDataService
 	
-	UserLeagueStats(long accountId, String league, int playResult, long netGain, long numGames){
+	UserLeagueStats(long accountId, LeagueTypeEnum league, int playResult, long netGain, long numGames){
 		this.accountId = accountId
 		this.league = league
 		this.playResult = playResult
@@ -22,7 +24,7 @@ class UserLeagueStats {
 	public void setAccountId(long accountId) {
 		this.accountId = accountId;
 	}
-	public String getLeague() {
+	public LeagueTypeEnum getLeague() {
 		return league;
 	}
 	public void setLeague(String league) {
