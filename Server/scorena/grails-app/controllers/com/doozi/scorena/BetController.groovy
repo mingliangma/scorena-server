@@ -53,7 +53,7 @@ class BetController {
 	 * @return
 	 */
 	private Map validatePlaceBetRequest(def request){
-		if (!request.JSON.wager||!request.JSON.pick|| !request.JSON.questionId || !request.JSON.sessionToken){
+		if (request.JSON.wager == null||!request.JSON.pick|| !request.JSON.questionId || !request.JSON.sessionToken){
 			response.status =404
 			def resp = [
 				code: 101,
