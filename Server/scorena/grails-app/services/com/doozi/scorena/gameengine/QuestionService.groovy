@@ -35,6 +35,7 @@ class QuestionService {
 	def friendSystemService
 	
 	public static final int FEATURE_QUESTION_SIZE = 3
+	public static final int BETTERS_LIST_SIZE = 100
 	
 	List listFeatureQuestions(userId){
 		def questionList = listUpcomingQuesitonsByMostPeopleBetOn()
@@ -680,7 +681,7 @@ class QuestionService {
 			
 			if (friendTransaction.pick==Pick.PICK1){
 				
-				if (pick1BettersMap.size() <=8){
+				if (pick1BettersMap.size() <=BETTERS_LIST_SIZE){
 					if (betterUserId != userId){
 						pick1BettersMap.put(betterUserId,[
 							name:betterUsername,
@@ -691,7 +692,7 @@ class QuestionService {
 					}
 				}
 			}else{
-				if (pick2BettersMap.size() <=8){
+				if (pick2BettersMap.size() <=BETTERS_LIST_SIZE){
 					if (betterUserId != userId){
 						pick2BettersMap.put(betterUserId, [
 							name:betterUsername,
@@ -702,7 +703,7 @@ class QuestionService {
 					}
 				}
 			}
-			if (pick2BettersMap.size() >8 && pick1BettersMap.size() >8){
+			if (pick2BettersMap.size() >BETTERS_LIST_SIZE && pick1BettersMap.size() >BETTERS_LIST_SIZE){
 				isBettersMapFull = true
 				break
 			}
@@ -725,7 +726,7 @@ class QuestionService {
 				
 				if (betTrans.pick==Pick.PICK1){
 					
-					if (pick1BettersMap.size() <=8){
+					if (pick1BettersMap.size() <=BETTERS_LIST_SIZE){
 						if (betterUserId != userId){
 							pick1BettersMap.put(betterUserId,[
 								name:betterUsername,
@@ -736,7 +737,7 @@ class QuestionService {
 						}
 					}
 				}else{
-					if (pick2BettersMap.size() <=8){
+					if (pick2BettersMap.size() <=BETTERS_LIST_SIZE){
 						if (betterUserId != userId){
 							pick2BettersMap.put(betterUserId, [
 								name:betterUsername,
@@ -747,7 +748,7 @@ class QuestionService {
 						}
 					}
 				}
-				if (pick2BettersMap.size() >8 && pick1BettersMap.size() >8)
+				if (pick2BettersMap.size() >BETTERS_LIST_SIZE && pick1BettersMap.size() >BETTERS_LIST_SIZE)
 					break
 			}
 		}		

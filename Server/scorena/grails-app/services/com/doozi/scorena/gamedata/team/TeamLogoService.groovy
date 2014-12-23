@@ -126,6 +126,9 @@ class TeamLogoService {
 	public static final String RAPTORS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Toronto_Raptors.svg.png'
 	public static final String JAZZ_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Utah_Jazz_script_logo%2C_(2010_%27new_look%27).svg.png'
 	public static final String WIZARDS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Washington_Wizards_Logo.svg.png'
+	public static final String NETS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Brooklyn_Nets_newlogo.png'
+	public static final String HORNETS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Charlotte-Hornets_new_logo.png'
+	public static final String KINGS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Sacramento_Kings.png'
 	
 	
 	public static final String ALGERIA_TEAMNAME = "Algeria"
@@ -173,15 +176,15 @@ class TeamLogoService {
 	public static final String LIVERPOOL_TEAMNAME = "Liverpool"
 	public static final String MANCITY_TEAMNAME = "Manchester City"
 	public static final String MANUNITED_TEAMNAME = "Manchester United"
-	public static final String NEWCASTLE_TEAMNAME = "Newcastle"
+	public static final String NEWCASTLE_TEAMNAME = "Newcastle United"
 	public static final String QPR_TEAMNAME = "Queens Park Rangers"
 	public static final String SOUTHAMPTON_TEAMNAME = "Southampton"
 	public static final String STOKE_CITY_TEAMNAME = "Stoke City"
 	public static final String SUNDERLAND_TEAMNAME = "Sunderland"
-	public static final String SWANSEA_TEAMNAME = "Swansea"
-	public static final String TOTTENHAM_TEAMNAME = "Tottenham"
+	public static final String SWANSEA_TEAMNAME = "Swansea City"
+	public static final String TOTTENHAM_TEAMNAME = "Tottenham Hotspur"
 	public static final String WEST_BROM_TEAMNAME = "West Bromwich"
-	public static final String WEST_HAM_TEAMNAME = "West Ham"
+	public static final String WEST_HAM_TEAMNAME = "West Ham United"
 	
 	public static final String CLIPPERS_TEAMNAME = 'Clippers'
 	public static final String MAGIC_TEAMNAME = 'Magic'
@@ -205,11 +208,14 @@ class TeamLogoService {
 	public static final String PELICANTS_TEAMNAME = 'Pelicans'
 	public static final String SEVENTYSIXERS_TEAMNAME = '76ers'
 	public static final String SUNS_TEAMNAME = 'Suns'
-	public static final String BLAZERS_TEAMNAME = 'Blazers'
+	public static final String BLAZERS_TEAMNAME = 'Trail Blazers'
 	public static final String SPURS_TEAMNAME = 'Spurs'
 	public static final String RAPTORS_TEAMNAME = 'Raptors'
 	public static final String JAZZ_TEAMNAME = 'Jazz'
 	public static final String WIZARDS_TEAMNAME = 'Wizards'
+	public static final String NETS_TEAMNAME = 'Nets'
+	public static final String KINGS_TEAMNAME = 'Kings'
+	public static final String HORNETS_TEAMNAME = 'Hornets'
 	
     String getTeamLogo(String teamName) {
 		
@@ -376,6 +382,14 @@ class TeamLogoService {
 				return JAZZ_LOGO_URL
 			case WIZARDS_TEAMNAME.toLowerCase():
 				return WIZARDS_LOGO_URL
+			case RAPTORS_TEAMNAME.toLowerCase():
+				return RAPTORS_LOGO_URL			
+			case KINGS_TEAMNAME.toLowerCase():
+				return KINGS_LOGO_URL
+			case NETS_TEAMNAME.toLowerCase():
+				return NETS_LOGO_URL
+			case HORNETS_TEAMNAME.toLowerCase():
+				return HORNETS_LOGO_URL
 			default:
 				return DEFAULT_LOGO_URL
 		}
