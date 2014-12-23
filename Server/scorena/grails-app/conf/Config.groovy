@@ -161,14 +161,35 @@ environments {
 
 // log4j configuration
 log4j = {
-    // Example of changing the log pattern for the default console appender:
-    //
-    //appenders {
-    //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
-    //}
+	root{
+		environments {
+			thomas {
+				error 'stdout', 'fileLog'
+			}
+		}
+	}
+	
+    appenders {
+        console name: "stdout",
+              	layout: pattern(conversionPattern: "%c{2} %m%n")
+        environments {
+            thomas {
+                rollingFile name: "fileLog", maxFileSize: 1024,
+                            file: "/tmp/logs/fileLog.log"
+            }
+        }
+    }
+	
+	def infoLogDomain = [
+		"grails.app.controllers",        					//controllers
+		"grails.app.services",								//service
+		"grails.app.domain" 								//domain
+		]
 
-    info  "grails.app.controllers",        					//controllers
-		  "grails.app.services",							//service
-		  "grails.app.domain" 								//domain
+	environments {
+		thomas {
+			info stdout: infoLogDomain, fileLog: infoLogDomain
+		}
+	}
 		   	
 }
