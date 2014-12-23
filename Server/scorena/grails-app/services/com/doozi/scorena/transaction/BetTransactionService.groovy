@@ -29,6 +29,8 @@ class BetTransactionService {
 	
 	@Transactional
 	Map createBetTrans(int playerWager, int playerPick, String userId, long quesitonId, Date transactionDate, def rest, boolean toValidate) {
+		log.info "createBetTrans(): begins..."
+		
 		println "createBetTrans: playerWager="+playerWager + " playerPick="+playerPick +" userId="+userId + " quesitonId="+quesitonId
 		try{
 			Account playerAccount = Account.findByUserId(userId)
@@ -63,6 +65,7 @@ class BetTransactionService {
 				BetTransaction.withSession { session ->
 				    session.clear()
 				}
+				log.error "createBetTrans(): the bet transaction already exsists"
 				return [code:202, error: "the bet transaction already exsists"]
 			}
 			
@@ -75,6 +78,7 @@ class BetTransactionService {
 				BetTransaction.withSession { session ->
 					session.clear()
 				}
+				log.error "createBetTrans(): createBetTran error: ${errorMessage}"
 				return [code:202, error: "createBetTran error: "+errorMessage]
 			}
 			lockedAccount.save(flush: true)					
@@ -103,23 +107,29 @@ class BetTransactionService {
 			}
 		}catch(org.springframework.dao.CannotAcquireLockException e){
 			println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
+			log.error "createBetTrans(): ${e.message}"
 			BetTransaction.withSession { session ->
 				session.clear()
 			}
+			log.error "createBetTrans(): Your Bet failed to process, Please try again"
 			return [code:202, error: "Your Bet failed to process, Please try again"]
 		}catch(org.hibernate.AssertionFailure e2){
 			println "createBetTrans(): AssertionFailure ERROR: "+e2.message
+			log.error "createBetTrans(): AssertionFailure ERROR: ${e2.message}"
 			BetTransaction.withSession { session ->
 				session.clear()
 			}
+			log.error "createBetTrans(): the bet transaction already exsists"
 			return [code:202, error: "the bet transaction already exsists"]
 		}catch(Exception e3){
 			println "BetTransactionService: createBetTrans():: ERROR register user device to push notification channcel. Message: "+e3.message
+			log.error "createBetTrans(): register user device to push notification channcel. Message: ${e3.message}"
 			BetTransaction.withSession { session ->
 				session.clear()
 			}
 			return [code:202, error: e3.message]
 		}
+		log.info "createBetTrans(): ends"
 		return [:]
 	}	
 	
@@ -160,6 +170,7 @@ class BetTransactionService {
 	 * @return
 	 */
 	def listUnpaidBetsByUserId(String userId){
+		log.info "listUnpaidBetsByUserId(): begins with userId = ${userId}"
 		 
 		 List betsThatNotPayoutYet = []
 		 def earliestTransDateThatUserCanBetOnAUpcomingGame = new Date() - sportsDataService.UPCOMING_DATE_RANGE - 2;
@@ -180,6 +191,7 @@ class BetTransactionService {
 			 }
 		 }
 		 
+		 og.info "listUnpaidBetsByUserId(): ends with betsThatNotPayoutYet = ${betsThatNotPayoutYet}"
 		 return betsThatNotPayoutYet
 	}
 	
@@ -228,37 +240,48 @@ class BetTransactionService {
 	 * @return
 	 */
 	private Map validateBetTrans(int playerWager, int playerPick, Account account, Question question, BetTransaction betTrans, Map game){
+		log.info "validateBetTrans(): begins..."
+		
 		if (!account){
+			log.error "validateBetTrans(): the userId does not exsist"
 			return [code:202, error: "the userId does not exsist"]
 		}
 		
 		if (account.currentBalance < playerWager){
+			def result = [code:202, error: "The user does not have enough coins to make a bet. Username="+account.username+" user balance="+account.currentBalance
+				+ " user wager=" + playerWager]
+			log.error "validateBetTrans(): ${result}"
+			
 			return [code:202, error: "The user does not have enough coins to make a bet. Username="+account.username+" user balance="+account.currentBalance
 				+ " user wager=" + playerWager]
 		}
 		
 		if (playerWager < 0){
+			log.error "validateBetTrans(): The user cannot bet negative amount"
 			return [code:202, error: "The user cannot bet negative amount"]
 		}
 		
 		if (playerPick < 1 || playerPick > 2){
+			log.error "validateBetTrans(): the pick is not available"
 			return [code:202, error: "the pick is not available"]
 		}
 		
 		if (!question){
+			log.error "validateBetTrans(): the questionId does not exsiste"
 			return [code:202, error: "the questionId does not exsist"]
 		}
 		
 		if (betTrans){
+			log.error "validateBetTrans(): the bet transaction already exsistse"
 			return [code:202, error: "the bet transaction already exsists"]
 		}
 		
 		if (game.gameStatus != sportsDataService.PREEVENT_NAME){
-			
+			log.error "validateBetTrans(): the match is already started. All pool is closed"
 			return [code:202, error: "the match is already started. All pool is closed"]
 		}
 		
-		
+		log.info "validateBetTrans(): ends..."
 		return [:]
 	}
 

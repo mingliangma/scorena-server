@@ -109,6 +109,7 @@ class ProcessEngineImplService {
 	
 	@Transactional
 	def processNewGameScore(){
+		log.info "processNewGameScore(): begins..."
 		
 		println "processNewGameScore() starts"
 		//find all game process record that haven't processed
@@ -121,6 +122,7 @@ class ProcessEngineImplService {
 		}
 		
 		println "processNewGameScore() ends"
+		log.info "processNewGameScore(): ends..."
 	}
 	
 	
@@ -130,6 +132,7 @@ class ProcessEngineImplService {
 	 * @return
 	 */
 	def processNewGamePayout(){
+		log.info "processNewGamePayout(): begins..."
 		println "ProcessEngineImplService::processGamePayout(): starts"
 		
 		//find all game process record that haven't processed
@@ -166,6 +169,7 @@ class ProcessEngineImplService {
 						gameRecordsProcessed++
 						errorExists = true;
 						println "ProcessEngineImplService: processNewGamePayout():: ERROR is "+e.message
+						log.info "processNewGamePayout():: ERROR is ${e.message}"
 						break
 					}
 				}
@@ -180,18 +184,22 @@ class ProcessEngineImplService {
 		}
 				
 		println "ProcessEngineImplService::processGamePayout(): ends"
+		log.info "processGamePayout(): ends"
 		return gameRecordsProcessed
 	}
 	
 	private boolean isReadyToProcess(List<Question> questions, Map game){
-				
+		log.info "isReadyToProcess(): begins..."		
+		
 		if (game.gameStatus == null || game.gameStatus.trim() != sportsDataService.POSTEVENT_NAME){
 			println "ProcessEngineImplService:isReadyToProcess():: returned false because game status is either null or preevent. gameStatus="+game.gameStatus"/"+sportsDataService.POSTEVENT_NAME
+			log.info "isReadyToProcess(): returned false because game status is either null or preevent. gameStatus="+game.gameStatus"/"+sportsDataService.POSTEVENT_NAME
 			return false
 		}
 		
 		if (game.away.score == null || game.away.score == "" ||game.home.score == null || game.home.score == ""){
 			println "ProcessEngineImplService:isReadyToProcess():: returned false because game score is not available. game="+game 			
+			log.info "isReadyToProcess(): returned false because game score is not available. game="+game 			
 			return false
 		}
 				
@@ -199,10 +207,12 @@ class ProcessEngineImplService {
 			if (q.questionContent.questionType == QuestionContent.CUSTOM){
 				if (!customQuestionResultService.recordExist(q.id)){
 					println "ProcessEngineImplService:isReadyToProcess():: returned false because custom game record does not exist"
+					log.info "isReadyToProcess(): returned false because custom game record does not exist"
 					return false
 				}
 			}
 		}
+		log.info "isReadyToProcess(): ends..."
 		return true
 		
 	}
@@ -217,7 +227,8 @@ class ProcessEngineImplService {
      */
 	@Transactional
     private int processPayout(Question q, Map game) throws Exception{
-			
+		log.info "processPayout(): begins with eventKey = ${game.gameId}, questionId = ${q.id}"	
+		
 			println "ProcessEngineImplService::processPayout(): starts with eventKey="+game.gameId+ "questionId="+q.id
 			String awayTeam = game.away.teamname
 			String homeTeam = game.home.teamname
@@ -249,6 +260,7 @@ class ProcessEngineImplService {
 				payoutMultipleOfWager = 1
 			}else{
 				println "ERROR: invalid winner pick, winnerPick="+winnerPick
+				log.error "processPayout(): invalid winner pick, winnerPick = ${winnerPick}"
 				return -1
 			}
 			
@@ -291,6 +303,9 @@ class ProcessEngineImplService {
 				}
 				
 			}
+			
+			log.info "processPayout(): ends"
+			
 			return 0
 			
 			println "ProcessEngineImplService::processPayout(): ends"
@@ -306,6 +321,7 @@ class ProcessEngineImplService {
 	 * 			- -1 if not winning result
 	 */	
 	def calculateWinningPick(Map game, Question question){
+		log.info "calculateWinningPick(): begins..."
 		
 		int winnerPick = -1
 		if (game.gameStatus.trim() != sportsDataService.POSTEVENT_NAME){
@@ -332,6 +348,9 @@ class ProcessEngineImplService {
 				winnerPick = getCustomQuestionWinnerPick(question)
 				break;
 		}
+		
+		log.info "calculateWinningPick(): ends with winnerPick = ${winnerPick}"
+		
 		return winnerPick
 	}
 	
@@ -343,6 +362,7 @@ class ProcessEngineImplService {
 		int winnerPick = customQuestionResult.winnerPick
 		if (winnerPick!=1 && winnerPick!=2 && winnerPick!=0){
 			println "getCustomQuestionWinnerPick() ERROR: invalid winner pick"
+			log.error "getCustomQuestionWinnerPick(): invalid winner pic"
 			return -1
 		}
 		return winnerPick
@@ -367,6 +387,7 @@ class ProcessEngineImplService {
 			}else{
 				println "ERROR: invalid teamname"
 				println "game: " + game
+				log.error "getWhoWinWinnerPic(): invalid teamname, game: ${game}"
 				return -1
 			}	
 		}else if(game.home.score < game.away.score){
@@ -377,6 +398,7 @@ class ProcessEngineImplService {
 			}else{
 				println "ERROR: invalid teamname"
 				println "game: " + game
+				log.error "getWhoWinWinnerPic(): invalid teamname, game: ${game}"
 				return -1
 			}
 		}else{

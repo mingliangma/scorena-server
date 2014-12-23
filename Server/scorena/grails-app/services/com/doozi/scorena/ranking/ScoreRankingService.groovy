@@ -35,6 +35,8 @@ class ScoreRankingService {
 	// gets the overall ranking of all users 
 	def getRanking()
 	{
+		log.info "getRanking(): begins..."
+		
 		try
 		{
 			// searches database
@@ -43,12 +45,16 @@ class ScoreRankingService {
 			// if userRanking is null, returns error
 			if (userRankingAll == null || userRankingAll == "")
 			{
+				log.error "getRanking(): No Results"
 				return [code:400, error: "No Results"]
 			}
 			// return user ranking
+			log.info "getRanking(): ends with userRankingAll = ${userRankingAll}"
 			return returnScores(userRankingAll,"","","",0)
 		}
 		catch (Exception e){
+			def eMsg = e.getMessage()
+			log.error "getRanking(): ${eMsg}"
 			return [code: 400, error: e.getMessage()]
 		}
 	}
@@ -56,6 +62,8 @@ class ScoreRankingService {
 	// gets the user ranking by month based on the month and year supplied  
 	def getRankingByMonth(String month)
 	{	
+		log.info "getRankingByMonth(): begins..."
+		
 		try 
 		{
 			def firstOfMonth = helperService.getFirstOfMonth(month)
@@ -63,6 +71,7 @@ class ScoreRankingService {
 			// if date_search is null
 			if (firstOfMonth == null) //(date_search == null  )
 			{
+				log.error "getRankingByMonth(): Invalid month"
 				return [code: 400, error: "Invalid month"]
 			}
 			
@@ -76,6 +85,7 @@ class ScoreRankingService {
 			
 			if(date_search == null  )
 			{
+				log.error "getRankingByMonth(): Invalid month"
 				return [code: 400, error: "Invalid month"]
 			}
 			
@@ -86,14 +96,19 @@ class ScoreRankingService {
 			// if userRanking is null, returns error
 			if (userRanking == null || userRanking == "")
 			{
+				log.error "getRankingByMonth(): No Results"
 				return [code: 400, error: "No Results"]
 			}
 			
 			// return user ranking
+			def result = returnScores(userRanking,rankMonth,year,"",1)
+			log.info "getRanking(): ends with result = ${result}"
 			return returnScores(userRanking,rankMonth,year,"",1)
 		}
 		catch (Exception e)
 		{
+			def eMsg = e.getMessage()
+			log.error "getRankingByMonth(): ${eMsg}"
 			return [code: 400, error: e.getMessage()]
 		}
 	}
@@ -102,6 +117,8 @@ class ScoreRankingService {
 	// gets the user ranking by league
 	def getRankingByLeague(String league)
 	{
+		log.info "getRankingByLeague(): begins with league = ${league}"
+		
 		try
 		{
 			// gets sports code
@@ -119,14 +136,19 @@ class ScoreRankingService {
 			// if userRanking is null, returns error
 			if (userRanking == null || userRanking == "")
 			{
+				log.error "getRankingByLeague(): No Results"
 				return [code: 400, error: "No Results"]
 			}
 			
 			// return user ranking 
+			def result = returnScores(userRanking,"","",league,2)
+			log.info "getRankingByLeague(): ends with result = ${result}"
 			return returnScores(userRanking,"","",league,2)
 		}
 		catch (Exception e)
 		{
+			def eMsg = e.getMessage()
+			log.error "getRankingByLeague(): ${eMsg}"
 			return [code: 400, error: e.getMessage()]
 		}
 	}
@@ -134,6 +156,8 @@ class ScoreRankingService {
 	// gets user ranking by league and month
 	def getRankingByLeagueAndMonth(String month,String league)
 	{	
+		log.info "getRankingByLeagueAndMonth(): begins with month = ${month}, league = ${league}"
+		
 		try
 		{
 			
@@ -142,6 +166,7 @@ class ScoreRankingService {
 			// if date_search is null
 			if (firstOfMonth == null) //(date_search == null  )
 			{
+				log.error "getRankingByLeagueAndMonth(): Invalid month"
 				return [code: 400, error: "Invalid month"]
 			}
 			
@@ -154,6 +179,7 @@ class ScoreRankingService {
 			
 			if(date_search == null  )
 			{
+				log.error "getRankingByLeagueAndMonth(): Invalid month"
 				return [code: 400, error: "Invalid month"]
 			}
 			
@@ -173,14 +199,19 @@ class ScoreRankingService {
 			// if userRanking is null, return error
 			if (userRanking == null || userRanking == "")
 			{
+				log.error "getRankingByLeagueAndMonth(): No Results"
 				return [code: 400, error: "No Results"]
 			}
 			
 			// return user ranking
+			def result = returnScores(userRanking,rankMonth,year,league,3)
+			log.info "getRankingByLeagueAndMonth(): ends with result = ${result}"
 			return returnScores(userRanking,rankMonth,year,league,3)
 		}
 		catch (Exception e)
 		{
+			def eMsg = e.getMessage()
+			log.error "getRankingByLeagueAndMonth(): ${eMsg}"
 			return [code: 400, error: e.getMessage()]
 		}
 	}

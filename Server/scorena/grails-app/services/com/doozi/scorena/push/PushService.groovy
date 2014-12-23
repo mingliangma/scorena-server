@@ -20,6 +20,8 @@ class PushService {
 	
     def updateGameChannel(def rest, String objectID, String eventKey)
 	{
+		log.info "updateGameChannel(): begins with rest = ${rest}, objectID = ${objectID}, eventKey = ${eventKey}"
+		
 		def parseConfig = grailsApplication.config.parse		
 		
 		def param = ["__op": "AddUnique" ,"objects":[(eventKey)]]
@@ -33,11 +35,16 @@ class PushService {
 				}
 		}
 		
+		def result = resp.json.toString()
+		log.info "updateGameChannel(): ends with ${result}"
+		
 		return resp.json.toString()
 	}
 	
 	def removeGameChannel(def rest, String objectID,String eventKey)
 	{
+		log.info "removeGameChannel(): begins with rest = ${rest}, objectID = ${objectID}, eventKey = ${eventKey}"
+		
 		def parseConfig = grailsApplication.config.parse
 		
 		
@@ -51,11 +58,17 @@ class PushService {
 				channels = param
 				}
 		}
+		
+		def result = resp.json.toString()
+		log.info "removeGameChannel(): ends with result = ${result}"
+		
 		return resp.json.toString()
 	}
 	
 	def getInstallationByUserID(String userId)
 	{
+		log.info "getInstallationByUserID(): begins with userId = ${userId}"
+		
 		def parseConfig = grailsApplication.config.parse		
 
 		String whereContraintsString = URLEncoder.encode('{"userId":"' + userId + '"}', "UTF-8")
@@ -71,12 +84,17 @@ class PushService {
 		
 		HttpResponse httpResponse = httpclient.execute(httpget);
 		JSONObject resultJson = new JSONObject(EntityUtils.toString(httpResponse.getEntity()));
+		
+		def result = resultJson.results.objectId 	
+		log.info "getInstallationByUserID(): ends with result = ${result}"
 	
 		return resultJson.results.objectId 		
 	}
 	
 	def sendGameStartPush(def rest, String eventKey)
 	{
+		log.info "sendGameStartPush(): begins with rest = ${rest}, eventKey = ${eventKey}"
+		
 		def parseConfig = grailsApplication.config.parse
 		def Map game = gameService.getGame(eventKey)
 		
@@ -99,11 +117,17 @@ class PushService {
 		
 		
 		}
+		
+		def result = resp.json.toString()
+		log.info "sendGameStartPush(): ends with result = ${result}"
+		
 		return resp.json.toString()
 	}
 	
  def endOfGamePush(def rest, String eventKey,String userId, String msg)
  {
+	 log.info "endOfGamePush(): begins with rest = ${rest}, eventKey = ${eventKey}, userId = ${userId}, msg = ${msg}"
+	 
 	 def parseConfig = grailsApplication.config.parse
 	 def Map game = gameService.getGame(eventKey)
 	 
@@ -122,6 +146,10 @@ class PushService {
 	 
 
 	 }
+	 
+	 def result = resp.json.toString()
+	 log.info "endOfGamePush(): ends with result = ${result}"
+	 
 	 return resp.json.toString()
  }
  

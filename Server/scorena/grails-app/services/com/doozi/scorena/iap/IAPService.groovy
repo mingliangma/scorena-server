@@ -34,12 +34,15 @@ class IAPService {
 	// generates nonce
 	def generateNonce()
 	{
+		log.info "generateNonce(): begins..."
+		
 		nonce = new Nonce()
 		
 		// nonce failed to generate
 		if (!nonce)
 		{
-		  return [Status:"1",Process:"Generate Nonce", Message:"Nonce failed to generate"]
+			log.error "generateNonce(): Status:1, Process:Generate Nonce, Message: Nonce failed to generate"
+			return [Status:"1",Process:"Generate Nonce", Message:"Nonce failed to generate"]
 		}
 		
 		// nonce generated
@@ -47,8 +50,12 @@ class IAPService {
 		{
 		// nonce added to noce list
 		nonce_list.add(nonce.getNonce())
+		
+		log.info "generateNonce(): ends with Generate Nonce = ${nonce.getNonce()}"
+		
 		return [Status:"0",Process:"Generate Nonce", Message:nonce.getNonce()]  
 		}
+		
 	}
 	
 	/* Applies android iap item to user account
@@ -59,6 +66,8 @@ class IAPService {
 	 */
 	def applyPurchase(String client_nonce, String userID, String app_data)
 	{
+		log.info "applyPurchase(): begins with client_nonce = ${client_nonce}, userID = ${userID}, app_data = ${app_data}"
+		
 		// iap class constants
 		IapConst iap = new IapConst()
 
@@ -78,6 +87,7 @@ class IAPService {
 			// if User does not exist
 			if (!userAccount)
 			{
+				log.error "applyPurchase(): Status:1 ,Process: Account Check, Message:Account not found"
 				return [Status:"1",Process:"Account Check", Message:"Account not found"]
 			}
 			
@@ -149,6 +159,9 @@ class IAPService {
 					AndroidIAPTransaction.withSession { session ->
 						session.clear()
 					}
+					
+					log.error "applyPurchase(): ${errorMessage}"
+					
 					return [code:202, error: "IAPService:: applyPurchase(): "+errorMessage]
 				}
 				
@@ -161,11 +174,17 @@ class IAPService {
 					AndroidIAPTransaction.withSession { session ->
 						session.clear()
 					}
+					
+					log.error "applyPurchase(): ${errorMessage}"
+					
 					return [code:202, error: "IAPService:: applyPurchase(): "+errorMessage]
 				}
 				// user account failed to save
 				if (!userAccount.save(failOnError:true)){
 					System.out.println("---------------account save failed")
+					
+					log.error "applyPurchase(): Account transaction failed to save"
+					
 					return [Status:"1",Process:"Account Save", Message:"Account transaction failed to save"] 
 					}
 				
@@ -183,6 +202,7 @@ class IAPService {
 		// either nonce or order id failed to be contain with in the correct list
 		else
 		{
+			log.info "applyPurchase(): Nonce/Transaction ID failed to verify"
 			return [Status:"1",Process:"Nonce-Transaction Check", Message:"Nonce/Transaction ID failed to verify"] 
 		}
 	}
@@ -195,6 +215,8 @@ class IAPService {
 	 */
 	def verifyPurchase(String client_nonce, String signature, String app_data, String dev_key )
 	{
+		log.info "verifyPurchase(): begins with client_nonce = ${client_nonce}, signature = ${signature}, app_data = ${app_data}, dev_key = ${dev_key}"
+		
 		// iap class constants
 		IapConst iap = new IapConst()
 		
@@ -227,12 +249,14 @@ class IAPService {
 						// adds order id to transaction list
 						transaction_list.add(orderID)
 						System.out.println("google play receipt is valid")
+						log.info "verifyPurchase(): Status: 0, Process: Security-Verify, Message: google play receipt is valid"
 						return [Status:"0",Process:"Security-Verify", Message:"Valid receipt"] 
 					}
 					
 					// failed validation
 					else
 					{
+						log.error "verifyPurchase(): Status: 1, Process: Security-Verify, Message: Receipt failed to verify"
 						return [Status:"1",Process:"Security-Verify", Message:"Receipt failed to verify"] 
 					}
 				}
@@ -240,6 +264,7 @@ class IAPService {
 				// order already exist in database
 				else
 				{
+					log.error "verifyPurchase(): Status: 1,Process: Database Check, Message: Receipt already exist in DB"
 					return [Status:"1",Process:"Database Check", Message:"Receipt already exist in DB"]  
 				}
 			}
@@ -247,6 +272,7 @@ class IAPService {
 			// dev_key and payload are not equal
 			else
 			{
+				log.error "verifyPurchase(): Status: 1, Process: Payload Check, Message: Payload failed to verify"
 				return [Status:"1",Process:"Payload Check", Message:"Payload failed to verify"] 
 			}
 		}
@@ -254,6 +280,7 @@ class IAPService {
 		// Nonce not contained in nonce list
 		else
 		{
+			log.error "verifyPurchase(): Status: 1, Process: Nonce Check, Message: Nonce failed to verify"
 			return [Status:"1",Process:"Nonce Check", Message:"Nonce failed to verify"] 
 		}	
 	}
@@ -265,6 +292,8 @@ class IAPService {
 	 */
 	def validateWithServer(String nonce,String userID,String receipt) 
 	{
+		log.info "validateWithServer(): begins with nonce = ${nonce}, userID = ${userID}, receipt = ${receipt}"
+		
 		// iap class constants 
 		IapConst iap = new IapConst()
 		
@@ -341,6 +370,7 @@ class IAPService {
 						// user account does not exist
 						if (!userAccount)
 						{
+							log.error "validateWithServer(): Status: 1, Process: Account Check, Message: Account not found"
 							return [Status:"1",Process:"Account Check", Message:"Account not found"]  
 						}
 						
@@ -398,16 +428,19 @@ class IAPService {
 					// order already exist in database 
 					else
 					{
+						log.error "validateWithServer(): Status: 1, Process: Database Check, Message: Receipt already exist in DB"
 						return [Status:"1",Process:"Database Check", Message:"Receipt already exist in DB"] 
 					}
 					
 					// user account failed to save
 					if (!userAccount.save(failOnError:true)){
 						System.out.println("---------------account save failed")
+						log.error "validateWithServer(): Status: 1, Process: Account Save, Message: Account transaction failed to save"
 						return [Status:"1",Process:"Account Save", Message:"Account transaction failed to save"] 
 						}
 					
 					// account save success 
+					log.info "validateWithServer(): Status: 0, Process: Account Save, Message: Account transaction was saved"
 					return [Status:"0",Process:"Account Save", Message:"Account transaction was saved"]
 				}
 				// holder.status not 0
@@ -423,18 +456,21 @@ class IAPService {
 				 */
 				else
 				{
+					log.error "validateWithServer(): Status: 1, Process: Security-Verify, Message: Receipt failed to verify, error: ${holder.status}"
 					return [Status:"1",Process:"Security-Verify", Message:"Receipt failed to verify, error: " + holder.status]
 				}
 				
 			}
 			// catch exception
 			catch (Exception e){
+				log.error "validateWithServer(): Status: 1, Process: Exception Error, Message: ${e.getMessage()}"
 				return [Status:"1",Process:"Exception Error", Message: e.getMessage()]
 			}
 		}
 		// nonce not contained in list
 		else
 		{
+			log.error "validateWithServer(): Status: 1, Process: Nonce Check, Message: Nonce failed to verify"
 			return [Status:"1",Process:"Nonce Check", Message:"Nonce failed to verify"]
 		} 
 	}

@@ -47,12 +47,16 @@ class UserService {
 	def friendSystemService
 	
 	def getCoins(userId){
+		log.info "getCoins(): begins with userId = ${userId}"
+		
 		int asset = 0
 		int inWagerAmount = 0
 		
 		def userAccount = Account.findByUserId(userId)
-		if (!userAccount)
+		if (!userAccount){
+			log.error "getCoins(): userId is invalid"
 			return [code: 400, error:"userId is invalid"]
+		}
 		
 		def lastPayoutDate = PayoutTransaction.executeQuery("SELECT max(p.createdAt) from PayoutTransaction p where p.account.id=? ", [userAccount.id])		
 		def totalBetAmount = BetTransaction.executeQuery("SELECT sum(p.transactionAmount) from BetTransaction p where p.account.id=? and p.createdAt>?", [userAccount.id, lastPayoutDate[0]])
@@ -61,14 +65,22 @@ class UserService {
 			
 		asset = inWagerAmount+userAccount.currentBalance
 		
-		if (asset >=FREE_COIN_BALANCE_THRESHOLD)
+		if (asset >=FREE_COIN_BALANCE_THRESHOLD){
+			log.error "getCoins(): Balance above "+FREE_COIN_BALANCE_THRESHOLD+" cannot get free coins"
 			return [code: 400, error:"Balance above "+FREE_COIN_BALANCE_THRESHOLD+" cannot get free coins"]
+		}
 		
 		userAccount.currentBalance = userAccount.currentBalance + FREE_COIN_AMOUNT
+		
+		def result = [username: userAccount.username, userId: userAccount.userId, currentBalance: userAccount.currentBalance, newCoinsAmount: FREE_COIN_AMOUNT]
+		log.info "getCoins(): ends with result = ${result}"
+		
 		return [username: userAccount.username, userId: userAccount.userId, currentBalance: userAccount.currentBalance, newCoinsAmount: FREE_COIN_AMOUNT]
 	}
 	
 	def createSocialNetworkUser(String sessionToken){
+		log.info "createSocialNetworkUser(): begins with sessionToken = ${sessionToken}"
+		
 		int currentBalance = SOCIALNETWORK_INITIAL_BALANCE
 		RestBuilder rest = new RestBuilder()
 		
@@ -102,6 +114,8 @@ class UserService {
 		def result = userProfileMapRender(sessionToken, currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name, 
 		userProfile.objectId, "", "", userProfile.email, userProfile.pictureURL)
 		
+		log.info "createSocialNetworkUser(): ends"
+		
 		return result
 	}
 			
@@ -114,6 +128,7 @@ class UserService {
 	}
 			
 	def createUser(String username, String email, String password, String gender, String region, int accountType, String pictureURL, String facebookId){
+		log.info "createUser(): begins..."
 		println "UserService::createUser(): username="+username+"  email="+email + " facebookId="+facebookId
 		
 		int currentBalance = INITIAL_BALANCE
@@ -127,6 +142,7 @@ class UserService {
 		}
 		
 		println "user profile created successfully"		
+		log.info "createUser(): user profile created successfully"
 		
 		Map accountCreationResult = createUserAccount(rest, userProfile.objectId, username, INITIAL_BALANCE, PREVIOUS_BALANCE, userProfile.sessionToken, accountType)
 		if (accountCreationResult!=[:]){
@@ -134,17 +150,20 @@ class UserService {
 		}
 		
 		println "user profile and account created successfully"
-
+		log.info "createUser(): user profile and account created successfully"
 		
 		def result = userProfileMapRender(userProfile.sessionToken, currentBalance, userProfile.createdAt, userProfile.username, displayName, 
 		userProfile.objectId, "", "", email, userProfile.pictureURL)
+		
+		log.info "createUser(): ends with result = ${result}"
 		
 		return result		
 	}
 	
 	def login(String username, String password){
-		def rest = new RestBuilder()
+		log.info "login(): begins with username = ${username}, password = ${password}"
 		
+		def rest = new RestBuilder()
 		
 		Map userProfile = userLogin(rest, username, password)
 		println "userProfile: "+userProfile
@@ -156,47 +175,63 @@ class UserService {
 		def account = Account.findByUserId(userProfile.objectId)
 		
 		if (!account){
+			log.error "login(): user account does not exist"
 			return [code:500, error:"user account does not exist"]			
 		}
 		
 		def result = userProfileMapRender(userProfile.sessionToken, account.currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name, 
 				userProfile.objectId, "", "", userProfile.email, userProfile.pictureURL)
 		
+		log.info "login(): ends with result = ${result}"
+		
 		return result
 	}
 	
 	
 	def passwordReset(def email){
+		log.info "passwordReset(): begins with email = ${email}"
+		
 		def rest = new RestBuilder()
 		def resp = parseService.passwordReset(rest, email)
-		if (resp.status != 200 ||resp.json.code)
+		if (resp.status != 200 ||resp.json.code){
+			log.error "passwordReset(): ${resp.json}"
 			return resp.json
+		}
 			
+		log.info "passwordReset(): ends with ${resp.json}"
 		return resp.json
 	}
 	
 	def validateSession (def sessionToken){
+		log.info "validateSession(): begins with sessionToken = ${sessionToken}"
+		
 		def rest = new RestBuilder()
 		def resp = parseService.validateSession(rest, sessionToken)
 		if (resp.status == 200){
+			log.info "validateSession(): ${resp.json}"
 			return resp.json
 		}else if (resp.json.code){
+			log.info "validateSession(): ${resp.json}"
 			return resp.json
 		}else{
 			def result = [
 				code:resp.status,
 				error:resp.json.error
 			]
+			log.error "validateSession(): ${resp.json.error}"
 			return result
 		}
 	}
 	
 	
 	def deleteUser(String sessionToken, String userId){
+		log.info "deleteUser(): begins wiht sessionToken = ${sessionToken}, userId = ${userId}"
+		
 		def rest = new RestBuilder()
 		def resp = parseService.deleteUser(rest, sessionToken, userId)
 		if (resp.status != (200)){
 			println "delete user profile failed: "+resp.json
+			log.error "deleteUser(): delete user profile failed: "+resp.json
 			return resp.json
 		}
 		def account = Account.findByUserId(userId)
@@ -204,10 +239,15 @@ class UserService {
 		if (account != null){
 			account.delete()
 		}
+		
+		log.info "deleteUser(): ends"
+		
 		return [:]
 	}
 	
 	def getUserProfile(String userId,String month){
+		log.info "getUserProfile(): begins with userId = ${userId}, month = ${month}"
+		
 		def rest = new RestBuilder()
 		
 		def userProfile = userRetreive(rest, userId)
@@ -218,6 +258,7 @@ class UserService {
 		def account = Account.findByUserId(userId)
 		if (account == null){
 			println "ERROR: user account does not exist"
+			log.error "getUserProfile(): user account does not exist"
 			def result = [
 				code:500,
 				error:"user account does not exist"
@@ -236,17 +277,22 @@ class UserService {
 		result.level = 1
 		result.levelName = "novice"
 		
+		log.info "getUserProfile(): ends with result = ${result}"
+		
 		return result		
 		
 	}
 	
 	def getUserBalance(String userId){
+		log.info "getUserBalance(): begins with userId = ${userId}"
+		
 		def rest = new RestBuilder()
 		def resp = parseService.retrieveUser(rest, userId)
 		
 		def account = Account.findByUserId(userId)
 		if (account == null){
 			println "ERROR: user account does not exist"
+			log.error "getUserBalance(): user account does not exist"
 			def result = [
 				code:500,
 				error:"user account does not exist"
@@ -256,7 +302,10 @@ class UserService {
 		int currentBalance = account.currentBalance
 		int inWager = getUserInWagerCoins(userId)
 		
-		return[currentBalance:account.currentBalance, inWager:inWager]
+		def result = [currentBalance:account.currentBalance, inWager:inWager]
+		log.info "getUserBalance(): ends with result = ${result}"
+		
+		return [currentBalance:account.currentBalance, inWager:inWager]
 		
 	}	
 	
@@ -279,6 +328,7 @@ class UserService {
 	
 	@Transactional
 	void updateUserBalance(String userId, int balanceDelta){
+		log.info "updateUserBalance(): begins..."
 		
 		int retryCount = 0
 		while (retryCount<5){
@@ -294,10 +344,14 @@ class UserService {
 				retryCount++
 			}
 		}
+		
+		log.info "updateUserBalance(): ends"
 	}
 
 	
 	private List getFacebookFrdsUserId(List facebookIds){
+		log.info "getFacebookFrdsUserId(): begins with facebookIds = ${facebookIds}"
+		
 		Map userProfilesMap = parseService.retrieveUserListByFBIds(facebookIds)
 		
 		println "userProfiles:" + userProfilesMap
@@ -308,6 +362,8 @@ class UserService {
 		for(Map userProfile: userProfileList) {
 			userIdList.add(userProfile.objectId)
 		}
+		
+		log.info "getFacebookFrdsUserId(): ends wiht userIdList = ${userIdList}"
 		
 		return userIdList
 	}
@@ -322,6 +378,7 @@ class UserService {
 				code:resp.json.code,
 				error:resp.json.error
 			]
+			log.error "userLogin(): ${result}"
 			return result
 		}
 		return resp.json
@@ -336,6 +393,7 @@ class UserService {
 				code:500,
 				error:"user account does not exist"
 			]
+			log.error "userRetreive(): ${result}"
 			return result
 		}
 		return resp.json
@@ -406,12 +464,15 @@ class UserService {
 	 * @return returns empty map upon successful
 	 */
 	private Map createUserAccount(RestBuilder rest, String userId, String username, int initialBalance, int previousBalance, String sessionToken, int accountType){
+		log.info "createUserAccount(): begins..."
+		
 		def userAccount = Account.findByUserId(userId)
 		if (userAccount){
 			def result = [
 				code:202,
 				error:"account already exists"
 			]
+			log.error "createUserAccount(): ${result}"
 			return result
 		}
 		def account = new Account(userId:userId, username:username, currentBalance:initialBalance,previousBalance:previousBalance, accountType: accountType)
@@ -428,6 +489,7 @@ class UserService {
 			OpenAccountTransaction.withSession { session ->
 				session.clear()
 			}
+			log.error "createUserAccount(): ${errorMessage}"
 			return [code:202, error: "UserService:: createUserAccount(): "+errorMessage]
 		}
 		
@@ -440,6 +502,7 @@ class UserService {
 			BetTransaction.withSession { session ->
 				session.clear()
 			}
+			log.error "createUserAccount(): ${errorMessage}"
 			return [code:202, error: "UserService:: createUserAccount(): "+errorMessage]
 		}
 		
@@ -456,12 +519,16 @@ class UserService {
 				code:202,
 				error:"account creation failed"
 			]
+			log.error "createUserAccount(): ${result}"
 			return result
 		}
+		
+		log.info "createUserAccount(): ends"
 		return [:]
 	}
 
 	private Map createUserProfile(RestBuilder rest, String username, String email, String password, String gender, String region, String displayName, String pictureURL, String facebookId){
+		log.info "createUserProfile(): begins..."
 			
 		def resp = parseService.createUser(rest, username, email, password, gender, region, displayName, pictureURL, facebookId)
 		
@@ -470,8 +537,11 @@ class UserService {
 				code:resp.json.code,
 				error:resp.json.error
 			]
+			log.error "createUserProfile(): ${result}"
 			return result
 		}
+		
+		log.info "createUserProfile(): ends with ${resp.json}"
 		return resp.json
 	}
 
@@ -482,6 +552,7 @@ class UserService {
 				code:resp.json.code,
 				error:resp.json.error
 			]
+			log.error "getUserProfileBySessionToken(): ${result}"
 			return result
 		}
 		return resp.json

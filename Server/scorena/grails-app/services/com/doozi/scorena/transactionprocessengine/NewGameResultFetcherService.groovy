@@ -20,6 +20,7 @@ class NewGameResultFetcherService {
 	 * @return the number of game payout records added to the GameProcessRecord table that need to be processed
 	 */
 	def getUnprocessedPastGame(List pastGames, List pastCustomGames){
+		log.info "getUnprocessedPastGame(): begins with pastGames = ${pastGames}, pastCustomGames = ${pastCustomGames}"
 		println "NewGameResultFetcherService::getUnprocessedPastGame(): starts"
 		
 		List allPastGames = []
@@ -57,6 +58,7 @@ class NewGameResultFetcherService {
 			}
 		}
 		println "NewGameResultFetcherService::getUnprocessedPastGame(): ends"
+		log.info "getUnprocessedPastGame(): ends with gameRecordAdded = ${gameRecordAdded}"
 		return gameRecordAdded
 			
 	}
@@ -68,6 +70,8 @@ class NewGameResultFetcherService {
 	 * @return earliest game date
 	 */
 	private Date calculateEarliestGameDate(List pastGames, List pastCustomGames){
+		log.info "calculateEarliestGameDate(): begins with pastGames = ${pastGames}, pastCustomGames = ${pastCustomGames}"
+		
 		Date earliestPastGameDate = new Date()
 		Date earliestPastCustomGameDate = new Date()
 		Date ealiestGameDate
@@ -84,6 +88,9 @@ class NewGameResultFetcherService {
 		}else{
 			ealiestGameDate = earliestPastGameDate
 		}
+		
+		log.info "calculateEarliestGameDate(): ends with ealiestGameDate = ${ealiestGameDate}"
+		
 		return ealiestGameDate
 	}
 }

@@ -11,6 +11,7 @@ class SimulateBetService {
 	def gameService
 	
 	def simulateBetUpcoming(){
+		log.info "simulateBetUpcoming() begins..."
 		
 		Random random = new Random()
 		def accounts = Account.findAllByAccountType(AccountType.TEST)
@@ -49,5 +50,7 @@ class SimulateBetService {
 				}
 			}
 		}
+		
+		log.info "simulateBetUpcoming(): ends"
 	}
 }

@@ -20,6 +20,7 @@ class RankingService {
 	
 	
 	Map getRanking(userId){
+		log.info "getRanking(): begins with userId = ${userId}"
 		
 		//Get both all and weekly ranking from database. The query response is in the format of 
 		//[[username, userId, getGain, currentBalance],[username, userId, getGain, currentBalance],...]
@@ -101,11 +102,15 @@ class RankingService {
 			}
 		}
 		
+		def result = [weekly: rankingResultWk, all: rankingResultAll]
+		log.info "getRanking(): ends with result = ${result}"
+		
 		return [weekly: rankingResultWk, all: rankingResultAll]
 	}
 	
 	List getGameRanking(String gameId){
-				
+		log.info "getGameRankin(): begins with gameId = ${gameId}"
+		
 		List<AbstractScore> metalScoreTransactionList = scoreService.listBadgeScoresByGameId(gameId)
 		
 		if (metalScoreTransactionList.size() ==0){
@@ -139,6 +144,8 @@ class RankingService {
 			}
 			
 		}
+		
+		log.info "getGameRankin(): ends with gameRanking = ${gameRanking}"
 		
 		return gameRanking
 	}

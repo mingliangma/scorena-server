@@ -44,6 +44,8 @@ class ScoreService {
 	}
 
     def processQuestionScore(List<PayoutTransaction> pTransactionList, GameProcessRecord gameProcessRecord) {
+		log.info "processQuestionScore(): begins..."
+		
 		println "processQuestionScore() starts, with pTransactionList size="+pTransactionList.size()
 		for (PayoutTransaction ptransaction: pTransactionList){
 			//win
@@ -51,10 +53,12 @@ class ScoreService {
 				insertQuestionScore(ScoreConstant.QUESTION_SCORE, new Date(), ptransaction.eventKey, ptransaction.account, ptransaction.question, gameProcessRecord.startDateTime)
 			}				
 		}
-		println "processQuestionScore() ends"				
+		println "processQuestionScore() ends"	
+		log.info "processQuestionScore(): ends"
     }
 	
 	def processGoldSilverBronzeScore(List<PayoutTransaction> pTransactionList, GameProcessRecord gameProcessRecord) {
+		log.info "processGoldSilverBronzeScore(): begins..."
 		println "processGoldSilverBronzeScore() starts, with pTransactionList size="+pTransactionList.size()
 		int tSize = pTransactionList.size()
 		if (tSize <=0)
@@ -166,9 +170,11 @@ class ScoreService {
 			}
 		}
 		println "processGoldSilverBronzeScore() ends"
+		log.info "processGoldSilverBronzeScore(): ends"
 	}
 	
 	private def insertGoldScore(int score, Date createdAt, String eventKey, Account account, BigDecimal topPercentage, int profitCollected,  Date gameStartTime, int rank){
+		log.info "insertGoldScore(): begins..."
 		
 		LeagueTypeEnum l = sportsDataService.getLeagueCodeFromEventKey(eventKey)
 		
@@ -187,14 +193,17 @@ class ScoreService {
 				break;
 			}catch(org.springframework.dao.CannotAcquireLockException e){
 				println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
+				log.error "insertGoldScore(): ${e.message}"
 				Thread.sleep(500)
 				retryCount++
 			}
 		}
 		
+		log.info "insertGoldScore(): ends"
 	}
 	
 	private def insertSilverScore(int score, Date createdAt, String eventKey, Account account, BigDecimal topPercentage, int profitCollected,  Date gameStartTime, int rank){
+		log.info "insertSilverScore(): begins..."
 		
 		SilverMetalScore ss = new SilverMetalScore(gameStartTime:gameStartTime, league:sportsDataService.getLeagueCodeFromEventKey(eventKey), score: score, 
 			createdAt: createdAt, eventKey:eventKey, topPercentage:topPercentage, profitCollected:profitCollected, rank: rank)
@@ -211,14 +220,19 @@ class ScoreService {
 				break;
 			}catch(org.springframework.dao.CannotAcquireLockException e){
 				println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
+				log.error "insertSilverScore(): ${e.message}"
 				Thread.sleep(500)
 				retryCount++
 			}
 		}
 		
+		log.info "insertSilverScore(): ends"
+		
 	}
 	
 	private def insertBronzeScore(int score, Date createdAt, String eventKey, Account account, BigDecimal topPercentage, int profitCollected,  Date gameStartTime, int rank){
+		log.info "insertBronzeScore(): begins..."
+		
 		BronzeMetalScore bs = new BronzeMetalScore(gameStartTime:gameStartTime, league:sportsDataService.getLeagueCodeFromEventKey(eventKey), score: score, 
 			createdAt: createdAt, eventKey:eventKey, topPercentage:topPercentage, profitCollected:profitCollected, rank: rank)
 			
@@ -234,13 +248,17 @@ class ScoreService {
 				break;
 			}catch(org.springframework.dao.CannotAcquireLockException e){
 				println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
+				log.error "insertBronzeScore(): ${e.message}"
 				Thread.sleep(500)
 				retryCount++
 			}
 		}
+		
+		log.info "createBetTrans(): ends"
 	}
 	
 	private def insertNoScore(int score, Date createdAt, String eventKey, Account account, BigDecimal topPercentage, int profitCollected,  Date gameStartTime, int rank){
+		log.info "insertNoScore(): begins..."
 		
 		LeagueTypeEnum l = sportsDataService.getLeagueCodeFromEventKey(eventKey)
 		
@@ -259,16 +277,19 @@ class ScoreService {
 				break;
 			}catch(org.springframework.dao.CannotAcquireLockException e){
 				println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
+				log.error "insertNoScore(): ${e.message}"
 				Thread.sleep(500)
 				retryCount++
 			}
 		}
+		
+		log.info "insertNoScore(): ends"
 	}
 	
 	private def insertQuestionScore(int score, Date createdAt, String eventKey, Account account, Question question, Date gameStartTime){
+		log.info "insertQuestionScore(): begins..."
 		
 		QuestionScore qs = new QuestionScore(score: score, createdAt: createdAt, eventKey:eventKey, gameStartTime:gameStartTime, league:sportsDataService.getLeagueCodeFromEventKey(eventKey))
-
 		
 		int retryCount = 0
 		while (retryCount<5){
@@ -285,10 +306,13 @@ class ScoreService {
 				break;
 			}catch(org.springframework.dao.CannotAcquireLockException e){
 				println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
+				log.error "insertQuestionScore(): ${e.message}"
 				Thread.sleep(500)
 				retryCount++
 			}
 		}
+		
+		log.info "insertQuestionScore(): ends"
 		
 	}
 }

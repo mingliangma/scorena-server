@@ -17,6 +17,8 @@ class UserStatsService {
 def sportsDataService
 def helperService
 Map getUserStats(List<AbstractScore> userScores,def userPayoutTrans,String month, def account){
+	log.info "getUserStats(): begins..."
+	
 	Map userStats = getAllStats(userScores,userPayoutTrans, month,account.id)
 //	Map userStats = getBetStats(userPayoutTrans, account.id)
 	//todo netgain/total wager in type 1
@@ -29,6 +31,9 @@ Map getUserStats(List<AbstractScore> userScores,def userPayoutTrans,String month
 //	userStats.weekly.netGainPercent = ((userStats.weekly.netGain / (netGainPercentageDenominator))*100).toInteger()
 	userStats.monthly.netGainPercent = ((userStats.monthly.netGain / (netGainPercentageDenominator))*100).toInteger()
 	userStats.all.netGainPercent = ((userStats.all.netGain / (netGainPercentageDenominator))*100).toInteger()
+	
+	log.info "getUserStats(): ends with userStats = ${userStats}"
+	
 	return userStats
 }
 
@@ -46,6 +51,8 @@ Map getUserStats(List<AbstractScore> userScores,def userPayoutTrans,String month
  */
 def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 {
+	log.info "getAllStats(): begins..."
+	
 	def firstOfMonth
 	def lastOfMonth
 	
@@ -157,6 +164,7 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 				
 				if (tran.initialWager != -tran.profit){
 					println "ERROR: wager and profit doesn not match in the lossing payout tran.eventKey:"+tran.eventKey + "  tran.initialWager:"+tran.initialWager + "  tran.profit:"+ -tran.profit				
+					log.error "getAllStats(): wager and profit doesn not match in the lossing payout tran.eventKey:"+tran.eventKey + "  tran.initialWager:"+tran.initialWager + "  tran.profit:"+ -tran.profit				
 				}
 			}else if (tran.playResult==1){
 				gameStats.monthly.wins+=1
@@ -166,6 +174,7 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 
 			}else{
 				println "ERROR: UserService::getBetStats(): should not go in here"
+				log.error "getAllStats(): should not go in here"
 			}
 			continue
 		}
@@ -179,6 +188,7 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 			
 			if (tran.initialWager != -tran.profit){
 				println "ERROR: wager and profit doesn not match in the lossing payout tran.eventKey:"+tran.eventKey + "  tran.initialWager:"+tran.initialWager + "  tran.profit:"+ -tran.profit				
+				log.error "getAllStats(): wager and profit doesn not match in the lossing payout tran.eventKey:"+tran.eventKey + "  tran.initialWager:"+tran.initialWager + "  tran.profit:"+ -tran.profit				
 			}		
 			
 		}else if (tran.playResult==1){
@@ -188,8 +198,11 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 
 		}else{
 			println "ERROR: UserService::getBetStats(): should not go in here"
+			log.error "getAllStats(): should not go in here"
 		}
 	}
+	
+	log.info "getAllStats(): ends with gameStats = ${gameStats}"
 	
 	return gameStats
 	
@@ -200,6 +213,8 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 // updates nested map of user score stats for each league user is present in, in total
 	def getLeagueScores(def stats)
 	{
+		log.info "getLeagueScores(): begins with stats = ${stats}"
+		
 		if(stats == null || stats.size==0)
 		{
 			return [score:0]
@@ -218,12 +233,17 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 			}
 				scoreMap.score += scoreStat.getScore()
 		}
+		
+		log.info "getLeagueScores(): ends with scores = ${scores}"
+		
 		return scores
 	}
 	
 	// updates nested map of user score stats for each league user is present in, by specified month-first and last date
 	def getLeagueScoresMonth(def stats, def first, def last)
 	{
+		log.info "getLeagueScoresMonth(): begins with stats = ${stats}, first = ${first}, last = ${last}"
+		
 		if(stats == null || stats.size==0)
 		{
 			return [score:0]
@@ -247,12 +267,17 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 				scoreMap.score += scoreStat.getScore()
 			}
 		}
+		
+		log.info "getLeagueScoresMonth(): ends with scores = ${scores}"
+		
 		return scores
 	}
 	
 	// updates nested map of user medal stats for each league user is present in, in total
 	def getLeagueMedals(def stats)
 	{
+		log.info "getLeagueMedals(): begins with stats = ${stats}"
+		
 		if(stats == null || stats.size==0)
 		{
 			return [question:0, bronze:0, silver:0,gold:0]
@@ -288,12 +313,17 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 					break;
 				}
 		}
+		
+		log.info "getLeagueMedals(): ends with medals = ${medals}"
+		
 		return medals
 	}
 
 	// updates nested map of user score stats for each league user is present in, by specified month- first and last date
 	def getLeagueMedalsMonth(def stats, def first,def last)
 	{
+		log.info "getLeagueMedalsMonth(): begins with stats = ${stats}, first = ${first}, last = ${last}"
+		
 		if(stats == null || stats.size==0)
 		{
 			return [question:0, bronze:0, silver:0,gold:0]
@@ -333,6 +363,9 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 				}
 			}
 		}
+		
+		log.info "getLeagueMedalsMonth(): ends with medals = ${medals}}"
+		
 		return medals
 	}
 	
@@ -349,6 +382,8 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 	}
 	
 	private Map constructLeagueStats(List<UserLeagueStats> stats ){
+		log.info "constructLeagueStats(): begins wiht stats = ${stats}"
+		
 		Map leagues=[:]
 		for (UserLeagueStats userStat : stats){
 			def leagueName = userStat.getLeague()
@@ -385,6 +420,7 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 			}
 		}
 		
+		log.info "constructLeagueStats(): ends wiht leagues = ${leagues}"
 		
 		return leagues
 	}

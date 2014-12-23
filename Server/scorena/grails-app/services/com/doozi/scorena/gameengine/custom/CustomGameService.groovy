@@ -19,6 +19,8 @@ class CustomGameService {
 	def sportsDataService
 	
 	def getGame(def eventKey){
+		log.info "getGame(): begins with eventKey = ${eventKey}"
+		
 		def games = CustomGame.findAllByEventKey(eventKey,[cache: true])
 		
 		def gameInfo = []
@@ -46,10 +48,13 @@ class CustomGameService {
 			}
 		}
 		
+		log.info "getGame(): ends with gameInfo = ${gameInfo}"
+		
 		return gameInfo
 	}
 	
 	def getAllUpcomingGames(){
+		log.info "getAllUpcomingGames(): begins..."
 		
 		println "CustomGameService::getAllUpcomingGames(): starts..."
 		def todayDate = new Date()
@@ -57,19 +62,28 @@ class CustomGameService {
 		def upcomingGames = CustomGame.findAll("from CustomGame as g where g.startDateTime<? and g.startDateTime>? and g.eventStatus<>'post-event' order by g.startDateTime", [upcomingDate, todayDate-1], [cache: true])
 		List upcomingGamesList = sportsDataService.constructGameList(upcomingGames, sportsDataService.PREEVENT, todayDate)
 		
+		log.info "getAllUpcomingGames(): ends with upcomingGamesList = ${upcomingGamesList}"
+		
 		return upcomingGamesList
 	}
 	
 	def getAllPastGames(){
+		log.info "getAllPastGames(): begins..."
+		
 		def todayDate = new Date()
 		def pastDate = todayDate - PAST_DATE_RANGE;
 		def pastGames = CustomGame.findAll("from CustomGame as g where g.startDateTime>? and g.startDateTime<? and g.eventStatus='post-event' order by g.startDateTime desc", [pastDate, todayDate+1])
 
 		List pastGamesList = sportsDataService.constructGameList(pastGames, sportsDataService.PREEVENT, todayDate)		
+		
+		log.info "getAllPastGames(): ends with pastGamesList = ${pastGamesList}"
+		
 		return pastGamesList
 	}
 	
     def createCustomGameByName(String awayTeamName, String homeTeamName, String eventName, String startDateTimeInput) {
+		log.info "createCustomGameByName(): begins with awayTeamName = ${awayTeamName}, eventName = ${eventName}, startDateTimeInput = ${startDateTimeInput}"
+		
 		Random random = new Random()
 		
 		String awayTeamKey = CUSTOM_TEAM_PREFIX+(random.nextInt(1000000)).toString()
@@ -94,10 +108,16 @@ class CustomGameService {
 		
 		if (cgHome.save() && cgAway.save()){
 			System.out.println("Custom Game Created successfully saved")
+			log.info "createCustomGameByName(): Custom Game Created successfully saved"
 			return [awayTeamName:awayTeamName, awayTeamKey:awayTeamKey, homeTeamName:homeTeamName, homeTeamKey:homeTeamKey, eventId:eventKey, 
 				eventStatus:gameService.PREEVENT, startDateTime:helperService.setUTCFormat(startDateTime)]
 		}else{
 			System.out.println("game save failed")
+			
+			log.error "createCustomGameByName(): game save failed"
+			log.info "createCustomGameByName(): cgHome: ${cgHome.errors}"
+			log.info "createCustomGameByName(): cgAway: ${cgAway.errors}"
+			
 			cgHome.errors.each{
 				println it
 			}

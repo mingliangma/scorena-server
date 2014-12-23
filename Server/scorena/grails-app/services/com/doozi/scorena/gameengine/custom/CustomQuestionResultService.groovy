@@ -21,22 +21,35 @@ class CustomQuestionResultService {
 	}
 	
 	def addCustomQuestionResult(int winnerPick,int questionId, String eventKey){
-		if (winnerPick!=0 && winnerPick!=1 && winnerPick!=2)
+		log.info "addCustomQuestionResult(): begins with winnerPick = ${winnerPick}, questionId = ${questionId}, eventKey = ${eventKey}"
+		
+		if (winnerPick!=0 && winnerPick!=1 && winnerPick!=2){
+			log.error "addCustomQuestionResult(): INcorrect questionResult. Result can only be 0, 1, and 2"
 			return [error: "INcorrect questionResult. Result can only be 0, 1, and 2"]
+		}
 		
 		def question = Question.findById(questionId)
-		if (!question)
+		if (!question){
+			log.error "addCustomQuestionResult(): There is no question with given question ID"
 			return [error: "There is no question with given question ID"]
+		}
 		
-		if (question.eventKey != eventKey)	
+		if (question.eventKey != eventKey){	
+			log.error "addCustomQuestionResult(): The event does not contain the given question ID"
 			return [error: "The event does not contain the given question ID"]
+		}
 			
 			
 		def customQuestionResult = new CustomQuestionResult(eventKey:eventKey, winnerPick:winnerPick, questionId:questionId )
 		
 		if (!customQuestionResult.save(failOnError:true)){
+			log.error "addCustomQuestionResult(): The custom question result failed to be saved"
 			return [error: "The custom question result failed to be saved"]
 		}
+		
+		def customQuestionResultMap = [gameId: eventKey, question:[questionId: question.id,quesitonContent:question.questionContent.content, pick1:question.pick1, pick2:question.pick2],
+			winnerPick: winnerPick]
+		log.info "addCustomQuestionResult(): ends with customQuestionResultMap = ${customQuestionResultMap}"
 		
 		return [gameId: eventKey, question:[questionId: question.id,quesitonContent:question.questionContent.content, pick1:question.pick1, pick2:question.pick2],
 			winnerPick: winnerPick]

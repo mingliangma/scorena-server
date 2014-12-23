@@ -17,6 +17,7 @@ class QuestionUserInfoService {
 	def poolInfoService
 	
 	Map getQuestionsUserInfo(PayoutTransaction payout, BetTransaction userBet){
+		log.info "getQuestionsUserInfo(): begins with payout = ${payout}, userBet = ${userBet}"
 		
 		boolean placedBet
 		int userPick
@@ -44,11 +45,15 @@ class QuestionUserInfoService {
 			userWager = userBet.transactionAmount
 			questionWinningAmount = payout.profit
 		}
+		
+		def questionsUserInfoResult = [placedBet:placedBet, userPickStatus:userPickStatus, userPick:userPick, questionWinningAmount:questionWinningAmount, userWager:userWager]
+		log.info "getQuestionsUserInfo(): ends with questionsUserInfoResult= ${questionsUserInfoResult}"
 
 		return [placedBet:placedBet, userPickStatus:userPickStatus, userPick:userPick, questionWinningAmount:questionWinningAmount, userWager:userWager]
 	}
 	
-	int getProfitInQuestion(int winnerPick, BetTransaction bet){		
+	int getProfitInQuestion(int winnerPick, BetTransaction bet){	
+		log.info "getProfitInQuestion(): begins with winnerPick = ${winnerPick}, bet = ${bet}"	
 				
 		int profitAmount = 0
 		
@@ -66,6 +71,9 @@ class QuestionUserInfoService {
 		}else if (questionUserInfoService.getUserPickStatus(winnerPick, bet.pick) == PickStatus.USER_LOST){
 			profitAmount = bet.transactionAmount * -1
 		}
+		
+		log.info "getProfitInQuestion(): ends with profitAmount = ${profitAmount}"
+		
 		return profitAmount
 	
 	}
@@ -132,6 +140,7 @@ class QuestionUserInfoService {
 	}
 		
 	Map getPreEventQuestionUserInfo(String userId, long questionId){
+		log.info "getPreEventQuestionUserInfo(): begins with userId = ${userId}, questionId = ${questionId}"
 		
 		def userBetAmount = 0
 		def userPick =-1
@@ -140,6 +149,10 @@ class QuestionUserInfoService {
 			userBetAmount=userBet.transactionAmount
 			userPick=userBet.pick
 		}
+		
+		def preEventQuestionUserInfoResult = [userWager:userBetAmount, userPick:userPick]
+		log.info "getPreEventQuestionUserInfo(): ends with preEventQuestionUserInfoResul = ${preEventQuestionUserInfoResul}"
+		
 		return [userWager:userBetAmount, userPick:userPick]
 		
 	}
