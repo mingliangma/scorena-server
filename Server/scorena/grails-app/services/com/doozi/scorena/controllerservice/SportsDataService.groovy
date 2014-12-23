@@ -223,7 +223,7 @@ class SportsDataService {
 	 */
 	List constructGameList(def games, int eventType, def todayDate){
 		
-		def gamesMap = [:]
+		Map gamesMap = [:]
 		List gamesList = []
 		for (def game: games){
 			String eventKey = game.eventKey
@@ -256,7 +256,7 @@ class SportsDataService {
 				}
 			}
 			if (!gamesMapValue){
-				def	gameInfo = [
+				Map	gameInfo = [
 						"leagueName": getLeagueNameFromEventKey(eventKey),
 						"leagueCode": getLeagueCodeFromEventKey(eventKey),
 						"gameId":eventKey,

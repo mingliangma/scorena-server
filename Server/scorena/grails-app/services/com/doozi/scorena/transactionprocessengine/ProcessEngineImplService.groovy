@@ -358,8 +358,11 @@ class ProcessEngineImplService {
 	}
 	
 	private int getWhoWinWinnerPick(Map game, Question question){
+		
+		int homeScore = game.home.score.toInteger()
+		int awayScore = game.away.score.toInteger()
 
-		if (game.home.score > game.away.score){
+		if (homeScore > awayScore){
 			if (game.home.teamname.trim() == question.pick1.trim()){
 				return 1
 			}else if(game.home.teamname.trim() == question.pick2.trim()){
@@ -369,7 +372,7 @@ class ProcessEngineImplService {
 				println "game: " + game
 				return -1
 			}	
-		}else if(game.home.score < game.away.score){
+		}else if(homeScore < awayScore){
 			if (game.away.teamname.trim() == question.pick1.trim()){
 				return 1
 			}else if(game.away.teamname.trim() == question.pick2.trim()){

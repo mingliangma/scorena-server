@@ -77,7 +77,7 @@ class NewGameResultFetcherService {
 		
 		//todo: need to find the earliest custom games by date
 		if (pastCustomGames.size()>0)
-			earliestPastCustomGameDate = helperService.parseDateFromString(pastCustomGames.get(0).date)
+			earliestPastCustomGameDate = helperService.parseDateFromString(pastCustomGames.get(pastCustomGames.size()-1).date)
 		
 		if (earliestPastGameDate > earliestPastCustomGameDate){
 			ealiestGameDate = earliestPastCustomGameDate
