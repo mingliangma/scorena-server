@@ -20,6 +20,8 @@ class SimulateCommentService {
 		"cupboards far from the actual playing fields. They can be underused and sometimes taken for granted if not forgotten altogether. It's true they are symbols of healthy living, community spirit and the acquired skills which make us better teammates and leaders."
 		]
     def simulateComment() {
+		log.info "simulateComment(): begins..."
+		
 		println "simulateComment() started"
 		//get a random user
 		Random random = new Random()
@@ -32,5 +34,7 @@ class SimulateCommentService {
 		}
 		
 		println "simulateComment() ended"
+		
+		log.info "simulateComment(): ends"
     }
 }

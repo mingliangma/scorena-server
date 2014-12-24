@@ -27,6 +27,8 @@ class PayoutTansactionService {
 	 */
 	@Transactional
 	def createPayoutTrans(Account playerAccount, Question q, int payout, int winnerPick, int wager, int userPick, int playResult, Date gameStartTime){		
+		log.info "createPayoutTrans(): begins..."
+		
 		println "PayoutTansactionService::createPayoutTrans(): qId="+q.id + ",accountId=" + playerAccount.id+", payout="+payout
 		try{
 			PayoutTransaction payoutTransaction = new PayoutTransaction(transactionAmount: payout, createdAt: new Date(), winnerPick: winnerPick, pick: userPick, initialWager:wager, 
@@ -48,6 +50,7 @@ class PayoutTansactionService {
 				PayoutTransaction.withSession { session ->
 					session.clear()
 				}
+				log.error "createPayoutTrans(): the bet transaction already exsists"
 				return [code:202, error: "the bet transaction already exsists"]
 			}
 			
@@ -60,6 +63,7 @@ class PayoutTansactionService {
 				PayoutTransaction.withSession { session ->
 					session.clear()
 				}
+				log.error "createPayoutTrans(): createBetTran error: ${errorMessage}"
 				return [code:202, error: "createBetTran error: "+errorMessage]
 			}
 			
@@ -70,6 +74,7 @@ class PayoutTansactionService {
 			
 		}catch(org.springframework.dao.CannotAcquireLockException e){
 			println "createPayoutTrans(): CannotAcquireLockException ERROR: "+e.message
+			log.error "createPayoutTrans(): CannotAcquireLockException ERROR: ${e.message}"
 		}
 	}
 	

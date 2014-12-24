@@ -20,13 +20,20 @@ class GameUserInfoService {
 	def questionPoolUtilService
 	
     Map getUpcomingGamesUserInfo(String gameId, List<BetTransaction> userBetsInTheGame, String userId) {
+		log.info "getUpcomingGamesUserInfo(): begins with gameId = ${gameId}, userBetsInTheGam = ${userBetsInTheGame}, userId = ${userId}"
+		
 		Map userinfo=[:]
 		userinfo.placedBet = getPlacedBet(userBetsInTheGame)
 		userinfo.userWager = getWagerInGame(gameId, userId, userBetsInTheGame)
+		
+		log.info "getUpcomingGamesUserInfo(): ends with userinfo = ${userinfo}"
+		
 		return userinfo
     }
 	
 	Map getPastGamesUserInfo(Map game, List<BetTransaction> userBetsInTheGame, String userId, List<AbstractScore> scoreTransactions){
+		log.info "getPastGamesUserInfo(): begins with game = ${game}, userBetsInTheGame = ${userBetsInTheGame}, userId = ${userId}, scoreTransactions = ${scoreTransactions}"
+		
 		Map userinfo=[:]
 		userinfo.placedBet = getPlacedBet(userBetsInTheGame)
 
@@ -69,6 +76,9 @@ class GameUserInfoService {
 			userinfo.gameWinningAmount = -1
 			userinfo.totalScore = -1
 		}
+		
+		log.info "getPastGamesUserInfo(): ends with userinfo = ${userinfo}"
+		
 		return userinfo
 	}
 	

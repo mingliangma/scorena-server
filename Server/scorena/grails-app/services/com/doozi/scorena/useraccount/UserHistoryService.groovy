@@ -32,11 +32,16 @@ class UserHistoryService {
 	 * @return all past game
 	 */
 	def listPastGamesData(){
+		log.info "listPastGamesData(): begins..."
+		
 		List pastGames = sportsDataService.getAllPastGames()
 		List pastCustomGames = 	customGameService.getAllPastGames()
 		List pastGamesResult = []
 		pastGamesResult.addAll(pastCustomGames)
 		pastGamesResult.addAll(pastGames)
+		
+		log.info "listPastGamesData(): ends with pastGamesResult = ${pastGamesResult}"
+		
 		return pastGamesResult
 	}
 	
@@ -46,7 +51,10 @@ class UserHistoryService {
 	 * @return list of past bet games
 	 */
 	def listBettedGames(def userId){
+		log.info "listBettedGames(): begins with userId = ${userId}"
+		
 		if (userId == null) {
+			log.error "listBettedGames(): invalid userId!"
 			return [message:"invalid userId!(UserHistoryService::listPastGames)"]
 		}
 		List userHistoryGames = []
@@ -56,6 +64,9 @@ class UserHistoryService {
 				userHistoryGames.add(pastGame)
 			}
 		}
+		
+		log.info "listBettedGames(): ends with userHistoryGames = ${userHistoryGames}"
+		
 		return userHistoryGames
 	}
 	
@@ -66,6 +77,8 @@ class UserHistoryService {
 	 * @return list of details of bet questions
 	 */
 	def listBettedQuestions(def userId, def gameId) {
+		log.info "listBettedQuestions(): begins with userId = ${userId}, gameId = ${gameId}"
+		
 		def questionDetailsList = []
 		def userBettedQuestionsDetailsList = []
 		
@@ -80,6 +93,7 @@ class UserHistoryService {
 			}
 		}
 		
+		log.info "listBettedQuestions(): ends with userBettedQuestionsDetailsList = ${userBettedQuestionsDetailsList}"
 		return userBettedQuestionsDetailsList
 	}
 	

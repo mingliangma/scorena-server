@@ -67,6 +67,7 @@ class QuestionService {
 
 	//TODO: fetch all transactions at the beginning of the method, then process them into different category
 	def listQuestionsWithPoolInfo(eventKey, userId) {
+		log.info "listQuestionsWithPoolInfo(): begins with eventKey = ${eventKey}, userId = ${userId}"
 		
 		DecimalFormat df = new DecimalFormat("###.##")
 		List resultList = []		
@@ -178,6 +179,8 @@ class QuestionService {
 			])
 		}
 	
+		log.info "listQuestionsWithPoolInfo(): ends with resultList = ${resultList}"
+		
 		return resultList
 	}
 	
@@ -190,10 +193,14 @@ class QuestionService {
 	}
 	
 	Map getQuestion(qId, userId){
+		log.info "getQuestion(): begins with qId = ${qId}, userId = ${userId}"
+		
 		Question q = Question.findById(qId)
 		
 		if (q==null){
-			return [message: "invalid question ID"]
+			def eMessage = "invalid question ID"
+			log.error "${eMessage}"
+			return [message: eMessage]
 		}
 		
 		Map game = gameService.getGame(q.eventKey)
@@ -204,10 +211,15 @@ class QuestionService {
 		}else{
 			questionDetails = getPreEventQuestion(q, userId)
 		}
+		
+		log.info "getQuestions(): ends with questionDetails = ${questionDetails}"
+		
 		return questionDetails
 	}
 	
 	def createQuestions(){
+		log.info "createQuestions(): begins..."
+		
 		int questionsCreated = 0
 		List upcomingGames = []
 		List upcomingGamesSoccer = gameService.listUpcomingNonCustomGames()
@@ -225,11 +237,15 @@ class QuestionService {
 			}
 		}
 		println "questionsCreated: " + questionsCreated
+		log.info "createQuestions(): questionsCreated: " + questionsCreated
+		
 		return questionsCreated
 	}
 	
 	@Transactional
 	int populateQuestions(String away, String home, String eventId){
+		log.info "populateQuestions(): begins with away = ${away}, home = ${home}, eventId = ${eventId}"
+		
 		int questionCreated = 0
 		def questionContent2 = QuestionContent.findAllByQuestionType("truefalse-0")
 		for (QuestionContent qc: questionContent2){
@@ -238,8 +254,10 @@ class QuestionService {
 			if (qc.save(failOnError:true)){
 				questionCreated++
 				System.out.println("game successfully saved")
+				log.info "populateQuestions(): game successfully saved"
 			}else{
 				System.out.println("game save failed")
+				log.error "populateQuestions(): game save failed"
 				qc.errors.each{
 					println it
 				}
@@ -253,8 +271,10 @@ class QuestionService {
 			if (qc.save(failOnError:true)){
 				questionCreated++
 				System.out.println("game successfully saved")
+				log.info "populateQuestions(): game successfully saved"
 			}else{
 				System.out.println("game save failed")
+				log.error "populateQuestions(): game save failed"
 				qc.errors.each{
 					println it
 				}
@@ -269,8 +289,10 @@ class QuestionService {
 			if (qc.save(failOnError:true)){
 				questionCreated++
 				System.out.println("game successfully saved")
+				log.info "populateQuestions(): game successfully saved"
 			}else{
 				System.out.println("game save failed")
+				log.error "populateQuestions(): game save failed"
 				qc.errors.each{
 					println it
 				}
@@ -285,13 +307,17 @@ class QuestionService {
 			if (qc.save(failOnError:true)){
 				questionCreated++
 				System.out.println("game successfully saved")
+				log.info "populateQuestions(): game successfully saved"
 			}else{
 				System.out.println("game save failed")
+				log.error "populateQuestions(): game save failed"
 				qc.errors.each{
 					println it
 				}
 			}
 		}
+		
+		log.info "populateQuestions(): ends with questionCreated = ${questionCreated}"
 		
 		return questionCreated
 	}
@@ -333,6 +359,7 @@ class QuestionService {
 	 */
 	
 	private def getPostEventQuestion(Question q, String userId, Map game){
+		log.info "getPostEventQuestion(): begins with q = ${q}, userId = ${userId}, game = ${game}"
 
 		List<BetTransaction> betTransList = betTransactionService.listAllBetsByQId(q.id)
 		int winnerPick = processEngineImplService.calculateWinningPick(game, q)
@@ -376,6 +403,7 @@ class QuestionService {
 			case -1:
 				println "QuestionService::getPastEventQuestion()"
 				println "ERROR: winner pick error"
+				log.error "getPostEventQuestion(): winner pick error"
 				break
 		}
 		
@@ -427,6 +455,9 @@ class QuestionService {
 			
 			comments: commentService.getExistingComments(q.id)
 		]
+		
+		log.info "getPostEventQuestion(): ends with result = ${result}"
+		
 		return result
 	}
 	
@@ -462,6 +493,8 @@ class QuestionService {
 	 */
 	
 	private def getPreEventQuestion(Question q, def userId){
+		log.info "getPreEventQuestion(): begins with q = ${q}, userId = ${userId}"
+		
 		DecimalFormat df = new DecimalFormat("###.##")
 		Map betters = [:]
 		Map userInfo = [:]
@@ -517,10 +550,15 @@ class QuestionService {
 			
 			comments: commentService.getExistingComments(q.id)
 		]
+		
+		log.info "getPreEventQuestion(): ends with result = ${result}"
+		
 		return result
 	}
 
 	private List constructFeatureGameData(List featureQuestions){
+		log.info "constructFeatureGameData(): begins with featureQuestions = ${featureQuestions}"
+		
 		List featureQuestionResponse = []
 		
 		for (Map questionMap: featureQuestions){
@@ -530,6 +568,9 @@ class QuestionService {
 			game.question = questionService.getQuestionWithPoolInfo(gameId, questionId)
 			featureQuestionResponse.add(game)
 		}
+		
+		log.info "constructFeatureGameData(): ends with featureQuestionResponse = ${featureQuestionResponse}"
+		
 		return featureQuestionResponse
 	}
 	
@@ -538,6 +579,8 @@ class QuestionService {
 	 * returns list of [gameId:"",questionId:""] that are prevent
 	 */
 	private def listUpcomingQuesitonsByMostPeopleBetOn(){
+		log.info "listUpcomingQuesitonsByMostPeopleBetOn(): begins..."
+		
 		int eventKeyIndex = 0
 		int quesitonIdIndex = 1
 		int BetCount = 2
@@ -562,6 +605,9 @@ class QuestionService {
 			}					
 			
 		}
+		
+		log.info "listUpcomingQuesitonsByMostPeopleBetOn(): ends with preeventQuestions = ${preeventQuestions}"
+		
 		return preeventQuestions
 	}
 	
@@ -607,6 +653,8 @@ class QuestionService {
 	
 	
 	private Map getBetters(List<BetTransaction> betTransactions, def pick1PayoutMultiple, def pick2PayoutMultiple, Map userInfo, String userId, List<BetTransaction> friendBetList){
+		log.info "getBetters(): begins with betTransactions = ${betTransactions}, pick1PayoutMultiple = ${pick1PayoutMultiple}, pick2PayoutMultiple = ${pick2PayoutMultiple}, userInfo = ${userInfo}, friendBetList = ${friendBetList}"
+		
 		Map pick1BettersMap = [:]
 		Map pick2BettersMap = [:]
 		def currentUserAdded = false
@@ -716,10 +764,14 @@ class QuestionService {
 			pick2Betters: awayBettersArr
 		]
 		
+		log.info "getBetters(): ends with betters = ${betters}"
+		
 		return betters
 	}
 	
 	private def getBettersOrderedByIsFriend(def bettersArr) {
+		log.info "getBettersOrderedByIsFriend(): begins with bettersArr = ${bettersArr}"
+		
 		List isFriendUserProfileGroup = []
 		List noneFriendUserProfileGroup = []
 		for(Map userProfileMap: bettersArr) {
@@ -733,11 +785,14 @@ class QuestionService {
 		bettersList.addAll(noneFriendUserProfileGroup)
 		
 		println "bettersList: "+bettersList
+		log.info "getBettersOrderedByIsFriend(): ends with bettersList = ${bettersList}"
 		
 		return bettersList
 	}
 	
 	private List getBettersProfile(Map bettersMap){
+		log.info "getBettersProfile(): begins with bettersMap = ${bettersMap}"
+		
 		def rest = new RestBuilder()
 		List userIdList = []
 		Map test = [:]
@@ -751,6 +806,7 @@ class QuestionService {
 
 		if (userProfileResults.error){
 			println "Error: QuestionService::getBettersProfile(): in retrieving user "+userProfileResults.error
+			log.error "getBettersProfile(): in retrieving user " + userProfileResults.error
 			return []
 		}
 
@@ -770,6 +826,8 @@ class QuestionService {
 				
 			bettersProfileList.add(betterData)
 		}
+		
+		log.info "getBettersProfile(): ends with bettersProfileList = ${bettersProfileList}"
 		
 		return bettersProfileList
 	}

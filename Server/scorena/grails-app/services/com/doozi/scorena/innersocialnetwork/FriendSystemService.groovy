@@ -12,6 +12,8 @@ class FriendSystemService {
 	def parseService
 
     List friendRequest(String userId1, String userId2) {
+		log.info "friendRequest(): begins with userId1 = ${userId1}, userId2 = ${userId2}"
+		
 		Account user1 = Account.findByUserId(userId1)
 		Account user2 = Account.findByUserId(userId2)
 		int status = 0
@@ -39,27 +41,35 @@ class FriendSystemService {
 					friend.errors.each {
 						println it
 						tips.add(it)
+						log.error "friendRequest(): ${it}"
 					}
 				}
 				else {
 					println("request records successfully!")
+					log.info "friendRequest(): request records successfully!"
 					tips = []
 				}
 			}
 			else {
 				println("duplicated friend request!")
+				log.error "friendRequest(): duplicated friend request!"
 				tips = ["duplicated friend request!"]
 			}
 		}
 		else {
 			println("invalid userId!")
+			log.error "friendRequest(): invalid userId!"
 			tips = ["invalid userId!"]
 		}
+		
+		log.info "friendRequest(): ends with tips = ${tips}"
 		
 		return tips
 	}
 	
 	List confirmFriendRequest(String requestId, String userId1, String userId2) {
+		log.info "confirmFriendRequest(): begins with requestId = ${requestId}, userId1 = ${requestId}, userId2 = ${userId2}"
+		
 		FriendSystem friend = FriendSystem.findById(requestId)
 		Account user1 = Account.findByUserId(userId1)
 		Account user2 = Account.findByUserId(userId2)
@@ -83,24 +93,32 @@ class FriendSystemService {
 				}
 				else {
 					println("confirmation records successfully!")
+					log.info "confirmFriendRequest(): confirmation records successfully!"
 					tips = []
 				}
 			}
 			else {
 				println("wrong requestId!")
+				log.error "confirmFriendRequest(): wrong requestId!"
 				tips = ["wrong requestId!"]
 			}
 		}
 		else {
 			System.out.print("invalid userId or requestId!")
+			log.error "confirmFriendRequest(): invalid userId or requestId!"
 			tips = ["invalid userId or requestId!"]
 		}
+		
+		log.info "confirmFriendRequest(): ends with tips = ${tips}"
 		
 		return tips
 	}
 	
 	List listFriendUserIds(userId){
+		log.info "listFriendUserIds(): begins with userId = ${userId}"
+		
 		if (userId==null || userId==""){
+			log.error "listFriendUserIds(): null userId"
 			return []
 		}
 		
@@ -115,7 +133,6 @@ class FriendSystemService {
 		if(user != null) {
 			//find all friend of user by SQL Query
 			def allFriendResult = FriendSystem.executeQuery(friendListQuery,[user,user,user,user])
-			
 			
 			int allFriendSize = allFriendResult.size()
 			
@@ -133,11 +150,17 @@ class FriendSystemService {
 				}
 			}
 		}
+		
+		log.info "listFriendUserIds(): ends with allFriendUserIdList = ${allFriendUserIdList}"
+		
 		return allFriendUserIdList
 	}
 	
 	List listFriends(userId) {
+		log.info "listFriends(): begins with userId = ${userId}"
+		
 		if (userId==null || userId==""){
+			log.error "listFriends(): null userId"
 			return []
 		}
 		List<Map> allFriendProfileList = []
@@ -148,16 +171,21 @@ class FriendSystemService {
 			allFriendProfileList = getUserProfile(allFriendList)
 		}
 		
+		log.info "listFriends(): ends with allFriendProfileList = ${allFriendProfileList}"
+		
 		return allFriendProfileList			
 	}
 	
 	List<Map> getUserProfile (List userIdList) {
+		log.info "getUserProfile(): begins with userIdList = ${userIdList}"
+		
 		def userProfileList = []
 		def userProfileResultList = []
 		
 		Map userProfileResults = parseService.retrieveUserList(userIdList)
 		if (userProfileResults.error){
 			println "Error: FriendSystemService::getUserProfile(): in retrieving user "+userProfileResults.error
+			log.error "getUserProfile(): in retrieving user ${userProfileResults.error}"
 			return []
 		}
 
@@ -167,6 +195,7 @@ class FriendSystemService {
 			String userId = userProfile.objectId
 			Account user = Account.findByUserId(userId)
 			if (user == null) {
+				log.error "getUserProfile(): invalid userId!"
 				return ["Error: invalid userId!(FriendSystemService::getUserProfile)"]
 			}
 			int currentBalance = user.currentBalance
@@ -182,6 +211,8 @@ class FriendSystemService {
 			userProfileList.add(userDataMap)
 		}
 		
+		log.info "getUserProfile(): ends with userProfileList = ${userProfileList}"
+		
 		return userProfileList
 	}
 	
@@ -192,6 +223,8 @@ class FriendSystemService {
 	 * @return []:successfully
 	 */
 	def addFacebookFriend(String userId1, String userId2) {
+		log.info "addFacebookFriend(): begins with userId1 = ${userId1}, userId2 = ${userId2}"
+		
 		Account user1 = Account.findByUserId(userId1)
 		Account user2 = Account.findByUserId(userId2)
 		int status = 1
@@ -218,22 +251,28 @@ class FriendSystemService {
 					friend.errors.each {
 						println it
 						tips.add(it)
+						log.error "addFacebookFriend(): ${it}"
 					}
 				}
 				else {
 					println(user1.username + " and " + user2.username + " successfully become friend")
+					log.info "addFacebookFriend(): ${user1.username} and ${user2.username} successfully become friend"
 					tips = []
 				}
 			}
 			else {
 				println("friend system set up before!")
+				log.info "addFacebookFriend(): friend system set up before!"
 				tips = ["friend system set up before!"]
 			}
 		}
 		else {
 			println("invalid userId!")
+			log.error "addFacebookFriend(): invalid userId!"
 			tips = ["invalid userId!"]
 		}
+		
+		log.info "addFacebookFriend(): ends with tips = ${tips}"
 		
 		return tips
 	}
@@ -245,6 +284,8 @@ class FriendSystemService {
 	 * @return boolean
 	 */
 	Boolean isFriend(String userId1, String userId2) {
+		log.info "isFriend(): begins with userId1 = ${userId1}, userId2 = ${userId2}"
+		
 		Account user1 = Account.findByUserId(userId1)
 		Account user2 = Account.findByUserId(userId2)
 		Boolean isFriend = false
@@ -263,7 +304,10 @@ class FriendSystemService {
 		else {
 			def error = ["invalid userID!(isFriend)"]
 			println "error:" + error
+			log.error "isFriend(): ${error}"
 		}
+		
+		log.info "isFriend(): ends with isFriend = ${isFriend}"
 		
 		return isFriend
 	}

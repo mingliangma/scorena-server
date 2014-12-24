@@ -30,13 +30,20 @@ class GameService {
 	public static final String MIDEVENT = "mid-event"
 	
 	List listUpcomingNonCustomGames(){
+		log.info "listUpcomingNonCustomGames(): begins..."
+		
 		List upcomingGames = sportsDataService.getAllUpcomingGames()
 		List upcomingGamesResult=[]
 		upcomingGamesResult.addAll(upcomingGames)
+		
+		log.info "listUpcomingNonCustomGames(): ends with upcomingGamesResult = ${upcomingGamesResult}"
+		
 		return upcomingGamesResult
 	}
 	
 	List listUpcomingGamesData(String sportType, String leagueType){
+		log.info "listUpcomingGamesData(): begins with sportType = ${sportType}, leagueType = ${leagueType}"
+		
 		List upcomingGames = []
 		List upcomingCustomGames = []
 
@@ -60,10 +67,14 @@ class GameService {
 		List upcomingGamesResult=[]
 		upcomingGamesResult.addAll(upcomingCustomGames)
 		upcomingGamesResult.addAll(upcomingGames)
+		
+		log.info "listUpcomingGamesData(): ends with upcomingGamesResult = ${upcomingGamesResult}"
+		
 		return upcomingGamesResult
 	}
 	
 	List listUpcomingGames(def userId, String sportType, String leagueType){
+		log.info "listUpcomingGames(): begins with userId = ${userId}, sportType = ${sportType}, leagueType = ${leagueType}"
 				
 		List upcomingGamesResult=listUpcomingGamesData(sportType, leagueType)		
 		List upcomingGameIds = getGameIdsFromGameData(upcomingGamesResult)
@@ -83,10 +94,14 @@ class GameService {
 			}
 			
 		}
+		
+		log.info "listUpcomingGames(): ends with upcomingGamesResult = ${upcomingGamesResult}"
+		
 		return upcomingGamesResult
 	}
 	
 	def listPastGamesData(String sportType, String leagueType){
+		log.info "listPastGamesData(): begins with sportType = ${sportType}, leagueType = ${leagueType}"
 		
 		List pastGames = []
 		List pastCustomGames = []
@@ -112,10 +127,14 @@ class GameService {
 		List pastGamesResult=[]	
 		pastGamesResult.addAll(pastCustomGames)
 		pastGamesResult.addAll(pastGames)
+		
+		log.info "listPastGamesData(): ends with pastGamesResult = ${pastGamesResult}"
+		
 		return pastGamesResult
 	}
 	
 	def listPastGames(def userId, String sportType, String leagueType){
+		log.info "listPastGames(): begins with userId = ${userId}, sportType = ${sportType}, leagueType = ${leagueType}"
 
 		List pastGamesResult=listPastGamesData(sportType, leagueType)
 		List pastGameIds = getGameIdsFromGameData(pastGamesResult)
@@ -129,6 +148,7 @@ class GameService {
 		for (def pastGame: pastGamesResult){
 			if (pastGame.gameStatus != "post-event"){
 				println "gameService::listPastGames():wrong event: "+ pastGame
+				log.error "wrong event:" + pastGame
 			}
 			
 			List<BetTransaction> allBetsInGame = getAllBetsByGameId(pastGame.gameId, betsInPastGames)
@@ -158,6 +178,9 @@ class GameService {
 			}
 			pastGame.isGameProcessed = isGameProcessed
 		}
+		
+		log.info "listPastGames(): ends with pastGamesResult = ${pastGamesResult}"
+		
 		return pastGamesResult
 	}
 	

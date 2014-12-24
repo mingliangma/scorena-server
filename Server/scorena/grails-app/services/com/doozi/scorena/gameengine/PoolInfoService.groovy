@@ -24,6 +24,8 @@ class PoolInfoService {
 	}
 	
 	public PoolInfo getQuestionPoolInfo(List<Map> userFriendsList, List<BetTransaction> betTransList){
+		log.info "getQuestionPoolInfo(): begins with userFriendsList = ${userFriendsList}, betTransList = ${betTransList}"
+		
 		PoolInfo questionPoolInfo = new PoolInfo()
 
 		Map userFriendsMap = [:]
@@ -88,6 +90,7 @@ class PoolInfoService {
 		}
 		
 //		println "last updated at: "+betTransactionService.getLastUpdatedBetTransactionDateByQId(qId)
+		log.info "getQuestionPoolInfo(): ends with questionPoolInfo = ${questionPoolInfo}"
 		
 		return questionPoolInfo
 	}
