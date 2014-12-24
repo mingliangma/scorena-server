@@ -292,9 +292,9 @@ class BootStrap {
 				
 				
 				for (Question q: questions){
-//					if (random.nextInt(2) == 1){
-//						continue
-//					}
+					if (random.nextInt(2) == 1){
+						continue
+					}
 					def questionId = q.id
 					Date _time = new Date() - (random.nextInt(6) + 18)
 					for (Account account: accounts){
@@ -489,7 +489,7 @@ class BootStrap {
 		String _gender = "male"
 		String _region = "Japan"
 		Random random = new Random()
-		for(int i = 0; i<_displayNames.size()/3; i++){
+		for(int i = 0; i<_displayNames.size()/2; i++){
 			String _email = _displayNames[i]+random.nextInt(100000)+"@scorena.ca"
 			String pictureURL = ""
 			if (i<pictureURLs.size()){
