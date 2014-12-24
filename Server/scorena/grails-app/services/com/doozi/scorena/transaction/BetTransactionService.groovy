@@ -191,7 +191,7 @@ class BetTransactionService {
 			 }
 		 }
 		 
-		 og.info "listUnpaidBetsByUserId(): ends with betsThatNotPayoutYet = ${betsThatNotPayoutYet}"
+		 log.info "listUnpaidBetsByUserId(): ends with betsThatNotPayoutYet = ${betsThatNotPayoutYet}"
 		 return betsThatNotPayoutYet
 	}
 	

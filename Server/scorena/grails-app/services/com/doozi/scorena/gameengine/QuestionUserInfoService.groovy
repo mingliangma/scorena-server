@@ -113,34 +113,30 @@ class QuestionUserInfoService {
 		return userPickStatus
 	}
 	
-	Map getPostEventQuestionUserInfo(String userId, long questionId, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple,
-		pick1WinningPayoutPercentage,pick2WinningPayoutPercentage){
+	Map getPostEventQuestionUserInfo(String userId, long questionId, pick1PayoutMultiple, pick2PayoutMultiple,
+		pick1ProfitMultiple,pick2ProfitMultiple){
 		
-		def userWinningAmount = -1
-		def userPayoutPercent = -1
-		def userBetAmount = 0
-		def userPick =-1
-		def userPayout=-1
+		int userWager = 0
+		int userPick =-1
+		int userPayout=-1
 		int userProfit=-1
 		
 		BetTransaction userBet = betTransactionService.getBetByQuestionIdAndUserId(questionId, userId)
 		
 		if (userBet!= null){
 			if (userBet.pick==1){
-				userWinningAmount = Math.floor(userBet.transactionAmount * pick1WinningPayoutMultiple)
+				userPayout = Math.floor(userBet.transactionAmount * pick1PayoutMultiple)
+				userProfit = Math.floor(userBet.transactionAmount * pick1ProfitMultiple)
 				
-				userPayoutPercent = pick1WinningPayoutPercentage
 			}else{
-				userWinningAmount = Math.floor(userBet.transactionAmount * pick2WinningPayoutMultiple)
-				userPayoutPercent = pick2WinningPayoutPercentage
+				userPayout = Math.floor(userBet.transactionAmount * pick2PayoutMultiple)
+				userProfit = Math.floor(userBet.transactionAmount * pick2ProfitMultiple)
 			}
 			
-			userBetAmount=userBet.transactionAmount
+			userWager=userBet.transactionAmount
 			userPick=userBet.pick
-			userPayout = userWinningAmount
-			userProfit = userWinningAmount - userBetAmount
 		}
-		return [userPayout: userPayout, userProfit: userProfit, userWinningAmount:userWinningAmount, userPayoutPercent:userPayoutPercent, userWager:userBetAmount, userPick:userPick]
+		return [userPayout: userPayout, userProfit: userProfit, userWager:userWager, userPick:userPick]
 	
 	}
 		

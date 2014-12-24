@@ -362,64 +362,89 @@ class QuestionService {
 		log.info "getPostEventQuestion(): begins with q = ${q}, userId = ${userId}, game = ${game}"
 
 		List<BetTransaction> betTransList = betTransactionService.listAllBetsByQId(q.id)
-		int winnerPick = processEngineImplService.calculateWinningPick(game, q)
+		int winnerPick = -1
+		Boolean isGameProcessed = false
+		if (game.gameStatus.trim() == "post-event"){
+			GameProcessRecord processRecord = GameProcessRecord.findByEventKey(game.gameId)
+			if (processRecord && processRecord.transProcessStatus == TransactionProcessStatusEnum.PROCESSED
+				&& processRecord.scoreProcessStatus == ScoreProcessStatusEnum.PROCESSED){
+				winnerPick = processEngineImplService.calculateWinningPick(game, q)
+				isGameProcessed = true
+			}
+		}
 		
-		def pick1WinningPayoutMultiple=0
-		def pick2WinningPayoutMultiple=0
-		def pick1WinningPayoutPercentage=0 
-		def pick2WinningPayoutPercentage=0 
+		def pick1PayoutMultiple=0
+		def pick2PayoutMultiple=0
+		def pick1ProfitMultiple=0
+		def pick2ProfitMultiple=0
+//		int pick1PayoutPercentage=0 
+//		int pick2PayoutPercentage=0 
 		 
 		DecimalFormat df = new DecimalFormat("###.##")
 
 		PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(betTransList)
 		
-		def pick1PayoutMultiple = questionPoolUtilService.calculatePick1PayoutMultiple(questionPoolInfo)
-		def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(questionPoolInfo)				
-		def pick1PayoutPercentage = Math.round(100 * (pick1PayoutMultiple-1))
-		def pick2PayoutPercentage =  Math.round(100 * (pick2PayoutMultiple-1))
+		def pick1PayoutMultipleWhenWin = questionPoolUtilService.calculatePick1PayoutMultiple(questionPoolInfo)
+		def pick2PayoutMultipleWhenWin = questionPoolUtilService.calculatePick2PayoutMultiple(questionPoolInfo)				
+//		def pick1PayoutPercentageWhenWin = Math.round(100 * (pick1PayoutMultiple-1))
+//		def pick2PayoutPercentageWhenWin =  Math.round(100 * (pick2PayoutMultiple-1))
 		
+		//when isGameProcessed=false and winnerPick=-1, the payout and profit multiple are excepted multiple on winning
 		switch (winnerPick){
 			case 1:
-				pick1WinningPayoutMultiple =  pick1PayoutMultiple
-				pick2WinningPayoutMultiple = -1
-				pick1WinningPayoutPercentage = pick1PayoutPercentage							
-				pick2WinningPayoutPercentage = 0
+				pick1PayoutMultiple =  pick1PayoutMultipleWhenWin
+				pick2PayoutMultiple = 0
+				pick1ProfitMultiple = pick1PayoutMultipleWhenWin - 1
+				pick2ProfitMultiple = -1
+//				pick1PayoutPercentage = pick1PayoutPercentageWhenWin							
+//				pick2PayoutPercentage = 0
 				
 				break
 			case 2: 
-				pick1WinningPayoutMultiple =  -1
-				pick2WinningPayoutMultiple = pick2PayoutMultiple
-				pick1WinningPayoutPercentage = 0
-				pick2WinningPayoutPercentage = pick2PayoutPercentage
+				pick1PayoutMultiple =  0
+				pick2PayoutMultiple = pick2PayoutMultipleWhenWin
+				pick1ProfitMultiple = -1
+				pick2ProfitMultiple = pick2PayoutMultipleWhenWin - 1
+//				pick1PayoutPercentage = 0
+//				pick2PayoutPercentage = pick2PayoutPercentageWhenWin
 				
 				break
 			case 0:
-				pick1WinningPayoutMultiple =  1
-				pick2WinningPayoutMultiple = 1
-				pick1WinningPayoutPercentage = 0
-				pick2WinningPayoutPercentage = 0
+				pick1PayoutMultiple =  1
+				pick2PayoutMultiple = 1
+				pick1ProfitMultiple = 0
+				pick2ProfitMultiple = 0
+//				pick1PayoutPercentage = 0
+//				pick2PayoutPercentage = 0
 				
 				break
 			case -1:
-				println "QuestionService::getPastEventQuestion()"
-				println "ERROR: winner pick error"
-				log.error "getPostEventQuestion(): winner pick error"
+				pick1PayoutMultiple =  pick1PayoutMultipleWhenWin
+				pick2PayoutMultiple = pick2PayoutMultipleWhenWin
+				pick1ProfitMultiple = pick1PayoutMultipleWhenWin - 1
+				pick2ProfitMultiple = pick2PayoutMultipleWhenWin - 1
 				break
 		}
+		
+		
+		println "pick1PayoutMultiple="+pick1PayoutMultiple
+		println "pick2PayoutMultiple="+pick2PayoutMultiple
+		println "pick1ProfitMultiple="+pick1ProfitMultiple
+		println "pick2ProfitMultiple="+pick2ProfitMultiple
 		
 		Map userInfo = [:]
 		Map betters = [:]
 		
 		if (userService.accountExists(userId)){
-			userInfo = questionUserInfoService.getPostEventQuestionUserInfo(userId, q.id, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple,
-		pick1WinningPayoutPercentage,pick2WinningPayoutPercentage)
+			userInfo = questionUserInfoService.getPostEventQuestionUserInfo(userId, q.id, pick1PayoutMultiple, pick2PayoutMultiple,
+		pick1ProfitMultiple,pick2ProfitMultiple)
 			
 			
 			List<String> userFriendsList = friendSystemService.listFriendUserIds(userId)
 			List<BetTransaction> friendBets = betTransactionService.listAllFriendsBetsByQId(q.id, userFriendsList)			
-			betters = getBetters(betTransList, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple, userInfo, userId, friendBets)
+			betters = getBetters(betTransList, pick1PayoutMultiple, pick2PayoutMultiple, userInfo, userId, friendBets)
 		}else{
-			betters = getBetters(betTransList, pick1WinningPayoutMultiple, pick2WinningPayoutMultiple, userInfo)
+			betters = getBetters(betTransList, pick1PayoutMultiple, pick2PayoutMultiple, userInfo)
 		}
 		
 //		def currentOddsPick1=1
@@ -448,11 +473,12 @@ class QuestionService {
 				pick2Amount:questionPoolInfo.getPick2Amount(),
 				pick2NumPeople: questionPoolInfo.getPick2NumPeople(),
 //				pick2PayoutPercent: pick2PayoutPercentage,
-				pick1odds:  df.format(pick1PayoutMultiple).toDouble(),
-				pick2odds:  df.format(pick2PayoutMultiple).toDouble(),
+				pick1odds:  df.format(pick1PayoutMultipleWhenWin).toDouble(),
+				pick2odds:  df.format(pick2PayoutMultipleWhenWin).toDouble(),
 			],
 			betters: betters,
-			
+			winnerPick: winnerPick,
+			isGameProcessed: isGameProcessed,
 			comments: commentService.getExistingComments(q.id)
 		]
 		
@@ -687,7 +713,7 @@ class QuestionService {
 							name:betterUsername,
 							userId:betterUserId,
 							wager:friendTransaction.transactionAmount,
-							expectedWinning: Math.round(pick1PayoutMultiple * friendTransaction.transactionAmount),
+							expectedPayout: Math.round(pick1PayoutMultiple * friendTransaction.transactionAmount),
 							isFriend: true])
 					}
 				}
@@ -698,7 +724,7 @@ class QuestionService {
 							name:betterUsername,
 							userId:betterUserId,
 							wager:friendTransaction.transactionAmount,
-							expectedWinning: Math.round(pick2PayoutMultiple * friendTransaction.transactionAmount),
+							expectedPayout: Math.round(pick2PayoutMultiple * friendTransaction.transactionAmount),
 							isFriend: true])
 					}
 				}
@@ -732,7 +758,7 @@ class QuestionService {
 								name:betterUsername,
 								userId:betterUserId,
 								wager:betTrans.transactionAmount,
-								expectedWinning: Math.round(pick1PayoutMultiple * betTrans.transactionAmount),
+								expectedPayout: Math.round(pick1PayoutMultiple * betTrans.transactionAmount),
 								isFriend: isFriend])
 						}
 					}
@@ -743,7 +769,7 @@ class QuestionService {
 								name:betterUsername,
 								userId:betterUserId,
 								wager:betTrans.transactionAmount,
-								expectedWinning: Math.round(pick2PayoutMultiple * betTrans.transactionAmount),
+								expectedPayout: Math.round(pick2PayoutMultiple * betTrans.transactionAmount),
 								isFriend: isFriend])				
 						}
 					}

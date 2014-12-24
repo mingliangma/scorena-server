@@ -166,6 +166,9 @@ log4j = {
 			thomas {
 				error 'stdout', 'fileLog'
 			}
+			awsdev {
+				error 'stdout', 'fileLog'
+			}
 		}
 	}
 	
@@ -177,6 +180,10 @@ log4j = {
                 rollingFile name: "fileLog", maxFileSize: 1024,
                             file: "/tmp/logs/fileLog.log"
             }
+			awsdev {
+				rollingFile name: "fileLog", maxFileSize: 1024,
+							file: "/tmp/logs/fileLog.log"
+			}
         }
     }
 	
@@ -188,6 +195,9 @@ log4j = {
 
 	environments {
 		thomas {
+			info stdout: infoLogDomain, fileLog: infoLogDomain
+		}
+		awsdev {
 			info stdout: infoLogDomain, fileLog: infoLogDomain
 		}
 	}
