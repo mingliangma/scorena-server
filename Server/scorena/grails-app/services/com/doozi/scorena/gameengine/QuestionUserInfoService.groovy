@@ -112,12 +112,15 @@ class QuestionUserInfoService {
 		def userPayoutPercent = -1
 		def userBetAmount = 0
 		def userPick =-1
+		def userPayout=-1
+		int userProfit=-1
 		
 		BetTransaction userBet = betTransactionService.getBetByQuestionIdAndUserId(questionId, userId)
 		
 		if (userBet!= null){
 			if (userBet.pick==1){
 				userWinningAmount = Math.floor(userBet.transactionAmount * pick1WinningPayoutMultiple)
+				
 				userPayoutPercent = pick1WinningPayoutPercentage
 			}else{
 				userWinningAmount = Math.floor(userBet.transactionAmount * pick2WinningPayoutMultiple)
@@ -126,8 +129,10 @@ class QuestionUserInfoService {
 			
 			userBetAmount=userBet.transactionAmount
 			userPick=userBet.pick
+			userPayout = userWinningAmount
+			userProfit = userWinningAmount - userBetAmount
 		}
-		return [userWinningAmount:userWinningAmount, userPayoutPercent:userPayoutPercent, userWager:userBetAmount, userPick:userPick]
+		return [userPayout: userPayout, userProfit: userProfit, userWinningAmount:userWinningAmount, userPayoutPercent:userPayoutPercent, userWager:userBetAmount, userPick:userPick]
 	
 	}
 		
