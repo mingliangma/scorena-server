@@ -42,12 +42,12 @@ class GameUserInfoService {
 			userinfo.rank= -1
 			userinfo.badge= ""
 			userinfo.badgeScore= -1
-			userinfo.gameWinningAmount = -1
+			userinfo.gameProfit = -1
 			userinfo.totalScore = -1
 			
 		} else if (userinfo.placedBet && scoreTransactions.size() > 0){
-//			userinfo.gameWinningAmount = getProfitInGame(game, userId, userBetsInTheGame)	
-			userinfo.gameWinningAmount = PayoutTransaction.executeQuery("select sum(p.profit) from PayoutTransaction as p where p.eventKey=? and p.account.userId=?)",[game.gameId, userId])[0]
+//			userinfo.gameProfit = getProfitInGame(game, userId, userBetsInTheGame)	
+			userinfo.gameProfit = PayoutTransaction.executeQuery("select sum(p.profit) from PayoutTransaction as p where p.eventKey=? and p.account.userId=?)",[game.gameId, userId])[0]
 			userinfo.badgeScore = -1
 			userinfo.rank = -1
 			userinfo.badge = ""
@@ -73,7 +73,7 @@ class GameUserInfoService {
 			userinfo.rank= -1
 			userinfo.badge= ""
 			userinfo.badgeScore= -1
-			userinfo.gameWinningAmount = -1
+			userinfo.gameProfit = -1
 			userinfo.totalScore = -1
 		}
 		

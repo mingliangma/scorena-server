@@ -23,7 +23,7 @@ class QuestionUserInfoService {
 		int userPick
 		int userPickStatus
 		int userWager
-		int questionWinningAmount
+		int questionProfit
 		boolean isGameProcessed
 				
 		if (!userBet){ // user did not make a bet
@@ -31,25 +31,25 @@ class QuestionUserInfoService {
 			userPick = -1
 			userPickStatus = -1
 			userWager = -1
-			questionWinningAmount = -1
+			questionProfit = -1
 		}else if (userBet && !payout){ //user made a bet but game has not processed yet 
 			placedBet = true
 			userPick=userBet.pick
 			userPickStatus = -1
 			userWager = userBet.transactionAmount
-			questionWinningAmount = -1
+			questionProfit = -1
 		}else { // user made a bet and the game is processed 
 			placedBet = true
 			userPick=userBet.pick
 			userPickStatus = payout.playResult
 			userWager = userBet.transactionAmount
-			questionWinningAmount = payout.profit
+			questionProfit = payout.profit
 		}
 		
-		def questionsUserInfoResult = [placedBet:placedBet, userPickStatus:userPickStatus, userPick:userPick, questionWinningAmount:questionWinningAmount, userWager:userWager]
+		def questionsUserInfoResult = [placedBet:placedBet, userPickStatus:userPickStatus, userPick:userPick, questionProfit:questionProfit, userWager:userWager]
 		log.info "getQuestionsUserInfo(): ends with questionsUserInfoResult= ${questionsUserInfoResult}"
 
-		return [placedBet:placedBet, userPickStatus:userPickStatus, userPick:userPick, questionWinningAmount:questionWinningAmount, userWager:userWager]
+		return [placedBet:placedBet, userPickStatus:userPickStatus, userPick:userPick, questionProfit:questionProfit, userWager:userWager]
 	}
 	
 	int getProfitInQuestion(int winnerPick, BetTransaction bet){	
@@ -118,25 +118,25 @@ class QuestionUserInfoService {
 		
 		int userWager = 0
 		int userPick =-1
-		int userPayout=-1
-		int userProfit=-1
+		int questionPayout=-1
+		int questionProfit=-1
 		
 		BetTransaction userBet = betTransactionService.getBetByQuestionIdAndUserId(questionId, userId)
 		
 		if (userBet!= null){
 			if (userBet.pick==1){
-				userPayout = Math.floor(userBet.transactionAmount * pick1PayoutMultiple)
-				userProfit = Math.floor(userBet.transactionAmount * pick1ProfitMultiple)
+				questionPayout = Math.floor(userBet.transactionAmount * pick1PayoutMultiple)
+				questionProfit = Math.floor(userBet.transactionAmount * pick1ProfitMultiple)
 				
 			}else{
-				userPayout = Math.floor(userBet.transactionAmount * pick2PayoutMultiple)
-				userProfit = Math.floor(userBet.transactionAmount * pick2ProfitMultiple)
+				questionPayout = Math.floor(userBet.transactionAmount * pick2PayoutMultiple)
+				questionProfit = Math.floor(userBet.transactionAmount * pick2ProfitMultiple)
 			}
 			
 			userWager=userBet.transactionAmount
-			userPick=userBet.pick
+			userPick=userBet.pick 
 		}
-		return [userPayout: userPayout, userProfit: userProfit, userWager:userWager, userPick:userPick]
+		return [questionPayout: questionPayout, questionProfit: questionProfit, userWager:userWager, userPick:userPick]
 	
 	}
 		
@@ -152,7 +152,7 @@ class QuestionUserInfoService {
 		}
 		
 		def preEventQuestionUserInfoResult = [userWager:userBetAmount, userPick:userPick]
-		log.info "getPreEventQuestionUserInfo(): ends with preEventQuestionUserInfoResul = ${preEventQuestionUserInfoResul}"
+		log.info "getPreEventQuestionUserInfo(): ends with preEventQuestionUserInfoResul = ${preEventQuestionUserInfoResult}"
 		
 		return [userWager:userBetAmount, userPick:userPick]
 		

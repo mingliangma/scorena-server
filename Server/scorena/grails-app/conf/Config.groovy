@@ -97,7 +97,7 @@ environments {
     }
 	
 	awsdev {
-		grails.logging.jul.usebridge = true
+		grails.logging.jul.usebridge = false
 //		parse.parseApplicationId=System.getProperty("PARAM1")
 //		parse.parseRestApiKey =System.getProperty("PARAM2")
 		parse.parseApplicationId='b2cfHtl3JqMwg7rKfkoGJ7sh6LluiZc8RdjWCeQY'
@@ -166,9 +166,9 @@ log4j = {
 			thomas {
 				error 'stdout', 'fileLog'
 			}
-			awsdev {
-				error 'stdout', 'fileLog'
-			}
+	//			awsdev {
+	//				error 'stdout', 'fileLog'
+	//			}
 		}
 	}
 	
@@ -180,10 +180,10 @@ log4j = {
                 rollingFile name: "fileLog", maxFileSize: 1024,
                             file: "/tmp/logs/fileLog.log"
             }
-			awsdev {
-				rollingFile name: "fileLog", maxFileSize: 1024,
-							file: "/tmp/logs/fileLog.log"
-			}
+//			awsdev {
+//				rollingFile name: "fileLog", maxFileSize: 1024,
+//							file: "/tmp/logs/fileLog.log"
+//			}
         }
     }
 	
@@ -197,8 +197,8 @@ log4j = {
 		thomas {
 			info stdout: infoLogDomain, fileLog: infoLogDomain
 		}
-		awsdev {
-			info stdout: infoLogDomain, fileLog: infoLogDomain
+		development {
+			info stdout: infoLogDomain
 		}
 	}
 		   	

@@ -150,23 +150,19 @@ class RankingService {
 		return gameRanking
 	}
 	public Map getAccountInfoMap(String userId, String username, long netgain, int rank, String badge){
-		String netGain = ""
-		if (netgain>0)
-			netGain="+"+netgain.toString()
-		else
-			netGain=netgain.toString()
-			
-		return [userId: userId, username: username, gain: netGain, rank: rank, badge: badge]
+		Map accountInfoMap = getAccountInfoMap(userId, username, netgain, rank)
+		accountInfoMap.badge = badge
+		return accountInfoMap
 	}
 	
 	public Map getAccountInfoMap(String userId, String username, long netgain, int rank){
-		String netGain = ""
+		String gameProfit = ""
 		if (netgain>0)
-			netGain="+"+netgain.toString()
+			gameProfit="+"+netgain.toString()
 		else
-			netGain=netgain.toString()
+			gameProfit=netgain.toString()
 			
-		return [userId: userId, username: username, gain: netGain, rank: rank]
+		return [userId: userId, username: username, gameProfit: gameProfit, rank: rank]
 	}
 	
 	public Map getUserProfileUserIdAsKeyMap(List userProfileList){

@@ -23,7 +23,7 @@ class ProcessEngineManagerService {
 		processEngineImplService.processNewGameScore()
 		def result = [gameRecordAdded:gameRecordAdded, gameRecordsProcessed:gameRecordsProcessed]
 		println "ProcessEngineManagerService::startProcessEngine(): result =  "+result
-		log.info "startProcessEngine(): result = ${+result}"
+		log.info "startProcessEngine(): result = ${result}"
 		println "ProcessEngineManagerService::startProcessEngine(): ends at "+ new Date()
 		log.info "startProcessEngine(): ends at "+ new Date()
 		return result

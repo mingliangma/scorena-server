@@ -693,9 +693,9 @@ class QuestionService {
 			username = userService.getUserDisplayName(userId)
 			if (userInfo!=[:]){
 				if (userInfo.userPick==1){
-					pick1BettersMap.put(userId,[name:username, userId:userId, wager:userInfo.userWager,expectedWinning: Math.round(pick1PayoutMultiple * userInfo.userWager), isFriend: isFriendMySelf])
+					pick1BettersMap.put(userId,[name:username, userId:userId, wager:userInfo.userWager,expectedPayout: Math.round(pick1PayoutMultiple * userInfo.userWager), isFriend: isFriendMySelf])
 				}else if (userInfo.userPick==2){
-					pick2BettersMap.put(userId,[name:username, userId:userId, wager:userInfo.userWager,expectedWinning: Math.round(pick2PayoutMultiple * userInfo.userWager), isFriend: isFriendMySelf])
+					pick2BettersMap.put(userId,[name:username, userId:userId, wager:userInfo.userWager,expectedPayout: Math.round(pick2PayoutMultiple * userInfo.userWager), isFriend: isFriendMySelf])
 				}
 			}
 		}

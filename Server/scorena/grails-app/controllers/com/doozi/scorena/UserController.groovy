@@ -193,6 +193,7 @@ class UserController {
 		
 	}
 	
+	//deprecated 
 	def getRanking(){
 
 		if (!params.userId || params.userId==""){
