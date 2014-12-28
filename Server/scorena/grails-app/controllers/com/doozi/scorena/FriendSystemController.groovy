@@ -11,6 +11,8 @@ class FriendSystemController {
 	def userService
 	
 	def friendRequest() {
+		log.info "friendRequest(): begins..."
+		
 		String userId1 = params.userId
 		
 		//validate all required input parameters exist
@@ -18,6 +20,7 @@ class FriendSystemController {
 		if (validateResult != [:]){
 			response.status = 404
 			render validateResult as JSON
+			log.error "friendRequest(): validateResult = ${validateResult}"
 			return
 		}
 		
@@ -26,6 +29,7 @@ class FriendSystemController {
 		if (validation.code){
 			response.status = 404
 			render validation as JSON
+			log.error "friendRequest(): validation = ${validation}"
 			return
 		}
 		
@@ -40,16 +44,20 @@ class FriendSystemController {
 				error: tipsList
 				]
 			render resp as JSON
+			log.error "friendRequest(): resp = ${resp}"
 		}
 		else {
 			def tipsMap = [tips:tipsList]
 			render tipsMap as JSON
+			log.info "friendRequest(): ends with tipsMap = ${tipsMap}"
 		}
 		
 		return
 	}
 	
 	def confirmFriendRequest() {
+		log.info "confirmFriendRequest(): begins..."
+		
 		String userId2 = params.userId
 		
 		//validate all required input parameters exist
@@ -57,6 +65,7 @@ class FriendSystemController {
 		if (validateResult != [:]){
 			response.status = 404
 			render validateResult as JSON
+			log.error "confirmFriendRequest(): validateResult  = ${validateResult}"
 			return
 		}
 		
@@ -65,6 +74,7 @@ class FriendSystemController {
 		if (validation.code){
 			response.status = 404
 			render validation as JSON
+			log.error "confirmFriendRequest(): validation  = ${validation}"
 			return
 		}
 		
@@ -80,16 +90,20 @@ class FriendSystemController {
 				error: tipsList
 				]
 			render resp as JSON
+			log.error "confirmFriendRequest(): resp  = ${resp}"
 		}
 		else {
 			def tipsMap = [tips:tipsList]
 			render tipsMap as JSON
+			log.info "confirmFriendRequest(): ends with tipsMap = ${tipsMap}"
 		}
 		
 		return
 	}
 	
 	def listFriends() {
+		log.info "listFriends(): begins..."
+		
 		String userId = params.userId
 		def allFriendList
 		def allFriendMap
@@ -101,6 +115,7 @@ class FriendSystemController {
 				error: "invalid userID!"
 				]
 			render resp as JSON
+			log.error "listFriends(): resp = ${resp}"
 			return 
 		}
 		
@@ -108,6 +123,8 @@ class FriendSystemController {
 		allFriendMap = [allFriend:allFriendList]
 		
 		render allFriendMap as JSON
+		
+		log.info "listFriends(): ends with allFriendMap = ${allFriendMap}"
 		
 		return
 	}

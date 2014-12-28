@@ -16,6 +16,8 @@ class CommentController {
 	 * @return json of comments list:[body,userId,userName,timeCreated]
 	 */
 	def getExistingComments(){
+		log.info "getExistingComments(): begins..."
+		
 		def commentsList
 		def commentsMap
 		
@@ -26,6 +28,8 @@ class CommentController {
 		commentsList=commentService.getExistingComments(params.qId)
 		commentsMap=[comments:commentsList]
 		
+		log.info "getExistingComments(): ends with commentsMap = ${commentsMap}"
+		
 		render commentsMap as JSON
 	}
 	
@@ -34,6 +38,8 @@ class CommentController {
 	 * @return json of comments list:[body,userId,userName,timeCreated]
 	 */
 	def writeComments(){
+		log.info "writeComments(): begins..."
+		
 		def commentsList
 		def commentsMap
 		
@@ -45,6 +51,7 @@ class CommentController {
 		if (validateResult != [:]){
 			response.status = 404
 			render validateResult as JSON
+			log.error "writeComments(): validateResult = ${validateResult}"
 			return
 		}
 		
@@ -53,6 +60,7 @@ class CommentController {
 		if (validation.code){
 			response.status = 404
 			render validation as JSON
+			log.error "writeComments(): validation = ${validation}"
 			return
 		}
 		
@@ -60,6 +68,8 @@ class CommentController {
 		String userId = validation.objectId
 		commentsList=commentService.writeComments(userId, request.JSON.message, qId)
 		commentsMap=[comments:commentsList]
+		
+		log.info "writeComments(): ends with commentsMap = ${commentsMap}"
 		
 		render commentsMap as JSON
 	}

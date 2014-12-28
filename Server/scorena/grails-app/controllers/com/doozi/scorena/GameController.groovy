@@ -112,6 +112,7 @@ class GameController {
 			response.status = 404
 			def result = [error: "invalid parameters"]
 			render result as JSON
+			log.error "getGameRanking(): result = ${result}"
 		}
 	}
 }

@@ -14,11 +14,13 @@ class QuestionController {
 	def userService
 	
     def listQuestions() { 
+		log.info "listQuestions(): begins..."
 		
 		if ( !params.gameId){
 			response.status = 404
 			def result = [error: "invalid game ID parameter"]
 			render result as JSON
+			log.error "listQuestions(): result = ${result}"
 			return
 		}
 		def questions = ""
@@ -30,14 +32,17 @@ class QuestionController {
 		
 		}
 		render questions as JSON
+		log.info "listQuestions(): ends with questions = ${questions}"
 	}
 	
 	def getQuestionDetails(){
+		log.info "getQuestionDetails(): begins..."
 		
 		if (!params.qId){
 			response.status = 404
 			def result = [error: "invalid question ID parameter"]
 			render result as JSON
+			log.error "getQuestionDetails(): result = ${result}"
 			return
 		}
 		def questionDetails = ""
@@ -48,11 +53,15 @@ class QuestionController {
 		
 		}
 		render questionDetails as JSON
+		log.info "getQuestionDetails(): ends with questionDetails = ${questionDetails}"
 	}
 	
 	def createQuestions(){
+		log.info "createQuestions(): begins..."
+		
 		def questionCreationResult = questionService.createQuestions()
 		Map result = [questionCreated: questionCreationResult]
 		render result as JSON
+		log.info "createQuestions(): end"
 	}
 }
