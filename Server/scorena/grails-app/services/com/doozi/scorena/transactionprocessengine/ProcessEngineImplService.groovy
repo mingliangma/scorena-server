@@ -335,7 +335,10 @@ class ProcessEngineImplService {
 			case QuestionContent.WHOWIN:
 				winnerPick = getWhoWinWinnerPick(game, question)
 				break;
-			case QuestionContent.SCOREGREATERTHAN:
+			case QuestionContent.SCOREGREATERTHAN_SOCCER:
+				winnerPick = getScoreGreaterThanWinnerPick(game, question, questionContent.indicator1)
+				break;
+			case QuestionContent.SCOREGREATERTHAN_BASKETBALL:
 				winnerPick = getScoreGreaterThanWinnerPick(game, question, questionContent.indicator1)
 				break;
 			case QuestionContent.CUSTOM:

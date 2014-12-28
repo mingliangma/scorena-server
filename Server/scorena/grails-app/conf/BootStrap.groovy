@@ -135,12 +135,7 @@ class BootStrap {
 	}
 	
 	def bootstrapQuestionContent(){
-		def qc1 = new QuestionContent(questionType: QuestionContent.WHOWIN, content: "Who will win this match?", sport: "soccer")
-		
-		String qc2Indicator = 2.5
-		String qc2Content = "What will the total score be?"
-		def qc2 = new QuestionContent(questionType: QuestionContent.SCOREGREATERTHAN, content: qc2Content, sport: "soccer", indicator1: qc2Indicator)
-		
+		def qc1 = new QuestionContent(questionType: QuestionContent.WHOWIN, content: "Who will win this match?", sport: "all")
 		if (qc1.save()){
 			System.out.println("game successfully saved")
 		}else{
@@ -150,11 +145,28 @@ class BootStrap {
 			}
 		}
 		
+		String qc2Indicator = 2.5
+		String qc2Content = "What will the total score be?"
+		def qc2 = new QuestionContent(questionType: QuestionContent.SCOREGREATERTHAN_SOCCER, content: qc2Content, sport: "soccer", indicator1: qc2Indicator)
+		
 		if (qc2.save()){
 			System.out.println("game successfully saved")
 		}else{
 			System.out.println("game save failed")
 			qc2.errors.each{
+				println it
+			}
+		}
+		
+		String qc3Indicator = 200.5
+		String qc3Content = "What will the total score be?"
+		def qc3 = new QuestionContent(questionType: QuestionContent.SCOREGREATERTHAN_BASKETBALL, content: qc3Content, sport: "basketball", indicator1: qc3Indicator)
+		
+		if (qc3.save()){
+			System.out.println("game successfully saved")
+		}else{
+			System.out.println("game save failed")
+			qc3.errors.each{
 				println it
 			}
 		}

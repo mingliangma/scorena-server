@@ -10,6 +10,8 @@ import com.doozi.scorena.transaction.BetTransaction
 import com.doozi.scorena.transaction.PayoutTransaction;
 import com.doozi.scorena.utils.*
 import com.doozi.scorena.processengine.*
+import com.doozi.scorena.transaction.LeagueTypeEnum;
+
 
 import grails.plugins.rest.client.RestBuilder
 import org.springframework.transaction.annotation.Transactional
@@ -33,6 +35,7 @@ class QuestionService {
 	def poolInfoService
 	def commentService
 	def friendSystemService
+	def sportsDataService
 	
 	public static final int FEATURE_QUESTION_SIZE = 3
 	public static final int BETTERS_LIST_SIZE = 100
@@ -247,26 +250,10 @@ class QuestionService {
 		log.info "populateQuestions(): begins with away = ${away}, home = ${home}, eventId = ${eventId}"
 		
 		int questionCreated = 0
-		def questionContent2 = QuestionContent.findAllByQuestionType("truefalse-0")
-		for (QuestionContent qc: questionContent2){
-			def q = new Question(eventKey: eventId, pick1: "3 or above", pick2: "2 or below", pool: new Pool(minBet: 5))
-			qc.addToQuestion(q)			
-			if (qc.save(failOnError:true)){
-				questionCreated++
-				System.out.println("game successfully saved")
-				log.info "populateQuestions(): game successfully saved"
-			}else{
-				System.out.println("game save failed")
-				log.error "populateQuestions(): game save failed"
-				qc.errors.each{
-					println it
-				}
-			}
-		}
 		
-		def questionContent1 = QuestionContent.findAllByQuestionType("team-0")
+		def questionContent1 = QuestionContent.findAllByQuestionType(QuestionContent.WHOWIN)
 		for (QuestionContent qc: questionContent1){
-			def q = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))			
+			def q = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
 			qc.addToQuestion(q)
 			if (qc.save(failOnError:true)){
 				questionCreated++
@@ -281,8 +268,45 @@ class QuestionService {
 			}
 		}
 		
-		def QC_HigherProcession = QuestionContent.findAllByQuestionType("custom-team-0")
-		println "questionContent3: " + QC_HigherProcession.size()
+		if (sportsDataService.getLeagueCodeFromEventKey(eventId) == LeagueTypeEnum.EPL){
+			def questionContent2 = QuestionContent.findAllByQuestionType(QuestionContent.SCOREGREATERTHAN_SOCCER)
+			for (QuestionContent qc: questionContent2){
+				def q = new Question(eventKey: eventId, pick1: "3 or above", pick2: "2 or below", pool: new Pool(minBet: 5))
+				qc.addToQuestion(q)			
+				if (qc.save(failOnError:true)){
+					questionCreated++
+					System.out.println("game successfully saved")
+					log.info "populateQuestions(): game successfully saved"
+				}else{
+					System.out.println("game save failed")
+					log.error "populateQuestions(): game save failed"
+					qc.errors.each{
+						println it
+					}
+				}
+			}
+			
+		}else if (sportsDataService.getLeagueCodeFromEventKey(eventId) == LeagueTypeEnum.NBA){
+			def questionContent2 = QuestionContent.findAllByQuestionType(QuestionContent.SCOREGREATERTHAN_BASKETBALL)
+			for (QuestionContent qc: questionContent2){
+				def q = new Question(eventKey: eventId, pick1: "201 or above", pick2: "200 or below", pool: new Pool(minBet: 5))
+				qc.addToQuestion(q)
+				if (qc.save(failOnError:true)){
+					questionCreated++
+					System.out.println("game successfully saved")
+					log.info "populateQuestions(): game successfully saved"
+				}else{
+					System.out.println("game save failed")
+					log.error "populateQuestions(): game save failed"
+					qc.errors.each{
+						println it
+					}
+				}
+			}
+		
+		}
+		
+		def QC_HigherProcession = QuestionContent.findAllByQuestionType(QuestionContent.CUSTOMTEAM0)
 		for (QuestionContent qc: QC_HigherProcession){
 			def q = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
 			qc.addToQuestion(q)
@@ -299,8 +323,7 @@ class QuestionService {
 			}
 		}
 		
-		def QC_MoreShots = QuestionContent.findAllByQuestionType("custom-team-1")
-		println "questionContent3: " + QC_MoreShots.size()
+		def QC_MoreShots = QuestionContent.findAllByQuestionType(QuestionContent.CUSTOMTEAM1)
 		for (QuestionContent qc: QC_MoreShots){
 			def q = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
 			qc.addToQuestion(q)
