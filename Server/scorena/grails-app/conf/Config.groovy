@@ -175,7 +175,7 @@ log4j = {
 		console name: "stdout", layout: layout
 		environments {
 			thomas {
-				rollingFile name: "fileLog", layout: layout, maxFileSize: 1024, file: "/tmp/logs/fileLog.log"
+				rollingFile name: "fileLog", layout: layout, maxFileSize: "100MB", file: "/tmp/logs/fileLog.log"
 			}
 //			awsdev {
 //				rollingFile name: "fileLog", maxFileSize: 1024,
