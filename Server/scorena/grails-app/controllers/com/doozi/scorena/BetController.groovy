@@ -10,12 +10,14 @@ class BetController {
 
     
 	def placeBet() { 
+		log.info "placeBet(): begins..."
 		
 		//validate all required input parameters exist
 		Map validateResult = validatePlaceBetRequest(request)
 		if (validateResult != [:]){
 			response.status = 404
 			render validateResult as JSON
+			log.error "placeBet(): validateResult = ${validateResult}"
 			return
 		}
 		
@@ -24,6 +26,7 @@ class BetController {
 		if (validation.code){
 			response.status = 404
 			render validation as JSON
+			log.error "placeBet(): validation = ${validation}"
 			return
 			
 		} 
@@ -37,10 +40,12 @@ class BetController {
 			def resp = [date:new Date()]
 			response.status = 201
 			render resp as JSON
+			log.info "placeBet(): ends with resp = ${resp}"
 			return
 		}else{
 			response.status =404	
 			render result as JSON
+			log.error "placeBet(): result = ${result}"
 			return
 		}
 		
