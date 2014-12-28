@@ -1,3 +1,5 @@
+import org.apache.log4j.PatternLayout
+
 // locations to search for config files that get merged into the main config;
 // config files can be ConfigSlurper scripts, Java properties files, or classes
 // in the classpath in ConfigSlurper format
@@ -161,6 +163,27 @@ environments {
 
 // log4j configuration
 log4j = {
+	def infoLogDomain = [
+		"grails.app.controllers",        					//controllers
+		"grails.app.services",								//service
+		"grails.app.domain" 								//domain
+		]
+	
+	def layout = new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %-5p %c{2} %x - %m%n")
+	
+	appenders {
+		console name: "stdout", layout: layout
+		environments {
+			thomas {
+				rollingFile name: "fileLog", layout: layout, maxFileSize: 1024, file: "/tmp/logs/fileLog.log"
+			}
+//			awsdev {
+//				rollingFile name: "fileLog", maxFileSize: 1024,
+//							file: "/tmp/logs/fileLog.log"
+//			}
+		}
+	}
+	
 	root{
 		environments {
 			thomas {
@@ -171,28 +194,7 @@ log4j = {
 	//			}
 		}
 	}
-	
-    appenders {
-        console name: "stdout",
-              	layout: pattern(conversionPattern: "%c{2} %m%n")
-        environments {
-            thomas {
-                rollingFile name: "fileLog", maxFileSize: 1024,
-                            file: "/tmp/logs/fileLog.log"
-            }
-//			awsdev {
-//				rollingFile name: "fileLog", maxFileSize: 1024,
-//							file: "/tmp/logs/fileLog.log"
-//			}
-        }
-    }
-	
-	def infoLogDomain = [
-		"grails.app.controllers",        					//controllers
-		"grails.app.services",								//service
-		"grails.app.domain" 								//domain
-		]
-
+    
 	environments {
 		thomas {
 			info stdout: infoLogDomain, fileLog: infoLogDomain
