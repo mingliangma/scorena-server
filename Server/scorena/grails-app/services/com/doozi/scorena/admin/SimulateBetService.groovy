@@ -14,7 +14,8 @@ class SimulateBetService {
 		log.info "simulateBetUpcoming() begins..."
 		
 		Random random = new Random()
-		def accounts = Account.findAllByAccountType(AccountType.TEST)
+//		def accounts = Account.findAllByAccountType(AccountType.TEST)
+		def accounts = Account.findAll("from Account as a where a.accountType=? and a.currentBalance>?", [AccountType.TEST, 100])
 		def upcomingGames = gameService.listUpcomingGamesData("all", "all")
 		for (int i=0; i < upcomingGames.size(); i++){
 			if (random.nextInt(4) == 1){
@@ -34,6 +35,10 @@ class SimulateBetService {
 					
 					int _wager =  (random.nextInt(6)+1)*20
 					int _pick
+					
+					if (account.currentBalance < _wager ){
+						continue
+					}
 					
 					if (random.nextInt(2)==0){
 						_pick=1

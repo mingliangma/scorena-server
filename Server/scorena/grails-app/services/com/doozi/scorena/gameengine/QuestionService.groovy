@@ -220,6 +220,7 @@ class QuestionService {
 		return questionDetails
 	}
 	
+	@Transactional
 	def createQuestions(){
 		log.info "createQuestions(): begins..."
 		
@@ -289,7 +290,7 @@ class QuestionService {
 		}else if (sportsDataService.getLeagueCodeFromEventKey(eventId) == LeagueTypeEnum.NBA){
 			def questionContent2 = QuestionContent.findAllByQuestionType(QuestionContent.SCOREGREATERTHAN_BASKETBALL)
 			for (QuestionContent qc: questionContent2){
-				def q = new Question(eventKey: eventId, pick1: "201 or above", pick2: "200 or below", pool: new Pool(minBet: 5))
+				def q = new Question(eventKey: eventId, pick1: "200 or above", pick2: "199 or below", pool: new Pool(minBet: 5))
 				qc.addToQuestion(q)
 				if (qc.save(failOnError:true)){
 					questionCreated++

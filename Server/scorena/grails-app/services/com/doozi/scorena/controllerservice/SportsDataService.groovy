@@ -146,11 +146,10 @@ class SportsDataService {
 			ne("eventStatus", "post-event")
 		    order("startDateTime", "asc")
 		}
-		println "SportsDataService::getAllUpcomingGames(): upcoming game size: "+upcomingGames.size()
 		def upcomingGamesMap = [:]
 		List upcomingGamesList = constructGameList(upcomingGames, PREEVENT, todayDate)
 		
-		log.info "getAllUpcomingGames(): ends with upcomingGamesList = ${upcomingGamesList}"
+		log.info "getAllUpcomingGames(): ends"
 		
 		return upcomingGamesList
 	}
@@ -168,11 +167,10 @@ class SportsDataService {
 			order("startDateTime", "asc")
 			ilike("eventKey", getLeaguePrefixFromLeagueEnum(getLeagueEnumFromLeagueString(leagueType))+"%")
 		}
-		println "SportsDataService::getAllUpcomingGames(): upcoming game size: "+upcomingGames.size()
 		def upcomingGamesMap = [:]
 		List upcomingGamesList = constructGameList(upcomingGames, PREEVENT, todayDate)
 		
-		log.info "getAllUpcomingGames(): ends with upcomingGamesList = ${upcomingGamesList}"
+		log.info "getAllUpcomingGames(): ends"
 		
 		return upcomingGamesList
 	}
@@ -193,11 +191,9 @@ class SportsDataService {
 			order("startDateTime", "desc")
 		}
 		
-		println "SportsDataService::getAllPastGames(): past game size: "+pastGames.size()
-
 		List pastGamesList = constructGameList(pastGames, POSTEVENT, todayDate)
 		
-		log.info "getAllPastGames(): ends with pastGamesList = ${pastGamesList}"
+		log.info "getAllPastGames(): ends"
 		
 		return pastGamesList
 	}
@@ -205,7 +201,6 @@ class SportsDataService {
 	List getAllPastGames(String leagueType){
 		log.info "getAllPastGames(): begins with leagueType = ${leagueType}"
 		
-		"SportsDataService::getAllPastGames(): begins with leagueType="+leagueType
 		def todayDate = new Date()
 		def pastDate = todayDate - PAST_DATE_RANGE;
 		
@@ -217,11 +212,9 @@ class SportsDataService {
 			ilike("eventKey", getLeaguePrefixFromLeagueEnum(getLeagueEnumFromLeagueString(leagueType))+"%")
 		}
 		
-		println "SportsDataService::getAllPastGames(): past game size: "+pastGames.size()
-
 		List pastGamesList = constructGameList(pastGames, POSTEVENT, todayDate)
 		
-		log.info "getAllPastGames(): ends with pastGamesList = ${pastGamesList}"
+		log.info "getAllPastGames(): ends"
 		
 		return pastGamesList
 	}
@@ -238,7 +231,7 @@ class SportsDataService {
 		
 		def gameInfo = constructGameList(games, ALLEVENT, todayDate)[0]
 		
-		log.info "getGame(): ends with gameInfo = ${gameInfo}"
+		log.info "getGame(): ends"
 	
 		return gameInfo
 	}
@@ -264,14 +257,7 @@ class SportsDataService {
 			
 			if (eventType == PREEVENT || eventType == MIDEVENT || eventType == INTERMISSION){
 				if (todayDate > matchDate){
-					if (game.eventStatus == "pre-event"){
-						println "ERROR: SportsDataService::getAllUpcomingGames(): gameStatus should not be pre-event!"
-						println "gameEvent: "+ game.eventKey
-						println "eventStatus: " +game.eventStatus
-						println "score: " +game.score
-						println "team: " +gameFullName
-						println "===================================="
-						
+					if (game.eventStatus == "pre-event"){						
 						log.error "constructGameList(): gameStatus should not be pre-event!"
 						log.info "constructGameList(): gameEvent: "+ game.eventKey
 						log.info "constructGameList(): eventStatus: " +game.eventStatus
@@ -284,11 +270,6 @@ class SportsDataService {
 			}
 			if (eventType == POSTEVENT){
 				if (game.eventStatus != "post-event"){
-					println "SportsDataService::getAllPastGames():wrong event: "+ game.eventKey
-					println "eventStatus: " +game.eventStatus
-					println "score: " +game.score
-					println "team: " +gameFullName
-					
 					log.error "constructGameList(): wrong event: "+ game.eventKey
 					log.info "constructGameList(): eventStatus: " +game.eventStatus
 					log.info "constructGameList(): score: " +game.score
@@ -313,10 +294,6 @@ class SportsDataService {
 			}else{
 			
 				if (gamesMapValue.gameStatus != game.eventStatus){
-					println "ERROR: SportsDataService::getAllUpcomingGames(): gameStatus does not match!"
-					println "First set data: "+gamesMapValue
-					println "second set data: "+ game.eventStatus
-					
 					log.error "constructGameList(): gameStatus does not match!"
 					log.info "constructGameList(): First set data: "+gamesMapValue
 					log.info "constructGameList(): second set data: "+ game.eventStatus
@@ -332,7 +309,7 @@ class SportsDataService {
 			}
 		}
 		
-		log.info "constructGameList(): ends with gamesList = ${gamesList}"
+		log.info "constructGameList(): ends"
 		
 		return gamesList
 		

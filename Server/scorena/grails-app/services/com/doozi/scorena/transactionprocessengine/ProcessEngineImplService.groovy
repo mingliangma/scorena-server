@@ -131,6 +131,7 @@ class ProcessEngineImplService {
 	 * 
 	 * @return
 	 */
+	@Transactional
 	def processNewGamePayout(){
 		log.info "processNewGamePayout(): begins..."
 		println "ProcessEngineImplService::processGamePayout(): starts"

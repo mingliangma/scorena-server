@@ -158,7 +158,6 @@ class GameService {
 			if (userId != null){
 				
 				List<AbstractScore> userGameScores = []
-				println "scoreTransactionList size: "+scoreTransactionList.size()
 				for (AbstractScore scoreTransaction: scoreTransactionList){
 					if (scoreTransaction.eventKey == pastGame.gameId){
 						userGameScores.add(scoreTransaction)

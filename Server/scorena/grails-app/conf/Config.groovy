@@ -177,10 +177,7 @@ log4j = {
 			thomas {
 				rollingFile name: "fileLog", layout: layout, maxFileSize: "100MB", file: "/tmp/logs/fileLog.log"
 			}
-//			awsdev {
-//				rollingFile name: "fileLog", maxFileSize: 1024,
-//							file: "/tmp/logs/fileLog.log"
-//			}
+
 		}
 	}
 	
@@ -189,9 +186,7 @@ log4j = {
 			thomas {
 				error 'stdout', 'fileLog'
 			}
-	//			awsdev {
-	//				error 'stdout', 'fileLog'
-	//			}
+
 		}
 	}
     
@@ -200,6 +195,9 @@ log4j = {
 			info stdout: infoLogDomain, fileLog: infoLogDomain
 		}
 		development {
+			info stdout: infoLogDomain
+		}
+		awsdev {
 			info stdout: infoLogDomain
 		}
 	}

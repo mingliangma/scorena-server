@@ -24,7 +24,7 @@ class GameUserInfoService {
 		
 		Map userinfo=[:]
 		userinfo.placedBet = getPlacedBet(userBetsInTheGame)
-		userinfo.userWager = getWagerInGame(gameId, userId, userBetsInTheGame)
+		userinfo.userWager = getWagerInGame(userBetsInTheGame)
 		
 		log.info "getUpcomingGamesUserInfo(): ends with userinfo = ${userinfo}"
 		
@@ -36,7 +36,7 @@ class GameUserInfoService {
 		
 		Map userinfo=[:]
 		userinfo.placedBet = getPlacedBet(userBetsInTheGame)
-
+		
 		if (userinfo.placedBet && scoreTransactions.size() == 0){
 			
 			userinfo.rank= -1
@@ -44,6 +44,8 @@ class GameUserInfoService {
 			userinfo.badgeScore= -1
 			userinfo.gameProfit = -1
 			userinfo.totalScore = -1
+			userinfo.userWager = getWagerInGame(userBetsInTheGame)
+			
 			
 		} else if (userinfo.placedBet && scoreTransactions.size() > 0){
 //			userinfo.gameProfit = getProfitInGame(game, userId, userBetsInTheGame)	
@@ -51,6 +53,7 @@ class GameUserInfoService {
 			userinfo.badgeScore = -1
 			userinfo.rank = -1
 			userinfo.badge = ""
+			userinfo.userWager = getWagerInGame(userBetsInTheGame)
 			
 			int totalScore = 0
 			for (AbstractScore score : scoreTransactions){
@@ -75,6 +78,7 @@ class GameUserInfoService {
 			userinfo.badgeScore= -1
 			userinfo.gameProfit = -1
 			userinfo.totalScore = -1
+			userinfo.userWager = getWagerInGame(userBetsInTheGame)
 		}
 		
 		log.info "getPastGamesUserInfo(): ends with userinfo = ${userinfo}"
@@ -91,7 +95,7 @@ class GameUserInfoService {
 		return profitAmount
 	}
 	
-	private int getWagerInGame(String gameId, String userId, List<BetTransaction> userBetsInTheGame){
+	private int getWagerInGame(List<BetTransaction> userBetsInTheGame){
 		int wagerInGame = 0
 		
 		for (BetTransaction bet: userBetsInTheGame){

@@ -19,7 +19,7 @@ class IapConst {
 	public static final String IOS_Production = "https://buy.itunes.apple.com/verifyReceipt"
 	
 	// Public Key for the iap test app in google play store
-	String alpha_pk = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhIE6kTRI1o8Ud+iNjhDmvt8uteEHPcfzZgv0gGYwRMCBAuYCAA1U5OOody7mhG5ryXYLqt5vBJwdNtp7lWDLUeyOp6mENZOCJOtInQrTBaa0ukDElDk2qHDjtWAAbZvDCfiaXU6Wq7UM0DWeghXId9HwcWulAPYB+LiywyPkBm0pZWnHL7LAe33TroF0wiuQFDkSn1rzbnK+s+gclivvADtYRHNb2K/+czEJSYPNqn4K8VMencatRpYpql1aRPzIVD3zDs2wLAfRQY5EmJZ6QESUnKtD7x047rnijzrOh83o0hIgF5WxWWwMKRN9ev7KuwroNMURLBRLBNxauY+X2wIDAQAB"
+	String alpha_pk = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgaqpbpd5ObvkEcDMJZDYNe97sD9JoMteu0eXFbBKL8WsQi9Nb9mg2z481DMqtXMSN1TM1RVUKex2JuNata4M3C8hm53glrmTx1Xcns9nEJvHJkY3lr2ajwb5AMb/bKzbIhmAhQghSydfCpTxt+y+/Tj3Z+W8h0ZML6AH3TgmzVrLZy8npyVh13rpsB7Ca8Hj+omwpCMLtk2ucpCeThWz74ww8lkfCmnurMBmopadl1zpqsn+Kb6qcQXc6ZMnE2h1oeTBSvtzk3OtvoCCywdXsHcOjc0JRIQhSxhG2Hj8hh1wuEQqMB79hiqqflWaGphRltwgtc0QG8IvbW53UG46+QIDAQAB"
 	// TODO: replace with real public key for Scorena app
 	String pk = ""
 	

@@ -158,7 +158,7 @@ class BootStrap {
 			}
 		}
 		
-		String qc3Indicator = 200.5
+		String qc3Indicator = 199.5
 		String qc3Content = "What will the total score be?"
 		def qc3 = new QuestionContent(questionType: QuestionContent.SCOREGREATERTHAN_BASKETBALL, content: qc3Content, sport: "basketball", indicator1: qc3Indicator)
 		
