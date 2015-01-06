@@ -40,9 +40,9 @@ class ProcessEngineImplService {
 	private Boolean isCustomQuestion(String qContentType){		
 		if (qContentType == QuestionContent.CUSTOM){
 			return true
-		}else if (qContentType == QuestionContent.CUSTOMTEAM0){
+		}else if (qContentType == QuestionContent.AUTOCUSTOM_NBA1){
 			return true
-		}else if (qContentType == QuestionContent.CUSTOMTEAM1){
+		}else if (qContentType == QuestionContent.AUTOCUSTOM_SOCCER1){
 			return true
 		}
 		return false
@@ -345,10 +345,10 @@ class ProcessEngineImplService {
 			case QuestionContent.CUSTOM:
 				winnerPick = getCustomQuestionWinnerPick(question)
 				break;
-			case QuestionContent.CUSTOMTEAM0:
+			case QuestionContent.AUTOCUSTOM_NBA1:
 				winnerPick = getCustomQuestionWinnerPick(question)
 				break;
-			case QuestionContent.CUSTOMTEAM1:
+			case QuestionContent.AUTOCUSTOM_SOCCER1:
 				winnerPick = getCustomQuestionWinnerPick(question)
 				break;
 		}

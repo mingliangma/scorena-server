@@ -173,6 +173,30 @@ class BootStrap {
 				println it
 			}
 		}
+		
+		String qc4Content = "Which team will have higher FG%?"
+		def qc4 = new QuestionContent(questionType: QuestionContent.AUTOCUSTOM_NBA1, content: qc4Content, sport: "basketball")
+		
+		if (qc4.save()){
+			System.out.println("game successfully saved")
+		}else{
+			System.out.println("game save failed")
+			qc4.errors.each{
+				println it
+			}
+		}
+		
+		String qc5Content = "Which team will have more shots?"
+		def qc5 = new QuestionContent(questionType: QuestionContent.AUTOCUSTOM_SOCCER1, content: qc5Content, sport: "soccer")
+		
+		if (qc5.save()){
+			System.out.println("game successfully saved")
+		}else{
+			System.out.println("game save failed")
+			qc5.errors.each{
+				println it
+			}
+		}
 	}
 	
 	def createQuestions(){
