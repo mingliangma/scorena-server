@@ -14,9 +14,9 @@ class SimulateBetJob {
 		def result = simulateBetService.simulateBetUpcoming()
 		println "simulateBetUpcoming completed"
 		
-		println "simulateComment trigged at " + new Date()
-		simulateCommentService.simulateComment()
-		println "simulateComment completed"
+//		println "simulateComment trigged at " + new Date()
+//		simulateCommentService.simulateComment()
+//		println "simulateComment completed"
 		
 //		test2Service.runTest()
 		

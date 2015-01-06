@@ -17,6 +17,7 @@ class SimulateBetService {
 //		def accounts = Account.findAllByAccountType(AccountType.TEST)
 		def accounts = Account.findAll("from Account as a where a.accountType=? and a.currentBalance>?", [AccountType.TEST, 100])
 		def upcomingGames = gameService.listUpcomingGamesData("all", "all")
+		int betCounter = 0
 		for (int i=0; i < upcomingGames.size(); i++){
 			if (random.nextInt(4) == 1){
 				continue
@@ -47,15 +48,18 @@ class SimulateBetService {
 					}
 					
 					def result = betTransactionService.createBetTrans(_wager,_pick, account.userId, questionId)
-					if (result == [:])
+					if (result == [:]){
+						betCounter++
 						println "SimulateBetService:simulateBetUpcoming():: successfully bet. userId="+account.username+" questionId="+questionId
-					else
+					}else{
 						println "SimulateBetService:simulateBetUpcoming():: bet failed. "+result
+					}
 						
 				}
 			}
 		}
 		
 		log.info "simulateBetUpcoming(): ends"
+		return betCounter
 	}
 }
