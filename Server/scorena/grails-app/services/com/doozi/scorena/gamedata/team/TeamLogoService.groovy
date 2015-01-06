@@ -131,6 +131,17 @@ class TeamLogoService {
 	public static final String KINGS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Sacramento_Kings.png'
 	
 	
+
+			public static final String DEREKROSE_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA_Player/derek_rose.png'
+			public static final String JAMESHARDEN_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA_Player/jamesHarden.png'
+
+			public static final String YES_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/yes_icon.png'
+			public static final String NO_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/no_icon.png'
+			public static final String ABOVE3_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/3above.png'
+			public static final String BELOW2_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/2below.png'
+			public static final String ABOVE200_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/200above.png'
+			public static final String BELOW199_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/199below.png'
+	
 	public static final String ALGERIA_TEAMNAME = "Algeria"
 	public static final String ARGENTINA_TEAMNAME = "Argentina"
 	public static final String AUSTRALIA_TEAMNAME = "Australia"
@@ -217,9 +228,37 @@ class TeamLogoService {
 	public static final String KINGS_TEAMNAME = 'Kings'
 	public static final String HORNETS_TEAMNAME = 'Hornets'
 	
+	
+	
+	public static final String DEREKROSE_TEAMNAME = 'D. Rose'
+	public static final String JAMESHARDEN_TEAMNAME = 'J. Harden'
+	
+	public static final String YES_TEAMNAME = 'Yes'
+	public static final String NO_TEAMNAME = 'No'
+	public static final String ABOVE3_TEAMNAME = '3 or above'
+	public static final String BELOW2_TEAMNAME = '2 or below'
+	public static final String ABOVE200_TEAMNAME = '200 or above'
+	public static final String BELOW199_TEAMNAME = '199 or below'
+	
     String getTeamLogo(String teamName) {
 		
 		switch (teamName.toLowerCase()){
+			case YES_TEAMNAME.toLowerCase():
+				return YES_LOGO_URL
+			case NO_TEAMNAME.toLowerCase():
+				return NO_LOGO_URL
+			case ABOVE3_TEAMNAME.toLowerCase():
+				return ABOVE3_LOGO_URL
+			case BELOW2_TEAMNAME.toLowerCase():
+				return BELOW2_LOGO_URL
+			case ABOVE200_TEAMNAME.toLowerCase():
+				return ABOVE200_LOGO_URL
+			case BELOW199_TEAMNAME.toLowerCase():
+				return BELOW199_LOGO_URL
+			case DEREKROSE_TEAMNAME.toLowerCase():
+				return DEREKROSE_LOGO_URL
+			case JAMESHARDEN_TEAMNAME.toLowerCase():
+				return JAMESHARDEN_LOGO_URL
 			case ALGERIA_TEAMNAME.toLowerCase():
 				return ALGERIA_LOGO_URL
 			case ARGENTINA_TEAMNAME.toLowerCase():

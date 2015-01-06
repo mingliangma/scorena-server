@@ -127,10 +127,9 @@ environments {
 	}
     production {
         grails.logging.jul.usebridge = false
-		parse.parseApplicationId=System.getProperty("PARAM1")
-		parse.parseRestApiKey =System.getProperty("PARAM2")
-		parse.parseApplicationId_t3=System.getProperty("PARAM3")
-		parse.parseRestApiKey_t3 =System.getProperty("PARAM4")
+		parse.parseApplicationId=System.getProperty("parseApplicationId")
+		parse.parseRestApiKey =System.getProperty("parseRestApiKey")
+		parse.parseMasterKey =System.getProperty("parseMasterKey")
 		
     }
 	
@@ -184,9 +183,17 @@ log4j = {
 	root{
 		environments {
 			thomas {
-				error 'stdout', 'fileLog'
+				error 'stdout'
 			}
-
+			development {
+				error 'stdout'
+			}
+			awsdev {
+				error 'stdout'
+			}
+			production {
+				error 'stdout'
+			}
 		}
 	}
     
@@ -198,6 +205,9 @@ log4j = {
 			info stdout: infoLogDomain
 		}
 		awsdev {
+			info stdout: infoLogDomain
+		}
+		production {
 			info stdout: infoLogDomain
 		}
 	}

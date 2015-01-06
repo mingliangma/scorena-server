@@ -100,16 +100,19 @@ class BootStrap {
 			
 			production{
 				Thread.sleep(5000)
-				 if (!QuestionContent.count()) {
+		 		if (!QuestionContent.count()) {
 					bootstrapQuestionContent()
 				}
 				 
 				if (!Question.count()) {
-					createQuestions()
+					createQuestions()					
 				}
-				
-				if (!Account.countByAccountType(AccountType.TEST)){
+
+				if (!Account.count()){
 					createTestUsers()
+					addFriends()
+					simulateBetUpcoming()
+					simulateBetPast()
 				}
 				
 				println "bootstrap ended"
@@ -369,32 +372,32 @@ class BootStrap {
 	
 	def createTestUsers(){
 		List _displayNames = [
-		"UncleSam",
-		"SecretAgents",
-		"Aiden3321",
+		"KyleStinson",
+		"BradenSager",
+		"Aiden1121",
 		"Liam",
-		"GotTheRuns",
-		"Noah",
-		"Masonsportsmaster",
-		"Jayden",
-		"Ethan",
-		"Jacob",
-		"ElectrolyteJunkies",
-		"New-Balls",
-		"bigjoe",
-		"KissMyAce",
-		"Hard_Balls",
-		"Caleb",
-		"Ryan",
-		"Alexander",
-		"Elijah",
-		"James",
-		"William",
-		"Oliver",
-		"Boom",
-		"Matthew",
-		"Daniel",
-		"Blondie",
+		"CR7Fans",
+		"ManuFan",
+		"KaylaMoss",
+		"RocketsForever",
+		"ChelseaBlue",
+		"LeilaJee",
+		"ILUVCR7",
+		"REDFANS",
+		"MeganEllerman",
+		"ManuForCham",
+		"GunnerFans",
+		"GunnerClub",
+		"DulceLiverpool",
+		"AlexanderEx",
+		"EliahT",
+		"JamesF",
+		"WilliamT",
+		"OliverH",
+		"Napolifans",
+		"Madrid4Life",
+		"DanielH",
+		"Bonnie",
 		"Brayden",
 		"Jayce",
 		"Henry",
@@ -404,32 +407,32 @@ class BootStrap {
 		"Joshua",
 		"Nicholas",
 		"DizzyIsaac",
-		"Owen",
-		"Nathan",
-		"Grayson",
+		"OwenM",
+		"HalaMadrid",
+		"GraysonB",
 		"EliBaker",
-		"RedLandon",
+		"RedLondon",
 		"Andrew888",
 		"Max_Ling",
-		"Nenete",
-		"Losob",
-		"Lujabi",
-		"BigNastyOnes",
-		"Faceskull",
-		"Smash Girls",
-		"Beefdoof",
-		"Meatcorn",
-		"Clotwimp",
-		"Wipelunk",
-		"JosephLumpcheese",
-		"Bumpface",
-		"godfather",
-		"Fingerthimble",
+		"SpursWin",
+		"ChampChelsea",
+		"CavFans",
+		"KingsFans",
+		"WarriorFans",
+		"DRose15",
+		"HeatsWin",
+		"AprilHailey",
+		"MarilynCoxey",
+		"JuliannaCanning",
+		"SheaCoxon",
+		"MeredithCorney",
+		"LillianHodge",
+		"KieraHindson",
 		"JohnAbrams",
 		"Poofcheese",
 		"Alpha_Bandits",
 		"SpinMasters",
-		"torontowild",
+		"Torontowild",
 		"ToxicSmokinMonkeys",
 		"Adam",
 		"Isaiah",
@@ -501,7 +504,7 @@ class BootStrap {
 		String _gender = "male"
 		String _region = "Japan"
 		Random random = new Random()
-		for(int i = 0; i<_displayNames.size()/2; i++){
+		for(int i = 0; i<pictureURLs.size(); i++){
 			String _email = _displayNames[i]+random.nextInt(100000)+"@scorena.ca"
 			String pictureURL = ""
 			if (i<pictureURLs.size()){

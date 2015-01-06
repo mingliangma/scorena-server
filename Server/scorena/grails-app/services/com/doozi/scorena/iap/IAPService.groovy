@@ -34,7 +34,7 @@ class IAPService {
 	// generates nonce
 	def generateNonce()
 	{
-		log.info "generateNonce(): begins..."
+		log.error "generateNonce(): begins..."
 		
 		nonce = new Nonce()
 		
@@ -51,7 +51,7 @@ class IAPService {
 		// nonce added to noce list
 		nonce_list.add(nonce.getNonce())
 		
-		log.info "generateNonce(): ends with Generate Nonce = ${nonce.getNonce()}"
+		log.error "generateNonce(): ends with Generate Nonce = ${nonce.getNonce()}"
 		
 		return [Status:"0",Process:"Generate Nonce", Message:nonce.getNonce()]  
 		}
@@ -66,7 +66,7 @@ class IAPService {
 	 */
 	def applyPurchase(String client_nonce, String userID, String app_data)
 	{
-		log.info "applyPurchase(): begins with client_nonce = ${client_nonce}, userID = ${userID}, app_data = ${app_data}"
+		log.error "applyPurchase(): begins with client_nonce = ${client_nonce}, userID = ${userID}, app_data = ${app_data}"
 		
 		// iap class constants
 		IapConst iap = new IapConst()
@@ -131,24 +131,6 @@ class IAPService {
 					userAccount.currentBalance = userAccount.currentBalance + iap.getPK_5()
 					break;
 					
-					// TODO: test case google play store; remove in production
-					// test case google play store
-					case "Coins3000":
-					 action = new AndroidIAPTransaction(transactionAmount: 3000, createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
-					userAccount.addToTrans(action)
-					userAccount.previousBalance = userAccount.currentBalance
-					userAccount.currentBalance = userAccount.currentBalance + 3000
-					break;
-					
-					// TODO: test case static response; remove in production
-					// test case static response 
-					case "android.test.purchased":
-					 action = new AndroidIAPTransaction(transactionAmount: 3000, createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
-					userAccount.addToTrans(action)
-					userAccount.previousBalance = userAccount.currentBalance
-					userAccount.currentBalance = userAccount.currentBalance + 3000
-					break;
-					
 				}
 				if (!action.validate()) {
 					String errorMessage = ""
@@ -196,13 +178,13 @@ class IAPService {
 			transaction_list.remove(order_id)
 			
 			// account save success
-			[Status:"0",Process:"Account Save", Message:"Account transaction was saved"]
+			return [Status:"0",Process:"Account Save", Message:"Account transaction was saved", newBalance:userAccount.currentBalance]
 		}
 		
 		// either nonce or order id failed to be contain with in the correct list
 		else
 		{
-			log.info "applyPurchase(): Nonce/Transaction ID failed to verify"
+			log.error "applyPurchase(): Nonce/Transaction ID failed to verify"
 			return [Status:"1",Process:"Nonce-Transaction Check", Message:"Nonce/Transaction ID failed to verify"] 
 		}
 	}
@@ -215,7 +197,7 @@ class IAPService {
 	 */
 	def verifyPurchase(String client_nonce, String signature, String app_data, String dev_key )
 	{
-		log.info "verifyPurchase(): begins with client_nonce = ${client_nonce}, signature = ${signature}, app_data = ${app_data}, dev_key = ${dev_key}"
+		log.error "verifyPurchase(): begins with client_nonce = ${client_nonce}, signature = ${signature}, app_data = ${app_data}, dev_key = ${dev_key}"
 		
 		// iap class constants
 		IapConst iap = new IapConst()
@@ -249,7 +231,7 @@ class IAPService {
 						// adds order id to transaction list
 						transaction_list.add(orderID)
 						System.out.println("google play receipt is valid")
-						log.info "verifyPurchase(): Status: 0, Process: Security-Verify, Message: google play receipt is valid"
+						log.error "verifyPurchase(): Status: 0, Process: Security-Verify, Message: google play receipt is valid"
 						return [Status:"0",Process:"Security-Verify", Message:"Valid receipt"] 
 					}
 					
