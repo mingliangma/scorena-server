@@ -86,15 +86,31 @@ class ParseService {
 		log.info "loginUser(): begins with rest = ${rest}, username = ${username}, password = ${password}"
 		
 		def parseConfig = grailsApplication.config.parse
-		
+		/*
 		def resp = rest.get("https://api.parse.com/1/login?username=${username.encodeAsURL()}&password=${password.encodeAsURL()}"){
 			header 	"X-Parse-Application-Id", parseConfig.parseApplicationId
 			header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey			
 		}
+		*/
+		String url = "https://api.parse.com/1/login?username=" + username.encodeAsURL() +"&password="+password.encodeAsURL()
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpGet httpget = new HttpGet(url);
+				
+		httpget.addHeader("X-Parse-Application-Id", parseConfig.parseApplicationId);
+		httpget.addHeader("X-Parse-REST-API-Key", parseConfig.parseRestApiKey);
 		
-		log.info "loginUser(): ends with resp = ${resp}"
+		HttpResponse httpResponse = httpclient.execute(httpget);
+		JSONObject resultJson = new JSONObject(EntityUtils.toString(httpResponse.getEntity()));
 		
-		return resp
+		int statusCode = httpResponse.getStatusLine().getStatusCode();
+		
+		def respMsg = [status:statusCode, json:resultJson]
+		
+		log.info "loginUser(): ends with resp = ${respMsg}"
+	//	log.info "loginUser(): ends with resp = ${resp}"
+		
+	//	return resp
+		return respMsg
 	}
 	
 	
