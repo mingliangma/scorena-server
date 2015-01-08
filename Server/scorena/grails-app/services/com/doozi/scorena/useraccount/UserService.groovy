@@ -98,13 +98,15 @@ class UserService {
 			}
 			
 			//automatically add facebook friends to scorena friend system
-			def tips = []
-			List facebookFriendUserIdList = getFacebookFrdsUserId((List)userProfile.fbFriends)
-			def currentUserId = userProfile.objectId
-			for(String facebookFriendUserId: facebookFriendUserIdList) {
-				tips = friendSystemService.addFacebookFriend(currentUserId, facebookFriendUserId)
+			if (userProfile.fbFriends){
+				def tips = []
+				List facebookFriendUserIdList = getFacebookFrdsUserId((List)userProfile.fbFriends)
+				def currentUserId = userProfile.objectId
+				for(String facebookFriendUserId: facebookFriendUserIdList) {
+					tips = friendSystemService.addFacebookFriend(currentUserId, facebookFriendUserId)
+				}
+				println "tips:" + tips
 			}
-			println "tips:" + tips
 		}else{
 			currentBalance = account.currentBalance
 		}
