@@ -37,16 +37,16 @@ class ProcessEngineImplService {
 			false
 	}
 	
-	private Boolean isCustomQuestion(String qContentType){		
-		if (qContentType == QuestionContent.CUSTOM){
-			return true
-		}else if (qContentType == QuestionContent.AUTOCUSTOM_NBA1){
-			return true
-		}else if (qContentType == QuestionContent.AUTOCUSTOM_SOCCER1){
-			return true
-		}
-		return false
-	}
+//	private Boolean isCustomQuestion(String qContentType){		
+//		if (qContentType == QuestionContent.CUSTOM){
+//			return true
+//		}else if (qContentType == QuestionContent.AUTOCUSTOM_NBA1){
+//			return true
+//		}else if (qContentType == QuestionContent.AUTOCUSTOM_SOCCER1){
+//			return true
+//		}
+//		return false
+//	}
 	
 	
 	
@@ -205,7 +205,7 @@ class ProcessEngineImplService {
 		}
 				
 		for (Question q:questions){
-			if (q.questionContent.questionType == QuestionContent.CUSTOM){
+			if (isCustomQuestion(q.questionContent.questionType)){
 				if (!customQuestionResultService.recordExist(q.id)){
 					println "ProcessEngineImplService:isReadyToProcess():: returned false because custom game record does not exist"
 					log.info "isReadyToProcess(): returned false because custom game record does not exist"
@@ -218,7 +218,12 @@ class ProcessEngineImplService {
 		
 	}
 	
-	
+	private boolean isCustomQuestion(String questionType){
+		if (questionType == QuestionContent.CUSTOM || questionType.startsWith(QuestionContent.AUTOCUSTOM_PREFIX)){
+			return true
+		}
+		return false
+	}
 
 
     /**

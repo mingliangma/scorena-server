@@ -19,6 +19,7 @@ class QuestionContent {
 	public static final String CUSTOM = "custom" 
 	public static final String AUTOCUSTOM_NBA1 = "autocustom-team-nba-1"
 	public static final String AUTOCUSTOM_SOCCER1 = "autocustom-team-soccer-1"
+	public static final String AUTOCUSTOM_PREFIX = "autocustom"
 	public static final String DISABLE = "disable"
 	
 	static hasMany = [question: Question]
