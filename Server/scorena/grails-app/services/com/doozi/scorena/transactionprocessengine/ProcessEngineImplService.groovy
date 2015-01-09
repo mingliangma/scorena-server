@@ -280,7 +280,9 @@ class ProcessEngineImplService {
 				int payout = 0
 				if (winnerPick == 0 || bet.pick == winnerPick || onePickHasNoBet)
 					payout =  Math.floor(bet.transactionAmount*payoutMultipleOfWager)
-								
+				
+				int profit = payout - bet.transactionAmount	
+									
 				int playResult = questionUserInfoService.getUserPickStatus(winnerPick, bet.pick)				
 				
 				Account account = bet.account
@@ -289,19 +291,19 @@ class ProcessEngineImplService {
 				
 				if (account.accountType == AccountType.USER || account.accountType == AccountType.FACEBOOK_USER){
 					String msg = ""				
-					if (payout > 0)
+					if (profit > 0)
 					{
-						msg = "Congratulations! You have won " + payout +" Coins in game "+ awayTeam +" vs "+ homeTeam
+						msg = "Congratulations! You have won " + profit +" Coins in game "+ awayTeam +" vs "+ homeTeam
 					}
 					
-					else if (payout == 0)
+					else if (profit == 0)
 					{
 						msg = "Sorry, you did not win any Coins in game "+ awayTeam +" vs "+ homeTeam
 					}
 					
 					else
 					{
-						msg = "Sorry, You have lost "+ Math.abs(payout) +" Coins in game "+ awayTeam +" vs "+ homeTeam
+						msg = "Sorry, You have lost "+ Math.abs(profit) +" Coins in game "+ awayTeam +" vs "+ homeTeam
 					}
 					
 					// sends end of game push to user with amount of coins won or lost
