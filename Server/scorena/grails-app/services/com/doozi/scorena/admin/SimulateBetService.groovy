@@ -30,7 +30,7 @@ class SimulateBetService {
 				long questionId = q.id
 				
 				for (Account account: accounts){
-					if (random.nextInt(5) != 1){
+					if (random.nextInt(2) != 1){
 						continue
 					}
 					

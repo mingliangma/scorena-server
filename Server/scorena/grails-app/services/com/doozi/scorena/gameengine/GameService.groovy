@@ -65,8 +65,9 @@ class GameService {
 		}
 		
 		List upcomingGamesResult=[]
-		upcomingGamesResult.addAll(upcomingCustomGames)
 		upcomingGamesResult.addAll(upcomingGames)
+		upcomingGamesResult.addAll(upcomingCustomGames)
+		
 		
 		log.info "listUpcomingGamesData(): ends with upcomingGamesResult = ${upcomingGamesResult}"
 		
