@@ -95,7 +95,7 @@ class IAPService {
 			// and updates users current balance and previous balance
 			AndroidIAPTransaction action
 			switch(product_id)
-				{
+				{/*
 					case "coins100":
 					 action = new AndroidIAPTransaction(transactionAmount: iap.getPK_1(), createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
 					userAccount.addToTrans(action)
@@ -116,20 +116,27 @@ class IAPService {
 					userAccount.previousBalance = userAccount.currentBalance
 					userAccount.currentBalance = userAccount.currentBalance + iap.getPK_3()
 					break;
-					
+					*/
 					case "coins1000":
-					 action = new AndroidIAPTransaction(transactionAmount: iap.getPK_4(), createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
+					 action = new AndroidIAPTransaction(transactionAmount: iap.getPK_1(), createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
 					userAccount.addToTrans(action)
 					userAccount.previousBalance = userAccount.currentBalance
-					userAccount.currentBalance = userAccount.currentBalance + iap.getPK_4()
+					userAccount.currentBalance = userAccount.currentBalance + iap.getPK_1()
 					break;
 					
 					case "coins2500":
-					 action = new AndroidIAPTransaction(transactionAmount: iap.getPK_5(), createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
+					 action = new AndroidIAPTransaction(transactionAmount: iap.getPK_2(), createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
 					userAccount.addToTrans(action)
 					userAccount.previousBalance = userAccount.currentBalance
-					userAccount.currentBalance = userAccount.currentBalance + iap.getPK_5()
+					userAccount.currentBalance = userAccount.currentBalance + iap.getPK_2()
 					break;
+					
+					case "coins5000":
+					action = new AndroidIAPTransaction(transactionAmount: iap.getPK_3(), createdAt: new Date(),productId:product_id,orderId:order_id,quantity:qty,purchaseTime:transaction_date_utc)
+				   userAccount.addToTrans(action)
+				   userAccount.previousBalance = userAccount.currentBalance
+				   userAccount.currentBalance = userAccount.currentBalance + iap.getPK_3()
+				   break;
 					
 				}
 				if (!action.validate()) {
@@ -359,7 +366,7 @@ class IAPService {
 						// creates a new transaction recored for user by iap product id
 						// and updates users current balance and previous balance
 						switch(product_id)
-						{
+						{/*
 							case "coins100":
 							IOSIAPTransaction itemPurchase = new IOSIAPTransaction(transactionAmount: iap.getPK_1(), createdAt: new Date(),quantity:qty ,productId:product_id ,transactionId:transaction_id ,purchaseTime:transaction_date_utc)
 							userAccount.addToTrans(itemPurchase)
@@ -380,21 +387,28 @@ class IAPService {
 							userAccount.previousBalance = userAccount.currentBalance
 							userAccount.currentBalance = userAccount.currentBalance + iap.getPK_3()
 							break;
-							
+							*/
 							case "coins1000":
-							IOSIAPTransaction itemPurchase  = new IOSIAPTransaction(transactionAmount:iap.getPK_4(), createdAt: new Date(),quantity:qty ,productId:product_id ,transactionId:transaction_id ,purchaseTime:transaction_date_utc)
+							IOSIAPTransaction itemPurchase  = new IOSIAPTransaction(transactionAmount:iap.getPK_1(), createdAt: new Date(),quantity:qty ,productId:product_id ,transactionId:transaction_id ,purchaseTime:transaction_date_utc)
 							userAccount.addToTrans(itemPurchase)
 							userAccount.previousBalance = userAccount.currentBalance
-							userAccount.currentBalance = userAccount.currentBalance + iap.getPK_4()
+							userAccount.currentBalance = userAccount.currentBalance + iap.getPK_1()
 							break;
 							
 							case "coins2500":
-							IOSIAPTransaction itemPurchase = new IOSIAPTransaction(transactionAmount: iap.getPK_5(), createdAt: new Date(),quantity:qty ,productId:product_id ,transactionId:transaction_id ,purchaseTime:transaction_date_utc)
+							IOSIAPTransaction itemPurchase = new IOSIAPTransaction(transactionAmount: iap.getPK_2(), createdAt: new Date(),quantity:qty ,productId:product_id ,transactionId:transaction_id ,purchaseTime:transaction_date_utc)
 							userAccount.addToTrans(itemPurchase)
 							userAccount.previousBalance = userAccount.currentBalance
-							userAccount.currentBalance = userAccount.currentBalance + iap.getPK_5()
+							userAccount.currentBalance = userAccount.currentBalance + iap.getPK_2()
 							break;
 							
+							
+							case "coins5000":
+							IOSIAPTransaction itemPurchase = new IOSIAPTransaction(transactionAmount: iap.getPK_3(), createdAt: new Date(),quantity:qty ,productId:product_id ,transactionId:transaction_id ,purchaseTime:transaction_date_utc)
+							userAccount.addToTrans(itemPurchase)
+							userAccount.previousBalance = userAccount.currentBalance
+							userAccount.currentBalance = userAccount.currentBalance + iap.getPK_3()
+							break;
 							
 							// test case -> to be removed in production 
 							case "com.scorena.iaptest.100c":

@@ -5,11 +5,11 @@ import java.util.Date;
 
 class IapConst {
 	// Coin Packages
-	public static final int COIN_PK_1 = 100
-	public static final int COIN_PK_2 = 250
-	public static final int COIN_PK_3 = 500
-	public static final int COIN_PK_4 = 1000
-	public static final int COIN_PK_5 = 2500
+	public static final int COIN_PK_1 = 1000
+	public static final int COIN_PK_2 = 2500
+	public static final int COIN_PK_3 = 5000
+//	public static final int COIN_PK_4 = 1000
+//	public static final int COIN_PK_5 = 2500
 	
 	
 	// URL for IOS Sandbox receipt verification
@@ -60,7 +60,7 @@ class IapConst {
 	{
 		return COIN_PK_3
 	}
-	
+	/*
 	// returns coin_pk_4 value
 	public int getPK_4()
 	{
@@ -72,7 +72,7 @@ class IapConst {
 	{
 		return COIN_PK_5
 	}
-	
+	*/
 	/* removes time zone and converts date string to UTC date time
 	 * @param date - date string 
 	 */
