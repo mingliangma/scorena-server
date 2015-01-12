@@ -29,6 +29,9 @@ class ProcessEngineImplService {
 	def helperService
 	def pushService
 	
+	public static final int PROFIT_AMOUNT = 1
+	public static final int USER_ID = 0
+	
 	private def payoutCleared(Question q){
 		def result = payoutTansactionService.getPayoutTransByQuestion(q)
 		if (result)
@@ -147,7 +150,7 @@ class ProcessEngineImplService {
 		
 			List<Question> questions = questionService.listQuestions(gameProcessRecord.eventKey)
 			Map game = gameService.getGame(gameProcessRecord.eventKey)
-			
+			Map userPayout = [:]
 			if (game==[:]){
 				gameProcessRecord.transProcessStatus = TransactionProcessStatusEnum.ERROR
 				gameProcessRecord.errorMessage = "ProcessEngineImplService::processGamePayout(): empty game data from eventkey="+gameProcessRecord.eventKey
@@ -161,7 +164,36 @@ class ProcessEngineImplService {
 				boolean errorExists = false;
 				for (Question q:questions){			
 					try{
-						processPayout(q, game)
+						// stores process payout map
+						def questionScores = processPayout(q, game)
+						String[] keys = questionScores.keySet()
+					//	println(keys)
+						
+						// userPayout map empty add entry
+					 if ( userPayout == [:])
+						{
+							userPayout.put(game.gameId, questionScores)
+							println(userPayout)
+						}
+						
+						// else
+					else{
+						
+						for(String userID: keys )	
+						{
+							// if map contains userID, add to profit
+							if (userPayout[game.gameId].containsKey(userID))
+							{
+								userPayout[game.gameId][userID].profit += questionScores[userID].profit
+							}
+							 // does not contain userID, add entry
+							else 
+							{
+								userPayout[game.gameId].put(userID, [profit:questionScores[userID].profit])
+							}
+						}
+					}
+						
 					}catch(Exception e){
 						gameProcessRecord.transProcessStatus = TransactionProcessStatusEnum.ERROR
 						gameProcessRecord.errorMessage = e.message
@@ -180,6 +212,8 @@ class ProcessEngineImplService {
 					gameProcessRecord.lastUpdate = new Date()
 					gameProcessRecord.save()
 					gameRecordsProcessed++
+					
+					sendEndGamePush(userPayout, game)	
 				}
 			}
 		}
@@ -232,14 +266,13 @@ class ProcessEngineImplService {
      * @return -1 on error, 0 on success
      */
 	@Transactional
-    private int processPayout(Question q, Map game) throws Exception{
+    private Map processPayout(Question q, Map game) throws Exception{
 		log.info "processPayout(): begins with eventKey = ${game.gameId}, questionId = ${q.id}"	
 		
 			println "ProcessEngineImplService::processPayout(): starts with eventKey="+game.gameId+ "questionId="+q.id
-			String awayTeam = game.away.teamname
-			String homeTeam = game.home.teamname
 			int winnerPick = calculateWinningPick(game, q)
-			def payoutMultipleOfWager			
+			def payoutMultipleOfWager	
+			Map betTrans = [:]		
 			boolean processSuccess = true
 			boolean onePickHasNoBet = false
 			List<BetTransaction> betTransactions = betTransactionService.listAllBetsByQId(q.id)
@@ -267,12 +300,12 @@ class ProcessEngineImplService {
 			}else{
 				println "ERROR: invalid winner pick, winnerPick="+winnerPick
 				log.error "processPayout(): invalid winner pick, winnerPick = ${winnerPick}"
-				return -1
+				return  -1
 			}
 			
 			
-
-			def rest = new RestBuilder()
+		def userMap = [:]
+		//	def rest = new RestBuilder()
 			for (BetTransaction bet: betTransactions){
 				
 				//Payout = 0 for the lossing side
@@ -280,44 +313,60 @@ class ProcessEngineImplService {
 				int payout = 0
 				if (winnerPick == 0 || bet.pick == winnerPick || onePickHasNoBet)
 					payout =  Math.floor(bet.transactionAmount*payoutMultipleOfWager)
-				
-				int profit = payout - bet.transactionAmount	
+
 									
 				int playResult = questionUserInfoService.getUserPickStatus(winnerPick, bet.pick)				
+				int profit = payout - bet.transactionAmount
 				
 				Account account = bet.account
-
-				payoutTansactionService.createPayoutTrans(account,q , payout, winnerPick, bet.transactionAmount, bet.pick, playResult, helperService.parseDateFromString(game.date))
 				
-				if (account.accountType == AccountType.USER || account.accountType == AccountType.FACEBOOK_USER){
-					String msg = ""				
-					if (profit > 0)
-					{
-						msg = "Congratulations! You have won " + profit +" Coins in game "+ awayTeam +" vs "+ homeTeam
-					}
-					
-					else if (profit == 0)
-					{
-						msg = "Sorry, you did not win any Coins in game "+ awayTeam +" vs "+ homeTeam
-					}
-					
-					else
-					{
-						msg = "Sorry, You have lost "+ Math.abs(profit) +" Coins in game "+ awayTeam +" vs "+ homeTeam
-					}
-					
-					// sends end of game push to user with amount of coins won or lost
-					def payoutPush = pushService.endOfGamePush(rest, game.gameId, account.userId, msg)
-				}
+				payoutTansactionService.createPayoutTrans(account,q , payout, winnerPick, bet.transactionAmount, bet.pick, playResult, helperService.parseDateFromString(game.date))
+				userMap = [profit:(profit)]
+				betTrans.put(account.userId, userMap)
 				
 			}
 			
 			log.info "processPayout(): ends"
-			
-			return 0
+			return betTrans
 			
 			println "ProcessEngineImplService::processPayout(): ends"
     }
+	
+	
+	private void sendEndGamePush(Map payoutData, Map game)
+	{
+		def rest = new RestBuilder()
+		String awayTeam = game.away.teamname
+		String homeTeam = game.home.teamname
+		String[] keys = payoutData[game.gameId].keySet()
+
+		for (String userID: keys )
+		{
+			int gameProfit = payoutData[game.gameId][userID].profit
+				String msg = ""
+				if ( gameProfit > 0)
+				{
+					msg = "Congratulations! You have won " + gameProfit +" Coins in game "+ awayTeam +" vs "+ homeTeam
+				}
+				
+				else if (gameProfit == 0)
+				{
+					msg = "Sorry, you did not win any Coins in game "+ awayTeam +" vs "+ homeTeam
+				}
+				
+				else
+				{
+					msg = "Sorry, You have lost "+ Math.abs(gameProfit) +" Coins in game "+ awayTeam +" vs "+ homeTeam
+				}
+				
+				// sends end of game push to user with amount of coins won or lost
+				def payoutPush = pushService.endOfGamePush(rest, game.gameId, userID, msg)
+			 
+		}
+	}
+	
+	
+	
 	
 	/**
 	 * @param eventKey
