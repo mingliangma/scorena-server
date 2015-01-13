@@ -124,13 +124,11 @@ class PushService {
 		return resp.json.toString()
 	}
 	
- def endOfGamePush(def rest, String eventKey,String userId, String msg)
+ def endOfGamePush(def rest, String userId, String msg)
  {
-	 log.info "endOfGamePush(): begins with rest = ${rest}, eventKey = ${eventKey}, userId = ${userId}, msg = ${msg}"
+	 log.info "endOfGamePush(): begins with rest = ${rest}, userId = ${userId}, msg = ${msg}"
 	 
-	 def parseConfig = grailsApplication.config.parse
-	 def Map game = gameService.getGame(eventKey)
-	 
+	 def parseConfig = grailsApplication.config.parse	 
 	 def userParam = ["userId": (userId)]
 //	 def chanParam = ["channels":['$in':[(eventKey)]]]
 	 def alertParam = ["alert": (msg)]

@@ -150,7 +150,7 @@ class ProcessEngineImplService {
 		
 			List<Question> questions = questionService.listQuestions(gameProcessRecord.eventKey)
 			Map game = gameService.getGame(gameProcessRecord.eventKey)
-			Map userPayout = [:]
+			Map userTotalGameProfit = [:]
 			if (game==[:]){
 				gameProcessRecord.transProcessStatus = TransactionProcessStatusEnum.ERROR
 				gameProcessRecord.errorMessage = "ProcessEngineImplService::processGamePayout(): empty game data from eventkey="+gameProcessRecord.eventKey
@@ -162,37 +162,27 @@ class ProcessEngineImplService {
 			
 			if (isReadyToProcess(questions, game) == true){
 				boolean errorExists = false;
+				String gameId = game.gameId
 				for (Question q:questions){			
 					try{
 						// stores process payout map
-						def questionScores = processPayout(q, game)
-						String[] keys = questionScores.keySet()
-					//	println(keys)
+						Map userIdToProfitMap = processPayout(q, game)
+						String[] userIdKeys = userIdToProfitMap.keySet()
 						
-						// userPayout map empty add entry
-					 if ( userPayout == [:])
-						{
-							userPayout.put(game.gameId, questionScores)
-							println(userPayout)
-						}
-						
-						// else
-					else{
-						
-						for(String userID: keys )	
+						for(String userId: userIdKeys )	
 						{
 							// if map contains userID, add to profit
-							if (userPayout[game.gameId].containsKey(userID))
+							if (userTotalGameProfit.containsKey(userId))
 							{
-								userPayout[game.gameId][userID].profit += questionScores[userID].profit
+								userTotalGameProfit[userId] += userIdToProfitMap[userId]
 							}
 							 // does not contain userID, add entry
 							else 
 							{
-								userPayout[game.gameId].put(userID, [profit:questionScores[userID].profit])
+								userTotalGameProfit.put(userId, userIdToProfitMap[userId])
 							}
 						}
-					}
+					
 						
 					}catch(Exception e){
 						gameProcessRecord.transProcessStatus = TransactionProcessStatusEnum.ERROR
@@ -213,7 +203,7 @@ class ProcessEngineImplService {
 					gameProcessRecord.save()
 					gameRecordsProcessed++
 					
-					sendEndGamePush(userPayout, game)	
+					sendEndGamePush(userTotalGameProfit, game)	
 				}
 			}
 		}
@@ -271,8 +261,8 @@ class ProcessEngineImplService {
 		
 			println "ProcessEngineImplService::processPayout(): starts with eventKey="+game.gameId+ "questionId="+q.id
 			int winnerPick = calculateWinningPick(game, q)
-			def payoutMultipleOfWager	
-			Map betTrans = [:]		
+			def payoutMultipleOfWager
+			def userIdToProfitMap = [:]
 			boolean processSuccess = true
 			boolean onePickHasNoBet = false
 			List<BetTransaction> betTransactions = betTransactionService.listAllBetsByQId(q.id)
@@ -300,11 +290,11 @@ class ProcessEngineImplService {
 			}else{
 				println "ERROR: invalid winner pick, winnerPick="+winnerPick
 				log.error "processPayout(): invalid winner pick, winnerPick = ${winnerPick}"
-				return  -1
+				return  [:]
 			}
 			
 			
-		def userMap = [:]
+		
 		//	def rest = new RestBuilder()
 			for (BetTransaction bet: betTransactions){
 				
@@ -321,28 +311,27 @@ class ProcessEngineImplService {
 				Account account = bet.account
 				
 				payoutTansactionService.createPayoutTrans(account,q , payout, winnerPick, bet.transactionAmount, bet.pick, playResult, helperService.parseDateFromString(game.date))
-				userMap = [profit:(profit)]
-				betTrans.put(account.userId, userMap)
+				userIdToProfitMap.put(account.userId, profit)
 				
 			}
 			
 			log.info "processPayout(): ends"
-			return betTrans
+			return userIdToProfitMap
 			
 			println "ProcessEngineImplService::processPayout(): ends"
     }
 	
 	
-	private void sendEndGamePush(Map payoutData, Map game)
+	private void sendEndGamePush(Map userTotalGameProfit, Map game)
 	{
 		def rest = new RestBuilder()
 		String awayTeam = game.away.teamname
 		String homeTeam = game.home.teamname
-		String[] keys = payoutData[game.gameId].keySet()
+		String[] userIdKeys = userTotalGameProfit.keySet()
 
-		for (String userID: keys )
+		for (String userID: userIdKeys )
 		{
-			int gameProfit = payoutData[game.gameId][userID].profit
+			int gameProfit = userTotalGameProfit[userID]
 				String msg = ""
 				if ( gameProfit > 0)
 				{
@@ -360,7 +349,7 @@ class ProcessEngineImplService {
 				}
 				
 				// sends end of game push to user with amount of coins won or lost
-				def payoutPush = pushService.endOfGamePush(rest, game.gameId, userID, msg)
+				def payoutPush = pushService.endOfGamePush(rest, userID, msg)
 			 
 		}
 	}
