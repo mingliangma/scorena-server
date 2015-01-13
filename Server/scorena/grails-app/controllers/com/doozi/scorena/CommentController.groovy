@@ -92,5 +92,10 @@ class CommentController {
 		}
 		return [:]
 	}
+	
+	def handleException(Exception e) {
+		render e.toString()
+		log.info "${e.toString()}"
+	}
 
 }

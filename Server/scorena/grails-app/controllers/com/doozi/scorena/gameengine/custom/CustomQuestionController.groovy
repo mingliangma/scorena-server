@@ -90,4 +90,9 @@ class CustomQuestionController {
 		log.info "createCustomQuestionResult(): ends with result = ${result}"
 		return
 	}
+	
+	def handleException(Exception e) {
+		render e.toString()
+		log.info "${e.toString()}"
+	}
 }

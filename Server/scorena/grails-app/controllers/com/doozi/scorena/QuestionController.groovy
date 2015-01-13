@@ -64,4 +64,9 @@ class QuestionController {
 		render result as JSON
 		log.info "createQuestions(): end"
 	}
+	
+	def handleException(Exception e) {
+		render e.toString()
+		log.info "${e.toString()}"
+	}
 }

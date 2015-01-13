@@ -141,4 +141,9 @@ class TournamentController {
 		}
 		render result as JSON
 	}
+	
+	def handleException(Exception e) {
+		render e.toString()
+		log.info "${e.toString()}"
+	}
 }
