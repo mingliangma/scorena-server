@@ -20,8 +20,8 @@ import org.xml.sax.InputSource;
 
 import com.doozi.scorena.gamedata.helper.GameDataConstantsXmlTeam;
 import com.doozi.scorena.gamedata.userinput.GameDataInputXmlTeam;
-import com.doozi.scorena.gamedata.useroutput.GameDataEventXmlTeam;
-import com.doozi.scorena.gamedata.useroutput.GameDataOutput;
+import com.doozi.scorena.gamedata.useroutput.soccer.GameDataEventXmlTeam;
+import com.doozi.scorena.gamedata.useroutput.soccer.GameDataSoccerOutput
 
 /**
  * @author Heng
@@ -44,7 +44,7 @@ public class GameDataManagerXmlTeam implements IGameDataManager {
 		return _gameDataManagerXmlTeamInstance;
 	}
 	
-	public GameDataOutput retrieveGameData(GameDataInputXmlTeam gameDataInputXmlTeam) throws Exception
+	public GameDataSoccerOutput retrieveGameData(GameDataInputXmlTeam gameDataInputXmlTeam) throws Exception
 	{
 		BufferedReader bufferedReader = null;
 		
@@ -68,8 +68,8 @@ public class GameDataManagerXmlTeam implements IGameDataManager {
 				return getLeagueScheduleBySeason(originalGameData, gameDataInputXmlTeam.get_gameType());
 			}
 			
-			GameDataOutput gameDataOutput = new GameDataOutput(originalGameData);
-			return gameDataOutput;
+			GameDataSoccerOutput gameDataSoccerOutput = new GameDataSoccerOutput(originalGameData);
+			return gameDataSoccerOutput;
 		}
 		finally
 		{
@@ -80,9 +80,9 @@ public class GameDataManagerXmlTeam implements IGameDataManager {
 		}
 	}
 	
-	public GameDataOutput getLeagueScheduleBySeason(String originalGameData, String gameType) throws Exception 
+	public GameDataSoccerOutput getLeagueScheduleBySeason(String originalGameData, String gameType) throws Exception 
 	{
-		GameDataOutput gameDataOutput = new GameDataOutput(originalGameData);
+		GameDataSoccerOutput gameDataSoccerOutput = new GameDataSoccerOutput(originalGameData);
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     	DocumentBuilder db;
     	Document doc;
@@ -106,6 +106,6 @@ public class GameDataManagerXmlTeam implements IGameDataManager {
 			}
 		}
 		
-		return gameDataOutput;
+		return gameDataSoccerOutput;
 	}
 }

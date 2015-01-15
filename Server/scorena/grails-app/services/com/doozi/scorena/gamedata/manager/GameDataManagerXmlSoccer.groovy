@@ -19,9 +19,9 @@ import org.xml.sax.InputSource;
 
 import com.doozi.scorena.gamedata.helper.GameDataConstantsXmlSoccer;
 import com.doozi.scorena.gamedata.userinput.GameDataInputXmlSoccer;
-import com.doozi.scorena.gamedata.useroutput.GameDataOutput;
-import com.doozi.scorena.gamedata.useroutput.GameDataSoccerXmlSoccer;
-import com.doozi.scorena.gamedata.useroutput.GameDataTeamXmlSoccer;
+import com.doozi.scorena.gamedata.useroutput.soccer.GameDataSoccerOutput
+import com.doozi.scorena.gamedata.useroutput.soccer.GameDataSoccerXmlSoccer;
+import com.doozi.scorena.gamedata.useroutput.soccer.GameDataTeamXmlSoccer;
 
 /**
  * @author hengkuang
@@ -44,7 +44,7 @@ public class GameDataManagerXmlSoccer implements IGameDataManager {
 		return _gameDataManagerXmlSoccerInstance;
 	}
 	
-	public GameDataOutput retrieveGameData(GameDataInputXmlSoccer gameDataInputXmlSoccer) throws Exception
+	public GameDataSoccerOutput retrieveGameData(GameDataInputXmlSoccer gameDataInputXmlSoccer) throws Exception
 	{
 		BufferedReader bufferedReader = null;
 		
@@ -68,8 +68,8 @@ public class GameDataManagerXmlSoccer implements IGameDataManager {
 				return getLeagueStandingsBySeason(originalGameData, gameDataInputXmlSoccer.get_gameType());
 			}
 			
-			GameDataOutput gameDataOutput = new GameDataOutput(originalGameData);
-			return gameDataOutput;
+			GameDataSoccerOutput gameDataSoccerOutput = new GameDataSoccerOutput(originalGameData);
+			return gameDataSoccerOutput;
 		}
 		finally
 		{
@@ -80,9 +80,9 @@ public class GameDataManagerXmlSoccer implements IGameDataManager {
 		}
 	}
 	
-	public GameDataOutput getLeagueStandingsBySeason(String originalGameData, String gameType) throws Exception
+	public GameDataSoccerOutput getLeagueStandingsBySeason(String originalGameData, String gameType) throws Exception
 	{
-		GameDataOutput gameDataOutput = new GameDataOutput(originalGameData);
+		GameDataSoccerOutput gameDataSoccerOutput = new GameDataSoccerOutput(originalGameData);
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     	DocumentBuilder db;
     	Document doc;
@@ -134,9 +134,9 @@ public class GameDataManagerXmlSoccer implements IGameDataManager {
     			 gameDataTeamXmlSoccer.set_gameDataSoccer(gameDataSoccerXmlSoccer);
     		 }
     		 
-    		 gameDataOutput.get_teamListXmlSoccer().put(gameDataTeamXmlSoccer.get_teamName(), gameDataTeamXmlSoccer);
+    		 gameDataSoccerOutput.get_teamListXmlSoccer().put(gameDataTeamXmlSoccer.get_teamName(), gameDataTeamXmlSoccer);
     	}
 		
-		return gameDataOutput;
+		return gameDataSoccerOutput;
 	}
 }
