@@ -143,12 +143,14 @@ class ProcessEngineImplService {
 		def totalpayout = 0
 		def gameRecordsProcessed = 0
 		boolean payoutErrorExist = false
-		
+		Map userTotalGamesProfit = [:]
+		Map gameIdToGameInfoMap = [:]
 		
 		for (GameProcessRecord gameProcessRecord: gameRecords){
 
+			//game=[leagueName:'', leagueCode:'', gameId:'':  type:'', gameStatus:'', date:'', away:[teamname: '', score:'', teamLogoUrl:''], home:[teamname: '', score:'', teamLogoUrl:'']]
 			Map game = gameService.getGame(gameProcessRecord.eventKey)
-			Map userTotalGamesProfit = [:]
+			
 			if (game == null || game==[:]){
 				gameProcessRecord.transProcessStatus = TransactionProcessStatusEnum.ERROR
 				gameProcessRecord.errorMessage = "ProcessEngineImplService::processGamePayout(): empty game data from eventkey="+gameProcessRecord.eventKey
@@ -161,12 +163,15 @@ class ProcessEngineImplService {
 			if (isReadyToProcess(questions, game) == true){
 				boolean errorExists = false;
 				String gameId = game.gameId
+				
+				gameIdToGameInfoMap.put(gameId, game)
+				
 				for (Question q:questions){			
 					try{
-						
+						//userIdToProfitMap = [userId: questionProfit]
 						Map userIdToProfitMap = processPayout(q, game)
 
-						// userTotalGamesProfit maps [gameId : [userId: question profit]]
+						// userTotalGamesProfit = [gameId : [userId: game profit]]
 						if (userTotalGamesProfit.containsKey(gameId)){
 							String[] userIdKeys = userIdToProfitMap.keySet()						
 							for(String userId: userIdKeys )	
@@ -201,12 +206,13 @@ class ProcessEngineImplService {
 					gameProcessRecord.lastUpdate = new Date()
 					gameProcessRecord.save()
 					gameRecordsProcessed++
-					log.info "push----------------"
-//					sendEndGamePush(userTotalGamesProfit, game)	
+					
 				}
 			}
 		}
-				
+		
+		sendEndGamePush(userTotalGamesProfit, gameIdToGameInfoMap)
+		
 		log.info "processGamePayout(): ends at "+new Date()
 		return gameRecordsProcessed
 	}
@@ -315,44 +321,48 @@ class ProcessEngineImplService {
 			
 			log.info "processPayout(): ends"
 			return userIdToProfitMap
-			
-			println "ProcessEngineImplService::processPayout(): ends"
     }
 	
 	
-	private void sendEndGamePush(Map userTotalGameProfit, Map game)
+	private void sendEndGamePush(Map userTotalGameProfit, Map gameIdToGameInfoMap)
 	{
+		log.info "sendEndGamePush(): begins and "+gameIdToGameInfoMap.size()+" games will be pushed"
 		def rest = new RestBuilder()
-		String awayTeam = game.away.teamname
-		String homeTeam = game.home.teamname
-		String[] userIdKeys = userTotalGameProfit.keySet()
 
-		for (String userID: userIdKeys )
-		{
-			int gameProfit = userTotalGameProfit[userID]
-				String msg = ""
-				if ( gameProfit > 0)
-				{
-					msg = "Congratulations! You have won " + gameProfit +" Coins in game "+ awayTeam +" vs "+ homeTeam
-				}
-				
-				else if (gameProfit == 0)
-				{
-					msg = "Sorry, you did not win any Coins in game "+ awayTeam +" vs "+ homeTeam
-				}
-				
-				else
-				{
-					msg = "Sorry, You have lost "+ Math.abs(gameProfit) +" Coins in game "+ awayTeam +" vs "+ homeTeam
-				}
-				
-				// sends end of game push to user with amount of coins won or lost
-				def payoutPush = pushService.endOfGamePush(rest, userID, msg)
-			 
+		//userTotalGamesProfit = [gameId : [userId: game profit]]
+		Set gameIds =  userTotalGameProfit.keySet()
+		for (String gameId: gameIds){
+			Map userAGameProfit = userTotalGameProfit[gameId]
+			String awayTeam = gameIdToGameInfoMap[gameId].away.teamname
+			String homeTeam = gameIdToGameInfoMap[gameId].home.teamname
+			String[] userIdKeys = userAGameProfit.keySet()
+	
+			for (String userID: userIdKeys )
+			{
+				int gameProfit = userAGameProfit[userID]
+					String msg = ""
+					if ( gameProfit > 0)
+					{
+						msg = "Congratulations! You have won " + gameProfit +" Coins in game "+ awayTeam +" vs "+ homeTeam
+					}
+					
+					else if (gameProfit == 0)
+					{
+						msg = "Sorry, you did not win any Coins in game "+ awayTeam +" vs "+ homeTeam
+					}
+					
+					else
+					{
+						msg = "Sorry, You have lost "+ Math.abs(gameProfit) +" Coins in game "+ awayTeam +" vs "+ homeTeam
+					}
+					
+					// sends end of game push to user with amount of coins won or lost
+					def payoutPush = pushService.endOfGamePush(rest, userID, msg)
+				 
+			}
 		}
+		log.info "sendEndGamePush(): ends"
 	}
-	
-	
 	
 	
 	/**
