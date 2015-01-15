@@ -1,7 +1,7 @@
 package com.doozi.scorena.gamedata.manager
 
 import com.doozi.scorena.gamedata.userinput.GameDataInputStatsNba
-import com.doozi.scorena.gamedata.useroutput.soccer.GameDataOutput;
+import com.doozi.scorena.gamedata.useroutput.basketball.*
 
 import grails.plugins.rest.client.RestBuilder
 
@@ -10,7 +10,7 @@ class GameDataManagerStatsNba implements IGameDataManager {
 	
 	public static GameDataManagerStatsNba get_gameDataManagerStatsNbaInstance()
 	{
-		return _gameDataManagerStatsNbaInstance;
+		return _gameDataManagerStatsNbaInstance
 	}
 	
 	public GameDataNbaOutput retrieveGameData(GameDataInputStatsNba gameDataInputStatsNba) throws Exception

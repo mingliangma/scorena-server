@@ -8,7 +8,8 @@ import com.doozi.scorena.gamedata.userinput.GameDataInputStatsNba
 import com.doozi.scorena.gamedata.userinput.GameDataInputXmlSoccer;
 import com.doozi.scorena.gamedata.userinput.GameDataInputXmlTeam;
 import com.doozi.scorena.gamedata.userinput.IGameDataInput;
-import com.doozi.scorena.gamedata.useroutput.soccer.GameDataOutput;
+import com.doozi.scorena.gamedata.useroutput.IGameDataOutput
+import com.doozi.scorena.gamedata.useroutput.soccer.GameDataSoccerOutput;
 
 /**
  * @author Heng
@@ -35,7 +36,7 @@ public class GameDataAdapter implements IGameDataAdapter {
 		return _gameDataAdapterInstance;
 	}
 	
-	public GameDataNbaOutput retrieveGameData(IGameDataInput gameDataInput) throws Exception
+	public IGameDataOutput retrieveGameData(IGameDataInput gameDataInput) throws Exception
 	{
 		if (gameDataInput instanceof GameDataInputXmlSoccer)
 		{
@@ -58,11 +59,4 @@ public class GameDataAdapter implements IGameDataAdapter {
 			return null;
 		}
 	}
-	
-	public GameDataNbaOutput getUpcomingEplMatches()
-	{
-		System.out.println("got it");
-		return null;
-	}
-
 }

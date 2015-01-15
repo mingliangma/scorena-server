@@ -46,7 +46,7 @@ public class GameDataTestDriver {
 	
 	public static void printTeamStandingXmlSoccer(GameDataSoccerOutput gameDataOutput)
 	{
-		for (GameDataTeamXmlSoccer gameDataTeamXmlSoccer : gameDataSoccerOutput.get_teamListXmlSoccer().values())
+		for (GameDataTeamXmlSoccer gameDataTeamXmlSoccer : gameDataOutput.get_teamListXmlSoccer().values())
 		{
 			System.out.println("************************************");
 			System.out.println("Ranking: " + gameDataTeamXmlSoccer.get_ranking());

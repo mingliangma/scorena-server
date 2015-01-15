@@ -3,13 +3,14 @@
  */
 package com.doozi.scorena.gamedata.useroutput.soccer;
 
+import com.doozi.scorena.gamedata.useroutput.IGameDataOutput
 import java.util.LinkedHashMap;
 
 /**
  * @author hengkuang
  *
  */
-public class GameDataSoccerOutput {
+public class GameDataSoccerOutput implements IGameDataOutput{
 
 	private LinkedHashMap<String, GameDataTeamXmlSoccer> _teamListXmlSoccer = new LinkedHashMap<String, GameDataTeamXmlSoccer>();
 	private String _originalGameData;

@@ -242,6 +242,7 @@ class SportsDataService {
 	 * @return
 	 */
 	List constructGameList(def games, int eventType, def todayDate){
+		int gameListSize = games.size()
 		log.info "constructGameList(): begins with games = ${games}, eventType = ${eventType}, todayDate = ${todayDate}"
 		
 		Map gamesMap = [:]
