@@ -2,8 +2,8 @@ package com.doozi.scorena
 
 import grails.converters.JSON
 import grails.web.JSONBuilder
-import com.doozi.scorena.gamedata.manager.GameDataAdapter;
 
+import com.doozi.scorena.gamedata.manager.GameDataAdapter;
 import com.doozi.scorena.sportsdata.*
 // /v1/sports/soccer/premier/upcomingevents - current day's game information
 //		get
@@ -114,5 +114,11 @@ class GameController {
 			render result as JSON
 			log.error "getGameRanking(): result = ${result}"
 		}
+	}
+	
+	def handleException(Exception e) {
+		response.status = 500
+		render e.toString()
+		log.info "${e.toString()}"
 	}
 }

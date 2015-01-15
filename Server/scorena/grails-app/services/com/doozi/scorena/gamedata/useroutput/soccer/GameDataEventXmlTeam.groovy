@@ -1,4 +1,4 @@
-package com.doozi.scorena.gamedata.useroutput;
+package com.doozi.scorena.gamedata.useroutput.soccer;
 
 public class GameDataEventXmlTeam {
 	

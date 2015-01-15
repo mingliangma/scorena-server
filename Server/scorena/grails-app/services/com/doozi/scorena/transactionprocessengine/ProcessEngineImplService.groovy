@@ -111,7 +111,7 @@ class ProcessEngineImplService {
 //	}
 	
 	@Transactional
-	def processNewGameScore(){
+	def processNewGamesScore(){
 		log.info "processNewGameScore(): begins..."
 		
 		println "processNewGameScore() starts"
@@ -135,9 +135,8 @@ class ProcessEngineImplService {
 	 * @return
 	 */
 	@Transactional
-	def processNewGamePayout(){
-		log.info "processNewGamePayout(): begins..."
-		println "ProcessEngineImplService::processGamePayout(): starts"
+	def processNewGamesPayout(){
+		log.info "processNewGamePayout(): begins at "+new Date()
 		
 		//find all game process record that haven't processed
 		def gameRecords = GameProcessRecord.findAllByTransProcessStatus(TransactionProcessStatusEnum.NOT_PROCESSED)		
@@ -147,11 +146,10 @@ class ProcessEngineImplService {
 		
 		
 		for (GameProcessRecord gameProcessRecord: gameRecords){
-		
-			List<Question> questions = questionService.listQuestions(gameProcessRecord.eventKey)
+
 			Map game = gameService.getGame(gameProcessRecord.eventKey)
-			Map userTotalGameProfit = [:]
-			if (game==[:]){
+			Map userTotalGamesProfit = [:]
+			if (game == null || game==[:]){
 				gameProcessRecord.transProcessStatus = TransactionProcessStatusEnum.ERROR
 				gameProcessRecord.errorMessage = "ProcessEngineImplService::processGamePayout(): empty game data from eventkey="+gameProcessRecord.eventKey
 				gameProcessRecord.lastUpdate = new Date()
@@ -159,28 +157,29 @@ class ProcessEngineImplService {
 				gameRecordsProcessed++
 				continue
 			}
-			
+			List<Question> questions = questionService.listQuestions(gameProcessRecord.eventKey)
 			if (isReadyToProcess(questions, game) == true){
 				boolean errorExists = false;
 				String gameId = game.gameId
 				for (Question q:questions){			
 					try{
-						// stores process payout map
-						Map userIdToProfitMap = processPayout(q, game)
-						String[] userIdKeys = userIdToProfitMap.keySet()
 						
-						for(String userId: userIdKeys )	
-						{
-							// if map contains userID, add to profit
-							if (userTotalGameProfit.containsKey(userId))
+						Map userIdToProfitMap = processPayout(q, game)
+
+						// userTotalGamesProfit maps [gameId : [userId: question profit]]
+						if (userTotalGamesProfit.containsKey(gameId)){
+							String[] userIdKeys = userIdToProfitMap.keySet()						
+							for(String userId: userIdKeys )	
 							{
-								userTotalGameProfit[userId] += userIdToProfitMap[userId]
+								// if map contains userID, add to profit
+								if (userTotalGamesProfit[gameId].containsKey(userId)){
+									userTotalGamesProfit[gameId][userId] += userIdToProfitMap[userId]
+								}else { // does not contain userID, add entry
+									userTotalGamesProfit[gameId].put(userId, userIdToProfitMap[userId])
+								}
 							}
-							 // does not contain userID, add entry
-							else 
-							{
-								userTotalGameProfit.put(userId, userIdToProfitMap[userId])
-							}
+						}else{
+							userTotalGamesProfit.put(gameId, userIdToProfitMap)
 						}
 					
 						
@@ -202,14 +201,13 @@ class ProcessEngineImplService {
 					gameProcessRecord.lastUpdate = new Date()
 					gameProcessRecord.save()
 					gameRecordsProcessed++
-					
-					sendEndGamePush(userTotalGameProfit, game)	
+					log.info "push----------------"
+//					sendEndGamePush(userTotalGamesProfit, game)	
 				}
 			}
 		}
 				
-		println "ProcessEngineImplService::processGamePayout(): ends"
-		log.info "processGamePayout(): ends"
+		log.info "processGamePayout(): ends at "+new Date()
 		return gameRecordsProcessed
 	}
 	
@@ -253,7 +251,7 @@ class ProcessEngineImplService {
     /**
      * @param question
      * @param game
-     * @return -1 on error, 0 on success
+     * @return returns user profit Map with userId as Key, question profit as Value
      */
 	@Transactional
     private Map processPayout(Question q, Map game) throws Exception{
@@ -290,7 +288,7 @@ class ProcessEngineImplService {
 			}else{
 				println "ERROR: invalid winner pick, winnerPick="+winnerPick
 				log.error "processPayout(): invalid winner pick, winnerPick = ${winnerPick}"
-				return  [:]
+				return [:]
 			}
 			
 			

@@ -36,7 +36,7 @@ class GameService {
 		List upcomingGamesResult=[]
 		upcomingGamesResult.addAll(upcomingGames)
 		
-		log.info "listUpcomingNonCustomGames(): ends with upcomingGamesResult = ${upcomingGamesResult}"
+		log.info "listUpcomingNonCustomGames(): ends"
 		
 		return upcomingGamesResult
 	}
@@ -69,7 +69,7 @@ class GameService {
 		upcomingGamesResult.addAll(upcomingCustomGames)
 		
 		
-		log.info "listUpcomingGamesData(): ends with upcomingGamesResult = ${upcomingGamesResult}"
+		log.info "listUpcomingGamesData(): ends"
 		
 		return upcomingGamesResult
 	}
@@ -96,7 +96,7 @@ class GameService {
 			
 		}
 		
-		log.info "listUpcomingGames(): ends with upcomingGamesResult = ${upcomingGamesResult}"
+		log.info "listUpcomingGames(): ends"
 		
 		return upcomingGamesResult
 	}
@@ -129,7 +129,7 @@ class GameService {
 		pastGamesResult.addAll(pastCustomGames)
 		pastGamesResult.addAll(pastGames)
 		
-		log.info "listPastGamesData(): ends with pastGamesResult = ${pastGamesResult}"
+		log.info "listPastGamesData(): ends "
 		
 		return pastGamesResult
 	}
@@ -179,7 +179,7 @@ class GameService {
 			pastGame.isGameProcessed = isGameProcessed
 		}
 		
-		log.info "listPastGames(): ends with pastGamesResult = ${pastGamesResult}"
+		log.info "listPastGames(): ends"
 		
 		return pastGamesResult
 	}

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.doozi.scorena.gamedata.useroutput;
+package com.doozi.scorena.gamedata.useroutput.soccer;
 
 import java.util.LinkedHashMap;
 
@@ -9,12 +9,12 @@ import java.util.LinkedHashMap;
  * @author hengkuang
  *
  */
-public class GameDataOutput {
+public class GameDataSoccerOutput {
 
 	private LinkedHashMap<String, GameDataTeamXmlSoccer> _teamListXmlSoccer = new LinkedHashMap<String, GameDataTeamXmlSoccer>();
 	private String _originalGameData;
 	
-	public GameDataOutput(String originalGameData)
+	public GameDataSoccerOutput(String originalGameData)
 	{
 		_originalGameData = originalGameData;
 	}
@@ -22,7 +22,7 @@ public class GameDataOutput {
 	/**
 	 * 
 	 */
-	public GameDataOutput(LinkedHashMap<String, GameDataTeamXmlSoccer> teamList) 
+	public GameDataSoccerOutput(LinkedHashMap<String, GameDataTeamXmlSoccer> teamList) 
 	{
 		_teamList = teamList;
 	}
