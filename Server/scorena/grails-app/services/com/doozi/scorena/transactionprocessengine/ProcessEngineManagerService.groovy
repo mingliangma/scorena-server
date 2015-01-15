@@ -19,8 +19,8 @@ class ProcessEngineManagerService {
 		List pastCustomGames = customGameService.getAllPastGames()
 		
 		def gameRecordAdded = newGameResultFetcherService.getUnprocessedPastGame(pastGames, pastCustomGames)
-		def gameRecordsProcessed = processEngineImplService.processNewGamePayout()
-		processEngineImplService.processNewGameScore()
+		def gameRecordsProcessed = processEngineImplService.processNewGamesPayout()
+		processEngineImplService.processNewGamesScore()
 		def result = [gameRecordAdded:gameRecordAdded, gameRecordsProcessed:gameRecordsProcessed]
 		println "ProcessEngineManagerService::startProcessEngine(): result =  "+result
 		log.info "startProcessEngine(): result = ${result}"

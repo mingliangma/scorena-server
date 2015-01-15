@@ -27,9 +27,8 @@ class PayoutTansactionService {
 	 */
 	@Transactional
 	def createPayoutTrans(Account playerAccount, Question q, int payout, int winnerPick, int wager, int userPick, int playResult, Date gameStartTime){		
-		log.info "createPayoutTrans(): begins..."
+		log.info "createPayoutTrans(): begins with qId = ${q.id}, userId = ${playerAccount.id}, payout = ${payout}"
 		
-		println "PayoutTansactionService::createPayoutTrans(): qId="+q.id + ",accountId=" + playerAccount.id+", payout="+payout
 		try{
 			PayoutTransaction payoutTransaction = new PayoutTransaction(transactionAmount: payout, createdAt: new Date(), winnerPick: winnerPick, pick: userPick, initialWager:wager, 
 				eventKey: q.eventKey, playResult: playResult, league: sportsDataService.getLeagueCodeFromEventKey(q.eventKey), profit: payout-wager, gameStartTime:gameStartTime)
