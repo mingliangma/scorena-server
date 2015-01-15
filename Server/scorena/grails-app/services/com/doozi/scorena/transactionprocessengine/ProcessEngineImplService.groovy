@@ -349,7 +349,7 @@ class ProcessEngineImplService {
 				}
 				
 				// sends end of game push to user with amount of coins won or lost
-				def payoutPush = pushService.endOfGamePush(rest, userID, msg)
+				def payoutPush = pushService.endOfGamePush(rest,game.gameId ,userID, msg)
 			 
 		}
 	}
