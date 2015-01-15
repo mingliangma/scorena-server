@@ -51,6 +51,7 @@ class CustomGameController {
 	}
 	
 	def handleException(Exception e) {
+		response.status = 500
 		render e.toString()
 		log.info "${e.toString()}"
 	}

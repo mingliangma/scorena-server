@@ -1,6 +1,7 @@
 package com.doozi.scorena
 
 import java.util.Map;
+
 import grails.converters.JSON
 
 /**
@@ -94,6 +95,7 @@ class CommentController {
 	}
 	
 	def handleException(Exception e) {
+		response.status = 500
 		render e.toString()
 		log.info "${e.toString()}"
 	}
