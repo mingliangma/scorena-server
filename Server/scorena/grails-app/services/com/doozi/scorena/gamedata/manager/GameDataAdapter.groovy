@@ -21,7 +21,7 @@ public class GameDataAdapter implements IGameDataAdapter {
 	private GameDataManagerXmlSoccer _gameDataManagerXmlSoccer = GameDataManagerXmlSoccer.get_gameDataManagerXmlSoccerInstance();
 	private GameDataManagerXmlTeam _gameDataManagerXmlTeam = GameDataManagerXmlTeam.get_gameDataManagerXmlTeamInstance();
 	private GameDataManagerDeluxe _gameDataManagerDeluxe = GameDataManagerDeluxe.get_gameDataManagerDeluxeInstance();
-	private GameDataManagerStatsNba _gameDataManagerStatsNba = GameDataManagerDeluxe.get_gameDataManagerDeluxeInstance();
+	private GameDataManagerStatsNba _gameDataManagerStatsNba = GameDataManagerStatsNba.get_gameDataManagerStatsNbaInstance();
 	
 	/**
 	 * 
