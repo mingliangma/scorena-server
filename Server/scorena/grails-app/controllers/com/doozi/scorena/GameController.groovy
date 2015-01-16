@@ -2,8 +2,8 @@ package com.doozi.scorena
 
 import grails.converters.JSON
 import grails.web.JSONBuilder
-import com.doozi.scorena.gamedata.manager.GameDataAdapter;
 
+import com.doozi.scorena.gamedata.manager.GameDataAdapter;
 import com.doozi.scorena.sportsdata.*
 // /v1/sports/soccer/premier/upcomingevents - current day's game information
 //		get
@@ -26,6 +26,7 @@ class GameController {
 	def sportsDataService
 	def userService
 	def processEngineManagerService
+	def rankingService
 	
 	def upcomingEplSportsDb()
 	{
@@ -54,9 +55,9 @@ class GameController {
 	def getUpcomingGames(){
 		def upcomingGames
 		if (params.userId && userService.accountExists(params.userId)){			
-			upcomingGames = gameService.listUpcomingGames(params.userId)
+			upcomingGames = gameService.listUpcomingGames(params.userId, params.sportsType, params.leagueType)
 		}else{
-			upcomingGames = gameService.listUpcomingGames()
+			upcomingGames = gameService.listUpcomingGames(null, params.sportsType, params.leagueType)
 		}
 
 		render upcomingGames as JSON
@@ -65,9 +66,9 @@ class GameController {
 	def getPastGames(){
 		def pastGames
 		if (params.userId && userService.accountExists(params.userId)){		
-			pastGames = gameService.listPastGames(params.userId)
+			pastGames = gameService.listPastGames(params.userId, params.sportsType, params.leagueType)
 		}else{
-			 pastGames = gameService.listPastGames()
+			 pastGames = gameService.listPastGames(null, params.sportsType, params.leagueType)
 		}
 
 		render pastGames as JSON
@@ -101,5 +102,23 @@ class GameController {
 	def testGames(){
 		def games = sportsDataService.getAllUpcomingGames()
 		render games as JSON
+	}
+	
+	def getGameRanking(){
+		if (params.gameId){
+			def gameRanking = rankingService.getGameRanking(params.gameId)
+			render gameRanking as JSON
+		}else{
+			response.status = 404
+			def result = [error: "invalid parameters"]
+			render result as JSON
+			log.error "getGameRanking(): result = ${result}"
+		}
+	}
+	
+	def handleException(Exception e) {
+		response.status = 500
+		render e.toString()
+		log.info "${e.toString()}"
 	}
 }

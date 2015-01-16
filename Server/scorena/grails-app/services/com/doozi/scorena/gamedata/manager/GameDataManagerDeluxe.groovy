@@ -4,7 +4,7 @@
 package com.doozi.scorena.gamedata.manager;
 
 import com.doozi.scorena.gamedata.userinput.GameDataInputDeluxe;
-import com.doozi.scorena.gamedata.useroutput.GameDataOutput;
+import com.doozi.scorena.gamedata.useroutput.soccer.GameDataSoccerOutput;
 
 /**
  * @author Heng
@@ -27,7 +27,7 @@ public class GameDataManagerDeluxe implements IGameDataManager {
 		return _gameDataManagerDeluxeInstance;
 	}
 	
-	public GameDataOutput retrieveGameData(GameDataInputDeluxe gameDataInputDeluxe)
+	public GameDataSoccerOutput retrieveGameData(GameDataInputDeluxe gameDataInputDeluxe)
 	{
 		return null;
 	}

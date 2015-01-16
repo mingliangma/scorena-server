@@ -1,3 +1,5 @@
+import org.apache.log4j.PatternLayout
+
 // locations to search for config files that get merged into the main config;
 // config files can be ConfigSlurper scripts, Java properties files, or classes
 // in the classpath in ConfigSlurper format
@@ -92,22 +94,32 @@ environments {
         grails.logging.jul.usebridge = true
 		parse.parseApplicationId='kEepaeRdIInsSbptLl4lZ6xiZg7nv7bEOV56ym9m'
 		parse.parseRestApiKey ='QSBmZXNUjRMtKwWcqB7jLQgtZizCSMBBeoBQHIql'
+		parse.parseMasterKey ='yJmLOwQM0z6GaD1d794Kb90086nsLiWXKgaRIh5I'
+		
     }
 	
-	prodtesting {
-		grails.logging.jul.usebridge = true
-		parse.parseApplicationId='kEepaeRdIInsSbptLl4lZ6xiZg7nv7bEOV56ym9m'
-		parse.parseRestApiKey ='QSBmZXNUjRMtKwWcqB7jLQgtZizCSMBBeoBQHIql'
+	awsdev {
+		grails.logging.jul.usebridge = false
+//		parse.parseApplicationId=System.getProperty("PARAM1")
+//		parse.parseRestApiKey =System.getProperty("PARAM2")
+		parse.parseApplicationId='b2cfHtl3JqMwg7rKfkoGJ7sh6LluiZc8RdjWCeQY'
+		parse.parseRestApiKey ='k6ybcRnaDAdfUBbLkSBfqiesECFQinEr6D0Lx8dL'
+		parse.parseMasterKey ='PrEDT2TQfCQcrkY0oFr6XaW4XvdKhzyeMp3F6XsC'
 	}
 	
 	test{
 		grails.logging.jul.usebridge = true
-		parse.parseApplicationId=System.getProperty("PARAM1")
-		parse.parseRestApiKey =System.getProperty("PARAM2")
+//		parse.parseApplicationId=System.getProperty("PARAM1")
+//		parse.parseRestApiKey =System.getProperty("PARAM2")
+		
+		//prod
+//		parse.parseApplicationId="VtsqlRrU7SRiQVdv9TOsdAo3fbFkv2XH7tIZjnYA"
+//		parse.parseRestApiKey ="Yadg67u4HqrpydNNNTjXnLTG6DOgjBjhTnbhZ3u1"
 		
 //		scorena real data/scorenat-env 
-//		parse.parseApplicationId='b2cfHtl3JqMwg7rKfkoGJ7sh6LluiZc8RdjWCeQY'
-//		parse.parseRestApiKey ='k6ybcRnaDAdfUBbLkSBfqiesECFQinEr6D0Lx8dL'
+		parse.parseApplicationId='b2cfHtl3JqMwg7rKfkoGJ7sh6LluiZc8RdjWCeQY'
+		parse.parseRestApiKey ='k6ybcRnaDAdfUBbLkSBfqiesECFQinEr6D0Lx8dL'
+		parse.parseMasterKey='PrEDT2TQfCQcrkY0oFr6XaW4XvdKhzyeMp3F6XsC'
 		
 		//scorena test 3
 //		parse.parseApplicationId='sxfzjYsgGiSXVwr7pj6vmaFR2f8ok9YGrnXGfx91'
@@ -115,10 +127,10 @@ environments {
 	}
     production {
         grails.logging.jul.usebridge = false
-		parse.parseApplicationId=System.getProperty("PARAM1")
-		parse.parseRestApiKey =System.getProperty("PARAM2")
-		parse.parseApplicationId_t3=System.getProperty("PARAM3")
-		parse.parseRestApiKey_t3 =System.getProperty("PARAM4")
+		parse.parseApplicationId=System.getProperty("parseApplicationId")
+		parse.parseRestApiKey =System.getProperty("parseRestApiKey")
+		parse.parseMasterKey =System.getProperty("parseMasterKey")
+		
     }
 	
 	heng {
@@ -131,26 +143,73 @@ environments {
 		grails.logging.jul.usebridge = true
 		parse.parseApplicationId='fTRyi6N1Mbiguvr5MnpUgbyfoz0mOUF5YomNHDlj'
 		parse.parseRestApiKey ='7vZeox8CEOLh8RSBw7E7SbOtBmdxDIoLjL8e5gus'
+		parse.parseMasterKey =''
+	}
+	
+	joel {
+		grails.logging.jul.usebridge = true
+		parse.parseApplicationId='bkGa8TOi7bq4KTvJk5yIC0mzXfkc0kVdjHFkNqap'
+		parse.parseRestApiKey ='ZcmOhNQlwH3wmmlObsuWUJ3qGkqoPLcc2zBoKAwT'
+		parse.parseMasterKey ='eOifDVVGBEg0rmgSvOrsQyEmh7IEL11AceVeYgUq'
+	}
+	thomas {
+		grails.logging.jul.usebridge = true
+		parse.parseApplicationId='0A3t5j5PjNlNEEGeP2DFPvFyNdGHJTXfG1fs0vJs'
+		parse.parseRestApiKey ='2c08ezR05XjsWfYpX853Zh4uQSY9xLV9aqMzTd9B'
+		parse.parseMasterKey ='9hmBGNzQYJ2RMamZ2ZJUizymKI8gfIwiISVHTFOX'
 	}
 }
 
 // log4j configuration
 log4j = {
-    // Example of changing the log pattern for the default console appender:
-    //
-    //appenders {
-    //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
-    //}
+	def infoLogDomain = [
+		"grails.app.controllers",        					//controllers
+		"grails.app.services",								//service
+		"grails.app.domain" 								//domain
+		]
+	
+	def layout = new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %-5p %c{2} %x - %m%n")
+	
+	appenders {
+		console name: "stdout", layout: layout
+		environments {
+			thomas {
+				rollingFile name: "fileLog", layout: layout, maxFileSize: "100MB", file: "/tmp/logs/fileLog.log"
+			}
 
-    error  'org.codehaus.groovy.grails.web.servlet',        // controllers
-           'org.codehaus.groovy.grails.web.pages',          // GSP
-           'org.codehaus.groovy.grails.web.sitemesh',       // layouts
-           'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
-           'org.codehaus.groovy.grails.web.mapping',        // URL mapping
-           'org.codehaus.groovy.grails.commons',            // core / classloading
-           'org.codehaus.groovy.grails.plugins',            // plugins
-           'org.qcodehaus.groovy.grails.orm.hibernate',      // hibernate integration
-           'org.springframework',
-           'org.hibernate',
-           'net.sf.ehcache.hibernate'
+		}
+	}
+	
+	root{
+		environments {
+			thomas {
+				error 'stdout'
+			}
+			development {
+				error 'stdout'
+			}
+			awsdev {
+				error 'stdout'
+			}
+			production {
+				error 'stdout'
+			}
+		}
+	}
+    
+	environments {
+		thomas {
+			info stdout: infoLogDomain, fileLog: infoLogDomain
+		}
+		development {
+			info stdout: infoLogDomain
+		}
+		awsdev {
+			info stdout: infoLogDomain
+		}
+		production {
+			info stdout: infoLogDomain
+		}
+	}
+		   	
 }

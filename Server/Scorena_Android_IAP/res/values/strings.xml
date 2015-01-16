@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">ScorenaIAP</string>
+    <string name="hello_world">in app purchase test</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_purchase">PurchaseActivity</string>
+    <string name="More_coins">Get More Coins</string>
+    <string name="Purchase_activity">Purchase Activity Screen </string>
+<!--     <string name="coins_500"> 500 Coin Pack</string> -->
+<!--     <string name="coins_1000"> 1000 Coin Pack</string> -->
+    <string name="coins_3000"> 3000 Coin Pack</string>
+    <string name="title_activity_purchase_package">PurchasePackageActivity</string>
+    <string name="buy_this"> Buy Item </string>
+    <string name="iap_confirm"> Are you sure you want to purchase this? </string>
+    <string name="title_activity_consume">ConsumeActivity</string>
+    <string name="consume">activate</string>
+
+</resources>

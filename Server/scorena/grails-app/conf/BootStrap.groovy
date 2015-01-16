@@ -1,33 +1,136 @@
 import com.doozi.scorena.*
 import com.doozi.scorena.sportsdata.ScorenaAllGames
+import com.doozi.scorena.utils.AccountType;
+
 import java.util.Date;
+
+import grails.plugins.rest.client.RestBuilder
+import grails.util.Environment
 
 class BootStrap {
 
     def init = { servletContext ->
 		println "bootstrap starts..."
-		
-		if (!QuestionContent.count()) {
-//			bootstrapQuestionContent()
-		}
-		if (!Question.count()) {
-//			createQuestions()
-//			createUsers()
-//			simulateBetUpcoming()
-//			simulateBetPast()
-		}
-		println "bootstrap ended"
+		Environment.executeForCurrentEnvironment {
+			development {
+				
+				Thread.sleep(5000)
+		 		if (!QuestionContent.count()) {
+					bootstrapQuestionContent()
+				}
+				 
+				if (!Question.count()) {
+					createQuestions()					
+				}
+				
+				if (!Account.count()){
+					createTestUsers()
+					addFriends()
+					simulateBetUpcoming()
+					simulateBetPast()
+					
+				}
+				
+				
+				
+				println "bootstrap ended"
+			}
+			awsdev{					
+				Thread.sleep(5000)
+		 		if (!QuestionContent.count()) {
+					bootstrapQuestionContent()
+				}
+				 
+				if (!Question.count()) {
+					createQuestions()					
+				}
+
+				if (!Account.count()){
+					createTestUsers()
+					addFriends()
+					simulateBetUpcoming()
+					simulateBetPast()
+				}
+				
+				println "bootstrap ended"
+				}
+			
+			joel {
+				
+				Thread.sleep(5000)
+				 if (!QuestionContent.count()) {
+					bootstrapQuestionContent()
+				}
+				 
+				if (!Question.count()) {
+					createQuestions()
+				}
+
+				if (!Account.count()){
+					createUsers()
+					simulateBetUpcoming()
+					simulateBetPast()
+					addFriends()
+
+				}
+				
+				println "bootstrap ended"
+			}
+			thomas {
+				
+				Thread.sleep(5000)
+				 if (!QuestionContent.count()) {
+					bootstrapQuestionContent()
+				}
+				 
+				if (!Question.count()) {
+					createQuestions()
+				}
+
+				if (!Account.count()){
+					createUsers()
+					simulateBetUpcoming()
+					simulateBetPast()
+					addFriends()
+
+				}
+				
+				println "bootstrap ended"
+			}
+			
+			production{
+				Thread.sleep(5000)
+		 		if (!QuestionContent.count()) {
+					bootstrapQuestionContent()
+				}
+				 
+				if (!Question.count()) {
+					createQuestions()					
+				}
+
+				if (!Account.count()){
+					createTestUsers()
+					addFriends()
+					simulateBetUpcoming()
+					simulateBetPast()
+				}
+				
+				println "bootstrap ended"
+				}
+		  }		
     }
     def destroy = {
     }
 	
 	def gameService
-	def betService
+	def betTransactionService
 	def userService
 	def customQuestionService
+	def questionService
+	def friendSystemService
 	
 	def createCustomQuestions(){
-		List pastGames = gameService.listPastGames()
+		List pastGames = gameService.listPastGamesData("all", "all")
 		println "createCustomQuestions()::pastGames: "+pastGames.size()
 		for (def game: pastGames){
 			customQuestionService.createCustomQuestion(game.gameId, "Joseph will be naked at the party?", "hell yes", "of course")
@@ -35,16 +138,7 @@ class BootStrap {
 	}
 	
 	def bootstrapQuestionContent(){
-		def qc1 = new QuestionContent(questionType: QuestionContent.WHOWIN, content: "Who will win", sport: "soccer")
-		
-		String qc2Indicator = 2.5
-		String qc2Content = "will total score be more than "+qc2Indicator+" goals"
-		def qc2 = new QuestionContent(questionType: QuestionContent.SCOREGREATERTHAN, content: qc2Content, sport: "soccer", indicator1: qc2Indicator)
-		
-		qc2Indicator = 4.5
-		qc2Content = "will total score be more than "+qc2Indicator+" goals"
-		def qc3 = new QuestionContent(questionType: QuestionContent.SCOREGREATERTHAN, content: qc2Content, sport: "soccer", indicator1: qc2Indicator)
-		
+		def qc1 = new QuestionContent(questionType: QuestionContent.WHOWIN, content: "Who will win this match?", sport: "all")
 		if (qc1.save()){
 			System.out.println("game successfully saved")
 		}else{
@@ -53,6 +147,10 @@ class BootStrap {
 				println it
 			}
 		}
+		
+		String qc2Indicator = 2.5
+		String qc2Content = "What will the total score be?"
+		def qc2 = new QuestionContent(questionType: QuestionContent.SCOREGREATERTHAN_SOCCER, content: qc2Content, sport: "soccer", indicator1: qc2Indicator)
 		
 		if (qc2.save()){
 			System.out.println("game successfully saved")
@@ -63,11 +161,39 @@ class BootStrap {
 			}
 		}
 		
+		String qc3Indicator = 199.5
+		String qc3Content = "What will the total score be?"
+		def qc3 = new QuestionContent(questionType: QuestionContent.SCOREGREATERTHAN_BASKETBALL, content: qc3Content, sport: "basketball", indicator1: qc3Indicator)
+		
 		if (qc3.save()){
 			System.out.println("game successfully saved")
 		}else{
 			System.out.println("game save failed")
-			qc2.errors.each{
+			qc3.errors.each{
+				println it
+			}
+		}
+		
+		String qc4Content = "Which team will have higher FG%?"
+		def qc4 = new QuestionContent(questionType: QuestionContent.AUTOCUSTOM_NBA1, content: qc4Content, sport: "basketball")
+		
+		if (qc4.save()){
+			System.out.println("game successfully saved")
+		}else{
+			System.out.println("game save failed")
+			qc4.errors.each{
+				println it
+			}
+		}
+		
+		String qc5Content = "Which team will have more shots?"
+		def qc5 = new QuestionContent(questionType: QuestionContent.AUTOCUSTOM_SOCCER1, content: qc5Content, sport: "soccer")
+		
+		if (qc5.save()){
+			System.out.println("game successfully saved")
+		}else{
+			System.out.println("game save failed")
+			qc5.errors.each{
 				println it
 			}
 		}
@@ -76,8 +202,8 @@ class BootStrap {
 	def createQuestions(){
 		println "create quesitons starts"
 		
-		List upcomingGames = gameService.listUpcomingGames()
-		List pastGames = gameService.listPastGames()
+		List upcomingGames = gameService.listUpcomingGamesData("all", "all")
+		List pastGames = gameService.listPastGamesData("all", "all")
 		
 		println "upcomingGames: "+upcomingGames.size()
 		println "pastGames: "+pastGames.size()
@@ -86,17 +212,17 @@ class BootStrap {
 			def game = upcomingGames.get(i)
 			println "game id: "+game.gameId
 			if (Question.findByEventKey(game.gameId) == null){
-				populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
+				questionService.populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
 			}
 		}
 		
-//		for (int i=0; i < pastGames.size(); i++){
-//			def game = pastGames.get(i)
-//			println "game id: "+game.gameId
-//			if (Question.findByEventKey(game.gameId) == null){
-//				populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
-//			}
-//		}
+		for (int i=0; i < pastGames.size(); i++){
+			def game = pastGames.get(i)
+			println "game id: "+game.gameId
+			if (Question.findByEventKey(game.gameId) == null){
+				questionService.populateQuestions(game.away.teamname, game.home.teamname, game.gameId)
+			}
+		}
 	}
 	
 	def populateQuestions(String away, String home, String eventId){
@@ -142,8 +268,12 @@ class BootStrap {
 		
 		Random random = new Random()
 		def accounts = Account.findAll()
-		def upcomingGames = gameService.listUpcomingGames()
+		def upcomingGames = gameService.listUpcomingGamesData("all", "all")
 		for (int i=0; i < upcomingGames.size(); i++){
+			if (random.nextInt(2) == 1){
+				continue
+			}
+			
 			def upcomingGame = upcomingGames.get(i)
 			System.out.println("game away: "+upcomingGame.away.teamname + "   VS   game home: "+upcomingGame.home.teamname + "----- StartDate: "+upcomingGame.date)
 			
@@ -151,9 +281,9 @@ class BootStrap {
 			
 			
 			for (Question q: questions){
-				if (random.nextInt(3) == 1){
-					continue
-				}
+//				if (random.nextInt(3) == 1){
+//					continue
+//				}
 				def questionId = q.id
 				for (Account account: accounts){
 					if (random.nextInt(2) == 1){
@@ -171,7 +301,7 @@ class BootStrap {
 					}
 					
 					
-					betService.saveBetTrans(_wager, _time,_pick, account.userId, q.id)
+					betTransactionService.createBetTrans(_wager,_pick, account.userId, questionId)
 				}
 			}
 		}
@@ -182,13 +312,19 @@ class BootStrap {
 		
 //			def gameService = ctx.getBean("gameService")
 //			def betService = ctx.getBean("betService")
-			
-			
+			def rest = new RestBuilder()
+			println "============simulateBetPast() starts==============="
 			Random random = new Random()
 			def accounts = Account.findAll()
-			def upcomingGames = gameService.listPastGames()
-			for (int i=0; i < upcomingGames.size(); i++){
-				def upcomingGame = upcomingGames.get(i)
+			def pastGames = gameService.listPastGamesData("all", "all")
+			for (int i=0; i < pastGames.size(); i++){
+				
+				if (random.nextInt(2) == 1){
+					continue
+				}
+				
+				def upcomingGame = pastGames.get(i)
+				
 				System.out.println("game away: "+upcomingGame.away.teamname + "   VS   game home: "+upcomingGame.home.teamname + "----- StartDate: "+upcomingGame.date)
 				
 				def questions = Question.findAllByEventKey(upcomingGame.gameId)
@@ -201,7 +337,7 @@ class BootStrap {
 					def questionId = q.id
 					Date _time = new Date() - (random.nextInt(6) + 18)
 					for (Account account: accounts){
-						if (random.nextInt(3) == 1){
+						if (random.nextInt(2) == 1){
 							continue
 						}
 						
@@ -217,7 +353,7 @@ class BootStrap {
 						}
 						
 						
-						betService.saveBetTrans(_wager, _time,_pick, account.userId, q.id)
+						betTransactionService.createBetTrans(_wager,_pick, account.userId, questionId, _time, rest, false)
 					}
 				}
 			}
@@ -226,12 +362,10 @@ class BootStrap {
 	
 	def createUser(String _username, String _email, String _password, String _gender, String _region){
 		
-//		def userService = ctx.getBean("userService")
-		def resp = userService.createUser(_username, _email, _password, _gender, _region)
+		def resp = userService.createTestUser(_username, _email, _password, _gender, _region, "", "")
 		println resp
 		
-	}
-	
+	}	
 	def createUsers(){
 		Random random = new Random()
 		String _displayName
@@ -240,7 +374,7 @@ class BootStrap {
 		String _gender
 		String _region
 		
-		for (int i=0; i<10; i++){
+		for (int i=0; i<20; i++){
 			def num = random.nextInt(100000)
 			 _displayName  = "scorena"+num.toString()
 			 _email = _displayName+"@gmail.com"
@@ -250,5 +384,196 @@ class BootStrap {
 			createUser(_displayName, _email, _password, _gender, _region)
 		}
 		println "create users ended"
+	}
+	
+	boolean testUsersExist(){
+		def acc = Account.findAllByAccountType(AccountType.TEST)
+		if (acc)
+			true
+		else
+			false
+	}
+	
+	def createTestUsers(){
+		List _displayNames = [
+		"KyleStinson",
+		"BradenSager",
+		"Aiden1121",
+		"Liam",
+		"CR7Fans",
+		"ManuFan",
+		"KaylaMoss",
+		"RocketsForever",
+		"ChelseaBlue",
+		"LeilaJee",
+		"ILUVCR7",
+		"REDFANS",
+		"MeganEllerman",
+		"ManuForCham",
+		"GunnerFans",
+		"GunnerClub",
+		"DulceLiverpool",
+		"AlexanderEx",
+		"EliahT",
+		"JamesF",
+		"WilliamT",
+		"OliverH",
+		"Napolifans",
+		"Madrid4Life",
+		"DanielH",
+		"Bonnie",
+		"Brayden",
+		"Jayce",
+		"Henry",
+		"Carter",
+		"DylanDamon",
+		"GabrielVespasian",
+		"Joshua",
+		"Nicholas",
+		"DizzyIsaac",
+		"OwenM",
+		"HalaMadrid",
+		"GraysonB",
+		"EliBaker",
+		"RedLondon",
+		"Andrew888",
+		"Max_Ling",
+		"SpursWin",
+		"ChampChelsea",
+		"CavFans",
+		"KingsFans",
+		"WarriorFans",
+		"DRose15",
+		"HeatsWin",
+		"AprilHailey",
+		"MarilynCoxey",
+		"JuliannaCanning",
+		"SheaCoxon",
+		"MeredithCorney",
+		"LillianHodge",
+		"KieraHindson",
+		"JohnAbrams",
+		"Poofcheese",
+		"Alpha_Bandits",
+		"SpinMasters",
+		"Torontowild",
+		"ToxicSmokinMonkeys",
+		"Adam",
+		"Isaiah",
+		"Alex",
+		"Aaron",
+		"Parker",
+		"Cooper",
+		"Miles",
+		"Chase",
+		"Muhammad"]
+		
+		List pictureURLs = [
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/000profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/001profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/002profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/003profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/004profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/005profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/006profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/007profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/008profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/009profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/010profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/011profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/012profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/013profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/014profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/015profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/016profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/017profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/018profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/019profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/020profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/021profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/022profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/023profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/024profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/025profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/026profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/027profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/028profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/029profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/030profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/031profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/032profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/033profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/034profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/035profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/036profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/037profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/038profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/039profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/040profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/041profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/042profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/043profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/044profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/045profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/046profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/047profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/048profile.png",
+			"https://s3-us-west-2.amazonaws.com/userprofilepickture/049profile.png",
+			]
+		
+		
+		
+		
+		String _password = "12345"
+		String _gender = "male"
+		String _region = "Japan"
+		Random random = new Random()
+		for(int i = 0; i<pictureURLs.size(); i++){
+			String _email = _displayNames[i]+random.nextInt(100000)+"@scorena.ca"
+			String pictureURL = ""
+			if (i<pictureURLs.size()){
+				pictureURL = pictureURLs[i]
+			}
+			
+			int facebookId = 100000+i
+			def resp = userService.createTestUser(_displayNames[i], _email, _password, _gender, _region, pictureURL, facebookId.toString())
+		}
+		
+	}
+	
+	def addFriends(){
+		List<Account> users = Account.findAll ()		
+		int userSize = users.size()
+		println "userSize: "+userSize
+		Random random = new Random()
+		for (Account user: users){
+			if (random.nextInt(4) == 1){
+						
+				String user1Id=users[random.nextInt(userSize)].userId
+				String user2Id=users[random.nextInt(userSize)].userId
+				String user3Id=users[random.nextInt(userSize)].userId
+				String user4Id=users[random.nextInt(userSize)].userId
+				String user5Id=users[random.nextInt(userSize)].userId
+				
+				println "user: "+ user.userId
+				
+				println "user1Id: "+user1Id
+				println "user2Id: "+user2Id
+				println "user3Id: "+user3Id
+				println "user4Id: "+user4Id
+				println "user5Id: "+user5Id
+				
+				friendSystemService.addFacebookFriend(user.userId, user1Id)
+				Thread.sleep(1000)
+				friendSystemService.addFacebookFriend(user.userId, user2Id)
+				Thread.sleep(1000)
+				friendSystemService.addFacebookFriend(user.userId, user3Id)
+				Thread.sleep(1000)
+				friendSystemService.addFacebookFriend(user.userId, user4Id)
+				Thread.sleep(1000)
+				friendSystemService.addFacebookFriend(user.userId, user5Id)
+			}
+		}
+		
 	}
 }

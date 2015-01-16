@@ -5,11 +5,13 @@ import com.doozi.scorena.Question;
 import com.doozi.scorena.GameController;
 import com.doozi.scorena.UserController;
 import com.doozi.scorena.QuestionController;
-import com.doozi.scorena.controllerservice.HelperService;
+import com.doozi.scorena.utils.HelperService;
 
 import grails.plugins.rest.client.RestBuilder
 import spock.lang.*
+
 import org.apache.commons.lang.*
+
 import groovy.time.TimeCategory
 import groovy.time.TimeDuration
 

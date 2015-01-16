@@ -2,7 +2,7 @@ import java.util.Date;
 
 import com.doozi.scorena.User
 import com.doozi.scorena.Account
-import com.doozi.scorena.controllerservice.GameService
+import com.doozi.scorena.gameengine.GameService
 import com.doozi.scorena.Question
 import com.doozi.scorena.Game
 import com.doozi.scorena.PoolTransaction
@@ -46,7 +46,7 @@ import com.doozi.scorena.BetResult
 def simulateBet(){
 
 	def gameService = ctx.getBean("gameService")
-	def betService = ctx.getBean("betService")
+	def betService = ctx.getBean("betTransactionService")
 	
 	
 	Random random = new Random()

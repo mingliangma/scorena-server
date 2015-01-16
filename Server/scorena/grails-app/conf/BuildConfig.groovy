@@ -3,8 +3,8 @@ grails.project.class.dir = "target/classes"
 grails.project.test.class.dir = "target/test-classes"
 grails.project.test.reports.dir = "target/test-reports"
 grails.project.work.dir = "target/work"
-grails.project.target.level = 1.6
-grails.project.source.level = 1.6
+grails.project.target.level = 1.7
+grails.project.source.level = 1.7
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
 
 /*
@@ -56,22 +56,24 @@ grails.project.dependency.resolution = {
     plugins {
         // plugins for the build system only
 		if (System.getProperty("noTomcat") == null){
-			build ":tomcat:7.0.47"
+			build ':tomcat:7.0.52.1'
 		}
         // plugins for the compile step
-        compile ":scaffolding:2.0.1"
-        compile ':cache:1.1.1'
-        compile ":create-domain-uml:0.5"
-        compile ":class-diagram:0.5.2"
-		compile ":rest-client-builder:2.0.1"
-		compile ":quartz:1.0.1"
-		compile ":class-domain-uml:0.1.5"
+        compile ':scaffolding:2.1.0'
+        compile ':cache:1.1.8'
+        compile ':asset-pipeline:2.0.19'
+//        compile ":create-domain-uml:0.5"
+//        compile ":class-diagram:0.5.2"
+		compile ":rest-client-builder:2.0.3"
+		compile ":quartz:1.0.1"		
+		compile ":commentable:0.8.1"
 
         // plugins needed at runtime but not for compilation
-        runtime ":hibernate:3.6.10.6" // or ":hibernate4:4.1.11.6"
-        runtime ":database-migration:1.3.8"
-        runtime ":jquery:1.10.2.2"
-        runtime ":resources:1.2.1"
+        runtime ':hibernate4:4.3.6.1' // or ':hibernate:3.6.10.14'
+        runtime ':database-migration:1.4.0'
+        runtime ':jquery:1.11.0.2'
+//        runtime ":resources:1.2.1" replaced with asset-pipeline
+		runtime ":cors:1.1.6"
         // Uncomment these (or add new ones) to enable additional resources capabilities
         //runtime ":zipped-resources:1.0.1"
         //runtime ":cached-resources:1.1"

@@ -8,7 +8,10 @@ import spock.lang.Specification
 
 import com.doozi.scorena.Question
 import com.doozi.scorena.QuestionContent
+import com.doozi.scorena.gameengine.GameService;
+import com.doozi.scorena.gameengine.QuestionService;
 import com.doozi.scorena.sportsdata.ScorenaAllGames
+import com.doozi.scorena.utils.HelperService;
 
 /**
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions

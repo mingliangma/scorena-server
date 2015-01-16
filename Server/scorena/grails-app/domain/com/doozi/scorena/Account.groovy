@@ -1,19 +1,23 @@
 package com.doozi.scorena
-import com.doozi.scorena.tournament.*
+import com.doozi.scorena.tournament.*;
+import com.doozi.scorena.transaction.*;
+import com.doozi.scorena.score.*;
 
 class Account {
 	String userId
 	String username
 	int currentBalance	
 	int previousBalance
+	int accountType
+	int currentScore
+	int previousScore
 	
 	
 	//static belongsTo = [user: User]
-	static hasMany = [bet: PoolTransaction, enrollment: Enrollment]
+	static hasMany = [enrollment: Enrollment, trans: AbstractTransaction, score: AbstractScore]
 
 	static constraints = {
 		userId unqiue: true
-		bet nullable: true
 	}
 	
 	static mapping = {	

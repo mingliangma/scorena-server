@@ -39,6 +39,10 @@ class UrlMappings {
 			action = [GET:"getUserProfile", PUT:"updateUserProfile", DELETE:"deleteUserProfile" ]
 		}	
 		
+		"/v1/users/$userId?/month/$month?"(controller:"user") {
+			action = [GET:"getUserProfile"]
+		}	
+		
 		"/v1/users/$userId?/getCoins"(controller:"user") {
 			action = [GET:"getCoins"]
 		}
@@ -47,36 +51,48 @@ class UrlMappings {
 			action = [GET:"getBalance"]
 		}
 		
-		"/v1/sports/soccer/leagues/all/games/feature"(controller:"game"){
+		"/v1/users/$userId?/history"(controller:"user") {
+			action = [GET:"getUserHistoryGames"]
+		}
+		
+		"/v1/users/$userId?/history/$gameId?/qs"(controller:"user") {
+			action = [GET:"getUserHistoryQuestions"]
+		}
+		
+		"/v1/sports/$sportType/leagues/$leagueType/games/feature"(controller:"game"){
 			action = [GET:"getFeatureGames"]
 		}
 		
-		"/v1/sports/soccer/leagues/all/games/upcoming"(controller:"game"){
+		"/v1/sports/$sportType/leagues/$leagueType/games/upcoming"(controller:"game"){
 			action = [GET:"getUpcomingGames"]
 		}
 		
-		"/v1/sports/soccer/leagues/all/games/past"(controller:"game"){
+		"/v1/sports/$sportType/leagues/$leagueType/games/past"(controller:"game"){
 			action = [GET:"getPastGames"]
 		}
 		
-		"/v1/sports/soccer/leagues/all/games/$gameId?"(controller:"game"){
+		"/v1/sports/$sportType/leagues/$leagueType/games/$gameId?"(controller:"game"){
 			action = [GET:"getGame"]
 		}
 		
-		"/v1/sports/soccer/leagues/all/games/$gameId?/qs"(controller:"question"){
-			action = [GET:"listQuestions"]
+		"/v1/sports/$sportType/leagues/$leagueType/games/$gameId?/ranking"(controller:"game"){
+			action = [GET:"getGameRanking"]
 		}
+		
+		"/v1/sports/$sportType/leagues/$leagueType/games/$gameId?/qs"(controller:"question"){
+			action = [GET:"listQuestions"]
+		}		
 
-		"/v1/sports/soccer/leagues/all/games/$gameId?/qs/$qId?"(controller:"question"){
+		"/v1/sports/$sportType/leagues/$leagueType/games/$gameId?/qs/$qId?"(controller:"question"){
 			action = [GET:"getQuestionDetails"]
 		}
 		
-		"/v1/sports/soccer/leagues/all/wagers/new"(controller:"bet"){
+		"/v1/sports/$sportType/leagues/$leagueType/wagers/new"(controller:"bet"){
 			action = [POST:"placeBet"]
 		}
 		
-		"/v1/sports/ranking"(controller:"user"){
-			action = [GET:"getRanking"]
+		"/v1/sports/ranking"(controller:"Ranking"){
+			action = [GET:"getRank"]
 		}
 		
 		"/v1/sports/processgame"(controller:"game"){
@@ -103,8 +119,44 @@ class UrlMappings {
 			action = [GET:"createQuestions"]
 		}
 		
+		"/v1/admin/simulatebet"(controller:"simulateBet"){
+			action = [GET:"simulateBet"]
+		}
+		
+		"/v1/admin/simulatecomment"(controller:"simulateBet"){
+			action = [GET:"simulateComment"]
+		}
+		
 		"/v1/admin/tournament/new"(controller:"tournament"){
 			action = [POST:"createTournament"]
+		}
+		
+		"/v1/admin/push/addChannel"(controller:"push"){
+			action = [GET:"updateChannel"]
+		}
+		
+		"/v1/admin/push/removeChannel"(controller:"push"){
+			action = [GET:"removeChannel"]
+		}
+		
+		"/v1/admin/push/getUser"(controller:"push"){
+			action = [GET:"getUserInstallationID"]
+		}
+				
+		"/v1/iap/getNonce"(controller:"IAP"){
+			action = [POST:"getNonce"]
+		}
+		
+		"/v1/iap/validateApple"(controller:"IAP"){
+			action = [POST:"verifyApple"]
+		}
+		
+		"/v1/iap/validateAndroid"(controller:"IAP"){
+			action = [POST:"verifyAndroid"]
+		}
+		
+		"/v1/iap/activatePurchse"(controller:"IAP"){
+			action = [POST:"activateAndroid"]
 		}
 		
 //		"/v1/sports/all/tournament/list"(controller:"tournament"){
@@ -118,10 +170,27 @@ class UrlMappings {
 		"/v1/sports/all/tournament/enroll/$tournamentId?"(controller:"tournament"){
 			action = [GET:"enrollTournament"]
 		}
+		
+		"/v1/sports/$sportType/leagues/$leagueType/games/$gameId?/qs/$qId?/comments"(controller:"comment") {
+			action = [GET:"getExistingComments", POST:"writeComments"]
+		}
+		
+		"/v1/users/$userId?/friends"(controller:"friendSystem") {
+			action = [GET:"listFriends"]
+		}
+		
+		"/v1/users/$userId?/friends/request"(controller:"friendSystem") {
+			action = [POST:"friendRequest"]
+		}
+		
+		"/v1/users/$userId?/friends/confirmation"(controller:"friendSystem") {
+			action = [POST:"confirmFriendRequest"]
+		}
 
 		"/v1/admin/cq"(view:"/CustomQuestionWebsite")
 		
 		"/v1/admin/qr"(view:"/CustomQuestionResultWebsite")
+		"/v1/userprofilewebsite"(view:"/userprofile")
 //        "/"(view:"/index")
         "500"(view:'/error')
 	}

@@ -5,10 +5,11 @@ package com.doozi.scorena.gamedata.testdriver;
 
 import com.doozi.scorena.gamedata.helper.GameDataConstantsXmlSoccer;
 import com.doozi.scorena.gamedata.manager.GameDataAdapter;
+import com.doozi.scorena.gamedata.userinput.GameDataInputStatsNba
 import com.doozi.scorena.gamedata.userinput.GameDataInputXmlSoccer;
-import com.doozi.scorena.gamedata.useroutput.GameDataOutput;
-import com.doozi.scorena.gamedata.useroutput.GameDataSoccerXmlSoccer;
-import com.doozi.scorena.gamedata.useroutput.GameDataTeamXmlSoccer;
+import com.doozi.scorena.gamedata.useroutput.soccer.GameDataSoccerOutput;
+import com.doozi.scorena.gamedata.useroutput.soccer.GameDataSoccerXmlSoccer;
+import com.doozi.scorena.gamedata.useroutput.soccer.GameDataTeamXmlSoccer;
 
 /**
  * @author hengkuang
@@ -24,18 +25,26 @@ public class GameDataTestDriver {
 		
 	}
 
+	public static void main(String[] args) throws Exception
+	{
+		GameDataInputStatsNba gameDataInputStatsNba = new GameDataInputStatsNba();
+		GameDataSoccerOutput gameDataSoccerOutput = GameDataAdapter.get_gameDataAdapterInstance().retrieveGameData(gameDataInputStatsNba);
+		printTeamStandingXmlSoccer(gameDataSoccerOutput);
+	}
+	
+	
 	/**
 	 * @param args
 	 * @throws Exception 
 	 */
-	public static void main(String[] args) throws Exception 
-	{
-		GameDataInputXmlSoccer gameDataInputXmlSoccer = new GameDataInputXmlSoccer();
-		GameDataOutput gameDataOutput = GameDataAdapter.get_gameDataAdapterInstance().retrieveGameData(gameDataInputXmlSoccer);
-		printTeamStandingXmlSoccer(gameDataOutput);
-	}
+//	public static void main1(String[] args) throws Exception 
+//	{
+//		GameDataInputXmlSoccer gameDataInputXmlSoccer = new GameDataInputXmlSoccer();
+//		GameDataOutput gameDataOutput = GameDataAdapter.get_gameDataAdapterInstance().retrieveGameData(gameDataInputXmlSoccer);
+//		printTeamStandingXmlSoccer(gameDataOutput);
+//	}
 	
-	public static void printTeamStandingXmlSoccer(GameDataOutput gameDataOutput)
+	public static void printTeamStandingXmlSoccer(GameDataSoccerOutput gameDataOutput)
 	{
 		for (GameDataTeamXmlSoccer gameDataTeamXmlSoccer : gameDataOutput.get_teamListXmlSoccer().values())
 		{
