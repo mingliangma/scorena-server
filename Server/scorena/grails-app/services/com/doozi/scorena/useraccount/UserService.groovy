@@ -268,6 +268,7 @@ class UserService {
 			return result
 		}	
 		
+		
 		List<AbstractScore> userScores = scoreService.listScoresByUserId(userId)
 		def userPayoutTrans = payoutTansactionService.listPayoutTransByUserId(userId)
 		Map userStats = userStatsService.getUserStats(userScores, userPayoutTrans, month,account)
@@ -278,6 +279,8 @@ class UserService {
 		result.userStats = userStats
 		result.level = 1
 		result.levelName = "novice"
+		result.followerCounter = friendSystemService.getFollowerCounter(userId)
+		result.followingCounter = friendSystemService.getFollowingCounter(userId)
 		
 		log.info "getUserProfile(): ends with result = ${result}"
 		

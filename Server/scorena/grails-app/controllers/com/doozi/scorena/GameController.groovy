@@ -26,7 +26,7 @@ class GameController {
 	def sportsDataService
 	def userService
 	def processEngineManagerService
-	def rankingService
+	def profitRankingService
 	
 	def upcomingEplSportsDb()
 	{
@@ -106,7 +106,7 @@ class GameController {
 	
 	def getGameRanking(){
 		if (params.gameId){
-			def gameRanking = rankingService.getGameRanking(params.gameId)
+			def gameRanking = profitRankingService.getGameRanking(params.gameId)
 			render gameRanking as JSON
 		}else{
 			response.status = 404

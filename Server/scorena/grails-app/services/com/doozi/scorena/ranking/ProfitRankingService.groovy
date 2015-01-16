@@ -9,7 +9,7 @@ import com.doozi.scorena.score.AbstractScore
 import org.springframework.transaction.annotation.Transactional
 
 //@Transactional
-class RankingService {
+class ProfitRankingService {
 	def parseService
 	def scoreService
 	

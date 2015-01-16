@@ -22,7 +22,7 @@ class GameService {
 	def gameUserInfoService
 	def scoreService
 	def parseService
-	def rankingService
+	def profitRankingService
 	
 	public static final String POSTEVENT = "post-event"
 	public static final String PREEVENT = "pre-event"

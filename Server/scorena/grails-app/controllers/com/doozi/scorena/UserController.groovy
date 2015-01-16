@@ -16,7 +16,7 @@ import grails.converters.JSON
 
 class UserController {
 	def userService
-	def rankingService
+	def profitRankingService
 	def userHistoryService
 	
 	def list(){
@@ -235,7 +235,7 @@ class UserController {
 			return
 		}
 		
-		Map rankingResult = rankingService.getRanking(params.userId)
+		Map rankingResult = profitRankingService.getRanking(params.userId)
 		if (rankingResult.code){
 			response.status = 404
 			render rankingResult as JSON

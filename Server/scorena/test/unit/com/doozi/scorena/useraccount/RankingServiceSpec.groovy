@@ -1,6 +1,6 @@
 package com.doozi.scorena.useraccount
 
-import com.doozi.scorena.ranking.RankingService;
+import com.doozi.scorena.ranking.ProfitRankingService;
 
 import grails.test.mixin.TestFor
 import spock.lang.Specification
@@ -8,7 +8,7 @@ import spock.lang.Specification
 /**
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
-@TestFor(RankingService)
+@TestFor(ProfitRankingService)
 class RankingServiceSpec extends Specification {
 
     def setup() {

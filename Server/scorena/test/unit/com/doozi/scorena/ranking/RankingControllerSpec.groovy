@@ -6,7 +6,7 @@ import spock.lang.Specification
 /**
  * See the API for {@link grails.test.mixin.web.ControllerUnitTestMixin} for usage instructions
  */
-@TestFor(RankingController)
+@TestFor(ProfitRankingController)
 class RankingControllerSpec extends Specification {
 
     def setup() {

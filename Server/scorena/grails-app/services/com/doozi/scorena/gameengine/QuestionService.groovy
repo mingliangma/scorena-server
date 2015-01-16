@@ -469,7 +469,7 @@ class QuestionService {
 		pick1ProfitMultiple,pick2ProfitMultiple)
 			
 			
-			List<String> userFriendsList = friendSystemService.listFriendUserIds(userId)
+			List<String> userFriendsList = friendSystemService.listFollowingUserId(userId)
 			List<BetTransaction> friendBets = betTransactionService.listAllFriendsBetsByQId(q.id, userFriendsList)			
 			betters = getBetters(betTransList, pick1PayoutMultiple, pick2PayoutMultiple, userInfo, userId, friendBets)
 		}else{
@@ -564,7 +564,7 @@ class QuestionService {
 		
 		if (userService.accountExists(userId)){
 			userInfo = questionUserInfoService.getPreEventQuestionUserInfo(userId, q.id)
-			List<String> userFriendsList = friendSystemService.listFriendUserIds(userId)
+			List<String> userFriendsList = friendSystemService.listFollowingUserId(userId)
 			List<BetTransaction> friendBets = betTransactionService.listAllFriendsBetsByQId(q.id, userFriendsList)			
 			betters = getBetters(betTransList, pick1PayoutMultiple, pick2PayoutMultiple, userInfo, userId, friendBets)
 		}else{
@@ -707,8 +707,8 @@ class QuestionService {
 	}
 	
 	
-	private Map getBetters(List<BetTransaction> betTransactions, def pick1PayoutMultiple, def pick2PayoutMultiple, Map userInfo, String userId, List<BetTransaction> friendBetList){
-		log.info "getBetters(): begins with betTransactions = ${betTransactions}, pick1PayoutMultiple = ${pick1PayoutMultiple}, pick2PayoutMultiple = ${pick2PayoutMultiple}, userInfo = ${userInfo}, friendBetList = ${friendBetList}"
+	private Map getBetters(List<BetTransaction> betTransactions, def pick1PayoutMultiple, def pick2PayoutMultiple, Map userInfo, String userId, List<BetTransaction> followingUserBetList){
+		log.info "getBetters(): begins with betTransactions = ${betTransactions}, pick1PayoutMultiple = ${pick1PayoutMultiple}, pick2PayoutMultiple = ${pick2PayoutMultiple}, userInfo = ${userInfo}, followingUserBetList = ${followingUserBetList}"
 		
 		Map pick1BettersMap = [:]
 		Map pick2BettersMap = [:]
@@ -717,6 +717,7 @@ class QuestionService {
 		Boolean isFriendMySelf = false	//indicator weather current user is current user's friends or not 
 		Boolean isBettersMapFull = false
 		String username = ""
+		
 		
 		if (userId != null){
 			username = userService.getUserDisplayName(userId)
@@ -728,8 +729,9 @@ class QuestionService {
 				}
 			}
 		}
-			
-		for (BetTransaction friendTransaction: friendBetList){
+		
+		//add 	
+		for (BetTransaction friendTransaction: followingUserBetList){
 			Account betterAccount = friendTransaction.account			
 			String betterUsername = betterAccount.username
 			String betterUserId =  betterAccount.userId
@@ -743,7 +745,8 @@ class QuestionService {
 							userId:betterUserId,
 							wager:friendTransaction.transactionAmount,
 							expectedPayout: Math.round(pick1PayoutMultiple * friendTransaction.transactionAmount),
-							isFriend: true])
+							isFriend: true,
+							isFollowing: true])
 					}
 				}
 			}else{
@@ -754,7 +757,8 @@ class QuestionService {
 							userId:betterUserId,
 							wager:friendTransaction.transactionAmount,
 							expectedPayout: Math.round(pick2PayoutMultiple * friendTransaction.transactionAmount),
-							isFriend: true])
+							isFriend: true,
+							isFollowing: true])
 					}
 				}
 			}
@@ -775,10 +779,6 @@ class QuestionService {
 					continue
 				}
 				
-				if(userId != null) 	{
-					isFriend = friendSystemService.isFriend(userId,betterUserId)
-				}
-				
 				if (betTrans.pick==Pick.PICK1){
 					
 					if (pick1BettersMap.size() <=BETTERS_LIST_SIZE){
@@ -788,7 +788,8 @@ class QuestionService {
 								userId:betterUserId,
 								wager:betTrans.transactionAmount,
 								expectedPayout: Math.round(pick1PayoutMultiple * betTrans.transactionAmount),
-								isFriend: isFriend])
+								isFriend: false,
+								isFollowing: false])
 						}
 					}
 				}else{
@@ -799,7 +800,8 @@ class QuestionService {
 								userId:betterUserId,
 								wager:betTrans.transactionAmount,
 								expectedPayout: Math.round(pick2PayoutMultiple * betTrans.transactionAmount),
-								isFriend: isFriend])				
+								isFriend: false,
+								isFollowing: false])				
 						}
 					}
 				}
