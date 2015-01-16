@@ -78,7 +78,7 @@ class QuestionService {
 		def game = gameService.getGame(eventKey)
 		List<PayoutTransaction> userPayouts = payoutTansactionService.listPayoutTransByGameIdAndUserId(eventKey, userId)
 		List<BetTransaction> userBets = betTransactionService.listBetsByUserIdAndGameId(eventKey, userId)
-		List<Map> userFriendsList = friendSystemService.listFriends(userId)
+		List<Map> userFriendsList = friendSystemService.listFollowings(userId)
 		
 		def rest = new RestBuilder()
 		for (Question q: questions){
@@ -125,10 +125,10 @@ class QuestionService {
 			}
 			
 			
-			String friendPlayerPictureUrl = ""
-			int friendPlayerBetAmount = -1
-			String friendPlayerPick = ""
-			boolean friendExistsInQuestion = false
+			String followingPlayerPictureUrl = ""
+			int followingPlayerBetAmount = -1
+			String followingPlayerPick = ""
+			boolean followingExistsInQuestion = false
 			
 			String playerPictureUrl = ""
 			int playerBetAmount = -1
@@ -136,10 +136,10 @@ class QuestionService {
 			
 			
 			if (questionPoolInfo.getFriendsExist()){ //friends are playing in this question, use friend's profile in question player icon
-				friendPlayerPictureUrl = questionPoolInfo.getFriendPictureUrl()
-				friendPlayerBetAmount = questionPoolInfo.getFriendBetAmount()
-				friendPlayerPick = questionPoolInfo.getFriendBetPick() == 1 ? q.pick1 : q.pick2
-				friendExistsInQuestion = true
+				followingPlayerPictureUrl = questionPoolInfo.getFriendPictureUrl()
+				followingPlayerBetAmount = questionPoolInfo.getFriendBetAmount()
+				followingPlayerPick = questionPoolInfo.getFriendBetPick() == 1 ? q.pick1 : q.pick2
+				followingExistsInQuestion = true
 			}
 
 			if (questionPoolInfo.getHighestBetUserId() != null){ 	 //no friends are playing, use highest bet user	
@@ -165,10 +165,10 @@ class QuestionService {
 				playerBetAmount: playerBetAmount, //the question preview player bet amount
 				playerPictureUrl: playerPictureUrl,	// the question preview player picture URL
 				playerPick: playerPick, // the question preview player pick				
-				friendPlayerBetAmount: friendPlayerBetAmount,
-				friendPlayerPictureUrl: friendPlayerPictureUrl,
-				friendPlayerPick: friendPlayerPick,				
-				friendExistsInQuestion: friendExistsInQuestion,
+				followingPlayerBetAmount: followingPlayerBetAmount,
+				followingPlayerPictureUrl: followingPlayerPictureUrl,
+				followingPlayerPick: followingPlayerPick,				
+				followingPlayerExistsInQuestion: followingExistsInQuestion,
 				isGameProcessed: isGameProcessed,
 				pool: [
 					pick1Amount: questionPoolInfo.getPick1Amount(),
