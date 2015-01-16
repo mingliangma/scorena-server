@@ -5,12 +5,17 @@ import com.doozi.scorena.Question
 import com.doozi.scorena.QuestionContent
 import com.mysql.jdbc.log.Log;
 
+import grails.plugins.rest.client.RestBuilder
 import org.springframework.transaction.annotation.Transactional
 
 @Transactional
 class CustomQuestionService {	
 	
+	def pushService;
+	
 	def createCustomQuestion(String eventId, String content, String pick1, String pick2){
+		def rest = new RestBuilder()
+		
 		log.info "createCustomQuestion(): begins with eventId = ${eventId}, pick1 = ${pick1}, pick2 = ${pick2}"
 		
 		QuestionContent qc = createCustomQuestionContent(content)
@@ -26,6 +31,10 @@ class CustomQuestionService {
 		}
 		
 		log.info "createCustomQuestion(): ends"
+		
+		String parse_channel = eventId.replace(".","_")
+		
+		pushService.customQuestionPush(rest, parse_channel, content)
 		
 		return [:]
 	}

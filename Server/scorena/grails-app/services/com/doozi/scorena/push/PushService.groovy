@@ -151,4 +151,32 @@ class PushService {
 	 return resp.json.toString()
  }
  
+ 
+ def customQuestionPush(def rest,String eventKey,String msg)
+ {
+	 log.info "customQuestionPush(): begins with rest = ${rest}, eventKey = ${eventKey}, msg = ${msg}"
+	 
+	 def parseConfig = grailsApplication.config.parse
+	 def chanParam = ["channels":['$in':[(eventKey)]]]
+	 def alertParam = ["alert": (msg),"gameKey":(eventKey), "pushType":"question"]
+	 def resp = rest.post("https://api.parse.com/1/push")
+	 {
+		 header "X-Parse-Application-Id", parseConfig.parseApplicationId
+		 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
+		 contentType "application/json"
+		 json{
+			 data = alertParam
+			 where = chanParam
+			 }
+	 
+
+	 }
+	 
+	 def result = resp.json.toString()
+	 log.info "customQuestionPush(): ends with result = ${result}"
+	 
+	 return resp.json.toString()
+ }
+ 
+ 
 }
