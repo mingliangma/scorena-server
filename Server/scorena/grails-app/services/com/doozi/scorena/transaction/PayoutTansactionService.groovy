@@ -72,8 +72,8 @@ class PayoutTansactionService {
 				
 			
 		}catch(org.springframework.dao.CannotAcquireLockException e){
-			println "createPayoutTrans(): CannotAcquireLockException ERROR: "+e.message
 			log.error "createPayoutTrans(): CannotAcquireLockException ERROR: ${e.message}"
+			throw e
 		}
 	}
 	
