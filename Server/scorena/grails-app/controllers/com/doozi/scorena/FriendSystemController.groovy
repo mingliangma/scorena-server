@@ -17,7 +17,7 @@ class FriendSystemController {
 		String followingUserId = request.JSON.followingUserId
 		
 		//validate all required input parameters exist
-		Map validateResult = validateFriendRequest(request, myUserId)
+		Map validateResult = validateFollowRequest(request, myUserId)
 		if (validateResult != [:]){
 			response.status = 404
 			render validateResult as JSON
