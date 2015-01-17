@@ -3,7 +3,7 @@ package com.doozi.scorena.gamedata.userinput
 import com.doozi.scorena.gamedata.manager.IGameDataAdapter
 import com.doozi.scorena.gamedata.helper.GameDataConstantsStatsNba
 
-class GameDataInputStatsNba implements IGameDataAdapter {
+class GameDataInputStatsNba implements IGameDataInput{
 
 	private String _apiUrl;
 	private String _dayOffSet;
