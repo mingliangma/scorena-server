@@ -7,6 +7,7 @@ import com.doozi.scorena.gamedata.helper.GameDataConstantsXmlSoccer;
 import com.doozi.scorena.gamedata.manager.GameDataAdapter;
 import com.doozi.scorena.gamedata.userinput.GameDataInputStatsNba
 import com.doozi.scorena.gamedata.userinput.GameDataInputXmlSoccer;
+import com.doozi.scorena.gamedata.useroutput.basketball.GameDataNbaOutput
 import com.doozi.scorena.gamedata.useroutput.soccer.GameDataSoccerOutput;
 import com.doozi.scorena.gamedata.useroutput.soccer.GameDataSoccerXmlSoccer;
 import com.doozi.scorena.gamedata.useroutput.soccer.GameDataTeamXmlSoccer;
@@ -28,8 +29,9 @@ public class GameDataTestDriver {
 	public static void main(String[] args) throws Exception
 	{
 		GameDataInputStatsNba gameDataInputStatsNba = new GameDataInputStatsNba();
-		GameDataSoccerOutput gameDataSoccerOutput = GameDataAdapter.get_gameDataAdapterInstance().retrieveGameData(gameDataInputStatsNba);
-		printTeamStandingXmlSoccer(gameDataSoccerOutput);
+		GameDataNbaOutput gameDateNbaOutput = GameDataAdapter.get_gameDataAdapterInstance().retrieveGameData(gameDataInputStatsNba);
+		
+		println gameDateNbaOutput
 	}
 	
 	

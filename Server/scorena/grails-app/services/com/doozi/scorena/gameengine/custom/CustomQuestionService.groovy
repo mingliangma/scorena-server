@@ -33,8 +33,8 @@ class CustomQuestionService {
 		log.info "createCustomQuestion(): ends"
 		
 		String parse_channel = eventId.replace(".","_")
-		
-		pushService.customQuestionPush(rest, parse_channel, content)
+		String message = content + " "+pick1 + " or " + pick2
+		pushService.customQuestionPush(rest, parse_channel, message)
 		
 		return [:]
 	}
