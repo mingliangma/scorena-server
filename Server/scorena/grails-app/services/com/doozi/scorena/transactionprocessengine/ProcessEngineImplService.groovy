@@ -143,7 +143,7 @@ class ProcessEngineImplService {
 			}
 		}
 		
-//		sendEndGamePush(userTotalGamesProfit, gameIdToGameInfoMap)
+		sendEndGamePush(userTotalGamesProfit, gameIdToGameInfoMap)
 		
 		log.info "processGamePayout(): ends at "+new Date()
 		return gameRecordsProcessed
