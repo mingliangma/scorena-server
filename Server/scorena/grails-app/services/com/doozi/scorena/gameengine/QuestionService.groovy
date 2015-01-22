@@ -169,6 +169,10 @@ class QuestionService {
 				followingPlayerPictureUrl: followingPlayerPictureUrl,
 				followingPlayerPick: followingPlayerPick,				
 				followingPlayerExistsInQuestion: followingExistsInQuestion,
+				friendPlayerBetAmount: followingPlayerBetAmount,
+				friendPlayerPictureUrl: followingPlayerPictureUrl,
+				friendPlayerPick: followingPlayerPick,
+				friendPlayerExistsInQuestion: followingExistsInQuestion,
 				isGameProcessed: isGameProcessed,
 				pool: [
 					pick1Amount: questionPoolInfo.getPick1Amount(),
