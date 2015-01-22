@@ -1,6 +1,7 @@
 package com.doozi.scorena.gameengine.custom
 
 import com.doozi.scorena.CustomGame
+import com.doozi.scorena.sportsdata.*
 import com.doozi.scorena.gameengine.GameService;
 
 import org.springframework.transaction.annotation.Transactional
@@ -21,10 +22,10 @@ class CustomGameService {
 	def getGame(def eventKey){
 		log.info "getGame(): begins with eventKey = ${eventKey}"
 		
-		def games = CustomGame.findAllByEventKey(eventKey,[cache: true])
+		def games = NbaGames.findAllByEventKey(eventKey,[cache: true])
 		
 		def gameInfo = []
-		for (CustomGame game: games){
+		for (NbaGames game: games){
 			if (gameInfo.empty){
 				gameInfo = [
 					"leagueName": "",
@@ -35,14 +36,15 @@ class CustomGameService {
 					"date":helperService.setUTCFormat(game.startDateTime),
 					(game.alignment):[
 						"teamname":game.fullName,
-						"score":game.score
+						"score":game.score,
+						"fieldGoalPct": game.fieldGoalsPercentage
 					]
 				]
 			}else{
 				if (!gameInfo.away){
-					gameInfo.away = ["teamname":game.fullName, "score":game.score]
+					gameInfo.away = ["teamname":game.fullName, "score":game.score, "fieldGoalPct": game.fieldGoalsPercentage]
 				}else{
-					gameInfo.home = ["teamname":game.fullName, "score":game.score]
+					gameInfo.home = ["teamname":game.fullName, "score":game.score, "fieldGoalPct": game.fieldGoalsPercentage]
 				}
 				
 			}
@@ -59,7 +61,7 @@ class CustomGameService {
 		println "CustomGameService::getAllUpcomingGames(): starts..."
 		def todayDate = new Date()
 		def upcomingDate = todayDate + UPCOMING_DATE_RANGE;
-		def upcomingGames = CustomGame.findAll("from CustomGame as g where g.startDateTime<? and g.startDateTime>? and g.eventStatus<>'post-event' order by g.startDateTime", [upcomingDate, todayDate-1], [cache: true])
+		def upcomingGames = NbaGames.findAll("from NbaGames as g where g.startDateTime<? and g.startDateTime>? and g.eventStatus<>'post-event' order by g.startDateTime", [upcomingDate, todayDate-1], [cache: true])
 		List upcomingGamesList = sportsDataService.constructGameList(upcomingGames, sportsDataService.PREEVENT, todayDate)
 		
 		log.info "getAllUpcomingGames(): ends with upcomingGamesList = ${upcomingGamesList}"
@@ -72,7 +74,7 @@ class CustomGameService {
 		
 		def todayDate = new Date()
 		def pastDate = todayDate - PAST_DATE_RANGE;
-		def pastGames = CustomGame.findAll("from CustomGame as g where g.startDateTime>? and g.startDateTime<? and g.eventStatus='post-event' order by g.startDateTime desc", [pastDate, todayDate+1])
+		def pastGames = NbaGames.findAll("from NbaGames as g where g.startDateTime>? and g.startDateTime<? and g.eventStatus='post-event' order by g.startDateTime desc", [pastDate, todayDate+1])
 
 		List pastGamesList = sportsDataService.constructGameList(pastGames, sportsDataService.PREEVENT, todayDate)		
 		

@@ -68,8 +68,7 @@ class PayoutTansactionService {
 			
 			lockedAccount.save(flush: true)
 			q.save(flush: true)
-//			println "PayoutTansactionService: createPayoutTrans():: SUCCESSFULLY released Account lock for userId=" + playerAccount.userId
-				
+			return [:]
 			
 		}catch(org.springframework.dao.CannotAcquireLockException e){
 			log.error "createPayoutTrans(): CannotAcquireLockException ERROR: ${e.message}"

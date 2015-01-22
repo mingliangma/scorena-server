@@ -27,8 +27,8 @@ class SportsDataService {
 	final static String MIDEVENT_NAME = "mid-event"
 	
 	
-	static int UPCOMING_DATE_RANGE = 7
-	static int PAST_DATE_RANGE = 7
+	static int UPCOMING_DATE_RANGE = 14
+	static int PAST_DATE_RANGE = 14
 	
 	def helperService
 	def customGameService
@@ -291,6 +291,10 @@ class SportsDataService {
 							"teamLogoUrl": teamLogoService.getTeamLogo(gameFullName)
 						]
 				]
+				if (LeagueTypeEnum.NBA == getLeagueCodeFromEventKey(eventKey)){
+					gameInfo[game.alignment].fieldGoalPct=game.fieldGoalsPercentage
+				}
+				
 				gamesMap.putAt(eventKey, gameInfo)
 			}else{
 			
@@ -302,8 +306,14 @@ class SportsDataService {
 			
 				if (!gamesMapValue.away){
 					gamesMapValue.away = ["teamname":gameFullName, "score":game.score, "teamLogoUrl": teamLogoService.getTeamLogo(gameFullName)]
+					if (LeagueTypeEnum.NBA == getLeagueCodeFromEventKey(eventKey)){
+						gamesMapValue.away.fieldGoalPct=game.fieldGoalsPercentage
+					}
 				}else{
 					gamesMapValue.home = ["teamname":gameFullName, "score":game.score, "teamLogoUrl": teamLogoService.getTeamLogo(gameFullName)]
+					if (LeagueTypeEnum.NBA == getLeagueCodeFromEventKey(eventKey)){
+						gamesMapValue.home.fieldGoalPct=game.fieldGoalsPercentage
+					}
 				}
 				gamesList.add(gamesMapValue)
 				

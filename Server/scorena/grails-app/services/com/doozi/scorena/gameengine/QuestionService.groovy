@@ -327,7 +327,7 @@ class QuestionService {
 				}
 			}
 			
-			def QC_HigherFG = QuestionContent.findAllByQuestionType(QuestionContent.AUTOCUSTOM_NBA1)
+			def QC_HigherFG = QuestionContent.findAllByQuestionType(QuestionContent.HIGHERFIELDGOAL_BASKETBALL)
 			for (QuestionContent qc: QC_HigherFG){
 				def q = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
 				qc.addToQuestion(q)

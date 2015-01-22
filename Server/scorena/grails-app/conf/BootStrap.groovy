@@ -175,7 +175,7 @@ class BootStrap {
 		}
 		
 		String qc4Content = "Which team will have higher FG%?"
-		def qc4 = new QuestionContent(questionType: QuestionContent.AUTOCUSTOM_NBA1, content: qc4Content, sport: "basketball")
+		def qc4 = new QuestionContent(questionType: QuestionContent.HIGHERFIELDGOAL_BASKETBALL, content: qc4Content, sport: "basketball")
 		
 		if (qc4.save()){
 			System.out.println("game successfully saved")
@@ -316,8 +316,8 @@ class BootStrap {
 			println "============simulateBetPast() starts==============="
 			Random random = new Random()
 			def accounts = Account.findAll()
-			def pastGames = gameService.listPastGamesData("all", "all")
-			for (int i=0; i < pastGames.size(); i++){
+			def pastGames = gameService.listPastGamesData("all", "nba")
+			for (int i=0; i < pastGames.size()/3; i++){
 				
 				if (random.nextInt(2) == 1){
 					continue

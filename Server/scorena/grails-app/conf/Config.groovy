@@ -92,9 +92,9 @@ grails.hibernate.cache.queries = false
 environments {
     development {
         grails.logging.jul.usebridge = true
-		parse.parseApplicationId='kEepaeRdIInsSbptLl4lZ6xiZg7nv7bEOV56ym9m'
-		parse.parseRestApiKey ='QSBmZXNUjRMtKwWcqB7jLQgtZizCSMBBeoBQHIql'
-		parse.parseMasterKey ='yJmLOwQM0z6GaD1d794Kb90086nsLiWXKgaRIh5I'
+		parse.parseApplicationId='2q5LE4IWjok7eHP1N5ZkNdl93HTYtfYKv94sMy8Z'
+		parse.parseRestApiKey ='gs1KCRy8CTWIDL5c8wyxA3c1sLXcAVHeXvGMA6BE'
+		parse.parseMasterKey ='WjclC9AcuAubiGQZrW77IZdoNgPGQ4n2gp5Qjady'
 		
     }
 	
