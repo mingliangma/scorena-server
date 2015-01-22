@@ -2,7 +2,7 @@ package com.doozi.scorena.gamedata.helper
 
 class GameDataConstantsStatsNba {
 	//http://stats.nba.com/stats/scoreboardV2?DayOffset=0&LeagueID=00&gameDate=01/14/2015
-	public static String defaultHost = "http://stats.nba.com/";
+	public static String defaultHost = "http://stats.nba.com";
 	public static String defaultUrlPath = "/stats/scoreboardV2";
 	public static String dayOffset = "DayOffset";
 	public static String leagueID = "LeagueID";

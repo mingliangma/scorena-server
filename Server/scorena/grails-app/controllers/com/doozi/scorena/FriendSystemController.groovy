@@ -112,6 +112,32 @@ class FriendSystemController {
 		return
 	}
 	
+	def isFollowing(){
+		log.info "isFollowing(): begins..."
+		
+		String userId = params.userId
+		String followingUserId = params.followingUserId
+		
+		if(!userId || !followingUserId) {
+			response.status = 404
+			def resp = [
+				code: 101,
+				error: "empty userID or followingUserId!"
+				]
+			render resp as JSON
+			log.error "isFollowing(): resp = ${resp}"
+			return
+		}
+		
+		boolean isFollowing = friendSystemService.isFollowing(userId, followingUserId)
+		Map result = [isFollowing: isFollowing]
+		render result  as JSON
+		
+		log.info "isFollowing(): ends with isFollowing result = ${result}"
+		
+		return
+	}
+	
 //	def friendRequest() {
 //		log.info "friendRequest(): begins..."
 //		

@@ -18,7 +18,6 @@ class SimulateBetJob {
 //		simulateCommentService.simulateComment()
 //		println "simulateComment completed"
 		
-//		test2Service.runTest()
 		
 	}
 }

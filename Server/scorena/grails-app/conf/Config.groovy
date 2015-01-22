@@ -165,7 +165,8 @@ log4j = {
 	def infoLogDomain = [
 		"grails.app.controllers",        					//controllers
 		"grails.app.services",								//service
-		"grails.app.domain" 								//domain
+		"grails.app.domain",								//domain
+		"grails.app.jobs"
 		]
 	
 	def layout = new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %-5p %c{2} %x - %m%n")

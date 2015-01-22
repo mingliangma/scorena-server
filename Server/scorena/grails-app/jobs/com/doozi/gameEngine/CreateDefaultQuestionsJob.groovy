@@ -15,8 +15,6 @@ class CreateDefaultQuestionsJob {
 		println "create Quesitons job triggered at "+new Date()
         questionService.createQuestions()
 		println "create Quesitons job ends"
-		
-//		testService.runTest()
-		
+			
     }
 }

@@ -180,6 +180,27 @@ class FriendSystemService {
 		
 		return allFollowingUserIdList
 	}
+	
+	boolean isFollowing(String userId, String followingUserId){
+		log.info "isFollowing(): begins with userId = ${userId} and followingUserId = ${followingUserId}"
+		Account user = Account.findByUserId(userId)
+		Account followingUser = Account.findByUserId(followingUserId)
+		//SQL Query find friend in FriendSystem where status=1
+		boolean isFollowing
+
+		if(user != null & followingUser!=null) {
+			String duplicationRequestQuery = "FROM FriendSystem WHERE (user=? AND following=?)"
+			List resultList = FriendSystem.findAll(duplicationRequestQuery,[user,followingUser])
+
+			if (resultList.size() == 0)
+				isFollowing = false
+			else
+				isFollowing = true
+		}
+		
+		log.info "isFollowing(): is ${userId} following ${followingUserId}: ${isFollowing}"
+		return isFollowing
+	}
 
 	//deprecated
 //    List friendRequest(String userId1, String userId2) {

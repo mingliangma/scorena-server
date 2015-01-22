@@ -10,5 +10,6 @@ class GameDataEventStatsNba {
 	private String _awayTeamId;
 	private String _livePeriod;
 	private String _gameDate;
+	private GameDataLastMeetingNba _lastMeetingEvent
 	private Map<String, GameDataTeamStatsNba> _teamListStatsNba = [:]
 }

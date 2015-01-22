@@ -14,7 +14,15 @@ class GameDataInputStatsNba implements IGameDataInput{
 		
 		_dayOffSet = GameDataConstantsStatsNba.defaultDayOffsetValue
 		_leagueID = GameDataConstantsStatsNba.defaultLeagueIDValue
-		_gameDate = new Date().format('MM/dd/yy')
+		_gameDate = new Date().format('MM/dd/yyyy', TimeZone.getTimeZone('EST'))
+		_apiUrl = getTodayGamesApiUrl(_dayOffSet, _leagueID, _gameDate)
+	}
+	
+	public GameDataInputStatsNba(String gameDate, String dayOffSet){
+		
+		_dayOffSet = dayOffSet
+		_leagueID = GameDataConstantsStatsNba.defaultLeagueIDValue
+		_gameDate = gameDate
 		_apiUrl = getTodayGamesApiUrl(_dayOffSet, _leagueID, _gameDate)
 	}
 	
