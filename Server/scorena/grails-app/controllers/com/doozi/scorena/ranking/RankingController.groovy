@@ -1,6 +1,6 @@
 package com.doozi.scorena.ranking
 import grails.converters.JSON
-class ProfitRankingController {
+class RankingController {
 
 	def ScoreRankingService
 
