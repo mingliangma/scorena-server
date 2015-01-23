@@ -133,7 +133,7 @@ class TestServiceMethodController {
 	}
 	
 	def updateScore(){
-		gameDataDbInputStatsNbaService.updateScore()
+		gameDataDbInputStatsNbaService.updateScore()		
 	}
 	
 }

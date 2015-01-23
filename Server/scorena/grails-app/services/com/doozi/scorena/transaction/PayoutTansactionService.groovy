@@ -49,7 +49,7 @@ class PayoutTansactionService {
 				PayoutTransaction.withSession { session ->
 					session.clear()
 				}
-				log.error "createPayoutTrans(): the bet transaction already exsists"
+				log.error "createPayoutTrans(): the payout transaction already exsists"
 				return [code:202, error: "the bet transaction already exsists"]
 			}
 			

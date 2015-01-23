@@ -2,6 +2,7 @@ package com.doozi.scorena.gamedata.userinput
 
 import com.doozi.scorena.gamedata.manager.IGameDataAdapter
 import com.doozi.scorena.gamedata.helper.GameDataConstantsStatsNba
+import groovy.time.TimeCategory
 
 class GameDataInputStatsNba implements IGameDataInput{
 
@@ -14,7 +15,12 @@ class GameDataInputStatsNba implements IGameDataInput{
 		
 		_dayOffSet = GameDataConstantsStatsNba.defaultDayOffsetValue
 		_leagueID = GameDataConstantsStatsNba.defaultLeagueIDValue
-		_gameDate = new Date().format('MM/dd/yyyy', TimeZone.getTimeZone('EST'))
+		
+		def gameDate = new Date()
+		use( TimeCategory ) {
+			gameDate = gameDate - 8.hours // adjust to EST (-5 hours) and -3
+		}
+		_gameDate = gameDate.format('MM/dd/yyyy')
 		_apiUrl = getTodayGamesApiUrl(_dayOffSet, _leagueID, _gameDate)
 	}
 	

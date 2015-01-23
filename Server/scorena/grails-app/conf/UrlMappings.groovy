@@ -186,6 +186,10 @@ class UrlMappings {
 		"/v1/users/$userId?/isfollowing/$followingUserId?"(controller:"friendSystem") {
 			action = [GET:"isFollowing"]
 		}
+		
+		"/v1/test"(controller:"testServiceMethod") {
+			action = [GET:"updateScore"]
+		}
 
 		"/v1/admin/cq"(view:"/CustomQuestionWebsite")
 		

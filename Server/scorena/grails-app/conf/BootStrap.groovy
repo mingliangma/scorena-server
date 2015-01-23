@@ -317,7 +317,7 @@ class BootStrap {
 			Random random = new Random()
 			def accounts = Account.findAll()
 			def pastGames = gameService.listPastGamesData("all", "nba")
-			for (int i=0; i < pastGames.size()/3; i++){
+			for (int i=0; i < pastGames.size(); i++){
 				
 				if (random.nextInt(2) == 1){
 					continue
