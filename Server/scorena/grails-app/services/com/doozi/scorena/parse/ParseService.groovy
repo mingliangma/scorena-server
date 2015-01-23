@@ -165,28 +165,71 @@ class ParseService {
 //		return resp
 //	}
 	
+//	Map retrieveUserListByFBIds(List facebookIds){
+//		log.info "retrieveUserListByFBIds(): begins with facebookIds = ${facebookIds}"
+//		
+//		def parseConfig = grailsApplication.config.parse
+//		if (facebookIds.size() == 0){
+//			return [:]
+//		}
+//		
+//		String url = "https://api.parse.com/1/users?where=" + getJSONWhereConstraints("facebookId", facebookIds);
+//		
+//		HttpClient httpclient = new DefaultHttpClient();
+//		HttpGet httpget = new HttpGet(url);
+//				
+//		httpget.addHeader("X-Parse-Application-Id", parseConfig.parseApplicationId);
+//		httpget.addHeader("X-Parse-REST-API-Key", parseConfig.parseRestApiKey);
+//
+//		HttpResponse httpResponse = httpclient.execute(httpget);
+//		JSONObject resultJson = new JSONObject(EntityUtils.toString(httpResponse.getEntity()));
+//		
+//		log.info "retrieveUserListByFBIds(): ends with resultJson = ${resultJson}"
+//		
+//		return (resultJson as Map)
+//	}
+	
 	Map retrieveUserListByFBIds(List facebookIds){
 		log.info "retrieveUserListByFBIds(): begins with facebookIds = ${facebookIds}"
 		
 		def parseConfig = grailsApplication.config.parse
-		if (facebookIds.size() == 0){
+		int inputObjectIdsSize = facebookIds.size()
+		if (inputObjectIdsSize == 0){
 			return [:]
 		}
 		
-		String url = "https://api.parse.com/1/users?where=" + getJSONWhereConstraints("facebookId", facebookIds);
+		int i = 0
+		int querySize = 0
+		List queryIdList =[]
+		List parseUserList = []
+		HttpClient httpclient = new DefaultHttpClient()
 		
-		HttpClient httpclient = new DefaultHttpClient();
-		HttpGet httpget = new HttpGet(url);
+		for (String facebookId: facebookIds){
+			queryIdList.add(facebookId)
+			querySize++
+			i++
+			
+			if (i>=inputObjectIdsSize || querySize >=COMPOUND_QUERY_OBJECT_LIMIT){
+				String url = "https://api.parse.com/1/users?where=" + getJSONWhereConstraints("facebookId", queryIdList)
+				Map queryResult = parseQuery(httpclient, url)
 				
-		httpget.addHeader("X-Parse-Application-Id", parseConfig.parseApplicationId);
-		httpget.addHeader("X-Parse-REST-API-Key", parseConfig.parseRestApiKey);
+				if (queryResult.error)
+					return queryResult
+					
+				List parseResult = queryResult.results
+				parseUserList = parseUserList+parseResult
+				
+				querySize=0
+				queryIdList=[]
+			}
 
-		HttpResponse httpResponse = httpclient.execute(httpget);
-		JSONObject resultJson = new JSONObject(EntityUtils.toString(httpResponse.getEntity()));
+		}
 		
-		log.info "retrieveUserListByFBIds(): ends with resultJson = ${resultJson}"
+		Map userListResult = [results:parseUserList]
 		
-		return (resultJson as Map)
+		log.info "retrieveUserList(): ends with userListResult = ${userListResult}"
+
+		return userListResult
 	}
 	
 	/**
