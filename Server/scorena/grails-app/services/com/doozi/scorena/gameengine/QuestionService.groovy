@@ -169,10 +169,10 @@ class QuestionService {
 				followingPlayerPictureUrl: followingPlayerPictureUrl,
 				followingPlayerPick: followingPlayerPick,				
 				followingPlayerExistsInQuestion: followingExistsInQuestion,
-				friendPlayerBetAmount: followingPlayerBetAmount,
-				friendPlayerPictureUrl: followingPlayerPictureUrl,
-				friendPlayerPick: followingPlayerPick,
-				friendPlayerExistsInQuestion: followingExistsInQuestion,
+				friendPlayerBetAmount: followingPlayerBetAmount, //will be deprecate
+				friendPlayerPictureUrl: followingPlayerPictureUrl,//will be deprecate
+				friendPlayerPick: followingPlayerPick,//will be deprecate
+				friendExistsInQuestion: followingExistsInQuestion,//will be deprecate
 				isGameProcessed: isGameProcessed,
 				pool: [
 					pick1Amount: questionPoolInfo.getPick1Amount(),
