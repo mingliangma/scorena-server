@@ -178,5 +178,28 @@ class PushService {
 	 return resp.json.toString()
  }
  
+ def sendFollowPush(def rest, String following, String follower, String msg)
+ {
+	 log.info "sendFollowPush(): begins with rest = ${rest}, following = ${following}, follower = ${follower} ,msg = ${msg}"
+	 
+	 def parseConfig = grailsApplication.config.parse
+	 def userParam = ["userId": (following)]
+	 def alertParam = ["alert": (msg)]
+	 def resp = rest.post("https://api.parse.com/1/push")
+	 {
+		 header "X-Parse-Application-Id", parseConfig.parseApplicationId
+		 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
+		 contentType "application/json"
+		 json{
+			 data = alertParam
+			 where = userParam
+			 }
+	 }
+	 
+	 def result = resp.json.toString()
+	 log.info "sendFollowPush(): ends with result = ${result}"
+	 
+	 return resp.json.toString()
+ }
  
 }

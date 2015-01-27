@@ -4,11 +4,13 @@ import java.util.List;
 import java.util.Map;
 
 import grails.converters.JSON
+import grails.plugins.rest.client.RestBuilder
 
 class FriendSystemController {
 
     def friendSystemService
 	def userService
+	def pushService
 	
 	def followRequest() {
 		log.info "friendRequest(): begins..."
@@ -49,6 +51,10 @@ class FriendSystemController {
 		}
 		else {
 			def tipsMap = [tips:tipsList]
+			def rest = new RestBuilder()
+			String follower = userService.getUserDisplayName(myUserId)
+			String msg = follower + " is now following you on Scorena."
+			pushService.sendFollowPush(rest,followingUserId,follower,msg)
 			render [:] as JSON
 			log.info "friendRequest(): ends with tipsMap = ${tipsMap}"
 		}
