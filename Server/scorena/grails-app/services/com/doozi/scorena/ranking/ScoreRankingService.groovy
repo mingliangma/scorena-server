@@ -228,7 +228,7 @@ class ScoreRankingService {
 		{
 			MM = "02"
 			
-			if (leapyear(Integer.parseString(year)))
+			if (leapyear(Integer.parseInt(year)))
 			{
 				DD = "29"
 			}
