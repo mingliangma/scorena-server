@@ -159,6 +159,24 @@ class UrlMappings {
 			action = [POST:"activateAndroid"]
 		}
 		
+		
+		"/v1/banners/generateCurrentTop"(controller:"UserBanner"){
+			action = [GET:"generateCurrentMonthBanner"]
+		}
+		
+		"/v1/banners/generatePastTop"(controller:"UserBanner"){
+			action = [GET:"generatePastMonthTopBanner"]
+		}
+		
+		"/v1/banners/clearPastCurrent"(controller:"UserBanner"){
+			action = [GET:"clearPastCurrentBanners"]
+		}
+		
+		"/v1/banners/getBanners"(controller:"UserBanner"){
+			action = [GET:"getUserBanners"]
+		}
+		
+		
 //		"/v1/sports/all/tournament/list"(controller:"tournament"){
 //			action = [GET:"listTournaments"]
 //		}

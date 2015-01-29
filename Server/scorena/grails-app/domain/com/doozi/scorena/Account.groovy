@@ -14,7 +14,7 @@ class Account {
 	
 	
 	//static belongsTo = [user: User]
-	static hasMany = [enrollment: Enrollment, trans: AbstractTransaction, score: AbstractScore]
+	static hasMany = [enrollment: Enrollment, trans: AbstractTransaction, score: AbstractScore, banner:UserBanner]
 
 	static constraints = {
 		userId unqiue: true

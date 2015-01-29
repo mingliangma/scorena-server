@@ -29,8 +29,6 @@ class ScoreRankingService {
 	
 	public static final int USERID_RANKING_QUERY_INDEX = 0
 	public static final int USER_SCORE_RANKING_QUERY_INDEX = 1
-	Map days_31 = [January:"01",March:"03",May:"05",July:"07",August:"08",October:"10" , December:"12"]
-	Map days_30 = [April:"04",June:"06",September:"09",November:"11"]
 
 	// gets the overall ranking of all users 
 	def getRanking()
@@ -81,7 +79,7 @@ class ScoreRankingService {
 
 			
 			// evaluates month and year
-			String date_search = evalDate(rankMonth,year)
+			String date_search = helperService.evalDate(rankMonth,year)
 			
 			if(date_search == null  )
 			{
@@ -175,7 +173,7 @@ class ScoreRankingService {
 
 			
 			// evaluates month and year
-			String date_search = evalDate(rankMonth,year)
+			String date_search = helperService.evalDate(rankMonth,year)
 			
 			if(date_search == null  )
 			{
@@ -215,89 +213,6 @@ class ScoreRankingService {
 			return [code: 400, error: e.getMessage()]
 		}
 	}
-	
-	
-	// returns date query string based on month and year
-	public String evalDate(String month, String year)
-	{
-		String date_search = ""
-		String MM = ""
-		String DD = ""
-	
-		if (month.equals("February"))
-		{
-			MM = "02"
-			
-			if (leapyear(Integer.parseInt(year)))
-			{
-				DD = "29"
-			}
-			else
-			{
-				DD = "28"
-			}
-			
-			date_search = "'"+year+"-"+MM+"-01 00:00:00' AND '"+year+"-"+MM+"-"+DD+" 23:59:59'"
-			
-			return date_search
-		}
-		
-		else
-		{
-			Map datecheck = getMonth(month)
-						
-			MM = datecheck['month']
-			DD = datecheck['day']
-			
-			// checks if month is 
-			if(MM == null)
-			{
-				return null
-			}
-			
-			date_search =  "'"+year+"-"+MM+"-01 00:00:00' AND '"+year+"-"+MM+"-"+DD+" 23:59:59'"
-			
-			return date_search
-		}
-	}
-	
-	// returns map value for month date
-	public Map getMonth(String month)
-	{		
-		if (!days_31.containsKey(month))
-		{
-			String mm = days_30[month]
-			return [ month:mm, day:"30"]
-		}
-		
-		if (!days_30.containsKey(month))
-		{
-			String mm = days_31[month]
-			return [month:mm, day:"31"]
-		}
-	}
-	
-	// checks if year is a leap year
-	public boolean leapyear(int year)
-	{
-		if(year%400 == 0)
-		{
-			return true
-		}
-		
-		if(year%100 == 0)
-		{
-			return false
-		}
-		
-		if(year%4 == 0)
-		{
-			return true
-		}
-		
-		return false;
-	}
-	
 
 	// returns user ranking map
 	private Map getAccountInfoMap(String userId, long score, int rank){
