@@ -80,8 +80,7 @@ class UserBannerService {
 							Account userAccount = Account.findByUserId(tempLeague.get(i).userId)
 							it.rank = tempLeague.get(i).rank
 							it.updated_at = new Date()
-							it.account.id = userAccount.id
-							
+							it.account = userAccount
 							if	(!it.save(failOnError:true))
 							{
 								System.out.println("---------------Banner save failed")
@@ -105,7 +104,7 @@ class UserBannerService {
 								Account userAccount = Account.findByUserId(tempLeague.get(i).userId)
 								it.rank = tempLeague.get(i).rank
 								it.updated_at = new Date()
-								it.account.id = userAccount.id
+								it.account = userAccount
 								
 								if	(!it.save(failOnError:true))
 								{
@@ -132,7 +131,7 @@ class UserBannerService {
 								Account userAccount = Account.findByUserId(tempLeague.get(i).userId)
 								it.rank = tempLeague.get(i).rank
 								it.updated_at = new Date()
-								it.account.id = userAccount.id
+								it.account = userAccount
 								
 								if	(!it.save(failOnError:true))
 								{
