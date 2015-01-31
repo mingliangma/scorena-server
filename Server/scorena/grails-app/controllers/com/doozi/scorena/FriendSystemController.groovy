@@ -11,6 +11,7 @@ class FriendSystemController {
     def friendSystemService
 	def userService
 	def pushService
+	def parseService
 	
 	def followRequest() {
 		log.info "friendRequest(): begins..."
@@ -52,9 +53,10 @@ class FriendSystemController {
 		else {
 			def tipsMap = [tips:tipsList]
 			def rest = new RestBuilder()
-			String follower = userService.getUserDisplayName(myUserId)
-			String msg = follower + " is now following you on Scorena."
-			pushService.sendFollowPush(rest,followingUserId,follower,msg)
+			def follower = parseService.retrieveUser(rest, myUserId)
+			def followerData = follower.json
+			String msg = followerData.display_name.toString() + " is now following you on Scorena."
+			pushService.sendFollowPush(rest,followingUserId,myUserId,msg)
 			render [:] as JSON
 			log.info "friendRequest(): ends with tipsMap = ${tipsMap}"
 		}
