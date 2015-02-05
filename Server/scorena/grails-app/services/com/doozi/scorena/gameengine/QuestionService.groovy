@@ -343,6 +343,23 @@ class QuestionService {
 					}
 				}
 			}
+			
+			def QC_HigherRebounce = QuestionContent.findAllByQuestionType(QuestionContent.HIGHERREBOUNDS_BASKETBALL)
+			for (QuestionContent qc: QC_HigherRebounce){
+				def q = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
+				qc.addToQuestion(q)
+				if (qc.save(failOnError:true)){
+					questionCreated++
+					System.out.println("game successfully saved")
+					log.info "populateQuestions(): game successfully saved"
+				}else{
+					System.out.println("game save failed")
+					log.error "populateQuestions(): game save failed"
+					qc.errors.each{
+						println it
+					}
+				}
+			}
 		
 		}
 		

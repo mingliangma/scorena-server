@@ -37,14 +37,27 @@ class CustomGameService {
 					(game.alignment):[
 						"teamname":game.fullName,
 						"score":game.score,
-						"fieldGoalPct": game.fieldGoalsPercentage
+						"fieldGoalPct": game.fieldGoalsPercentage,
+						"rebounds": game.rebounds,
+						"freeThrowPct": game.freeThrowPercentage,
+						"threePointersPct": game.threePointersPercentage,
+						"assists": game.assists,
+						"turnovers": game.turnovers
 					]
 				]
 			}else{
 				if (!gameInfo.away){
-					gameInfo.away = ["teamname":game.fullName, "score":game.score, "fieldGoalPct": game.fieldGoalsPercentage]
+					gameInfo.away = ["teamname":game.fullName, "score":game.score, "fieldGoalPct": game.fieldGoalsPercentage, "rebounds": game.rebounds,
+						"freeThrowPct": game.freeThrowPercentage,
+						"threePointersPct": game.threePointersPercentage,
+						"assists": game.assists,
+						"turnovers": game.turnovers]
 				}else{
-					gameInfo.home = ["teamname":game.fullName, "score":game.score, "fieldGoalPct": game.fieldGoalsPercentage]
+					gameInfo.home = ["teamname":game.fullName, "score":game.score, "fieldGoalPct": game.fieldGoalsPercentage, "rebounds": game.rebounds,
+						"freeThrowPct": game.freeThrowPercentage,
+						"threePointersPct": game.threePointersPercentage,
+						"assists": game.assists,
+						"turnovers": game.turnovers]
 				}
 				
 			}

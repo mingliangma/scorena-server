@@ -334,6 +334,9 @@ class ProcessEngineImplService {
 			case QuestionContent.HIGHERFIELDGOAL_BASKETBALL:
 				winnerPick = getFGPctWinnerPick(game, question)
 				break;
+			case QuestionContent.HIGHERREBOUNDS_BASKETBALL:
+				winnerPick = getReboundsWinnerPick(game, question)
+				break;
 			case QuestionContent.AUTOCUSTOM_SOCCER1:
 				winnerPick = getCustomQuestionWinnerPick(question)
 				break;
@@ -381,6 +384,24 @@ class ProcessEngineImplService {
 		if (homeFGP > awayFGP ){
 			return 1
 		}else if (homeFGP < awayFGP ){
+			return 2
+		}else{
+			return 0
+		}
+	}
+	
+	@Transactional
+	private int getReboundsWinnerPick(Map game, Question question){
+		
+		def homeRebounds = new BigDecimal(game.home.rebounds)
+		def awayRebounds = new BigDecimal(game.away.rebounds)
+		
+		log.info "getReboundsWinnerPick(): homeRebounds="+homeRebounds
+		log.info "getReboundsWinnerPick(): awayRebounds="+awayRebounds
+		
+		if (homeRebounds > awayRebounds ){
+			return 1
+		}else if (homeRebounds < awayRebounds ){
 			return 2
 		}else{
 			return 0

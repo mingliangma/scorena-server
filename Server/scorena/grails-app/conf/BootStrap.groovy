@@ -197,6 +197,18 @@ class BootStrap {
 				println it
 			}
 		}
+		
+		String qc6Content = "Which team will have more rebounces?"
+		def qc6 = new QuestionContent(questionType: QuestionContent.HIGHERREBOUNDS_BASKETBALL, content: qc6Content, sport: "basketball")
+		
+		if (qc6.save()){
+			System.out.println("game successfully saved")
+		}else{
+			System.out.println("game save failed")
+			qc6.errors.each{
+				println it
+			}
+		}
 	}
 	
 	def createQuestions(){

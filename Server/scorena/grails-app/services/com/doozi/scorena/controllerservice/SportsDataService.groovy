@@ -293,6 +293,11 @@ class SportsDataService {
 				]
 				if (LeagueTypeEnum.NBA == getLeagueCodeFromEventKey(eventKey)){
 					gameInfo[game.alignment].fieldGoalPct=game.fieldGoalsPercentage
+					gameInfo[game.alignment].freeThrowPct=game.freeThrowPercentage
+					gameInfo[game.alignment].threePointersPct=game.threePointersPercentage
+					gameInfo[game.alignment].rebounds=game.rebounds
+					gameInfo[game.alignment].assists=game.assists
+					gameInfo[game.alignment].turnovers=game.turnovers
 				}
 				
 				gamesMap.putAt(eventKey, gameInfo)
@@ -308,11 +313,21 @@ class SportsDataService {
 					gamesMapValue.away = ["teamname":gameFullName, "score":game.score, "teamLogoUrl": teamLogoService.getTeamLogo(gameFullName)]
 					if (LeagueTypeEnum.NBA == getLeagueCodeFromEventKey(eventKey)){
 						gamesMapValue.away.fieldGoalPct=game.fieldGoalsPercentage
+						gamesMapValue.away.freeThrowPct=game.freeThrowPercentage
+						gamesMapValue.away.threePointersPct=game.threePointersPercentage
+						gamesMapValue.away.rebounds=game.rebounds
+						gamesMapValue.away.assists=game.assists
+						gamesMapValue.away.turnovers=game.turnovers
 					}
 				}else{
 					gamesMapValue.home = ["teamname":gameFullName, "score":game.score, "teamLogoUrl": teamLogoService.getTeamLogo(gameFullName)]
 					if (LeagueTypeEnum.NBA == getLeagueCodeFromEventKey(eventKey)){
 						gamesMapValue.home.fieldGoalPct=game.fieldGoalsPercentage
+						gamesMapValue.home.freeThrowPct=game.freeThrowPercentage
+						gamesMapValue.home.threePointersPct=game.threePointersPercentage
+						gamesMapValue.home.rebounds=game.rebounds
+						gamesMapValue.home.assists=game.assists
+						gamesMapValue.home.turnovers=game.turnovers
 					}
 				}
 				gamesList.add(gamesMapValue)
