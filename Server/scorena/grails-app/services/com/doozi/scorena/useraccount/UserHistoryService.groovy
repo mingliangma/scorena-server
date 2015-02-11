@@ -28,24 +28,6 @@ class UserHistoryService {
 	def questionService
 	
 	/**
-	 * show all past game
-	 * @return all past game
-	 */
-	def listPastGamesData(){
-		log.info "listPastGamesData(): begins..."
-		
-		List pastGames = sportsDataService.getAllPastGames()
-		List pastCustomGames = 	customGameService.getAllPastGames()
-		List pastGamesResult = []
-		pastGamesResult.addAll(pastCustomGames)
-		pastGamesResult.addAll(pastGames)
-		
-		log.info "listPastGamesData(): ends with pastGamesResult = ${pastGamesResult}"
-		
-		return pastGamesResult
-	}
-	
-	/**
 	 * show user's all past bet games 
 	 * @param userId
 	 * @return list of past bet games

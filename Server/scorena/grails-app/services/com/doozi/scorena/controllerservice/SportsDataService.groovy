@@ -229,11 +229,12 @@ class SportsDataService {
 		}
 		def todayDate = new Date()
 		
-		def gameInfo = constructGameList(games, ALLEVENT, todayDate)[0]
+		Map game = [:]
+		if (games.size() > 0)
+			game = constructGameList(games, ALLEVENT, todayDate)[0]
 		
 		log.info "getGame(): ends"
-	
-		return gameInfo
+		return game
 	}
 	
 	/**
@@ -292,12 +293,23 @@ class SportsDataService {
 						]
 				]
 				if (LeagueTypeEnum.NBA == getLeagueCodeFromEventKey(eventKey)){
-					gameInfo[game.alignment].fieldGoalPct=game.fieldGoalsPercentage
-					gameInfo[game.alignment].freeThrowPct=game.freeThrowPercentage
-					gameInfo[game.alignment].threePointersPct=game.threePointersPercentage
-					gameInfo[game.alignment].rebounds=game.rebounds
-					gameInfo[game.alignment].assists=game.assists
-					gameInfo[game.alignment].turnovers=game.turnovers
+					
+					gameInfo[game.alignment].fieldGoalPct=0
+					gameInfo[game.alignment].freeThrowPct=0
+					gameInfo[game.alignment].threePointersPct=0
+					gameInfo[game.alignment].rebounds=0
+					gameInfo[game.alignment].assists=0
+					gameInfo[game.alignment].turnovers=0
+					
+					if (game.class == com.doozi.scorena.sportsdata.NbaGames){
+						gameInfo[game.alignment].fieldGoalPct=game.fieldGoalsPercentage
+						gameInfo[game.alignment].freeThrowPct=game.freeThrowPercentage
+						gameInfo[game.alignment].threePointersPct=game.threePointersPercentage
+						gameInfo[game.alignment].rebounds=game.rebounds
+						gameInfo[game.alignment].assists=game.assists
+						gameInfo[game.alignment].turnovers=game.turnovers
+					}
+	
 				}
 				
 				gamesMap.putAt(eventKey, gameInfo)
@@ -312,22 +324,41 @@ class SportsDataService {
 				if (!gamesMapValue.away){
 					gamesMapValue.away = ["teamname":gameFullName, "score":game.score, "teamLogoUrl": teamLogoService.getTeamLogo(gameFullName)]
 					if (LeagueTypeEnum.NBA == getLeagueCodeFromEventKey(eventKey)){
-						gamesMapValue.away.fieldGoalPct=game.fieldGoalsPercentage
-						gamesMapValue.away.freeThrowPct=game.freeThrowPercentage
-						gamesMapValue.away.threePointersPct=game.threePointersPercentage
-						gamesMapValue.away.rebounds=game.rebounds
-						gamesMapValue.away.assists=game.assists
-						gamesMapValue.away.turnovers=game.turnovers
+						gamesMapValue.away.fieldGoalPct=0
+						gamesMapValue.away.freeThrowPct=0
+						gamesMapValue.away.threePointersPct=0
+						gamesMapValue.away.rebounds=0
+						gamesMapValue.away.assists=0
+						gamesMapValue.away.turnovers=0
+						
+						if (game.class == com.doozi.scorena.sportsdata.NbaGames){
+							gamesMapValue.away.fieldGoalPct=game.fieldGoalsPercentage
+							gamesMapValue.away.freeThrowPct=game.freeThrowPercentage
+							gamesMapValue.away.threePointersPct=game.threePointersPercentage
+							gamesMapValue.away.rebounds=game.rebounds
+							gamesMapValue.away.assists=game.assists
+							gamesMapValue.away.turnovers=game.turnovers
+						}
 					}
 				}else{
 					gamesMapValue.home = ["teamname":gameFullName, "score":game.score, "teamLogoUrl": teamLogoService.getTeamLogo(gameFullName)]
 					if (LeagueTypeEnum.NBA == getLeagueCodeFromEventKey(eventKey)){
-						gamesMapValue.home.fieldGoalPct=game.fieldGoalsPercentage
-						gamesMapValue.home.freeThrowPct=game.freeThrowPercentage
-						gamesMapValue.home.threePointersPct=game.threePointersPercentage
-						gamesMapValue.home.rebounds=game.rebounds
-						gamesMapValue.home.assists=game.assists
-						gamesMapValue.home.turnovers=game.turnovers
+						
+						gamesMapValue.home.fieldGoalPct=0
+						gamesMapValue.home.freeThrowPct=0
+						gamesMapValue.home.threePointersPct=0
+						gamesMapValue.home.rebounds=0
+						gamesMapValue.home.assists=0
+						gamesMapValue.home.turnovers=0						
+						
+						if (game.class == com.doozi.scorena.sportsdata.NbaGames){
+							gamesMapValue.home.fieldGoalPct=game.fieldGoalsPercentage
+							gamesMapValue.home.freeThrowPct=game.freeThrowPercentage
+							gamesMapValue.home.threePointersPct=game.threePointersPercentage
+							gamesMapValue.home.rebounds=game.rebounds
+							gamesMapValue.home.assists=game.assists
+							gamesMapValue.home.turnovers=game.turnovers
+						}
 					}
 				}
 				gamesList.add(gamesMapValue)
