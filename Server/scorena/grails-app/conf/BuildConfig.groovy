@@ -6,6 +6,12 @@ grails.project.work.dir = "target/work"
 grails.project.target.level = 1.7
 grails.project.source.level = 1.7
 //grails.project.war.file = "target/${appName}-${appVersion}.war"
+grails.war.resources = { stagingDirectory, args ->
+    copy(file:"ebextensions/cwl-setup.config", tofile: "${stagingDirectory}/.ebextensions/cwl-setup.config")
+    copy(file:"ebextensions/cwl-webrequest-metrics.config", tofile: "${stagingDirectory}/.ebextensions/cwl-webrequest-metrics.config")
+    copy(file:"ebextensions/eb-logs.config", tofile: "${stagingDirectory}/.ebextensions/eb-logs.config")
+}
+
 
 /*
 grails.project.fork = [

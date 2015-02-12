@@ -229,11 +229,11 @@ class QuestionService {
 		log.info "createQuestions(): begins..."
 		
 		int questionsCreated = 0
-		List upcomingGames = []
-		List upcomingGamesSoccer = gameService.listUpcomingNonCustomGames()
-		List upcomingGamesNBA = gameService.listUpcomingGamesData("all", "nba")
-		upcomingGames.addAll(upcomingGamesSoccer)
-		upcomingGames.addAll(upcomingGamesNBA)
+//		List upcomingGames = []
+		List upcomingGames = gameService.listUpcomingNonCustomGames()
+//		List upcomingGamesNBA = gameService.listUpcomingGamesData("all", "nba")
+//		upcomingGames.addAll(upcomingGamesSoccer)
+//		upcomingGames.addAll(upcomingGamesNBA)
 		
 		
 		for (int i=0; i < upcomingGames.size(); i++){
@@ -327,22 +327,22 @@ class QuestionService {
 				}
 			}
 			
-			def QC_HigherFG = QuestionContent.findAllByQuestionType(QuestionContent.HIGHERFIELDGOAL_BASKETBALL)
-			for (QuestionContent qc: QC_HigherFG){
-				def q = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
-				qc.addToQuestion(q)
-				if (qc.save(failOnError:true)){
-					questionCreated++
-					System.out.println("game successfully saved")
-					log.info "populateQuestions(): game successfully saved"
-				}else{
-					System.out.println("game save failed")
-					log.error "populateQuestions(): game save failed"
-					qc.errors.each{
-						println it
-					}
-				}
-			}
+//			def QC_HigherFG = QuestionContent.findAllByQuestionType(QuestionContent.HIGHERFIELDGOAL_BASKETBALL)
+//			for (QuestionContent qc: QC_HigherFG){
+//				def q = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
+//				qc.addToQuestion(q)
+//				if (qc.save(failOnError:true)){
+//					questionCreated++
+//					System.out.println("game successfully saved")
+//					log.info "populateQuestions(): game successfully saved"
+//				}else{
+//					System.out.println("game save failed")
+//					log.error "populateQuestions(): game save failed"
+//					qc.errors.each{
+//						println it
+//					}
+//				}
+//			}
 			
 			def QC_HigherRebounce = QuestionContent.findAllByQuestionType(QuestionContent.HIGHERREBOUNDS_BASKETBALL)
 			for (QuestionContent qc: QC_HigherRebounce){
@@ -788,7 +788,6 @@ class QuestionService {
 				break
 			}
 		}
-				
 		if (!isBettersMapFull){
 			for (BetTransaction betTrans: betTransactions){
 	
@@ -830,12 +829,11 @@ class QuestionService {
 					break
 			}
 		}		
-		
 		def homeBettersArr = getBettersProfile(pick1BettersMap)
 		def awayBettersArr = getBettersProfile(pick2BettersMap)
 		
-//		homeBettersArr = getBettersOrderedByIsFriend(homeBettersArr)	//get betters presented in order by it is current user's friend or not
-//		awayBettersArr = getBettersOrderedByIsFriend(awayBettersArr)	//get betters presented in order by it is current user's friend or not
+		homeBettersArr = getBettersOrderedByIsFriend(homeBettersArr)	//get betters presented in order by it is current user's friend or not
+		awayBettersArr = getBettersOrderedByIsFriend(awayBettersArr)	//get betters presented in order by it is current user's friend or not
 		
 		def betters=[
 			pick1Betters: homeBettersArr,

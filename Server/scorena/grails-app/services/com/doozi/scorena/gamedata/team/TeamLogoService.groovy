@@ -129,18 +129,29 @@ class TeamLogoService {
 	public static final String NETS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Brooklyn_Nets_newlogo.png'
 	public static final String HORNETS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Charlotte-Hornets_new_logo.png'
 	public static final String KINGS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Sacramento_Kings.png'
+	public static final String WEST_ALLSTARS_TEAMNAME_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Western_Conference_(NBA)_logo.png'
+	public static final String EAST_ALLSTARS_TEAMNAME_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA/Eastern_Conference_(NBA)_logo.png'
+	
 	
 	
 
-			public static final String DEREKROSE_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA_Player/derek_rose.png'
-			public static final String JAMESHARDEN_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA_Player/jamesHarden.png'
-
-			public static final String YES_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/yes_icon.png'
-			public static final String NO_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/no_icon.png'
-			public static final String ABOVE3_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/3above.png'
-			public static final String BELOW2_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/2below.png'
-			public static final String ABOVE200_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/200above.png'
-			public static final String BELOW199_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/199below.png'
+	public static final String DEREKROSE_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA_Player/derek_rose.png'
+	public static final String JAMESHARDEN_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA_Player/jamesHarden.png'
+	public static final String STEPHCURRY_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA_Player/stephen_curry.png'
+	public static final String JOHNWALL_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA_Player/john_wall.png'
+	public static final String THREEPTSHOOTOUT_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA_Player/Three+Point+Contest.png'
+	public static final String NBA_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA_Player/nbalogo.png'
+	public static final String SLAMDUNK_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA_Player/slamdunk.png'
+	public static final String KLAYTHOMPSON_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA_Player/klay_thompson.png'
+	public static final String KYLEKOVER_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA_Player/kyle_korver.png'
+	public static final String CHRISTPAUL_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA_Player/ChristPaul.png'
+	
+	public static final String YES_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/yes_icon.png'
+	public static final String NO_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/no_icon.png'
+	public static final String ABOVE3_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/3above.png'
+	public static final String BELOW2_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/2below.png'
+	public static final String ABOVE200_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/200above.png'
+	public static final String BELOW199_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/199below.png'
 	
 	public static final String ALGERIA_TEAMNAME = "Algeria"
 	public static final String ARGENTINA_TEAMNAME = "Argentina"
@@ -227,12 +238,21 @@ class TeamLogoService {
 	public static final String NETS_TEAMNAME = 'Nets'
 	public static final String KINGS_TEAMNAME = 'Kings'
 	public static final String HORNETS_TEAMNAME = 'Hornets'
-	
+	public static final String WEST_ALLSTARS_TEAMNAME = 'West All-Stars'
+	public static final String EAST_ALLSTARS_TEAMNAME = 'East All-Stars'
 	
 	
 	public static final String DEREKROSE_TEAMNAME = 'D. Rose'
-	public static final String JAMESHARDEN_TEAMNAME = 'J. Harden'
+	public static final String JAMESHARDEN_TEAMNAME = 'J. Harden'	
+	public static final String STEPHCURRY_TEAMNAME = 'S. Curry'
+	public static final String JOHNWALL_TEAMNAME = 'J. Wall'
+	public static final String KLAYTHOMPSON_TEAMNAME = 'K. Thompson'
+	public static final String KYLEKOVER_TEAMNAME = 'K. Korver'
+	public static final String CHRISTPAUL_TEAMNAME = 'C. Paul'
 	
+	public static final String SLAMDUNK_TEAMNAME = 'Slam Dunk'
+	public static final String THREEPTSHOOTOUT_TEAMNAME = '3 pt shoot-out'
+	public static final String NBA_TEAMNAME = 'NBA'
 	public static final String YES_TEAMNAME = 'Yes'
 	public static final String NO_TEAMNAME = 'No'
 	public static final String ABOVE3_TEAMNAME = '3 or above'
@@ -259,6 +279,24 @@ class TeamLogoService {
 				return DEREKROSE_LOGO_URL
 			case JAMESHARDEN_TEAMNAME.toLowerCase():
 				return JAMESHARDEN_LOGO_URL
+			
+			case STEPHCURRY_TEAMNAME.toLowerCase():
+				return STEPHCURRY_LOGO_URL
+			case JOHNWALL_TEAMNAME.toLowerCase():
+				return JOHNWALL_LOGO_URL
+			case KLAYTHOMPSON_TEAMNAME.toLowerCase():
+				return KLAYTHOMPSON_LOGO_URL
+			case KYLEKOVER_TEAMNAME.toLowerCase():
+				return KYLEKOVER_LOGO_URL
+			case CHRISTPAUL_TEAMNAME.toLowerCase():
+				return CHRISTPAUL_LOGO_URL
+			case SLAMDUNK_TEAMNAME.toLowerCase():
+				return SLAMDUNK_LOGO_URL
+			case THREEPTSHOOTOUT_TEAMNAME.toLowerCase():
+				return THREEPTSHOOTOUT_LOGO_URL
+			case NBA_TEAMNAME.toLowerCase():
+				return NBA_LOGO_URL
+				
 			case ALGERIA_TEAMNAME.toLowerCase():
 				return ALGERIA_LOGO_URL
 			case ARGENTINA_TEAMNAME.toLowerCase():
@@ -429,6 +467,10 @@ class TeamLogoService {
 				return NETS_LOGO_URL
 			case HORNETS_TEAMNAME.toLowerCase():
 				return HORNETS_LOGO_URL
+			case WEST_ALLSTARS_TEAMNAME.toLowerCase():
+				return WEST_ALLSTARS_TEAMNAME_LOGO_URL
+			case EAST_ALLSTARS_TEAMNAME.toLowerCase():
+				return EAST_ALLSTARS_TEAMNAME_LOGO_URL
 			default:
 				return DEFAULT_LOGO_URL
 		}

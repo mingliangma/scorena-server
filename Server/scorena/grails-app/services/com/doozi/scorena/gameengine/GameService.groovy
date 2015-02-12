@@ -32,9 +32,12 @@ class GameService {
 	List listUpcomingNonCustomGames(){
 		log.info "listUpcomingNonCustomGames(): begins..."
 		
-		List upcomingGames = sportsDataService.getAllUpcomingGames()
+		List upcomingSoccerGames = sportsDataService.getAllUpcomingGames()
+		List upcomingNBAGames = customGameService.getAllNonCustomUpcomingGames()
+		
 		List upcomingGamesResult=[]
-		upcomingGamesResult.addAll(upcomingGames)
+		upcomingGamesResult.addAll(upcomingSoccerGames)
+		upcomingGamesResult.addAll(upcomingNBAGames)
 		
 		log.info "listUpcomingNonCustomGames(): ends"
 		
@@ -197,7 +200,7 @@ class GameService {
 	}
 	
 	Map getGame(String gameId){
-		
+		println "leaguePrefix="+gameId.startsWith(sportsDataService.getLeaguePrefixFromLeagueEnum(LeagueTypeEnum.NBA))	
 		if (gameId.startsWith(customGameService.CUSTOM_EVENT_PREFIX) || 
 			gameId.startsWith(sportsDataService.getLeaguePrefixFromLeagueEnum(LeagueTypeEnum.NBA)))
 			return customGameService.getGame(gameId)
