@@ -2,7 +2,7 @@ package com.doozi.scorena
 
 import grails.converters.JSON
 import grails.web.JSONBuilder
-
+import com.doozi.scorena.processengine.*
 import com.doozi.scorena.gamedata.manager.GameDataAdapter;
 import com.doozi.scorena.sportsdata.*
 // /v1/sports/soccer/premier/upcomingevents - current day's game information
@@ -94,8 +94,18 @@ class GameController {
 	
 	
 
-	def processGameTesting(){
-		def result = processEngineManagerService.startProcessEngine()
+	def processGame(){
+		def result = [:]
+		boolean isReadyProcess = ProcessStatus.transactionProcessStartRunning()
+		if (isReadyProcess){
+			log.info "process game started"
+			result = processEngineManagerService.startProcessEngine()
+			ProcessStatus.transactionProcessStopped()
+			log.info "process game ended"
+		}else{
+			log.info "process game: Other process is running"
+			result = [message: "Other process is running"]
+		}
 		render result as JSON
 	}
 

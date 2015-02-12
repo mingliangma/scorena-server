@@ -177,6 +177,9 @@ log4j = {
 			thomas {
 				rollingFile name: "fileLog", layout: layout, maxFileSize: "100MB", file: "/tmp/logs/fileLog.log"
 			}
+			development {
+				rollingFile name: "fileLog", layout: layout, maxFileSize: "100MB", file: "/Users/mingliangma/grailsServerLogs/scorenaFileLog.log"
+			}
 
 		}
 	}
@@ -203,7 +206,7 @@ log4j = {
 			info stdout: infoLogDomain, fileLog: infoLogDomain
 		}
 		development {
-			info stdout: infoLogDomain
+			info stdout: infoLogDomain, fileLog: infoLogDomain
 		}
 		awsdev {
 			info stdout: infoLogDomain
