@@ -4,8 +4,10 @@ import org.springframework.transaction.annotation.Transactional
 
 import java.util.List
 
+import com.doozi.scorena.FriendSystem
 import com.doozi.scorena.Question
 import com.doozi.scorena.Account
+import com.doozi.scorena.transaction.BetTransaction
 import com.mysql.jdbc.log.Log;
 
 import grails.plugins.rest.client.RestBuilder
@@ -21,7 +23,12 @@ class CommentService {
 
 	def helperService
 	def parseService
-
+	def friendSystemService
+	def betTransactionService
+	def pushService
+	def gameService
+	def rest = new RestBuilder()
+	
 	/**
 	 * @brief get comments information of the question
 	 * @param qId:ID of question
@@ -95,6 +102,22 @@ class CommentService {
 		boolean isValidUserId = false
 		def errorMessage
 
+		def friends = friendSystemService.listFollowers(userId)
+		def userList = betTransactionService.listAllBetsByQId(q.id)
+		def game = gameService.getGame(q.eventKey)
+		def userInstallation = parseService.retrieveUser(rest, userId)
+		def userData = userInstallation.json
+		
+		String status = game.gameStatus
+		String home = game.home.teamname
+		String away = game.away.teamname
+
+		System.out.println(status)
+		
+		String msg = userData.display_name.toString() + " has just commented on the "+ away +" vs "+ home+" game."
+
+		ArrayList pushUsers = new ArrayList()
+		
 		if (q==null){
 			errorMessage = "invalid question ID"
 			log.error "${errorMessage}"
@@ -119,6 +142,44 @@ class CommentService {
 
 		if(isValidUserId){
 			q.addComment(user, message)
+			if (userList != [])
+			{
+				for(BetTransaction action:userList )
+				{
+					pushUsers.add(action.account.userId)
+				}
+				
+				/*
+				if (!friends.empty)
+				{
+					for(FriendSystem friend: friends)
+					{
+						if (!pushUsers.contains(friend.userId) && friend.userId != null)
+						{
+							pushUsers.add(friend.userId)
+						}
+					}
+				} */
+			}
+			
+		/*	else
+			{
+				if (!friends.empty)
+				{
+					for(FriendSystem friend: friends)
+					{
+						if (!pushUsers.contains(friend.userId) && friend.userId != null)
+						{
+							pushUsers.add(friend.userId)
+						}
+					}
+				}
+			} */
+			
+			if (!pushUsers.empty)
+			{
+				pushService.userCommentPush(rest,pushUsers.toString(), q.eventKey, status,qId,msg )
+			}
 		}
 
 		commentsList = getExistingComments(qId)
