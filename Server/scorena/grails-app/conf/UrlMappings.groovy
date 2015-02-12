@@ -96,7 +96,7 @@ class UrlMappings {
 		}
 		
 		"/v1/sports/processgame"(controller:"game"){
-			action = [GET:"processGameTesting"]
+			action = [GET:"processGame"]
 		}
 		
 		"/v1/sports/testgame"(controller:"game"){

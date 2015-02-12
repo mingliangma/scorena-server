@@ -29,13 +29,13 @@ class BetTransactionService {
 	
 	@Transactional
 	Map createBetTrans(int playerWager, int playerPick, String userId, long quesitonId, Date transactionDate, def rest, boolean toValidate) {
-		log.info "createBetTrans(): begins..."
+		log.info "createBetTrans(): begins, playerWager="+playerWager + " playerPick="+playerPick +" userId="+userId + " quesitonId="+quesitonId
 		
-		println "createBetTrans: playerWager="+playerWager + " playerPick="+playerPick +" userId="+userId + " quesitonId="+quesitonId
 		try{
-			Account playerAccount = Account.findByUserId(userId)
 			Question question = Question.get(quesitonId)
 			Map game = gameService.getGame(question.eventKey)
+//			Account playerAccount = Account.findByUserId(userId)
+			Account lockedAccount = Account.findByUserId(userId, [lock: true])
 			if (toValidate){
 				//Find the bet transaction that associated with the given userId and questionId 
 				BetTransaction betTrans = BetTransaction.find("from BetTransaction as b where (b.question.id=? and b.account.id=?)", question.id, playerAccount.id)
@@ -51,10 +51,10 @@ class BetTransactionService {
 				gameStartTime:helperService.parseDateFromString(game.date))
 
 //			println "BetTransactionService: createBetTrans():: Acquiring Account lock for userId=" + userId
-			Account lockedAccount = Account.findByUserId(userId, [lock: true])
+//			Account lockedAccount = Account.findByUserId(userId, [lock: true])
 //			println "BetTransactionService: createBetTrans():: SUCCESSFULLY acquired Account lock for userId=" + userId
 			lockedAccount.addToTrans(newBetTransaction)	
-			lockedAccount.previousBalance = playerAccount.currentBalance
+			lockedAccount.previousBalance = lockedAccount.currentBalance
 			lockedAccount.currentBalance -= playerWager
 			question.addToBetTrans(newBetTransaction)
 
@@ -83,13 +83,13 @@ class BetTransactionService {
 			}
 			lockedAccount.save(flush: true)					
 			question.save(flush: true)
-//			println "BetTransactionService: createBetTrans():: SUCCESSFULLY released Account lock for userId=" + userId
+			
+			log.info "createBetTran successful: userId=${userId} currentBalance=${lockedAccount.currentBalance} currentBalance=${lockedAccount.previousBalance}" 
 
-
-			if (playerAccount.accountType == AccountType.USER || playerAccount.accountType == AccountType.FACEBOOK_USER){
+			if (lockedAccount.accountType == AccountType.USER || lockedAccount.accountType == AccountType.FACEBOOK_USER){
 			
 				// gets the users decvice installation ID by username
-				List objectIDs = pushService.getInstallationByUserID(playerAccount.userId)
+				List objectIDs = pushService.getInstallationByUserID(lockedAccount.userId)
 			
 				
 				if ( objectIDs != null || objectIDs != "" )
@@ -240,7 +240,7 @@ class BetTransactionService {
 	 * @return
 	 */
 	private Map validateBetTrans(int playerWager, int playerPick, Account account, Question question, BetTransaction betTrans, Map game){
-		log.info "validateBetTrans(): begins..."
+		log.info "validateBetTrans(): begins with playerWager=${playerWager} playerPick=${playerPick} balance=${account.currentBalance} questionId=${question.id}"
 		
 		if (!account){
 			log.error "validateBetTrans(): the userId does not exsist"

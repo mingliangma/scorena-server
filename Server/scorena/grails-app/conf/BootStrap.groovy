@@ -1,6 +1,7 @@
 import com.doozi.scorena.*
 import com.doozi.scorena.sportsdata.ScorenaAllGames
 import com.doozi.scorena.utils.AccountType;
+import com.doozi.scorena.processengine.*
 
 import java.util.Date;
 
@@ -11,6 +12,8 @@ class BootStrap {
 
     def init = { servletContext ->
 		println "bootstrap starts..."
+		initProcessStatus()
+		
 		Environment.executeForCurrentEnvironment {
 			development {
 				
@@ -128,6 +131,10 @@ class BootStrap {
 	def customQuestionService
 	def questionService
 	def friendSystemService
+	
+	def initProcessStatus(){
+		ProcessStatus.initProcessStatus()
+	}
 	
 	def createCustomQuestions(){
 		List pastGames = gameService.listPastGamesData("all", "all")
@@ -540,7 +547,7 @@ class BootStrap {
 		String _gender = "male"
 		String _region = "Japan"
 		Random random = new Random()
-		for(int i = 0; i<pictureURLs.size(); i++){
+		for(int i = 0; i<pictureURLs.size()/3; i++){
 			String _email = _displayNames[i]+random.nextInt(100000)+"@scorena.ca"
 			String pictureURL = ""
 			if (i<pictureURLs.size()){
