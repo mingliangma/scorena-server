@@ -265,6 +265,9 @@ class ProcessEngineImplService {
 		Set gameIds =  userTotalGameProfit.keySet()
 		for (String gameId: gameIds){
 			Map userAGameProfit = userTotalGameProfit[gameId]
+			String status = gameIdToGameInfoMap[gameId].gameStatus
+			println("status - " + status)
+			
 			String awayTeam = gameIdToGameInfoMap[gameId].away.teamname
 			String homeTeam = gameIdToGameInfoMap[gameId].home.teamname
 			String[] userIdKeys = userAGameProfit.keySet()
@@ -289,7 +292,7 @@ class ProcessEngineImplService {
 					}
 					
 					// sends end of game push to user with amount of coins won or lost
-					def payoutPush = pushService.endOfGamePush(rest,gameId ,userID, msg)
+					def payoutPush = pushService.endOfGamePush(rest,gameId, status ,userID, msg)
 				 
 			}
 		}

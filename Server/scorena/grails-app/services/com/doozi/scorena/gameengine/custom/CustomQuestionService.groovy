@@ -11,7 +11,8 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class CustomQuestionService {	
 	
-	def pushService;
+	def pushService
+	def gameService
 	
 	def createCustomQuestion(String eventId, String content, String pick1, String pick2){
 		def rest = new RestBuilder()
@@ -31,10 +32,11 @@ class CustomQuestionService {
 		}
 		
 		log.info "createCustomQuestion(): ends"
-		
+		def game = gameService.getGame(q.eventKey)
+		String status = game.gameStatus
 		String parse_channel = eventId.replace(".","_")
 		String message = content + " "+pick1 + " or " + pick2
-		pushService.customQuestionPush(rest, parse_channel, message)
+		pushService.customQuestionPush(rest, parse_channel,status, message)
 		
 		return [:]
 	}

@@ -114,8 +114,6 @@ class PushService {
 				data = alertParam
 				where = chanParam
 				}
-		
-		
 		}
 		
 		def result = resp.json.toString()
@@ -124,14 +122,14 @@ class PushService {
 		return resp.json.toString()
 	}
 	
- def endOfGamePush(def rest,String eventKey, String userId, String msg)
+ def endOfGamePush(def rest,String eventKey,String eventStatus, String userId, String msg)
  {
-	 log.info "endOfGamePush(): begins with rest = ${rest}, userId = ${userId}, msg = ${msg}"
+	 log.info "endOfGamePush(): begins with rest = ${rest},eventKey = ${eventKey},  eventStatus = ${eventStatus} , userId = ${userId}, msg = ${msg}"
 	 
 	 def parseConfig = grailsApplication.config.parse	 
 	 def userParam = ["userId": (userId)]
 //	 def chanParam = ["channels":['$in':[(eventKey)]]]
-	 def alertParam = ["alert": (msg),"gameKey":(eventKey), "pushType":"result"]
+	 def alertParam = ["alert": (msg),"gameKey":(eventKey),"gameStatus":(eventStatus), "pushType":"result"]
 	 def resp = rest.post("https://api.parse.com/1/push")
 	 {
 		 header "X-Parse-Application-Id", parseConfig.parseApplicationId
@@ -140,9 +138,7 @@ class PushService {
 		 json{
 			 data = alertParam
 			 where = userParam
-			 }
-	 
-
+			 }	 
 	 }
 	 
 	 def result = resp.json.toString()
@@ -152,13 +148,13 @@ class PushService {
  }
  
  
- def customQuestionPush(def rest,String eventKey,String msg)
+ def customQuestionPush(def rest,String eventKey, String eventStatus ,String msg)
  {
-	 log.info "customQuestionPush(): begins with rest = ${rest}, eventKey = ${eventKey}, msg = ${msg}"
+	 log.info "customQuestionPush(): begins with rest = ${rest}, eventKey = ${eventKey},  eventStatus = ${eventStatus} , msg = ${msg}"
 	 
 	 def parseConfig = grailsApplication.config.parse
 	 def chanParam = ["channels":['$in':[(eventKey)]]]
-	 def alertParam = ["alert": (msg),"gameKey":(eventKey), "pushType":"question"]
+	 def alertParam = ["alert": (msg),"gameKey":(eventKey),"gameStatus":(eventStatus),"pushType":"question"]
 	 def resp = rest.post("https://api.parse.com/1/push")
 	 {
 		 header "X-Parse-Application-Id", parseConfig.parseApplicationId
@@ -168,8 +164,6 @@ class PushService {
 			 data = alertParam
 			 where = chanParam
 			 }
-	 
-
 	 }
 	 
 	 def result = resp.json.toString()
@@ -178,13 +172,13 @@ class PushService {
 	 return resp.json.toString()
  }
  
- def sendFollowPush(def rest, String following, String follower, String msg)
+ def sendFollowPush(def rest, String followingId, String followerId, String msg)
  {
-	 log.info "sendFollowPush(): begins with rest = ${rest}, following = ${following}, follower = ${follower} ,msg = ${msg}"
+	 log.info "sendFollowPush(): begins with rest = ${rest}, followingId = ${followingId}, followerId = ${followerId} ,msg = ${msg}"
 	 
 	 def parseConfig = grailsApplication.config.parse
-	 def userParam = ["userId": (following)]
-	 def alertParam = ["alert": (msg)]
+	 def userParam = ["userId": (followingId)]
+	 def alertParam = ["alert": (msg),"followerId":(followerId),"pushType":"userProfile"]
 	 def resp = rest.post("https://api.parse.com/1/push")
 	 {
 		 header "X-Parse-Application-Id", parseConfig.parseApplicationId
@@ -198,6 +192,32 @@ class PushService {
 	 
 	 def result = resp.json.toString()
 	 log.info "sendFollowPush(): ends with result = ${result}"
+	 
+	 return resp.json.toString()
+ }
+ 
+ def userCommentPush(def rest,String userList, String eventKey, String eventStatus ,String qId, String msg)
+ {
+	 log.info "usrCommentPush(): begins with rest = ${rest}, userList = ${userList}, eventKey = ${eventKey}, eventStatus = ${eventStatus} ,qId = ${qId} , msg = ${msg}"
+	 
+	 def parseConfig = grailsApplication.config.parse
+	 def userParam  = ["questions":['$in':[(qId.toInteger())]]]
+	 def alertParam = ["alert": (msg),"gameKey":(eventKey),"gameStatus":(eventStatus), "questionKey":(qId), "pushType":"comment"]
+	 def resp = rest.post("https://api.parse.com/1/push")
+	 {
+		 header "X-Parse-Application-Id", parseConfig.parseApplicationId
+		 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
+		 contentType "application/json"
+		 json{
+			 data = alertParam
+			 where = userParam
+			 }
+	 
+
+	 }
+	 
+	 def result = resp.json.toString()
+	 log.info "usrCommentPush(): ends with result = ${result}"
 	 
 	 return resp.json.toString()
  }

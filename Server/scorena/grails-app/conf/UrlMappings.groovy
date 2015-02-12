@@ -142,6 +142,11 @@ class UrlMappings {
 		"/v1/admin/push/getUser"(controller:"push"){
 			action = [GET:"getUserInstallationID"]
 		}
+		
+		"/v1/admin/push/commentPush"(controller:"push"){
+			action = [GET:"sendCommentPush"]
+		}
+		
 				
 		"/v1/iap/getNonce"(controller:"IAP"){
 			action = [POST:"getNonce"]
