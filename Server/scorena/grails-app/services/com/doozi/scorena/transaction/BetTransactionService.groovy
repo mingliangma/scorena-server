@@ -38,9 +38,9 @@ class BetTransactionService {
 			Account lockedAccount = Account.findByUserId(userId, [lock: true])
 			if (toValidate){
 				//Find the bet transaction that associated with the given userId and questionId 
-				BetTransaction betTrans = BetTransaction.find("from BetTransaction as b where (b.question.id=? and b.account.id=?)", question.id, playerAccount.id)
+				BetTransaction betTrans = BetTransaction.find("from BetTransaction as b where (b.question.id=? and b.account.id=?)", question.id, lockedAccount.id)
 				
-				Map validationResult =  validateBetTrans(playerWager, playerPick, playerAccount, question, betTrans, game)		
+				Map validationResult =  validateBetTrans(playerWager, playerPick, lockedAccount, question, betTrans, game)		
 				
 				if (validationResult!=[:]){
 					return validationResult

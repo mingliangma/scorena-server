@@ -96,7 +96,7 @@ class GameController {
 
 	def processGame(){
 		def result = [:]
-		boolean isReadyProcess = ProcessStatus.transactionProcessStartRunning()
+		boolean isReadyProcess = ProcessStatus.transactionProcessStartRunning("API call Process Payout")
 		if (isReadyProcess){
 			log.info "process game started"
 			result = processEngineManagerService.startProcessEngine()

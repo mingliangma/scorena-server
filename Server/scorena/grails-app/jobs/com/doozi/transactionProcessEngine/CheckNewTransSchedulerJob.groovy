@@ -12,7 +12,7 @@ class CheckNewTransSchedulerJob {
 
 	def execute() {	
 		println "new game result trigged at " + new Date()
-		boolean isReadyProcess = ProcessStatus.transactionProcessStartRunning()
+		boolean isReadyProcess = ProcessStatus.transactionProcessStartRunning("cron job process payout")
 		if (isReadyProcess){
 			println "process game started"
 			def result = processEngineManagerService.startProcessEngine()

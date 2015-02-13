@@ -32,7 +32,7 @@ class CustomQuestionService {
 		}
 		
 		log.info "createCustomQuestion(): ends"
-		def game = gameService.getGame(q.eventKey)
+		def game = gameService.getGame(question.eventKey)
 		String status = game.gameStatus
 		String parse_channel = eventId.replace(".","_")
 		String message = content + " "+pick1 + " or " + pick2

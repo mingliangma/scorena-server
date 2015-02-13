@@ -13,7 +13,7 @@ class SimulateBetController {
     def simulateBet() { 
 		def result = [:]
 		int betCounter = 0
-		boolean isReadyProcess = ProcessStatus.transactionProcessStartRunning()
+		boolean isReadyProcess = ProcessStatus.transactionProcessStartRunning("API call simulate bet")
 		if (isReadyProcess){
 			log.info "simulate Bet started"
 			betCounter = simulateBetService.simulateBetUpcoming()

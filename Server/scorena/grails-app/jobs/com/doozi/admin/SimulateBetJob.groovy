@@ -12,7 +12,7 @@ class SimulateBetJob {
 
 	def execute() {
 		println "simulateBetUpcoming trigged at " + new Date()
-		boolean isReadyProcess = ProcessStatus.transactionProcessStartRunning()
+		boolean isReadyProcess = ProcessStatus.transactionProcessStartRunning("cron job simulate bet")
 		if (isReadyProcess){
 			println "simulate Bet started"
 			def result = simulateBetService.simulateBetUpcoming()

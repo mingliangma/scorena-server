@@ -13,7 +13,7 @@ class CustomGameService {
 	public static final String CUSTOM_EVENT_PREFIX = "customevent-"
 	public static final String ALIGNMENT_AWAY = "away"
 	public static final String ALIGNMENT_HOME = "home"
-	static int UPCOMING_DATE_RANGE = 7
+	static int UPCOMING_DATE_RANGE = 9
 	static int PAST_DATE_RANGE = 7
 	
 	def helperService

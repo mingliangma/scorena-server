@@ -7,7 +7,7 @@ import grails.plugins.rest.client.RestBuilder
 class BetController {
 	def betTransactionService
 	def userService
-
+	def pushService
     
 	def placeBet() { 
 		log.info "placeBet(): begins..."
@@ -48,7 +48,10 @@ class BetController {
 			log.error "placeBet(): result = ${result}"
 			return
 		}
-		
+//		
+//		Question question = Question.get(request.JSON.questionId.toInteger())
+//		pushService.registerUserToGameChannel(validation.objectId, question.eventKey)
+//		return
 	}
 	
 	
