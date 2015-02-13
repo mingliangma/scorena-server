@@ -42,7 +42,7 @@ class PushController {
 	
 	*/
 	
-	def sendCommentPush()
+	/*def sendCommentPush()
 	{
 		String userId = params.userId
 		String qId = params.qId
@@ -107,7 +107,7 @@ class PushController {
 		System.out.println("qId, users list: " + user.toString())
 		
 		render friends as JSON
-	}
+	}*/
 	
 	def handleException(Exception e) {
 		response.status = 500

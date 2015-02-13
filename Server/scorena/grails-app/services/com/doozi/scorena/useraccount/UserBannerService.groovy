@@ -44,8 +44,11 @@ class UserBannerService {
 					}
 				}
 			}
-			def pastRanking = UserBanner.findAll("from UserBanner where league='"+league+"' and type="+CURRENT_MONTH_BANNER+" and month='"+bannerDate +"' order by rank asc")
-
+			
+			currentRanking.put(league, tempLeague)
+			
+		//	def pastRanking = UserBanner.findAll("from UserBanner where league='"+league+"' and type="+CURRENT_MONTH_BANNER+" and month='"+bannerDate +"' order by rank asc")
+/*
 			if (!pastRanking) // no previous current month banner 
 			{
 				if (currentMonth.rankScores) // has user ranking
@@ -158,9 +161,9 @@ class UserBannerService {
 						currentRanking.put(league, tempLeague)
 					}
 				}
-			}
+			}*/
 		}
-		return [Month:(month), Ranking:(currentRanking)]	
+		return currentRanking	
     }
 	
 	private Map generatePastMonthBanner()
