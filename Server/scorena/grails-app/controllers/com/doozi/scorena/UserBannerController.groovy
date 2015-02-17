@@ -8,7 +8,7 @@ class UserBannerController {
 	
     def generateCurrentMonthBanner() 
 	{ 
-		def banners = userBannerService.generateCurrentMonthBanner() 
+		def banners = userBannerService.generateCurrentMonthBanner(params.userId) 
 		render banners as JSON
 	}
 	

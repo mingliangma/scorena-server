@@ -303,6 +303,27 @@ class HelperService {
 		return new SimpleDateFormat("MMM").format(c.getTime()).toString() + " " + c.get(Calendar.YEAR).toString()
 	}
 	
+	/* Gets the previous month string.
+	 * Returns String in long month name.
+	 * i.e. - December
+	 */
+	def getPreviousMonth()
+	{
+		int previousValue = 0
+		String previousMonth = getMonth()
+		previousValue = months[previousMonth] - 1
+		
+		Calendar c = Calendar.getInstance()
+		
+		if (previousValue < 0)
+		{
+			previousValue = 11
+		}
+
+		c.set(Calendar.MONTH, previousValue)
+
+		return new SimpleDateFormat("MMMM").format(c.getTime()).toString()
+	}
 	
 	/* evaluates date query string based on month and year
 	 * 

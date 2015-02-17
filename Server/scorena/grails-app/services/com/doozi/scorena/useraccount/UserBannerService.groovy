@@ -18,7 +18,7 @@ class UserBannerService {
 	public static final int PAST_MONTH_BANNER = 1
 	public static final int SEASONAL_BANNER = 2
 	
-    private Map generateCurrentMonthBanner() 
+    private Map generateCurrentMonthBanner(String userID) 
 	{
 		Map currentRanking = [:]
 		String month = helperService.getMonth()
@@ -38,14 +38,16 @@ class UserBannerService {
 			{
 				for (Map user: currentMonth.rankScores)
 				{
-					if (user.rank <= 10)
+					if (user.rank <= 10 && userID.equals(user.userId))
 					{
-						tempLeague.add(user)
+						tempLeague.add([rank:(user.rank), league:(league.toString()), month:(bannerDate)])
+						currentRanking.put(league, tempLeague)
+						break;
 					}
 				}
 			}
 			
-			currentRanking.put(league, tempLeague)
+			
 			
 		//	def pastRanking = UserBanner.findAll("from UserBanner where league='"+league+"' and type="+CURRENT_MONTH_BANNER+" and month='"+bannerDate +"' order by rank asc")
 /*
@@ -163,6 +165,9 @@ class UserBannerService {
 				}
 			}*/
 		}
+		
+		currentRanking.putAll(getUserBanners(userID))
+		
 		return currentRanking	
     }
 	
@@ -170,6 +175,7 @@ class UserBannerService {
 	{
 		Map lastMonthTopRanking = [:]
 		String lastmonth = helperService.getPreviousMonthAndYear()
+		String month = helperService.getPreviousMonth()
 		
 		for (LeagueTypeEnum league: LeagueTypeEnum.values())
 		{
@@ -248,7 +254,7 @@ class UserBannerService {
 			bannerList.add([rank:it.rank, league:it.league.name(), month:it.month])
 		}
 		
-		listOfBanners.putAt("Banner", bannerList)
+		listOfBanners.putAt("pastBanners", bannerList)
 		
 		return listOfBanners
 	}
