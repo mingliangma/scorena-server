@@ -121,8 +121,8 @@ class UserService {
 		return result
 	}
 			
-	def createUser(String username, String email, String password, String gender, String region){
-		return createUser(username.toLowerCase(), email, password, gender, region, AccountType.USER, "", "")
+	def createUser(String username, String email, String password, String pictureURL, String gender, String region){
+		return createUser(username.toLowerCase(), email, password, gender, region, AccountType.USER, pictureURL, "")
 	}
 	
 	def createTestUser(String username, String email, String password, String gender, String region, String pictureURL, String facebookId){
@@ -132,7 +132,6 @@ class UserService {
 	def createUser(String username, String email, String password, String gender, String region, int accountType, String pictureURL, String facebookId){
 		log.info "createUser(): begins..."
 		println "UserService::createUser(): username="+username+"  email="+email + " facebookId="+facebookId
-		
 		int currentBalance = INITIAL_BALANCE
 		String usernameLowerCase = username.toLowerCase().trim()
 		String displayName = usernameLowerCase
@@ -153,10 +152,18 @@ class UserService {
 		
 		println "user profile and account created successfully"
 		log.info "createUser(): user profile and account created successfully"
+		def result
 		
-		def result = userProfileMapRender(userProfile.sessionToken, currentBalance, userProfile.createdAt, userProfile.username, displayName, 
+		if (!facebookId.empty)
+		{
+		 result = userProfileMapRender(userProfile.sessionToken, currentBalance, userProfile.createdAt, userProfile.username, displayName, 
 		userProfile.objectId, "", "", email, userProfile.pictureURL)
-		
+		}
+		else
+		{
+			 result = userProfileMapRender(userProfile.sessionToken, currentBalance, userProfile.createdAt, userProfile.username, displayName,
+				userProfile.objectId, "", "", email, pictureURL)
+		}
 		log.info "createUser(): ends with result = ${result}"
 		
 		return result		
@@ -576,7 +583,23 @@ class UserService {
 	def updateUserProfile(String sessionToken, String userId, JSON updateUserData){
 		def rest = new RestBuilder()
 		def resp = parseService.updateUser(rest, sessionToken, userId, updateUserData)
-		return resp.json
+		def parseResp = userRetreive(rest,userId)
+		
+		if (parseResp.code){
+			return parseResp
+		}
+		
+		def account = Account.findByUserId(parseResp.objectId)
+		
+		if (!account){
+			log.error "login(): user account does not exist"
+			return [code:500, error:"user account does not exist"]
+		}
+		
+		def result = userProfileMapRender(sessionToken, account.currentBalance, parseResp.createdAt, parseResp.username, parseResp.display_name,
+				parseResp.objectId, "", "", parseResp.email, parseResp.pictureURL)
+		
+		return result
 	}
 	
 //	private Map getUserProfileBySessionToken_tempFix(RestBuilder rest, String sessionToken){

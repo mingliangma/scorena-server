@@ -165,7 +165,7 @@ class UrlMappings {
 		}
 		
 		
-		"/v1/banners/generateCurrentTop"(controller:"UserBanner"){
+		"/v1/banners/$userId?"(controller:"UserBanner"){
 			action = [GET:"generateCurrentMonthBanner"]
 		}
 		
