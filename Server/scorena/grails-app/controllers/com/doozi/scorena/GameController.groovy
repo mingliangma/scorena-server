@@ -116,7 +116,11 @@ class GameController {
 	
 	def getGameRanking(){
 		if (params.gameId){
-			def gameRanking = profitRankingService.getGameRanking(params.gameId)
+			def gameRanking
+			if (params.userId == null)
+				gameRanking = profitRankingService.getGameRanking(params.gameId)
+			else
+				gameRanking = profitRankingService.getGameRanking(params.gameId, params.userId)
 			render gameRanking as JSON
 		}else{
 			response.status = 404
@@ -129,7 +133,6 @@ class GameController {
 	def handleException(Exception e) {
 		response.status = 500
 		render e.toString()
-		log.error "${e.toString()}"
-		e.printStackTrace()
+		log.error "${e.toString()}", e
 	}
 }

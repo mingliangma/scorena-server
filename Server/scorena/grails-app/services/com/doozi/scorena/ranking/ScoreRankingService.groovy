@@ -9,6 +9,7 @@ import com.doozi.scorena.score.QuestionScore
 import com.doozi.scorena.utils.*
 
 import grails.converters.JSON
+import grails.validation.ValidationException
 import org.springframework.transaction.annotation.Transactional
 
 import org.codehaus.groovy.grails.web.json.JSONObject
@@ -21,197 +22,118 @@ import java.net.URL
 
 
 //The ranking page service
-@Transactional
 class ScoreRankingService {
 	def parseService
 	def sportsDataService
 	def helperService
+	def friendSystemService
 	
 	public static final int USERID_RANKING_QUERY_INDEX = 0
 	public static final int USER_SCORE_RANKING_QUERY_INDEX = 1
+	
+	public static final int RANKING_TYPE_ALL = 0
+	public static final int RANKING_TYPE_MONTH = 1
+	public static final int RANKING_TYPE_LEAGUE = 2
+	public static final int RANKING_TYPE_MONTH_AND_LEAGUE = 3
 
-	// gets the overall ranking of all users 
-	def getRanking()
-	{
-		log.info "getRanking(): begins..."
+	private def getRanking(int rankingType, String month, String league){
+		log.info "getRanking(): begins with rankingType=${rankingType}, month=${month}, league=${league}"
 		
-		try
-		{
-			// searches database
-			def userRankingAll = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s group by s.account.id order by sum(score) desc")
-			
-			// if userRanking is null, returns error
-			if (userRankingAll == null || userRankingAll == "")
-			{
-				log.error "getRanking(): No Results"
-				return [code:400, error: "No Results"]
-			}
-			// return user ranking
-			log.info "getRanking(): ends with userRankingAll = ${userRankingAll}"
-			return returnScores(userRankingAll,"","","",0)
+		def userRanking 
+		// searches database
+		switch (rankingType) {
+			case RANKING_TYPE_ALL:
+				userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s group by s.account.id order by sum(score) desc")
+				break
+			case RANKING_TYPE_MONTH:
+				String dateRangeQueryString = getRankingDateString(month)
+				userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s where s.gameStartTime between "+ dateRangeQueryString +" group by s.account.id order by sum(score) desc")
+				break
+			case RANKING_TYPE_LEAGUE:
+				userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s where s.league = '"+ league+"' group by s.account.id order by sum(score) desc")
+				break
+			case RANKING_TYPE_MONTH_AND_LEAGUE:
+				String dateRangeQueryString = getRankingDateString(month)
+				userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s where s.gameStartTime between "+ dateRangeQueryString +" AND s.league = '"+league+"'  group by s.account.id order by sum(score) desc")
+				break
 		}
-		catch (Exception e){
-			def eMsg = e.getMessage()
-			log.error "getRanking(): ${eMsg}"
-			return [code: 400, error: e.getMessage()]
-		}
+
+		
+		// return user ranking
+		log.info "getRanking(): ends with userRankingSize = ${userRanking.size()}"
+		return userRanking
+//		return returnScores(userRanking,month,league,rankingType)
+	}
+	
+	// gets the overall ranking of all users 
+	def getAllRanking()
+	{
+		List<AbstractScore> scoreRanking = getRanking(RANKING_TYPE_ALL, "", "")
+		return constructScoresRankingResponse(scoreRanking,null,null, RANKING_TYPE_ALL)		
+	}
+	
+	def getAllRanking(String userId)
+	{		
+		Map rankingResponse =  getAllRanking()
+		return constructRankingWithFollowingIndicatorResponse(userId, rankingResponse, "rankScores")
+		
 	}
 	
 	// gets the user ranking by month based on the month and year supplied  
 	def getRankingByMonth(String month)
 	{	
-		log.info "getRankingByMonth(): begins..."
-		
-		try 
-		{
-			def firstOfMonth = helperService.getFirstOfMonth(month)
-			
-			// if date_search is null
-			if (firstOfMonth == null) //(date_search == null  )
-			{
-				log.error "getRankingByMonth(): Invalid month"
-				return [code: 400, error: "Invalid month"]
-			}
-			
-			String rankMonth = helperService.getMonthByMonth(month)
-			
-			String year = firstOfMonth.toString().substring(24,28)
-
-			
-			// evaluates month and year
-			String date_search = helperService.evalDate(rankMonth,year)
-			
-			if(date_search == null  )
-			{
-				log.error "getRankingByMonth(): Invalid month"
-				return [code: 400, error: "Invalid month"]
-			}
-			
-			// searches database
-			def userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s where s.gameStartTime between "+ date_search +" group by s.account.id order by sum(score) desc")
-
-			
-			// if userRanking is null, returns error
-			if (userRanking == null || userRanking == "")
-			{
-				log.error "getRankingByMonth(): No Results"
-				return [code: 400, error: "No Results"]
-			}
-			
-			// return user ranking
-			def result = returnScores(userRanking,rankMonth,year,"",1)
-			log.info "getRanking(): ends with result = ${result}"
-			return returnScores(userRanking,rankMonth,year,"",1)
-		}
-		catch (Exception e)
-		{
-			def eMsg = e.getMessage()
-			log.error "getRankingByMonth(): ${eMsg}"
-			return [code: 400, error: e.getMessage()]
-		}
+		List<AbstractScore> scoreRanking = getRanking(RANKING_TYPE_MONTH, month, "")
+		return constructScoresRankingResponse(scoreRanking,month,null, RANKING_TYPE_MONTH)
 	}
 
-	
+	def getRankingByMonth(String userId, String month)
+	{
+		Map rankingResponse =  getRankingByMonth(month)
+		return constructRankingWithFollowingIndicatorResponse(userId, rankingResponse, "rankScores")
+		
+	}
 	// gets the user ranking by league
 	def getRankingByLeague(String league)
 	{
-		log.info "getRankingByLeague(): begins with league = ${league}"
-		
-		try
-		{
-			// gets sports code
-			//String leagueCode = sportsDataService.getLeagueCodeFromEventKey(league)
-			
-			// if league Code is null, return error
-		/*	if(leagueCode == null)
-			{
-				return [code: 400, message: "Invalid leagueCode"]
-			}
-			*/
-			// searches database
-			def userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s where s.league = '"+ league+"' group by s.account.id order by sum(score) desc")
-			
-			// if userRanking is null, returns error
-			if (userRanking == null || userRanking == "")
-			{
-				log.error "getRankingByLeague(): No Results"
-				return [code: 400, error: "No Results"]
-			}
-			
-			// return user ranking 
-			def result = returnScores(userRanking,"","",league,2)
-			log.info "getRankingByLeague(): ends with result = ${result}"
-			return returnScores(userRanking,"","",league,2)
-		}
-		catch (Exception e)
-		{
-			def eMsg = e.getMessage()
-			log.error "getRankingByLeague(): ${eMsg}"
-			return [code: 400, error: e.getMessage()]
-		}
+		List<AbstractScore> scoreRanking = getRanking(RANKING_TYPE_LEAGUE, "", league)
+		return constructScoresRankingResponse(scoreRanking,null,league, RANKING_TYPE_LEAGUE)
 	}
 	
+	def getRankingByLeague(String userId, String league)
+	{
+		Map rankingResponse =  getRankingByLeague(league)
+		return constructRankingWithFollowingIndicatorResponse(userId, rankingResponse, "rankScores")
+		
+	}
 	// gets user ranking by league and month
 	def getRankingByLeagueAndMonth(String month,String league)
 	{	
-		log.info "getRankingByLeagueAndMonth(): begins with month = ${month}, league = ${league}"
+		List<AbstractScore> scoreRanking = getRanking(RANKING_TYPE_MONTH_AND_LEAGUE, month, league)
+		return constructScoresRankingResponse(scoreRanking,month,league, RANKING_TYPE_MONTH_AND_LEAGUE)
+	}
+	
+	def getRankingByLeagueAndMonth(String userId, String month,String league)
+	{
+		Map rankingResponse =  getRankingByLeagueAndMonth(month, league)
+		return constructRankingWithFollowingIndicatorResponse(userId, rankingResponse, "rankScores")
 		
-		try
-		{
-			
-			def firstOfMonth = helperService.getFirstOfMonth(month)
-
-			// if date_search is null
-			if (firstOfMonth == null) //(date_search == null  )
-			{
-				log.error "getRankingByLeagueAndMonth(): Invalid month"
-				return [code: 400, error: "Invalid month"]
+	}
+	
+	Map constructRankingWithFollowingIndicatorResponse(String userId, Map rankingResponse, String rankListKey){
+		rankingResponse[rankListKey] = constructRankingWithFollowingIndicatorResponse(userId, rankingResponse[rankListKey])
+		return rankingResponse
+	}
+	
+	List constructRankingWithFollowingIndicatorResponse(String userId, List rankingResponse){
+		Map followingUserIdMap = friendSystemService.listFollowingUserIdInMap(userId)
+		for (userRank in rankingResponse){
+			if (followingUserIdMap.containsKey(userRank.userId)){
+				userRank.isFollowing = true
+			}else{
+				userRank.isFollowing = false
 			}
-			
-			String rankMonth = helperService.getMonthByMonth(month)
-			String year = firstOfMonth.toString().substring(24,28)
-
-			
-			// evaluates month and year
-			String date_search = helperService.evalDate(rankMonth,year)
-			
-			if(date_search == null  )
-			{
-				log.error "getRankingByLeagueAndMonth(): Invalid month"
-				return [code: 400, error: "Invalid month"]
-			}
-			
-			
-			// gets sports code
-			//String leagueCode = sportsDataService.getLeagueCodeFromEventKey(league)
-			
-			// if league Code is null, return error
-		/*	if(leagueCode == null)
-			{
-				return [code: 400, message: "Invalid leagueCode"]
-			}
-			*/
-			// searches database
-			def userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s where s.gameStartTime between "+ date_search +" AND s.league = '"+league+"'  group by s.account.id order by sum(score) desc")
-			
-			// if userRanking is null, return error
-			if (userRanking == null || userRanking == "")
-			{
-				log.error "getRankingByLeagueAndMonth(): No Results"
-				return [code: 400, error: "No Results"]
-			}
-			
-			// return user ranking
-			def result = returnScores(userRanking,rankMonth,year,league,3)
-			log.info "getRankingByLeagueAndMonth(): ends with result = ${result}"
-			return returnScores(userRanking,rankMonth,year,league,3)
 		}
-		catch (Exception e)
-		{
-			def eMsg = e.getMessage()
-			log.error "getRankingByLeagueAndMonth(): ${eMsg}"
-			return [code: 400, error: e.getMessage()]
-		}
+		return rankingResponse
 	}
 
 	// returns user ranking map
@@ -230,10 +152,24 @@ class ScoreRankingService {
 	}
 	
 	// Maps score ranking to Parse user Profile
-	private Map returnScores(List userRankingAll, String month, String year, String league, int code)
+	/**
+	 * @param userRankingAll contains ['userId', 'score'] eg. [PqZM2z0hNZ, 1376]
+	 * @param month
+	 * @param league
+	 * @param rankingType
+	 * @return [type:"Overall",rankScores: [{
+				      "userId" : "loKo1GyC3l",
+				      "score" : 1038,
+				      "rank" : 10,
+				      "username" : "brayden",
+				      "pictureURL" : "https://s3-us-west-2.amazonaws.com/userprofilepickture/00026profile.png"
+				    },...]
+			    ]
+	 */
+	private Map constructScoresRankingResponse(List userRankingAll, String month, String league, int rankingType)
 	{
-		List rankingResultAll =[]
-		
+		log.info "constructScoresRankingResponse(): rankingType=${rankingType}, month=${month}, league=${league}, userRanking_size=${userRankingAll.size()}"
+		List rankingResultAll =[]		
 		int rankingAllSize = userRankingAll.size()
 
 		//userIdMap is used to contain all the user Ids from both weekly and all ranking.
@@ -268,30 +204,56 @@ class ScoreRankingService {
 			}
 			
 		}
-		
-		if (code == 0)
+
+		if (rankingType == RANKING_TYPE_ALL)
 		{			
 			return [type:"Overall",rankScores: rankingResultAll]
 		}
 		
-		else if (code == 1)
+		else if (rankingType == RANKING_TYPE_MONTH)
 		{
-			if(rankingAllSize == 0)
-			{
-				return [type:"Overall", date:month+" "+year ,rankScores: rankingResultAll]
-			}
-			
-			return [type:"Month", date:month+" "+year ,rankScores: rankingResultAll]
+
+			String longNameMonth = helperService.getMonthByMonth(month)
+			Date firstOfMonth = helperService.getFirstOfMonth(month)
+			String year = firstOfMonth.toCalendar().get(Calendar.YEAR).toString()
+			return [type:"Month", date:longNameMonth+" "+year ,rankScores: rankingResultAll]
 		}
-		else if (code == 2)
+		else if (rankingType == RANKING_TYPE_LEAGUE)
 		{
 			return [type:"League",league:league, rankScores: rankingResultAll]
 		}
-		else if (code == 3)
+		else if (rankingType == RANKING_TYPE_MONTH_AND_LEAGUE)
 		{
-			return [type:"League&Month",date:month+" "+year ,league:league,rankScores: rankingResultAll]
+			String longNameMonth = helperService.getMonthByMonth(month)
+			Date firstOfMonth = helperService.getFirstOfMonth(month)
+			String year = firstOfMonth.toCalendar().get(Calendar.YEAR).toString()
+			return [type:"League&Month",date:longNameMonth+" "+year ,league:league,rankScores: rankingResultAll]
 		}
 	}	
 	
-	
+	private String getRankingDateString(String month){
+		Date firstOfMonth = helperService.getFirstOfMonth(month)
+		
+		// if date_search is null
+		if (firstOfMonth == null) //(date_search == null  )
+		{
+			log.error "getRankingByMonth(): Invalid month"
+			return null
+		}
+		
+		String rankMonth = helperService.getMonthByMonth(month)
+		
+		String year = firstOfMonth.toCalendar().get(Calendar.YEAR).toString()
+
+		
+		// evaluates month and year
+		String dateString = helperService.evalDate(rankMonth,year)
+		
+		if(dateString == null  )
+		{
+			log.error "getRankingByMonth(): Invalid month"
+			return null
+		}
+		return dateString
+	}
 }

@@ -12,13 +12,13 @@ import org.springframework.transaction.annotation.Transactional
 class ProfitRankingService {
 	def parseService
 	def scoreService
-	
+	def scoreRankingService
 	public static final int USERNAME_RANKING_QUERY_INDEX = 0
 	public static final int USERID_RANKING_QUERY_INDEX = 1
 	public static final int NETGAIN_RANKING_QUERY_INDEX = 2
 	public static final int CURRENTBALANCE_RANKING_QUERY_INDEX =3
 	
-	
+	//deprecated
 	Map getRanking(userId){
 		log.info "getRanking(): begins with userId = ${userId}"
 		
@@ -106,6 +106,11 @@ class ProfitRankingService {
 		log.info "getRanking(): ends with result = ${result}"
 		
 		return [weekly: rankingResultWk, all: rankingResultAll]
+	}
+	
+	List getGameRanking(String gameId, String userId){
+		List<Map> gameRanking = getGameRanking(gameId)
+		return scoreRankingService.constructRankingWithFollowingIndicatorResponse(userId, gameRanking)
 	}
 	
 	List getGameRanking(String gameId){

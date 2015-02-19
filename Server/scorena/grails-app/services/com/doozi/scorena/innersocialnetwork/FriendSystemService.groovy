@@ -181,6 +181,35 @@ class FriendSystemService {
 		return allFollowingUserIdList
 	}
 	
+	Map listFollowingUserIdInMap(userId){
+		log.info "listFollowingUserIdInMap(): begins with userId = ${userId}"
+		
+		if (userId==null || userId==""){
+			log.error "listFollowingUserIdInMap(): null userId"
+			return []
+		}
+		
+		Account user = Account.findByUserId(userId)
+		//SQL Query find friend in FriendSystem where status=1
+		String friendListQuery = "SELECT user.userId, following.userId FROM FriendSystem WHERE user=?"
+
+		Map allFollowingUserIdMap = [:]
+		
+		if(user != null) {
+			//find all follower of user by SQL Query
+			def allFollowingResult = FriendSystem.executeQuery(friendListQuery,[user])
+			for(int i=0;i<allFollowingResult.size();i++) {
+				
+				List follower = allFollowingResult[i]
+				allFollowingUserIdMap[follower[BEINGFOLLOWED_USERID_QUERY_INDEX]] = follower[BEINGFOLLOWED_USERID_QUERY_INDEX]
+			}
+		}
+		
+		log.info "listFollowingUserIdInMap(): ends with allFollowingUserIdMap = ${allFollowingUserIdMap}"
+		
+		return allFollowingUserIdMap
+	}
+	
 	boolean isFollowing(String userId, String followingUserId){
 		log.info "isFollowing(): begins with userId = ${userId} and followingUserId = ${followingUserId}"
 		Account user = Account.findByUserId(userId)

@@ -558,6 +558,14 @@ class BootStrap {
 			def resp = userService.createTestUser(_displayNames[i], _email, _password, _gender, _region, pictureURL, facebookId.toString())
 		}
 		
+//		String dislayNamePrefix = "user"
+//		for(int i = 0; i<500; i++){
+//			String displayName = dislayNamePrefix+random.nextInt(100000)
+//			String _email = displayName+"@scorena.ca"
+//			String pictureURL = ""			
+//			int facebookId = 100000+i
+//			def resp = userService.createTestUser(displayName, _email, _password, _gender, _region, pictureURL, facebookId.toString())
+//		}
 	}
 	
 	def addFriends(){

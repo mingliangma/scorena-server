@@ -8,6 +8,7 @@ import com.doozi.scorena.gamedata.useroutput.basketball.GameDataEventStatsNba
 import com.doozi.scorena.gamedata.useroutput.basketball.GameDataLastMeetingNba
 import com.doozi.scorena.gamedata.useroutput.basketball.GameDataNbaOutput
 import com.mysql.jdbc.log.Log;
+
 import grails.converters.JSON
 import groovy.time.TimeCategory
 
@@ -135,5 +136,10 @@ class TestServiceMethodController {
 	def updateScore(){
 		gameDataDbInputStatsNbaService.updateScore()		
 	}
-	
+	def handleException(Exception e) {
+		response.status = 500
+		render e.toString()
+		log.error "${e.toString()}", e
+		return
+	}
 }

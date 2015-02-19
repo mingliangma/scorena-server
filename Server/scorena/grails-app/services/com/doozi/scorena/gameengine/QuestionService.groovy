@@ -871,7 +871,6 @@ class QuestionService {
 		
 		def rest = new RestBuilder()
 		List userIdList = []
-		Map test = [:]
 		List bettersProfileList = []
 		
 		bettersMap.each{

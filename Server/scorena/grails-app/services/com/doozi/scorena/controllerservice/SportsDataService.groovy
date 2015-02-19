@@ -116,6 +116,16 @@ class SportsDataService {
 			return NBA
 	}
 	
+	public isLeagueSupport(String league){
+		for (LeagueTypeEnum c : LeagueTypeEnum.values()) {
+			if (c.name().equalsIgnoreCase(league)) {
+				return true;
+			}
+		}
+	
+		return false;
+	}
+	
 	List listUpcomingGameIds(){
 		log.info "listUpcomingGameIds(): begins..."
 		

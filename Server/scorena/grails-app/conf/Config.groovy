@@ -161,6 +161,7 @@ environments {
 }
 
 // log4j configuration
+log4j.additivity.org.hibernate=false
 log4j = {
 	def infoLogDomain = [
 		"grails.app.controllers",        					//controllers
@@ -173,6 +174,7 @@ log4j = {
 	
 	appenders {
 		console name: "stdout", layout: layout
+		rollingFile name: "stacktrace", maxFileSize: 1024, file: "/Users/mingliangma/grailsServerLogs/stacktrace.log"
 		environments {
 			thomas {
 				rollingFile name: "fileLog", layout: layout, maxFileSize: "100MB", file: "/tmp/logs/fileLog.log"
@@ -185,21 +187,9 @@ log4j = {
 	}
 	
 	root{
-		environments {
-			thomas {
-				error 'stdout'
-			}
-			development {
-				error 'stdout'
-			}
-			awsdev {
-				error 'stdout'
-			}
-			production {
-				error 'stdout'
-			}
-		}
+		error stdout:"StackTrace", stacktrace: "StackTrace"
 	}
+	
     
 	environments {
 		thomas {
@@ -207,6 +197,7 @@ log4j = {
 		}
 		development {
 			info stdout: infoLogDomain, fileLog: infoLogDomain
+			
 		}
 		awsdev {
 			info stdout: infoLogDomain

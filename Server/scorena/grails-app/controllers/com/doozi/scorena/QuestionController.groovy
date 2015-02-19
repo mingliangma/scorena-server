@@ -68,7 +68,6 @@ class QuestionController {
 	def handleException(Exception e) {
 		response.status = 500
 		render e.toString()
-		log.error "${e.toString()}"
-		e.printStackTrace()
+		log.error "${e.toString()}", e
 	}
 }

@@ -564,7 +564,7 @@ class UserService {
 	}
 	
 	
-	private int getUserInWagerCoins(userId){
+	public int getUserInWagerCoins(userId){
 		int inWager = 0
 		def unpaidTransactions = betTransactionService.listUnpaidBetsByUserId(userId)
 		for (BetTransaction unpaidTransaction: unpaidTransactions){

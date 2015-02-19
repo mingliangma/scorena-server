@@ -35,7 +35,8 @@ class HelperService {
 		return now
 	}
 	
-	def getFirstDateOfCurrentWeek(){
+	
+	Date getFirstDateOfCurrentWeek(){
 		Calendar c1 = Calendar.getInstance();   // this takes current date
 		c1.clear(Calendar.MINUTE);
 		c1.clear(Calendar.SECOND);
@@ -49,7 +50,7 @@ class HelperService {
 	 * 
 	 * Returns date String. i.e. Thu Jan 01 00:00:00 UTC 2015 
 	 */
-	def getFirstDateOfCurrentMonth(){
+	Date getFirstDateOfCurrentMonth(){
 		Calendar c = Calendar.getInstance();   // this takes current date
 		c.clear(Calendar.MINUTE);
 		c.clear(Calendar.SECOND);
@@ -84,7 +85,7 @@ class HelperService {
 	 * 
 	 * Return date String. i.e. Thu May 01 00:00:00 UTC 2014
 	 */
-	def getFirstOfMonth(String month)
+	Date getFirstOfMonth(String month)
 	{
 		int parse_month
 		
@@ -206,7 +207,7 @@ class HelperService {
 	{
 		int parse_month
 		def myMonth 
-		String year = dateString.toString().substring(24,28)
+		String year = dateString.toCalendar().get(Calendar.YEAR).toString()
 		try{
 			 parse_month = Integer.parseInt(month)
 			 
@@ -239,6 +240,7 @@ class HelperService {
 	{
 		int parse_month
 		def myMonth
+		
 		try{
 			 parse_month = Integer.parseInt(month)
 			 
@@ -403,5 +405,13 @@ class HelperService {
 		   return false
 		}
 		 
+	}
+	
+	Map listToMap(List l) {
+		Map result = [:]
+		for (item in l){
+			result[item]=item
+		}
+		return result
 	}
 }

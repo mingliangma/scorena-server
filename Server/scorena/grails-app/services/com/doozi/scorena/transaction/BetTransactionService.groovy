@@ -281,6 +281,15 @@ class BetTransactionService {
 			return [code:202, error: "the match is already started. All pool is closed"]
 		}
 		
+		if (account.id == 33 || account.id == 52 || account.id==47){
+			int wagerInBet = userService.getUserInWagerCoins(account.userId)
+			log.info "validateBetTrans(): wagerInBet="+wagerInBet
+			if ((wagerInBet + account.currentBalance) * 0.1 <  playerWager){
+				log.error "validateBetTrans(): user wager exceed 10% of the user's asset"
+				return [code:202, error: "user wager exceed 10% of the user's asset"]
+			}
+		}
+		
 		log.info "validateBetTrans(): ends..."
 		return [:]
 	}

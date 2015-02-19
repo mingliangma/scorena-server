@@ -23,7 +23,7 @@ class ParseService {
 	
 	
     def validateSession(def rest, def sessionToken) {
-		log.info "validateSession(): begins with rest = ${rest}, sessionToken = ${sessionToken}"
+		log.debug "validateSession(): begins with rest = ${rest}, sessionToken = ${sessionToken}"
 		
 		def parseConfig = grailsApplication.config.parse
 		
@@ -33,13 +33,13 @@ class ParseService {
 			header	"X-Parse-Session-Token", sessionToken
 		}
 		
-		log.info "validateSession(): ends with resp = ${resp}"
+		log.debug "validateSession(): ends with resp = ${resp}"
 		
 		return resp
     }
 	
 	def validateSessionT3(def rest, def sessionToken) {
-		log.info "validateSessionT3(): begins with rest = ${rest}, sessionToken = ${sessionToken}"
+		log.debug "validateSessionT3(): begins with rest = ${rest}, sessionToken = ${sessionToken}"
 		
 		def parseConfig = grailsApplication.config.parse
 		
@@ -49,15 +49,15 @@ class ParseService {
 			header	"X-Parse-Session-Token", sessionToken
 		}
 		
-		log.info "validateSessionT3(): ends with resp = ${resp}"
+		log.debug "validateSessionT3(): ends with resp = ${resp}"
 		
 		return resp
 	}
 	
 	def createUser(def rest, String usernameInput, String emailInput, String passwordInput, String genderInput, String regionInput, String displayNameInput, String pictureURLInput, 
 		String facebookIdInput){
-		log.info "createUser(): begins with rest = ${rest}, usernameInput = ${usernameInput}, emailInput = ${emailInput}, passwordInput = ${passwordInput}, genderInput = ${genderInput}" 
-		log.info "createUser(): begins with regionInput = ${regionInput}, displayNameInput = ${displayNameInput}, pictureURLInput = ${pictureURLInput}, facebookIdInput = ${facebookIdInput}"
+		log.debug "createUser(): begins with rest = ${rest}, usernameInput = ${usernameInput}, emailInput = ${emailInput}, passwordInput = ${passwordInput}, genderInput = ${genderInput}" 
+		log.debug "createUser(): begins with regionInput = ${regionInput}, displayNameInput = ${displayNameInput}, pictureURLInput = ${pictureURLInput}, facebookIdInput = ${facebookIdInput}"
 		
 		def parseConfig = grailsApplication.config.parse
 		def resp = rest.post("https://api.parse.com/1/users"){
@@ -77,13 +77,13 @@ class ParseService {
 			}
 		}
 		
-		log.info "createUser(): ends with resp = ${resp}"
+		log.debug "createUser(): ends with resp = ${resp}"
 		
 		return resp
 	}
 	
 	def loginUser(def rest, String username, String password){
-		log.info "loginUser(): begins with rest = ${rest}, username = ${username}, password = ${password}"
+		log.debug "loginUser(): begins with rest = ${rest}, username = ${username}, password = ${password}"
 		
 		def parseConfig = grailsApplication.config.parse
 		/*
@@ -106,8 +106,8 @@ class ParseService {
 		
 		def respMsg = [status:statusCode, json:resultJson]
 		
-		log.info "loginUser(): ends with resp = ${respMsg}"
-	//	log.info "loginUser(): ends with resp = ${resp}"
+		log.debug "loginUser(): ends with resp = ${respMsg}"
+	//	log.debug "loginUser(): ends with resp = ${resp}"
 		
 	//	return resp
 		return respMsg
@@ -115,7 +115,7 @@ class ParseService {
 	
 	
 	def deleteUser(def rest, def sessionToken, def objectId){
-		log.info "deleteUser(): begins with rest = ${rest}, sessionToke = ${sessionToken}, objectId = ${objectId}"
+		log.debug "deleteUser(): begins with rest = ${rest}, sessionToke = ${sessionToken}, objectId = ${objectId}"
 		
 		println "https://api.parse.com/1/users/"+objectId
 		println "X-Parse-Session-Token: "+ sessionToken
@@ -127,13 +127,13 @@ class ParseService {
 			header	"X-Parse-Session-Token", sessionToken
 		}
 		
-		log.info "deleteUser(): ends with resp = ${resp}"
+		log.debug "deleteUser(): ends with resp = ${resp}"
 		
 		return resp
 	}
 	
 	def retrieveUser(def rest, def objectId){
-		log.info "retrieveUser(): begins with rest = ${rest}, objectId = ${objectId}"
+		log.debug "retrieveUser(): begins with rest = ${rest}, objectId = ${objectId}"
 		
 		def parseConfig = grailsApplication.config.parse
 		def resp = rest.get("https://api.parse.com/1/users/"+objectId){
@@ -141,7 +141,7 @@ class ParseService {
 			header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
 		}
 		
-		log.info "retrieveUser(): ends with resp = ${resp}"
+		log.debug "retrieveUser(): ends with resp = ${resp}"
 		
 		return resp
 	}	
@@ -166,7 +166,7 @@ class ParseService {
 //	}
 	
 //	Map retrieveUserListByFBIds(List facebookIds){
-//		log.info "retrieveUserListByFBIds(): begins with facebookIds = ${facebookIds}"
+//		log.debug "retrieveUserListByFBIds(): begins with facebookIds = ${facebookIds}"
 //		
 //		def parseConfig = grailsApplication.config.parse
 //		if (facebookIds.size() == 0){
@@ -184,13 +184,13 @@ class ParseService {
 //		HttpResponse httpResponse = httpclient.execute(httpget);
 //		JSONObject resultJson = new JSONObject(EntityUtils.toString(httpResponse.getEntity()));
 //		
-//		log.info "retrieveUserListByFBIds(): ends with resultJson = ${resultJson}"
+//		log.debug "retrieveUserListByFBIds(): ends with resultJson = ${resultJson}"
 //		
 //		return (resultJson as Map)
 //	}
 	
 	Map retrieveUserListByFBIds(List facebookIds){
-		log.info "retrieveUserListByFBIds(): begins with facebookIds = ${facebookIds}"
+		log.debug "retrieveUserListByFBIds(): begins with facebookIds = ${facebookIds}"
 		
 		def parseConfig = grailsApplication.config.parse
 		int inputObjectIdsSize = facebookIds.size()
@@ -227,7 +227,7 @@ class ParseService {
 		
 		Map userListResult = [results:parseUserList]
 		
-		log.info "retrieveUserList(): ends with userListResult = ${userListResult}"
+		log.debug "retrieveUserListByFBIds(): ends with userListResult = ${userListResult}"
 
 		return userListResult
 	}
@@ -241,7 +241,7 @@ class ParseService {
 	 * @return a Map object that contains a list of Parse users' profile
 	 */
 	Map retrieveUserList(List objectIds){
-		log.info "retrieveUserList(): begins with objectIds = ${objectIds}"
+		log.debug "retrieveUserList(): begins with objectIds = ${objectIds}"
 		
 		def parseConfig = grailsApplication.config.parse
 		int inputObjectIdsSize = objectIds.size()
@@ -278,7 +278,7 @@ class ParseService {
 		
 		Map userListResult = [results:parseUserList]
 		
-		log.info "retrieveUserList(): ends with userListResult = ${userListResult}"
+		log.debug "retrieveUserList(): ends with userListResult = ${userListResult}"
 
 		return userListResult
 	}
@@ -290,7 +290,7 @@ class ParseService {
 	}
 	
 	Map retrieveUserByDisplayName(def displayName){
-		log.info "retrieveUserByDisplayName(): begins with displayName = ${displayName}"
+		log.debug "retrieveUserByDisplayName(): begins with displayName = ${displayName}"
 		
 		def parseConfig = grailsApplication.config.parse
 		String whereContraintsString = URLEncoder.encode('{"display_name":"' + displayName + '"}', "UTF-8")
@@ -305,13 +305,13 @@ class ParseService {
 		HttpResponse httpResponse = httpclient.execute(httpget);
 		JSONObject resultJson = new JSONObject(EntityUtils.toString(httpResponse.getEntity()));
 		
-		log.info "retrieveUserByDisplayName(): ends with resultJson = ${resultJson}"
+		log.debug "retrieveUserByDisplayName(): ends with resultJson = ${resultJson}"
 		
 		return (resultJson as Map)
 	}
 	
 	private String getJSONWhereConstraints(String fieldName, List values){
-		log.info "getJSONWhereConstraints(): begins with fieldName = ${fieldName}, values = ${values}"
+		log.debug "getJSONWhereConstraints(): begins with fieldName = ${fieldName}, values = ${values}"
 		
 		JSONArray objectIdArray = new JSONArray()
 		JSONObject whereContraintsJson = new JSONObject();
@@ -326,13 +326,13 @@ class ParseService {
 		
 		String whereContraintsString = URLEncoder.encode(whereContraintsJson.toString(), "UTF-8")
 		
-		log.info "getJSONWhereConstraints(): ends with whereContraintsString = ${whereContraintsString}"
+		log.debug "getJSONWhereConstraints(): ends with whereContraintsString = ${whereContraintsString}"
 		
 		return whereContraintsString
 	}
 	
 	private String getJSONWhereConstraints(String fieldName, Map values){
-		log.info "getJSONWhereConstraints(): begins with fieldName = ${fieldName}, values = ${values}"
+		log.debug "getJSONWhereConstraints(): begins with fieldName = ${fieldName}, values = ${values}"
 		
 		JSONArray objectIdArray = new JSONArray()
 		JSONObject whereContraintsJson = new JSONObject();
@@ -348,13 +348,13 @@ class ParseService {
 
 		String whereContraintsString = URLEncoder.encode(whereContraintsJson.toString(), "UTF-8")
 		
-		log.info "getJSONWhereConstraints(): ends with whereContraintsString = ${whereContraintsString}"
+		log.debug "getJSONWhereConstraints(): ends with whereContraintsString = ${whereContraintsString}"
 		
 		return whereContraintsString
 	}
 	
 	def updateUser(def rest, def sessionToken, def objectId, def updateUserDataJSON){
-		log.info "updateUser(): begins with rest = ${rest}, sessionToken = ${sessionToken}, objectId = ${objectId}, updateUserDataJSON = ${updateUserDataJSON}"
+		log.debug "updateUser(): begins with rest = ${rest}, sessionToken = ${sessionToken}, objectId = ${objectId}, updateUserDataJSON = ${updateUserDataJSON}"
 		
 		def parseConfig = grailsApplication.config.parse		
 		def resp = rest.put("https://api.parse.com/1/users/"+objectId){
@@ -365,13 +365,13 @@ class ParseService {
 			json updateUserDataJSON
 		}
 		
-		log.info "updateUser(): ends with resp = ${resp}"
+		log.debug "updateUser(): ends with resp = ${resp}"
 		
 		return resp
 	}
 	
 	def passwordReset(def rest, def userEmail){
-		log.info "passwordReset(): begins with rest = ${rest}, userEmail = ${userEmail}"
+		log.debug "passwordReset(): begins with rest = ${rest}, userEmail = ${userEmail}"
 		
 		def parseConfig = grailsApplication.config.parse
 		def resp = rest.post("https://api.parse.com/1/requestPasswordReset"){
@@ -383,13 +383,13 @@ class ParseService {
 			}
 		}
 		
-		log.info "passwordReset(): ends with resp = ${resp}"
+		log.debug "passwordReset(): ends with resp = ${resp}"
 		
 		return resp
 	}
 	
 	def uploadImage(def rest, def image, def imageName){
-		log.info "uploadImag(): begins with rest = ${rest}, image = ${image}, imageName = ${imageName}"
+		log.debug "uploadImag(): begins with rest = ${rest}, image = ${image}, imageName = ${imageName}"
 		
 		def parseConfig = grailsApplication.config.parse
 		def resp = rest.post("https://api.parse.com/1/files/"+imageName){
@@ -399,13 +399,13 @@ class ParseService {
 			body image
 		}
 		
-		log.info "uploadImage(): ends with resp = ${resp}"
+		log.debug "uploadImage(): ends with resp = ${resp}"
 		
 		return resp
 	}
 	
 	def associateImageWithUser(def rest, def imageName){
-		log.info "associateImageWithUser(): begins with rest = ${rest}, imageName = ${imageName}"
+		log.debug "associateImageWithUser(): begins with rest = ${rest}, imageName = ${imageName}"
 		
 		def parseConfig = grailsApplication.config.parse
 		def picture = ["name": imageName, "__type":"File"]
@@ -418,13 +418,13 @@ class ParseService {
 			}
 		}
 		
-		log.info "associateImageWithUser(): ends with resp = ${resp}"
+		log.debug "associateImageWithUser(): ends with resp = ${resp}"
 		
 		return resp
 	}
 	
 	private Map parseQuery(HttpClient httpclient, String url){
-		log.info "parseQuery(): begins with url = ${url}"
+		log.debug "parseQuery(): begins with url = ${url}"
 		
 		def parseConfig = grailsApplication.config.parse
 		
@@ -436,7 +436,7 @@ class ParseService {
 		HttpResponse httpResponse = httpclient.execute(httpget);
 		JSONObject resultJson = new JSONObject(EntityUtils.toString(httpResponse.getEntity()));
 		
-		log.info "parseQuery(): ends with resultJson = ${resultJson}"
+		log.debug "parseQuery(): ends with resultJson = ${resultJson}"
 		
 		return (resultJson as Map)
 	}
