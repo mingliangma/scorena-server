@@ -63,7 +63,7 @@ class UserController {
 		
 		//def image = request.getFile('profilePicture')
 		
-		def resp = userService.createUser(request.JSON.username, request.JSON.email, request.JSON.password, request.JSON.gender, request.JSON.region)
+		def resp = userService.createUser(request.JSON.username, request.JSON.email, request.JSON.password, request.JSON.pictureURL ,request.JSON.gender, request.JSON.region)
 		
 		if (resp.code){
 			response.status =400
