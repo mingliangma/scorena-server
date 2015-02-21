@@ -161,13 +161,7 @@ class ProfitRankingService {
 	}
 	
 	public Map getAccountInfoMap(String userId, String username, long netgain, int rank){
-		String gameProfit = ""
-		if (netgain>0)
-			gameProfit="+"+netgain.toString()
-		else
-			gameProfit=netgain.toString()
-			
-		return [userId: userId, username: username, gameProfit: gameProfit, rank: rank]
+		return [userId: userId, username: username, gameProfit: netgain, rank: rank]
 	}
 	
 	public Map getUserProfileUserIdAsKeyMap(List userProfileList){

@@ -59,6 +59,15 @@ class UrlMappings {
 			action = [GET:"getUserHistoryQuestions"]
 		}
 		
+		
+		"/v1/users/$userId?/banners"(controller:"UserBanner"){
+			action = [GET:"generateCurrentMonthBanner"]
+		}
+		//TODO
+		"/v1/banners/generatePastTop"(controller:"UserBanner"){
+			action = [GET:"generatePastMonthTopBanner"]
+		}
+		
 		"/v1/sports/$sportType/leagues/$leagueType/games/feature"(controller:"game"){
 			action = [GET:"getFeatureGames"]
 		}
@@ -163,24 +172,6 @@ class UrlMappings {
 		"/v1/iap/activatePurchse"(controller:"IAP"){
 			action = [POST:"activateAndroid"]
 		}
-		
-		
-		"/v1/banners/$userId?"(controller:"UserBanner"){
-			action = [GET:"generateCurrentMonthBanner"]
-		}
-		
-		"/v1/banners/generatePastTop"(controller:"UserBanner"){
-			action = [GET:"generatePastMonthTopBanner"]
-		}
-		
-		"/v1/banners/clearPastCurrent"(controller:"UserBanner"){
-			action = [GET:"clearPastCurrentBanners"]
-		}
-		
-		"/v1/banners/getBanners"(controller:"UserBanner"){
-			action = [GET:"getUserBanners"]
-		}
-		
 		
 //		"/v1/sports/all/tournament/list"(controller:"tournament"){
 //			action = [GET:"listTournaments"]

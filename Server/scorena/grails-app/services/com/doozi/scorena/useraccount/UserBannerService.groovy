@@ -46,124 +46,6 @@ class UserBannerService {
 					}
 				}
 			}
-			
-			
-			
-		//	def pastRanking = UserBanner.findAll("from UserBanner where league='"+league+"' and type="+CURRENT_MONTH_BANNER+" and month='"+bannerDate +"' order by rank asc")
-/*
-			if (!pastRanking) // no previous current month banner 
-			{
-				if (currentMonth.rankScores) // has user ranking
-				{
-					for (Map user: tempLeague)
-					{
-							Account userAccount = Account.findByUserId(user.userId)
-							def newCurrentMonthBanner = new UserBanner(league:league, type:CURRENT_MONTH_BANNER, rank:user.rank, month:bannerDate ,created_at:new Date(),updated_at:new Date())
-							userAccount.addToBanner(newCurrentMonthBanner)
-
-							if (!userAccount.save(failOnError:true)){
-								System.out.println("---------------banner save failed")
-								log.error "generateCurrentMonthBanner: Status: 1, Process: Insert Banner, Message: Banner failed to save"
-								return null
-								} 
-					}
-					currentRanking.put(league, tempLeague)
-				}
-			}
-			else
-			{	
-				println("past banner count "+pastRanking.size() )
-				println("current user ranking count "+ tempLeague.size())
-				
-				if (currentMonth.rankScores) // has user ranking
-				{
-					// amount of previous current banners is equal to amount of 10 ten ranked users 
-					if (pastRanking.size() == tempLeague.size() ) 
-					{
-						int i = 0
-						pastRanking.each{
-							Account userAccount = Account.findByUserId(tempLeague.get(i).userId)
-							it.rank = tempLeague.get(i).rank
-							it.updated_at = new Date()
-							it.account = userAccount
-							if	(!it.save(failOnError:true))
-							{
-								System.out.println("---------------Banner save failed")
-								log.error "generateCurrentMonthBanner: Status: 1, Process: Update Banner, Message: Banner failed to save"
-								return null
-							}
-							
-							i++
-						}
-						currentRanking.put(league, tempLeague)
-					}
-					
-					// more previous banners then current rank users 
-					else if(pastRanking.size() > tempLeague.size())
-					{
-						int offset = pastRanking.size() - tempLeague.size()
-						int i = 0
-						pastRanking.each{
-							if (i <= tempLeague.size())
-							{
-								Account userAccount = Account.findByUserId(tempLeague.get(i).userId)
-								it.rank = tempLeague.get(i).rank
-								it.updated_at = new Date()
-								it.account = userAccount
-								
-								if	(!it.save(failOnError:true))
-								{
-									System.out.println("---------------Banner save failed")
-									log.error "generateCurrentMonthBanner: Status: 1, Process: Update Banner, Message: Banner failed to save"
-									return null
-								}
-								i++
-							}
-						}
-	
-						for(int j =i; j < pastRanking.size(); j++)
-						{
-							pastRanking.get(j).delete()
-						}
-						currentRanking.put(league, tempLeague)	
-					}
-					
-					else // more ranked users than previous banners 
-					{
-						int offset = tempLeague.size() - pastRanking.size()
-						int i = 0
-						pastRanking.each{
-								Account userAccount = Account.findByUserId(tempLeague.get(i).userId)
-								it.rank = tempLeague.get(i).rank
-								it.updated_at = new Date()
-								it.account = userAccount
-								
-								if	(!it.save(failOnError:true))
-								{
-									System.out.println("---------------Banner save failed")
-									log.error "generateCurrentMonthBanner: Status: 1, Process: Update Banner, Message: Banner failed to save"
-									return null
-								}
-								i++
-						}
-						
-						for(int j = i; j < tempLeague.size(); j++)
-						{
-							Account userAccount = Account.findByUserId(tempLeague.get(j).userId)
-							
-							def newCurrentMonthBanner = new UserBanner(league:league,type:CURRENT_MONTH_BANNER,rank:tempLeague.get(j).rank,month:bannerDate,created_at:new Date(),updated_at:new Date())
-
-							userAccount.addToBanner(newCurrentMonthBanner)
-							if	(!userAccount.save(failOnError:true)){
-								System.out.println("---------------banner save failed")
-								log.error "generateCurrentMonthBanner: Status: 1, Process: Insert Banner, Message: Banner failed to save"
-								return null
-								}
-						}
-						currentRanking.put(league, tempLeague)
-					}
-				}
-			}*/
 		}
 		
 		currentRanking.putAll(getUserBanners(userID))
@@ -181,11 +63,11 @@ class UserBannerService {
 		{
 			List<AbstractScore> tempLeague = []
 			
-			def currentMonth = scoreRankingService.getRankingByLeagueAndMonth(month, league.toString())
+			Map currentMonthRanking = scoreRankingService.getRankingByLeagueAndMonth(month, league.toString())
 			
-			if (currentMonth.rankScores) // find top 10 users
+			if (currentMonthRanking.rankScores) // find top 10 users
 			{
-				for (Map user: currentMonth.rankScores)
+				for (Map user: currentMonthRanking.rankScores)
 				{
 					if (user.rank <= 10)
 					{
@@ -199,7 +81,7 @@ class UserBannerService {
 			
 			if (!pastRanking)
 			{
-				if (currentMonth.rankScores) // has user ranking
+				if (currentMonthRanking.rankScores) // has user ranking
 				{
 					for (Map user: tempLeague)
 					{

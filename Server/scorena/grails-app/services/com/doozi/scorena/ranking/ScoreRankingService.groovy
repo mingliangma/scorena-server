@@ -66,13 +66,13 @@ class ScoreRankingService {
 	}
 	
 	// gets the overall ranking of all users 
-	def getAllRanking()
+	Map getAllRanking()
 	{
 		List<AbstractScore> scoreRanking = getRanking(RANKING_TYPE_ALL, "", "")
 		return constructScoresRankingResponse(scoreRanking,null,null, RANKING_TYPE_ALL)		
 	}
 	
-	def getAllRanking(String userId)
+	Map getAllRanking(String userId)
 	{		
 		Map rankingResponse =  getAllRanking()
 		return constructRankingWithFollowingIndicatorResponse(userId, rankingResponse, "rankScores")
@@ -80,39 +80,39 @@ class ScoreRankingService {
 	}
 	
 	// gets the user ranking by month based on the month and year supplied  
-	def getRankingByMonth(String month)
+	Map getRankingByMonth(String month)
 	{	
 		List<AbstractScore> scoreRanking = getRanking(RANKING_TYPE_MONTH, month, "")
 		return constructScoresRankingResponse(scoreRanking,month,null, RANKING_TYPE_MONTH)
 	}
 
-	def getRankingByMonth(String userId, String month)
+	Map getRankingByMonth(String userId, String month)
 	{
 		Map rankingResponse =  getRankingByMonth(month)
 		return constructRankingWithFollowingIndicatorResponse(userId, rankingResponse, "rankScores")
 		
 	}
 	// gets the user ranking by league
-	def getRankingByLeague(String league)
+	Map getRankingByLeague(String league)
 	{
 		List<AbstractScore> scoreRanking = getRanking(RANKING_TYPE_LEAGUE, "", league)
 		return constructScoresRankingResponse(scoreRanking,null,league, RANKING_TYPE_LEAGUE)
 	}
 	
-	def getRankingByLeague(String userId, String league)
+	Map getRankingByLeague(String userId, String league)
 	{
 		Map rankingResponse =  getRankingByLeague(league)
 		return constructRankingWithFollowingIndicatorResponse(userId, rankingResponse, "rankScores")
 		
 	}
 	// gets user ranking by league and month
-	def getRankingByLeagueAndMonth(String month,String league)
+	Map getRankingByLeagueAndMonth(String month,String league)
 	{	
 		List<AbstractScore> scoreRanking = getRanking(RANKING_TYPE_MONTH_AND_LEAGUE, month, league)
 		return constructScoresRankingResponse(scoreRanking,month,league, RANKING_TYPE_MONTH_AND_LEAGUE)
 	}
 	
-	def getRankingByLeagueAndMonth(String userId, String month,String league)
+	Map getRankingByLeagueAndMonth(String userId, String month,String league)
 	{
 		Map rankingResponse =  getRankingByLeagueAndMonth(month, league)
 		return constructRankingWithFollowingIndicatorResponse(userId, rankingResponse, "rankScores")
@@ -125,6 +125,7 @@ class ScoreRankingService {
 	}
 	
 	List constructRankingWithFollowingIndicatorResponse(String userId, List rankingResponse){
+		log.info "constructRankingWithFollowingIndicatorResponse() begins with userId=${userId}"
 		Map followingUserIdMap = friendSystemService.listFollowingUserIdInMap(userId)
 		for (userRank in rankingResponse){
 			if (followingUserIdMap.containsKey(userRank.userId)){
@@ -133,6 +134,7 @@ class ScoreRankingService {
 				userRank.isFollowing = false
 			}
 		}
+		log.info "constructRankingWithFollowingIndicatorResponse() ends"
 		return rankingResponse
 	}
 
