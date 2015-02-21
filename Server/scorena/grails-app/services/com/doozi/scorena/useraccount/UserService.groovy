@@ -121,15 +121,15 @@ class UserService {
 		return result
 	}
 			
-	def createUser(String username, String email, String password, String pictureURL, String gender, String region){
-		return createUser(username.toLowerCase(), email, password, gender, region, AccountType.USER, pictureURL, "")
+	def createUser(String username, String email, String password, String avatarCode, String gender, String region){
+		return createUser(username.toLowerCase(), email, password, gender, region, AccountType.USER, "", "",avatarCode)
 	}
 	
 	def createTestUser(String username, String email, String password, String gender, String region, String pictureURL, String facebookId){
-		return createUser(username.toLowerCase(), email, password, gender, region, AccountType.TEST, pictureURL, facebookId)
+		return createUser(username.toLowerCase(), email, password, gender, region, AccountType.TEST, pictureURL, facebookId, "")
 	}
 			
-	def createUser(String username, String email, String password, String gender, String region, int accountType, String pictureURL, String facebookId){
+	def createUser(String username, String email, String password, String gender, String region, int accountType, String pictureURL, String facebookId, String avatarCode){
 		log.info "createUser(): begins..."
 		println "UserService::createUser(): username="+username+"  email="+email + " facebookId="+facebookId
 		int currentBalance = INITIAL_BALANCE
@@ -137,7 +137,7 @@ class UserService {
 		String displayName = usernameLowerCase
 		RestBuilder rest = new RestBuilder()
 		
-		Map userProfile =  createUserProfile(rest, usernameLowerCase, email, password, gender, region, displayName, pictureURL, facebookId)
+		Map userProfile =  createUserProfile(rest, usernameLowerCase, email, password, gender, region, displayName, pictureURL, facebookId, avatarCode)
 		if (userProfile.code){
 			return userProfile
 		}
@@ -153,17 +153,10 @@ class UserService {
 		println "user profile and account created successfully"
 		log.info "createUser(): user profile and account created successfully"
 		def result
-		
-		if (!facebookId.empty)
-		{
+
 		 result = userProfileMapRender(userProfile.sessionToken, currentBalance, userProfile.createdAt, userProfile.username, displayName, 
-		userProfile.objectId, "", "", email, userProfile.pictureURL)
-		}
-		else
-		{
-			 result = userProfileMapRender(userProfile.sessionToken, currentBalance, userProfile.createdAt, userProfile.username, displayName,
-				userProfile.objectId, "", "", email, pictureURL)
-		}
+		userProfile.objectId, "", "", email, userProfile.pictureURL, avatarCode)
+
 		log.info "createUser(): ends with result = ${result}"
 		
 		return result		
@@ -189,7 +182,7 @@ class UserService {
 		}
 		
 		def result = userProfileMapRender(userProfile.sessionToken, account.currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name, 
-				userProfile.objectId, "", "", userProfile.email, userProfile.pictureURL)
+				userProfile.objectId, "", "", userProfile.email, userProfile.pictureURL, userProfile.avatarCode)
 		
 		log.info "login(): ends with result = ${result}"
 		
@@ -281,7 +274,7 @@ class UserService {
 		Map userStats = userStatsService.getUserStats(userScores, userPayoutTrans, month,account)
 
 		def result = userProfileMapRender("", account.currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name,
-			userProfile.objectId, "", "", userProfile.email, userProfile.pictureURL)
+			userProfile.objectId, "", "", userProfile.email, userProfile.pictureURL, userProfile.avatarCode)
 		
 		result.userStats = userStats
 		result.level = 1
@@ -412,7 +405,7 @@ class UserService {
 	}
 
 	private Map userProfileMapRender(String sessionToken, int currentBalance, String createdAt, String username, String displayName,
-		String userId, String gender, String region, String email, String pictureURL){
+		String userId, String gender, String region, String email, String pictureURL, String avatarCode){
 		
 		int currentBalanceResp = currentBalance
 		String createdAtResp = ""
@@ -423,6 +416,7 @@ class UserService {
 		String emailResp = ""
 		String pictureURLResp = ""
 		String sessionTokenResp = ""
+		String avatarCodeResp = ""
 		
 		if (sessionToken != null)
 			sessionTokenResp = sessionToken
@@ -450,6 +444,9 @@ class UserService {
 			
 		if (pictureURL != null)
 			pictureURLResp = pictureURL
+			
+		if(avatarCode != null)
+			avatarCodeResp = avatarCode
 		
 		def result = [
 			createdAt:createdAtResp,
@@ -460,7 +457,8 @@ class UserService {
 			gender: genderResp,
 			region: regionResp,
 			email: emailResp,
-			pictureUrl: pictureURLResp
+			pictureUrl: pictureURLResp,
+			avatarCode: avatarCodeResp
 		]
 		return result
 	}
@@ -539,10 +537,10 @@ class UserService {
 		return [:]
 	}
 
-	private Map createUserProfile(RestBuilder rest, String username, String email, String password, String gender, String region, String displayName, String pictureURL, String facebookId){
+	private Map createUserProfile(RestBuilder rest, String username, String email, String password, String gender, String region, String displayName, String pictureURL, String facebookId, String avatarCode){
 		log.info "createUserProfile(): begins..."
 			
-		def resp = parseService.createUser(rest, username, email, password, gender, region, displayName, pictureURL, facebookId)
+		def resp = parseService.createUser(rest, username, email, password, gender, region, displayName, pictureURL, facebookId, avatarCode)
 		
 		if (resp.status != 201){
 			def result = [
@@ -597,7 +595,7 @@ class UserService {
 		}
 		
 		def result = userProfileMapRender(sessionToken, account.currentBalance, parseResp.createdAt, parseResp.username, parseResp.display_name,
-				parseResp.objectId, "", "", parseResp.email, parseResp.pictureURL)
+				parseResp.objectId, "", "", parseResp.email, parseResp.pictureURL, parseResp.avatarCode)
 		
 		return result
 	}

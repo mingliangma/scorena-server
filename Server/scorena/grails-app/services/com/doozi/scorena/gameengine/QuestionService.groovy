@@ -126,17 +126,20 @@ class QuestionService {
 			
 			
 			String followingPlayerPictureUrl = ""
+			String followingPlayerAvatarCode = ""
 			int followingPlayerBetAmount = -1
 			String followingPlayerPick = ""
 			boolean followingExistsInQuestion = false
 			
 			String playerPictureUrl = ""
+			String playerAvatarCode = ""
 			int playerBetAmount = -1
 			String playerPick = ""
 			
 			
 			if (questionPoolInfo.getFriendsExist()){ //friends are playing in this question, use friend's profile in question player icon
 				followingPlayerPictureUrl = questionPoolInfo.getFriendPictureUrl()
+				followingPlayerAvatarCode = questionPoolInfo.getFriendAvatarCode()
 				followingPlayerBetAmount = questionPoolInfo.getFriendBetAmount()
 				followingPlayerPick = questionPoolInfo.getFriendBetPick() == 1 ? q.pick1 : q.pick2
 				followingExistsInQuestion = true
@@ -146,6 +149,10 @@ class QuestionService {
 				def resp = parseService.retrieveUser(rest, questionPoolInfo.getHighestBetUserId())
 				if (resp.status == 200){
 					playerPictureUrl = resp.json.pictureURL
+					
+					if (resp.json.containsKey("avatarCode"))
+					playerAvatarCode = resp.json.avatarCode
+					
 				}
 				playerBetAmount = questionPoolInfo.getHighestBetAmount()
 				playerPick = questionPoolInfo.getHighestBetPick() == 1 ? q.pick1 : q.pick2
@@ -164,13 +171,16 @@ class QuestionService {
 				winnerPick:winnerPick,
 				playerBetAmount: playerBetAmount, //the question preview player bet amount
 				playerPictureUrl: playerPictureUrl,	// the question preview player picture URL
+				playerAvatarCode: playerAvatarCode,
 				playerPick: playerPick, // the question preview player pick				
 				followingPlayerBetAmount: followingPlayerBetAmount,
 				followingPlayerPictureUrl: followingPlayerPictureUrl,
+				followingPlayerAvatarCode: followingPlayerAvatarCode,
 				followingPlayerPick: followingPlayerPick,				
 				followingPlayerExistsInQuestion: followingExistsInQuestion,
 				friendPlayerBetAmount: followingPlayerBetAmount, //will be deprecate
 				friendPlayerPictureUrl: followingPlayerPictureUrl,//will be deprecate
+				friendPlayerAvatarCode: followingPlayerAvatarCode,
 				friendPlayerPick: followingPlayerPick,//will be deprecate
 				friendExistsInQuestion: followingExistsInQuestion,//will be deprecate
 				isGameProcessed: isGameProcessed,
@@ -891,13 +901,16 @@ class QuestionService {
 			
 			Map betterData = bettersMap.get(userProfile.objectId)
 			betterData.pictureURL = ""
+			betterData.avatarCode = ""
 			
 			if (userProfile.display_name != null && userProfile.display_name != "")
 				betterData.name = userProfile.display_name
 			
 			if (userProfile.pictureURL != null && userProfile.pictureURL != "")
 				betterData.pictureURL = userProfile.pictureURL
-	
+				
+			if (userProfile.avatarCode != null && userProfile.avatarCode != "")
+				betterData.avatarCode = userProfile.avatarCode
 				
 			bettersProfileList.add(betterData)
 		}

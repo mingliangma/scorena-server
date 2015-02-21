@@ -74,8 +74,10 @@ class CommentService {
 				username = userProfile.display_name
 			}
 			def pictureURL = userProfile.pictureURL
+			
+			def avatarCode = userProfile.avatarCode
 
-			def comments=[body:it.body, userId:userId, name:username, timeCreated:dateCreated, pictureURL:pictureURL]
+			def comments=[body:it.body, userId:userId, name:username, timeCreated:dateCreated, pictureURL:pictureURL,avatarCode:avatarCode]
 			commentsList.add(comments)
 		}
 
