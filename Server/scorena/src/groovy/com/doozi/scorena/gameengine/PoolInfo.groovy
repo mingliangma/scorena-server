@@ -15,6 +15,7 @@ class PoolInfo {
 	int friendBetPick 
 	String friendBetUserId 
 	String friendPictureUrl
+	String friendAvatarCode
 	
 	Date lastUpdate
 	List<BetTransaction> betTransList

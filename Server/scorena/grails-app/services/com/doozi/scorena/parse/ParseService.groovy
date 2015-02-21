@@ -55,7 +55,7 @@ class ParseService {
 	}
 	
 	def createUser(def rest, String usernameInput, String emailInput, String passwordInput, String genderInput, String regionInput, String displayNameInput, String pictureURLInput, 
-		String facebookIdInput){
+		String facebookIdInput, String avatarCodeInput){
 		log.debug "createUser(): begins with rest = ${rest}, usernameInput = ${usernameInput}, emailInput = ${emailInput}, passwordInput = ${passwordInput}, genderInput = ${genderInput}" 
 		log.debug "createUser(): begins with regionInput = ${regionInput}, displayNameInput = ${displayNameInput}, pictureURLInput = ${pictureURLInput}, facebookIdInput = ${facebookIdInput}"
 		
@@ -74,6 +74,7 @@ class ParseService {
 				pictureURL=pictureURLInput
 				facebookId=facebookIdInput
 				lastLoggedIn=new Date()
+				avatarCode=avatarCodeInput
 			}
 		}
 		

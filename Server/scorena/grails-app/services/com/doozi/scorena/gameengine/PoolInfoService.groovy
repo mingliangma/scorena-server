@@ -86,6 +86,7 @@ class PoolInfoService {
 			questionPoolInfo.setFriendBetPick(highestFriendBetPick)
 			questionPoolInfo.setFriendBetUserId(highestFriendPickUserId)
 			questionPoolInfo.setFriendPictureUrl(userFriendsMap.get(highestFriendPickUserId).pictureURL)
+			questionPoolInfo.setFriendAvatarCode(userFriendsMap.get(highestFriendPickUserId).avatarCode)
 			questionPoolInfo.setFriendsExist(true)
 		}
 		

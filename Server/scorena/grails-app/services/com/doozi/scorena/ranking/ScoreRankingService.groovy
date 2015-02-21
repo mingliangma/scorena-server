@@ -194,7 +194,7 @@ class ScoreRankingService {
 		for (Map rankingAllEntry: rankingResultAll){
 			String accountUserId = rankingAllEntry.userId
 			Map userProfile = UserProfileUserIdAsKeyMap.get(accountUserId)
-
+			
 			rankingAllEntry.pictureURL = ""
 			
 			if (userProfile != null){
@@ -203,6 +203,10 @@ class ScoreRankingService {
 			
 				if (userProfile.pictureURL != null && userProfile.pictureURL != "")
 					rankingAllEntry.pictureURL = userProfile.pictureURL
+					
+				if (userProfile.avatarCode != null && userProfile.avatarCode != "")
+					rankingAllEntry.avatarCode =   userProfile.avatarCode 
+
 			}
 			
 		}

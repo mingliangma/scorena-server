@@ -422,13 +422,16 @@ class FriendSystemService {
 			}
 			int currentBalance = user.currentBalance
 			
-			def userDataMap = [userId:userProfile.objectId, pictureURL:userProfile.pictureURL, name:userProfile.username, currentBalance:currentBalance]
+			def userDataMap = [userId:userProfile.objectId, pictureURL:userProfile.pictureURL, avatarCode:userProfile.avatarCode, name:userProfile.username, currentBalance:currentBalance]
 			
 			if (userProfile.display_name != null && userProfile.display_name != "")
 				userDataMap.name = userProfile.display_name
 			
 			if (userProfile.pictureURL != null && userProfile.pictureURL != "")
 				userDataMap.pictureURL = userProfile.pictureURL
+			
+			if (userProfile.avatarCode != null && userProfile.avatarCode != "")
+				userDataMap.avatarCode = userProfile.avatarCode	
 				
 			userProfileList.add(userDataMap)
 		}
