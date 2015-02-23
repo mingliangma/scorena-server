@@ -4,12 +4,15 @@ import org.springframework.transaction.annotation.Transactional
 
 import com.doozi.scorena.Account
 import com.doozi.scorena.FriendSystem
+import grails.plugins.rest.client.RestBuilder
 
 @Transactional
 class FriendSystemService {
 	
 	def helperService
 	def parseService
+	def pushService
+	def rest = new RestBuilder()
 	
 	final int USERID_QUERY_INDEX = 0
 	final int BEINGFOLLOWED_USERID_QUERY_INDEX = 1
@@ -55,6 +58,11 @@ class FriendSystemService {
 				else {
 					log.info "friendRequest(): request records successfully!"
 					tips = []
+					
+					def follower = parseService.retrieveUser(rest, meAccount.userId)
+					def followerData = follower.json
+					String msg = followerData.display_name.toString() + " is now following you on Scorena."
+					pushService.sendFollowPush(rest,followingAccount.userId,meAccount.userId,msg)
 				}
 			}
 			else {
