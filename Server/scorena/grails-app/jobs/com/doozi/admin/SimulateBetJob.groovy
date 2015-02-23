@@ -5,18 +5,18 @@ import com.doozi.scorena.processengine.*
 class SimulateBetJob {
 	def simulateBetService
 	def simulateCommentService
-	def test2Service
+	def processStatusService
 	static triggers = {
 	  simple name: 'simulateBetTrigger', startDelay: 60 * 60000, repeatInterval: 25*60*1000 // execute job once in 15 minutes
 	}
 
 	def execute() {
 		println "simulateBetUpcoming trigged at " + new Date()
-		boolean isReadyProcess = ProcessStatus.transactionProcessStartRunning("cron job simulate bet")
+		boolean isReadyProcess = processStatusService.isReadyToProcess("cron job simulate bet")
 		if (isReadyProcess){
 			println "simulate Bet started"
 			def result = simulateBetService.simulateBetUpcoming()
-			ProcessStatus.transactionProcessStopped()
+			processStatusService.processCompleted()
 			println "simulateBetUpcoming completed"
 		}else{
 			println "other process is running"

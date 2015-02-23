@@ -178,11 +178,6 @@ class QuestionService {
 				followingPlayerAvatarCode: followingPlayerAvatarCode,
 				followingPlayerPick: followingPlayerPick,				
 				followingPlayerExistsInQuestion: followingExistsInQuestion,
-				friendPlayerBetAmount: followingPlayerBetAmount, //will be deprecate
-				friendPlayerPictureUrl: followingPlayerPictureUrl,//will be deprecate
-				friendPlayerAvatarCode: followingPlayerAvatarCode,
-				friendPlayerPick: followingPlayerPick,//will be deprecate
-				friendExistsInQuestion: followingExistsInQuestion,//will be deprecate
 				isGameProcessed: isGameProcessed,
 				pool: [
 					pick1Amount: questionPoolInfo.getPick1Amount(),
@@ -523,16 +518,12 @@ class QuestionService {
 			pick1LogoUrl: teamLogoService.getTeamLogo(q.pick1.trim()),
 			pick2LogoUrl: teamLogoService.getTeamLogo(q.pick2.trim()),
 			winnerPick: winnerPick,
-//			currentOddsPick1:df.format(currentOddsPick1).toDouble(),
-//			currentOddsPick2:df.format(currentOddsPick2).toDouble(),
 			userInfo: userInfo,
 			pool: [
 				pick1Amount: questionPoolInfo.getPick1Amount(),
 				pick1NumPeople: questionPoolInfo.getPick1NumPeople(),
-//				pick1PayoutPercent: pick1PayoutPercentage,
 				pick2Amount:questionPoolInfo.getPick2Amount(),
 				pick2NumPeople: questionPoolInfo.getPick2NumPeople(),
-//				pick2PayoutPercent: pick2PayoutPercentage,
 				pick1odds:  df.format(pick1PayoutMultipleWhenWin).toDouble(),
 				pick2odds:  df.format(pick2PayoutMultipleWhenWin).toDouble(),
 			],
@@ -627,10 +618,6 @@ class QuestionService {
 				pick2NumPeople: questionPoolInfo.getPick2NumPeople(),
 				pick1odds:  df.format(pick1PayoutMultiple).toDouble(),
 				pick2odds:  df.format(pick2PayoutMultiple).toDouble(),
-//				pick1PayoutPercent: pick1PayoutPercentage,
-//				pick2PayoutPercent: pick2PayoutPercentage,
-//				currentOddsPick1:df.format(currentOddsPick1).toDouble(),
-//				currentOddsPick2:df.format(currentOddsPick2).toDouble(),
 			],
 			betters: betters,
 			
