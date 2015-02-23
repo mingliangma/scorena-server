@@ -6,7 +6,9 @@ import com.doozi.scorena.transaction.LeagueTypeEnum
 import grails.transaction.Transactional
 
 import com.doozi.scorena.Account;
-import com.doozi.scorena.UserBanner
+import com.doozi.scorena.UserBanner;
+import com.doozi.scorena.useraccount.UserBannerNP
+import com.mysql.jdbc.log.Log;
 
 @Transactional
 class UserBannerService {
@@ -18,7 +20,7 @@ class UserBannerService {
 	public static final int PAST_MONTH_BANNER = 1
 	public static final int SEASONAL_BANNER = 2
 	
-    private Map generateCurrentMonthBanner(String userID) 
+    private List<UserBannerNP> generateCurrentMonthBanner(String userId) 
 	{
 		Map currentRanking = [:]
 		String month = helperService.getMonth()
@@ -26,31 +28,23 @@ class UserBannerService {
 		
 		
 		String bannerDate = helperService.getShortMonthYear()
-
+		List<UserBannerNP> bannerResultList = []
+		
 		// gets current month ranking for leagues 
-		for (LeagueTypeEnum league: LeagueTypeEnum.values())
-		{
-			List<AbstractScore> rankingLeague, tempLeague = []
-			
-			def currentMonth = scoreRankingService.getRankingByLeagueAndMonth(month, league.toString())
-			
-			if (currentMonth.rankScores) // find top 10 users
-			{
-				for (Map user: currentMonth.rankScores)
-				{
-					if (user.rank <= 10 && userID.equals(user.userId))
-					{
-						tempLeague.add([rank:(user.rank), league:(league.toString()), month:(bannerDate)])
-						currentRanking.put(league, tempLeague)
-						break;
-					}
-				}
-			}
+		
+		Map currentMonthRankingResponse = scoreRankingService.getRankingByMonthAndUser(month, userId)
+		List<UserBanner> currentMonthRanking = currentMonthRankingResponse.rankScores
+		
+		for(UserBanner ub: currentMonthRanking){
+			if (ub.rank <= 10)
+				bannerResultList.add(new UserBannerNP(league:ub.league, type:CURRENT_MONTH_BANNER, rank:ub.rank, bannerDateString:bannerDate))
 		}
+				
+		bannerResultList.addAll(getPastUserBanners(userId))
 		
-		currentRanking.putAll(getUserBanners(userID))
 		
-		return currentRanking	
+		log.info "tempLeague="+bannerResultList
+		return bannerResultList
     }
 	
 	private Map generatePastMonthBanner()
@@ -77,7 +71,7 @@ class UserBannerService {
 			}
 			
 			
-			def pastRanking = UserBanner.findAll("from UserBanner where league='"+league+"' and type="+PAST_MONTH_BANNER+" and month ='"+lastmonth+"' order by rank asc")
+			def pastRanking = UserBanner.findAll("from UserBanner where league='"+league+"' and type="+PAST_MONTH_BANNER+" and bannerDateString ='"+lastmonth+"' order by rank asc")
 			
 			if (!pastRanking)
 			{
@@ -86,7 +80,7 @@ class UserBannerService {
 					for (Map user: tempLeague)
 					{
 							Account userAccount = Account.findByUserId(user.userId)
-							def newCurrentMonthBanner = new UserBanner(league:league, type:PAST_MONTH_BANNER,rank:user.rank,month:lastmonth,created_at:new Date(),updated_at:new Date())
+							def newCurrentMonthBanner = new UserBanner(league:league, type:PAST_MONTH_BANNER,rank:user.rank,bannerDateString:lastmonth,created_at:new Date(),updated_at:new Date())
 							userAccount.addToBanner(newCurrentMonthBanner)
 
 							if (!userAccount.save(failOnError:true)){
@@ -109,7 +103,7 @@ class UserBannerService {
 		
 		for (LeagueTypeEnum league: LeagueTypeEnum.values())
 		{
-			def pastRanking = UserBanner.findAll("from UserBanner where league='"+league+"' and type="+CURRENT_MONTH_BANNER+" and month ='"+lastmonth+"' order by rank asc")
+			def pastRanking = UserBanner.findAll("from UserBanner where league='"+league+"' and type="+CURRENT_MONTH_BANNER+" and bannerDateString ='"+lastmonth+"' order by rank asc")
 			
 			if (pastRanking)
 			{
@@ -120,25 +114,16 @@ class UserBannerService {
 		}
 	}
 	
-	private Map getUserBanners(String userId)
+	private List<UserBannerNP> getPastUserBanners(String userId)
 	{
-		Map listOfBanners = [:]
-		List<UserBanner> bannerList = []
-		def userBanners = UserBanner.findAll("from UserBanner as s where s.account.userId ='"+userId+"'")
-		
-		if(!userBanners)
-		{
-			return [Banner:[:]]
-		}
+		List<UserBannerNP> bannerListResult = []
+		List<UserBanner> userBanners = UserBanner.findAll("from UserBanner as s where s.account.userId ='"+userId+"'")
 		
 		userBanners.each{
-			println(it.updated_at)
-			bannerList.add([rank:it.rank, league:it.league.name(), month:it.month])
+			bannerListResult.add(new UserBannerNP(rank:it.rank, league:it.league.name(), bannerDateString:it.bannerDateString, type:PAST_MONTH_BANNER ))
 		}
-		
-		listOfBanners.putAt("pastBanners", bannerList)
-		
-		return listOfBanners
+				
+		return bannerListResult
 	}
 	
 	def generateSeasonal(String league)

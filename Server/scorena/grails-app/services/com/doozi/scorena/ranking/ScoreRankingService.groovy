@@ -5,6 +5,7 @@ import java.util.Map;
 import com.doozi.scorena.*
 import com.doozi.scorena.score.AbstractScore
 import com.doozi.scorena.score.QuestionScore
+import com.doozi.scorena.transaction.LeagueTypeEnum
 
 import com.doozi.scorena.utils.*
 
@@ -30,31 +31,46 @@ class ScoreRankingService {
 	
 	public static final int USERID_RANKING_QUERY_INDEX = 0
 	public static final int USER_SCORE_RANKING_QUERY_INDEX = 1
+	public static final int LEAGUE_RANKING_QUERY_INDEX = 2
 	
 	public static final int RANKING_TYPE_ALL = 0
 	public static final int RANKING_TYPE_MONTH = 1
 	public static final int RANKING_TYPE_LEAGUE = 2
 	public static final int RANKING_TYPE_MONTH_AND_LEAGUE = 3
+	public static final int RANKING_TYPE_MONTH_AND_LEAGUE_AND_USER = 4
+	public static final int RANKING_TYPE_MONTH_AND_USER = 5
 
-	private def getRanking(int rankingType, String month, String league){
-		log.info "getRanking(): begins with rankingType=${rankingType}, month=${month}, league=${league}"
+	private def getRanking(int rankingType, String month, LeagueTypeEnum league, String userId){
+		log.info "getRanking(): begins with rankingType=${rankingType}, month=${month}, league=${league}, userId=${userId}"
 		
 		def userRanking 
 		// searches database
 		switch (rankingType) {
 			case RANKING_TYPE_ALL:
-				userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s group by s.account.id order by sum(score) desc")
+				userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score), league from AbstractScore as s group by s.account.id order by sum(score) desc")
 				break
 			case RANKING_TYPE_MONTH:
 				String dateRangeQueryString = getRankingDateString(month)
-				userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s where s.gameStartTime between "+ dateRangeQueryString +" group by s.account.id order by sum(score) desc")
+				userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score), league from AbstractScore as s where s.gameStartTime between "+dateRangeQueryString+" group by s.account.id order by sum(score) desc")
 				break
 			case RANKING_TYPE_LEAGUE:
-				userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s where s.league = '"+ league+"' group by s.account.id order by sum(score) desc")
+				userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score), league from AbstractScore as s where s.league=? group by s.account.id order by sum(score) desc", 
+					[league])
 				break
 			case RANKING_TYPE_MONTH_AND_LEAGUE:
 				String dateRangeQueryString = getRankingDateString(month)
-				userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score) from AbstractScore as s where s.gameStartTime between "+ dateRangeQueryString +" AND s.league = '"+league+"'  group by s.account.id order by sum(score) desc")
+				userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score), league from AbstractScore as s where s.gameStartTime between "+dateRangeQueryString+" AND s.league = ? group by s.account.id order by sum(score) desc", 
+					[league])
+				break
+			case RANKING_TYPE_MONTH_AND_LEAGUE_AND_USER:
+				String dateRangeQueryString = getRankingDateString(month)
+				userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score), league from AbstractScore as s where s.gameStartTime between "+dateRangeQueryString+" AND s.league = ? AND s.account.userId=? group by s.account.id order by sum(score) desc",
+					[league, userId])
+				break
+			case RANKING_TYPE_MONTH_AND_USER:
+				String dateRangeQueryString = getRankingDateString(month)
+				userRanking = AbstractScore.executeQuery("select s.account.userId, sum(score), league from AbstractScore as s where s.gameStartTime between "+dateRangeQueryString+" AND s.account.userId=? group by s.account.id order by sum(score) desc",
+					[userId])
 				break
 		}
 
@@ -68,7 +84,7 @@ class ScoreRankingService {
 	// gets the overall ranking of all users 
 	Map getAllRanking()
 	{
-		List<AbstractScore> scoreRanking = getRanking(RANKING_TYPE_ALL, "", "")
+		List<AbstractScore> scoreRanking = getRanking(RANKING_TYPE_ALL, null, null, null)
 		return constructScoresRankingResponse(scoreRanking,null,null, RANKING_TYPE_ALL)		
 	}
 	
@@ -82,7 +98,7 @@ class ScoreRankingService {
 	// gets the user ranking by month based on the month and year supplied  
 	Map getRankingByMonth(String month)
 	{	
-		List<AbstractScore> scoreRanking = getRanking(RANKING_TYPE_MONTH, month, "")
+		List<AbstractScore> scoreRanking = getRanking(RANKING_TYPE_MONTH, month, null, null)
 		return constructScoresRankingResponse(scoreRanking,month,null, RANKING_TYPE_MONTH)
 	}
 
@@ -95,8 +111,8 @@ class ScoreRankingService {
 	// gets the user ranking by league
 	Map getRankingByLeague(String league)
 	{
-		List<AbstractScore> scoreRanking = getRanking(RANKING_TYPE_LEAGUE, "", league)
-		return constructScoresRankingResponse(scoreRanking,null,league, RANKING_TYPE_LEAGUE)
+		List<AbstractScore> scoreRanking = getRanking(RANKING_TYPE_LEAGUE, null, sportsDataService.getLeagueEnumFromLeagueString(league), null)
+		return constructScoresRankingResponse(scoreRanking,null, league, RANKING_TYPE_LEAGUE)
 	}
 	
 	Map getRankingByLeague(String userId, String league)
@@ -108,7 +124,7 @@ class ScoreRankingService {
 	// gets user ranking by league and month
 	Map getRankingByLeagueAndMonth(String month,String league)
 	{	
-		List<AbstractScore> scoreRanking = getRanking(RANKING_TYPE_MONTH_AND_LEAGUE, month, league)
+		List<AbstractScore> scoreRanking = getRanking(RANKING_TYPE_MONTH_AND_LEAGUE, month, sportsDataService.getLeagueEnumFromLeagueString(league), null)
 		return constructScoresRankingResponse(scoreRanking,month,league, RANKING_TYPE_MONTH_AND_LEAGUE)
 	}
 	
@@ -117,6 +133,20 @@ class ScoreRankingService {
 		Map rankingResponse =  getRankingByLeagueAndMonth(month, league)
 		return constructRankingWithFollowingIndicatorResponse(userId, rankingResponse, "rankScores")
 		
+	}
+	
+	// gets user ranking by league and month
+	Map getRankingByLeagueAndMonthAndUser(String month,String league, String userId)
+	{
+		List<AbstractScore> scoreRanking = getRanking(RANKING_TYPE_MONTH_AND_LEAGUE_AND_USER, month, sportsDataService.getLeagueEnumFromLeagueString(league), userId)
+		return constructScoresRankingResponse(scoreRanking,month,league, RANKING_TYPE_MONTH_AND_LEAGUE_AND_USER)
+	}
+	
+	// gets user ranking by league and month
+	Map getRankingByMonthAndUser(String month,String userId)
+	{
+		List<AbstractScore> scoreRanking = getRanking(RANKING_TYPE_MONTH_AND_USER, month, null, userId)
+		return constructScoresRankingResponse(scoreRanking,month,null, RANKING_TYPE_MONTH_AND_USER)
 	}
 	
 	Map constructRankingWithFollowingIndicatorResponse(String userId, Map rankingResponse, String rankListKey){
@@ -139,9 +169,9 @@ class ScoreRankingService {
 	}
 
 	// returns user ranking map
-	private Map getAccountInfoMap(String userId, long score, int rank){
+	private Map getAccountInfoMap(String userId, long score, LeagueTypeEnum league, int rank){
 
-		return [userId: userId, score:score  , rank: rank]
+		return [userId: userId, score:score, league:league, rank: rank]
 	}
 	
 	// gets user profile Id
@@ -180,7 +210,7 @@ class ScoreRankingService {
 		
 		for (int i=0; i<rankingAllSize; i++){
 			List rankEntry = userRankingAll[i]
-			rankingResultAll.add(getAccountInfoMap(rankEntry[USERID_RANKING_QUERY_INDEX],rankEntry[USER_SCORE_RANKING_QUERY_INDEX] ,i+1))
+			rankingResultAll.add(getAccountInfoMap(rankEntry[USERID_RANKING_QUERY_INDEX],rankEntry[USER_SCORE_RANKING_QUERY_INDEX], rankEntry[LEAGUE_RANKING_QUERY_INDEX], i+1))
 			if (!userIdMap.containsKey(rankEntry[USERID_RANKING_QUERY_INDEX])){
 				userIdMap.put(rankEntry[USERID_RANKING_QUERY_INDEX], "")
 			}
@@ -234,6 +264,20 @@ class ScoreRankingService {
 			Date firstOfMonth = helperService.getFirstOfMonth(month)
 			String year = firstOfMonth.toCalendar().get(Calendar.YEAR).toString()
 			return [type:"League&Month",date:longNameMonth+" "+year ,league:league,rankScores: rankingResultAll]
+		}
+		else if (rankingType == RANKING_TYPE_MONTH_AND_LEAGUE_AND_USER)
+		{
+			String longNameMonth = helperService.getMonthByMonth(month)
+			Date firstOfMonth = helperService.getFirstOfMonth(month)
+			String year = firstOfMonth.toCalendar().get(Calendar.YEAR).toString()
+			return [type:"League&Month&User",date:longNameMonth+" "+year ,league:league,rankScores: rankingResultAll]
+		}
+		else if (rankingType == RANKING_TYPE_MONTH_AND_USER)
+		{
+			String longNameMonth = helperService.getMonthByMonth(month)
+			Date firstOfMonth = helperService.getFirstOfMonth(month)
+			String year = firstOfMonth.toCalendar().get(Calendar.YEAR).toString()
+			return [type:"League&Month&User",date:longNameMonth+" "+year ,league:league,rankScores: rankingResultAll]
 		}
 	}	
 	

@@ -1,6 +1,8 @@
 package com.doozi.scorena
 
-import grails.converters.JSON
+import java.util.List;
+import com.doozi.scorena.useraccount.UserBannerNP
+import grails.converters.*
 
 class UserBannerController {
 
@@ -8,8 +10,9 @@ class UserBannerController {
 	
     def generateCurrentMonthBanner() 
 	{ 
-		def banners = userBannerService.generateCurrentMonthBanner(params.userId) 
+		List<UserBannerNP> banners = userBannerService.generateCurrentMonthBanner(params.userId) 
 		render banners as JSON
+		return
 	}
 	
 	

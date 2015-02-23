@@ -9,7 +9,7 @@ class UserBanner {
 	LeagueTypeEnum league // league code
 	int type			  // 0 -> current month, 1 -> past month, 2 -> seasonal 
 	int rank			  // user rank in league, rank <=10
-	String month		  // month and year of banner
+	String bannerDateString 		  // month and year of banner
 	Date created_at		  // date banner created 
 	Date updated_at	 	  // date banner updated 
 	
