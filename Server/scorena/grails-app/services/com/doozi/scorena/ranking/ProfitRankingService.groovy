@@ -139,6 +139,7 @@ class ProfitRankingService {
 			Map userProfile = UserProfileUserIdAsKeyMap.get(accountUserId)
 
 			gameRankingEntry.pictureURL = ""
+			gameRankingEntry.avatarCode = ""
 			
 			if (userProfile != null){
 				if (userProfile.display_name != null && userProfile.display_name != "")
@@ -146,6 +147,9 @@ class ProfitRankingService {
 			
 				if (userProfile.pictureURL != null && userProfile.pictureURL != "")
 					gameRankingEntry.pictureURL = userProfile.pictureURL
+					
+				if(userProfile.avatarCode != null && userProfile.avatarCode != "")
+					gameRankingEntry.avatarCode = userProfile.avatarCode
 			}
 			
 		}
