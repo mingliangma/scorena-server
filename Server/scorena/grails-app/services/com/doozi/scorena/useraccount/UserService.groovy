@@ -114,7 +114,7 @@ class UserService {
 
 		
 		def result = userProfileMapRender(sessionToken, currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name, 
-		userProfile.objectId, "", "", userProfile.email, userProfile.pictureURL)
+		userProfile.objectId, "", "", userProfile.email, userProfile.pictureURL, userProfile.avatarCode)
 		
 		log.info "createSocialNetworkUser(): ends"
 		
