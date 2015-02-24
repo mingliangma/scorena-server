@@ -32,12 +32,24 @@ class UserBannerService {
 		
 		// gets current month ranking for leagues 
 		
-		Map currentMonthRankingResponse = scoreRankingService.getRankingByMonthAndUser(month, userId)
-		List<UserBanner> currentMonthRanking = currentMonthRankingResponse.rankScores
+	//	Map currentMonthRankingResponse = scoreRankingService.getRankingByMonth(month)
+	//	List<UserBanner> currentMonthRanking = currentMonthRankingResponse.rankScores
 		
-		for(UserBanner ub: currentMonthRanking){
-			if (ub.rank <= 10)
-				bannerResultList.add(new UserBannerNP(league:ub.league, type:CURRENT_MONTH_BANNER, rank:ub.rank, bannerDateString:bannerDate))
+		for (LeagueTypeEnum league: LeagueTypeEnum.values())
+		{
+			Map currentMonthRankingResponse = scoreRankingService.getRankingByLeagueAndMonth(month, league.toString())
+			
+			if (currentMonthRankingResponse.rankScores)
+			{
+				for (Map user: currentMonthRankingResponse.rankScores)
+				{
+					if (user.rank <= 10 && user.userId.equals(userId))
+					{
+						bannerResultList.add(new UserBannerNP(league:user.league, type:CURRENT_MONTH_BANNER, rank:user.rank, bannerDateString:bannerDate))
+					}
+				}
+			}
+		
 		}
 				
 		bannerResultList.addAll(getPastUserBanners(userId))
