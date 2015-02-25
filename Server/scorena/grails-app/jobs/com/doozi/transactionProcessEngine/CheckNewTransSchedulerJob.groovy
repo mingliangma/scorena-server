@@ -8,7 +8,7 @@ class CheckNewTransSchedulerJob {
 	def processStatusService
 
 	static triggers = {
-	  simple name: 'newGameResultTrigger', startDelay: 75 * 6000, repeatInterval: 74*60*1000 // execute job once in 30 minutes
+	  simple name: 'newGameResultTrigger', startDelay: 75 * 60000, repeatInterval: 74*60*1000 // execute job once in 30 minutes
 	}
 
 	def execute() {	
