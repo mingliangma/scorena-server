@@ -120,7 +120,7 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 				}
 				
 				// calculates total score and medals by month
-				if (scoreStat.gameStartTime > firstOfMonth && scoreStat.gameStartTime < lastOfMonth )
+				if (scoreStat.gameStartTime >= firstOfMonth && scoreStat.gameStartTime <= lastOfMonth )
 				{
 					gameStats.monthScore.total += scoreStat.score
 
