@@ -242,7 +242,7 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 	// updates nested map of user score stats for each league user is present in, by specified month-first and last date
 	def getLeagueScoresMonth(def stats, def first, def last)
 	{
-		log.info "getLeagueScoresMonth(): begins with stats = ${stats}, first = ${first}, last = ${last}"
+		log.info "getLeagueScoresMonth(): begins with first = ${first}, last = ${last}"
 		
 		if(stats == null || stats.size==0)
 		{
@@ -262,9 +262,11 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 				scores.put(leagueName, scoreMap)
 			}
 			
-			if (scoreStat.getGameStartTime() > first && scoreStat.getGameStartTime() < last )
+			if (scoreStat.getGameStartTime() >= first && scoreStat.getGameStartTime() <= last )
 			{
 				scoreMap.score += scoreStat.getScore()
+			}else{
+				log.info "scoreStat.toString(): "+ scoreStat.toString()
 			}
 		}
 		
