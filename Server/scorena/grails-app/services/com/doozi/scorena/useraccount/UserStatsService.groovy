@@ -148,7 +148,7 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 	// loops through payout data and  updates map accordingly
 	for (PayoutTransaction tran: userPayoutTrans)
 	{
-		if (tran.gameStartTime > firstOfMonth && tran.gameStartTime < lastOfMonth)
+		if (tran.gameStartTime >= firstOfMonth && tran.gameStartTime <= lastOfMonth)
 		{
 			gameStats.monthly.netGain+=tran.profit
 			gameStats.all.netGain+=tran.profit
@@ -343,7 +343,7 @@ def getAllStats(def userScores,def userPayoutTrans, def month, def accountId)
 				medals.put(leagueName, medalMap)
 			}
 			
-			if (medalStat.getGameStartTime() > first && medalStat.getGameStartTime() < last  )
+			if (medalStat.getGameStartTime() >= first && medalStat.getGameStartTime() <= last  )
 			{
 				switch(medalStat.class.getSimpleName())
 				{
