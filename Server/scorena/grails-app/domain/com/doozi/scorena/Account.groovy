@@ -22,5 +22,12 @@ class Account {
 	
 	static mapping = {	
 	}
+	
+	static marshalling={
+		shouldOutputIdentifier false
+		shouldOutputVersion false
+		shouldOutputClass false
+		ignore "enrollment", "trans", "score", "banner",  "previousBalance", "accountType", "currentScore", "previousScore"
+	}
  
 }

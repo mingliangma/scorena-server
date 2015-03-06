@@ -187,20 +187,7 @@ log4j = {
 	}
 	
 	root{
-		thomas {
-			error stdout:"StackTrace"
-		}
-		development {
-			error stdout:"StackTrace", stacktrace: "StackTrace"
-			
-		}
-		awsdev {
-			error stdout:"StackTrace"
-		}
-		production {
-			error stdout:"StackTrace"
-		}
-		
+		error stdout:"StackTrace"
 	}
 	
     

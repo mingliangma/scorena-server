@@ -113,7 +113,7 @@ class CustomGameService {
 			eventKey = sportsDataService.getLeaguePrefixFromLeagueEnum(LeagueTypeEnum.NBA)+CUSTOM_EVENT_PREFIX+eventName+"-"+(random.nextInt(1000000)).toString()
 		}
 		
-		Date startDateTime = helperService.parseDateFromString(startDateTimeInput)
+		Date startDateTime = helperService.parseDateAndTimeFromString(startDateTimeInput)
 		Date lastUpdate = new Date()
 		
 		def cgHome = new CustomGame(fullName: homeTeamName, teamKey: homeTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey, 

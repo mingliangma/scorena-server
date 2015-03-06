@@ -265,7 +265,7 @@ class SportsDataService {
 			
 			
 			String matchDateString = helperService.setUTCFormat(game.startDateTime)
-			def matchDate = helperService.parseDateFromString(matchDateString)
+			def matchDate = helperService.parseDateAndTimeFromString(matchDateString)
 			
 			if (eventType == PREEVENT || eventType == MIDEVENT || eventType == INTERMISSION){
 				if (todayDate > matchDate){

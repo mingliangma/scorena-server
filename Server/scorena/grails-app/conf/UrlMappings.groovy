@@ -136,10 +136,6 @@ class UrlMappings {
 			action = [GET:"simulateComment"]
 		}
 		
-		"/v1/admin/tournament/new"(controller:"tournament"){
-			action = [POST:"createTournament"]
-		}
-		
 		"/v1/admin/push/addChannel"(controller:"push"){
 			action = [GET:"updateChannel"]
 		}
@@ -177,12 +173,40 @@ class UrlMappings {
 //			action = [GET:"listTournaments"]
 //		}
 		
-		"/v1/sports/all/tournament/worldcup"(controller:"tournament"){
-			action = [GET:"getWorldCupTournament"]
+		"/v1/tournament/new"(controller:"tournament"){
+			action = [POST:"createTournament"]
 		}
 		
-		"/v1/sports/all/tournament/enroll/$tournamentId?"(controller:"tournament"){
+		"/v1/tournament/enroll/$tournamentId?"(controller:"tournament"){
 			action = [GET:"enrollTournament"]
+		}
+		
+		"/v1/tournament/list"(controller:"tournament"){
+			action = [GET:"searchTournament"]
+		}
+		
+		"/v1/tournament/$tournamentId?/members"(controller:"tournament"){
+			action = [POST:"inviteToTournament"]
+		}
+		
+		"/v1/tournament/$tournamentId?"(controller:"tournament"){
+			action = [GET:"getTournamentRanking"]
+		}
+		
+		"/v1/tournament/invitation/accept"(controller:"tournament"){
+			action = [POST:"acceptTournamentInvitation"]
+		}
+		
+		"/v1/tournament/invitation/ignore"(controller:"tournament"){
+			action = [POST:"ignoreTournamentInvitation"]
+		}
+		
+		"/v1/tournament/invitation"(controller:"tournament"){
+			action = [GET:"listTournamentInvitation"]
+		}
+		
+		"/v1/tournament/enrollment"(controller:"tournament"){
+			action = [GET:"listTournamentEnrollment"]
 		}
 		
 		"/v1/sports/$sportType/leagues/$leagueType/games/$gameId?/qs/$qId?/comments"(controller:"comment") {

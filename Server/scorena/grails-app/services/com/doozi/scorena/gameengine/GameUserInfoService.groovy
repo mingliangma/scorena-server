@@ -26,6 +26,7 @@ class GameUserInfoService {
 		userinfo.placedBet = getPlacedBet(userBetsInTheGame)
 		userinfo.userWager = getWagerInGame(userBetsInTheGame)
 		
+		
 		log.info "getUpcomingGamesUserInfo(): ends with userinfo = ${userinfo}"
 		
 		return userinfo

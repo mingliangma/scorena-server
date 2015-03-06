@@ -45,7 +45,7 @@ class UserBannerService {
 				{
 					if (user.rank <= 10 && user.userId.equals(userId))
 					{
-						bannerResultList.add(new UserBannerNP(league:user.league, type:CURRENT_MONTH_BANNER, rank:user.rank, bannerDateString:bannerDate))
+						bannerResultList.add(new UserBannerNP(league:currentMonthRankingResponse.league, type:CURRENT_MONTH_BANNER, rank:user.rank, bannerDateString:bannerDate))
 					}
 				}
 			}

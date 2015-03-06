@@ -17,6 +17,7 @@ class QuestionContent {
 	public static final String SCOREGREATERTHAN_SOCCER = "truefalse-0"
 	public static final String SCOREGREATERTHAN_BASKETBALL = "truefalse-1"
 	public static final String CUSTOM = "custom" 
+	public static final String CUSTOMSURVEY = "customsurvey"
 	public static final String HIGHERFIELDGOAL_BASKETBALL= "team-1"
 	public static final String HIGHERREBOUNDS_BASKETBALL = "team-2"
 	public static final String AUTOCUSTOM_NBA1 = "autocustom-team-nba-1"

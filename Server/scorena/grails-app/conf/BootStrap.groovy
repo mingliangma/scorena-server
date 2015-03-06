@@ -117,7 +117,6 @@ class BootStrap {
 					simulateBetUpcoming()
 					simulateBetPast()
 				}
-				
 				println "bootstrap ended"
 				}
 		  }		
@@ -131,6 +130,7 @@ class BootStrap {
 	def customQuestionService
 	def questionService
 	def friendSystemService
+	def processEngineManagerService
 	
 	def initProcessStatus(){
 		ProcessStatus.initProcessStatus()

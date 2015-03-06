@@ -20,13 +20,18 @@ class HelperService {
 		return date.toString()+" UTC"		
     }
 	
-	def parseDateFromString(String date){
+	def parseDateAndTimeFromString(String date){
 		def newerdate = new Date().parse("yyyy-MM-dd HH:mm:ss", date)
 		return newerdate
 	}
 	
-	def parseDateFromStringT(String date){
+	def parseDateAndTimeFromStringT(String date){
 		def newerdate = new Date().parse("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", date)
+		return newerdate
+	}
+	
+	def parseDateFromString(String date){
+		def newerdate = new Date().parse("yyyy-MM-dd", date)
 		return newerdate
 	}
 	
@@ -419,6 +424,17 @@ class HelperService {
 		
 	boolean dateValidator(String date){
 
+		try {
+		   Date.parse('yyyy-MM-dd', date)
+		   return true
+		} catch (Exception e) {
+		   return false
+		}
+		 
+	}
+	
+	boolean dateAndTimeValidator(String date){
+		
 		try {
 		   Date.parse('yyyy-MM-dd HH:mm:ss', date)
 		   return true

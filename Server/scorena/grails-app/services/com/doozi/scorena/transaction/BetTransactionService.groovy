@@ -48,7 +48,7 @@ class BetTransactionService {
 			}
 			BetTransaction newBetTransaction = new BetTransaction(transactionAmount: playerWager, createdAt: transactionDate, 
 				pick: playerPick, eventKey: question.eventKey, league: sportsDataService.getLeagueCodeFromEventKey(question.eventKey), 
-				gameStartTime:helperService.parseDateFromString(game.date))
+				gameStartTime:helperService.parseDateAndTimeFromString(game.date))
 
 //			println "BetTransactionService: createBetTrans():: Acquiring Account lock for userId=" + userId
 //			Account lockedAccount = Account.findByUserId(userId, [lock: true])

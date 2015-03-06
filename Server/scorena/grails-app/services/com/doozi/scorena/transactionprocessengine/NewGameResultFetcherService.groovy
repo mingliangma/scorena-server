@@ -48,7 +48,7 @@ class NewGameResultFetcherService {
 			if (unprocessed == true){
 				println "NewGameResultFetcherService::getUnprocessedPastGame(): Event " + pastGame.gameId + " is added to the GameProcessRecord table"
 				def newProcessRecord = new GameProcessRecord(eventKey: pastGame.gameId, transProcessStatus: TransactionProcessStatusEnum.NOT_PROCESSED, 
-					scoreProcessStatus: ScoreProcessStatusEnum.NOT_PROCESSED, startDateTime: helperService.parseDateFromString(pastGame.date), lastUpdate: new Date(), errorMessage: "")
+					scoreProcessStatus: ScoreProcessStatusEnum.NOT_PROCESSED, startDateTime: helperService.parseDateAndTimeFromString(pastGame.date), lastUpdate: new Date(), errorMessage: "")
 				if (!newProcessRecord.save(flush: true)){
 					newProcessRecord.errors.each {
 						println it
@@ -77,11 +77,11 @@ class NewGameResultFetcherService {
 		Date ealiestGameDate
 		
 		if (pastGames.size()>0)
-			earliestPastGameDate = helperService.parseDateFromString(pastGames.get(pastGames.size()-1).date)
+			earliestPastGameDate = helperService.parseDateAndTimeFromString(pastGames.get(pastGames.size()-1).date)
 		
 		//todo: need to find the earliest custom games by date
 		if (pastCustomGames.size()>0)
-			earliestPastCustomGameDate = helperService.parseDateFromString(pastCustomGames.get(pastCustomGames.size()-1).date)
+			earliestPastCustomGameDate = helperService.parseDateAndTimeFromString(pastCustomGames.get(pastCustomGames.size()-1).date)
 		
 		if (earliestPastGameDate > earliestPastCustomGameDate){
 			ealiestGameDate = earliestPastCustomGameDate

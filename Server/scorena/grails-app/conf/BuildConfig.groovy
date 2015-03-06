@@ -73,6 +73,7 @@ grails.project.dependency.resolution = {
 		compile ":rest-client-builder:2.0.3"
 		compile ":quartz:1.0.1"		
 		compile ":commentable:0.8.1"
+		compile ":marshallers:0.6"
 
         // plugins needed at runtime but not for compilation
         runtime ':hibernate4:4.3.6.1' // or ':hibernate:3.6.10.14'

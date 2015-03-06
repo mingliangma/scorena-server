@@ -30,4 +30,10 @@ class ProcessEngineManagerService {
 		log.info "startProcessEngine(): ends at "+ new Date()
 		return result
     }
+	
+	def surveyProcessEngine(){
+		log.info "ProcessEngineManagerService::surveyProcessEngine(): starts at "+new Date()
+		processEngineImplService.processUserSruvey("nbacustomevent-survey-530531")
+		log.info "surveyProcessEngine(): ends at "+ new Date()
+	}
 }

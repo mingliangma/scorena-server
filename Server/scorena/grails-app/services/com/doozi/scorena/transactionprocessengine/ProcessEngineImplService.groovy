@@ -204,8 +204,7 @@ class ProcessEngineImplService {
 			boolean onePickHasNoBet = false
 			List<BetTransaction> betTransactions = betTransactionService.listAllBetsByQId(q.id)
 			PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(betTransactions)	
-								
-				
+
 			//Calculate the payout multiple for the winning side. If there is one side that has no one bet on, the variable "onePickHasNoBet" is set to true,
 			//and later, we give the coins back to the users
 			if (winnerPick == WinnerPick.PICK1_WON){
@@ -247,7 +246,7 @@ class ProcessEngineImplService {
 				
 				Account account = bet.account
 				
-				payoutTansactionService.createPayoutTrans(account,q , payout, winnerPick, bet.transactionAmount, bet.pick, playResult, helperService.parseDateFromString(game.date))
+				payoutTansactionService.createPayoutTrans(account,q , payout, winnerPick, bet.transactionAmount, bet.pick, playResult, helperService.parseDateAndTimeFromString(game.date))
 				userIdToProfitMap.put(account.userId, profit)
 				
 			}
@@ -256,6 +255,54 @@ class ProcessEngineImplService {
 			return userIdToProfitMap
 	}
 	
+	@Transactional
+	def processUserSruvey(String gameId){
+		Map game = gameService.getGame(gameId)
+		List<Question> questions = questionService.listQuestions(gameId)
+		boolean errorExists = false;
+		Map userIdToProfitMap = [:]
+		for (Question q:questions){
+			try{
+				//userIdToProfitMap = [userId: questionProfit]
+				userIdToProfitMap = processUserSurveyPayout(q, game)
+
+			}catch(Exception e){
+
+				log.error "processNewGamePayout():: ERROR is ${e.message}"
+				throw new RuntimeException("processNewGamePayout():: ERROR is ${e.message}")
+				break
+			}
+		}
+		return userIdToProfitMap
+	}
+	
+	@Transactional
+	private Map processUserSurveyPayout(Question q, Map game) throws Exception{
+		log.info "processPayout(): begins with eventKey = ${game.gameId}, questionId = ${q.id}"
+		
+			println "ProcessEngineImplService::processPayout(): starts with eventKey="+game.gameId+ "questionId="+q.id
+			def payoutMultipleOfWager
+			def userIdToProfitMap = [:]
+			boolean processSuccess = true
+			boolean onePickHasNoBet = false
+			List<BetTransaction> betTransactions = betTransactionService.listAllBetsByQId(q.id)
+			PoolInfo questionPoolInfo = poolInfoService.getQuestionPoolInfo(betTransactions)
+
+			for (BetTransaction bet: betTransactions){
+				
+				//Payout = 0 for the lossing side
+				//Payout > 1 for the winning, tie, and onePickHasNoBet
+				int payout = bet.transactionAmount + 50
+				
+				Account account = bet.account
+				
+				payoutTansactionService.createPayoutTrans(account,q , payout, 1, bet.transactionAmount, bet.pick, 1, helperService.parseDateAndTimeFromString(game.date))
+				userIdToProfitMap.put(account.userId, 50)				
+			}
+			
+			log.info "processPayout(): ends"
+			return userIdToProfitMap
+	}
 	
 	/**
 	 * @param eventKey
@@ -278,6 +325,7 @@ class ProcessEngineImplService {
 		QuestionContent questionContent = question.questionContent
 		String questionType = questionContent.questionType
 
+		
 		switch ( questionType ) {
 			case QuestionContent.WHOWIN:
 				winnerPick = getWhoWinWinnerPick(game, question)
@@ -299,6 +347,9 @@ class ProcessEngineImplService {
 				break;
 			case QuestionContent.AUTOCUSTOM_SOCCER1:
 				winnerPick = getCustomQuestionWinnerPick(question)
+				break;
+			case QuestionContent.CUSTOMSURVEY:
+				winnerPick = 1
 				break;
 		}
 		
