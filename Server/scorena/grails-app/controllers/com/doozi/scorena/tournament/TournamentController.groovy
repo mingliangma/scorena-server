@@ -12,6 +12,7 @@ class TournamentController {
 	def tournamentService
 	def helperService
 	def sportsDataService
+	def scoreRankingService
 	
 	
 	def enrollTournament(){
@@ -77,23 +78,34 @@ class TournamentController {
 			return
 		}
 		
-		def result = tournamentService.createTournament(validation.objectId, request.JSON.title, request.JSON.description, subscribedLeagues, request.JSON.startDate, 
+		def createTournamentResult = tournamentService.createTournament(validation.objectId, request.JSON.title, request.JSON.description, subscribedLeagues, request.JSON.startDate, 
 			request.JSON.expireDate, request.JSON.invitingUserIds)
+		
+		def result = constructListTournamentResponse(createTournamentResult)
 		render result as JSON
 	}
 	
 	def searchTournament(){
-		log.info "createTournament() with keyword=${params.keyword}"
-		def result = tournamentService.searchTournament(params.search)
+		log.info "searchTournament() with searchKeyword=${params.search}"
+		def tournamentList = tournamentService.searchTournament(params.search)
+		List result = constructListTournamentResponse(tournamentList)
 		render result as JSON
 		return
 	}
 	
 	def listTournamentEnrollment(){
 		log.info "listTournamentEnrollment() with userId=${params.userId}"
-		def result = tournamentService.listTournamentEnrollment(params.userId)
+		def tournamentList = tournamentService.listTournamentEnrollment(params.userId)
+		List result = constructListTournamentResponse(tournamentList)
 		render result as JSON
 		return
+	}
+	
+	def listTournamentInvitation(){
+		log.info "getTournamentRanking() with userId=${params.userId}"
+		def tournamentInvitations = tournamentService.listTournamentInvitation(params.userId)
+		List result = constructListTournamentResponse(tournamentInvitations)
+		render result as JSON
 	}
 	
 	def inviteToTournament(){
@@ -115,8 +127,10 @@ class TournamentController {
 			return
 		}
 		
-		def tournament = tournamentService.inviteToTournament(params.tournamentId.toLong(), request.JSON.invitingUserIds)
-		render tournament as JSON
+		def tournament = tournamentService.inviteToTournament(validation.objectId, params.tournamentId.toLong(), request.JSON.invitingUserIds)
+		def result = constructListTournamentResponse(tournament)
+		
+		render result as JSON
 	}
 	
 	def getTournamentRanking(){
@@ -133,11 +147,7 @@ class TournamentController {
 		render tournamentRanking as JSON
 	}
 	
-	def listTournamentInvitation(){
-		log.info "getTournamentRanking() with userId=${params.userId}"
-		def tournamentInvitations = tournamentService.listTournamentInvitation(params.userId)
-		render tournamentInvitations as JSON
-	}
+
 	
 	def acceptTournamentInvitation(){
 		log.info "acceptTournamentInvitation() with tournamentId=${params.tournamentId}"
@@ -369,6 +379,32 @@ class TournamentController {
 			}
 		}
 		return subscribedLeaguesResult
+	}
+	
+	private def constructListTournamentResponse(def enrolledTournamentList){
+		log.info "constructListTournamentResponse() begins"
+		List result = []
+		
+		for (Tournament t : enrolledTournamentList){
+			Map tournamentMap =
+			[
+				"tournamentId" : t.id,
+				"description" : t.description,
+				"numberEnrollment" : t.numberEnrollment,
+				"tournamentType" : 	t.tournamentType.toString(),
+				"tournamentStatus" : t.tournamentStatus.toString(),
+				"title" : t.title,
+				"subscribedLeagues" : t.subscribedLeagues,
+				"ownerPictureUrl" : t.ownerPictureUrl,
+				"expireDate" : t.expireDate,
+				"startDate" : t.startDate,
+				"ownerAvatarCode" : t.ownerAvatarCode,
+				"userRank" : t.userRank
+			  ]
+			result.add(tournamentMap)
+		}
+		log.info "constructListTournamentResponse() ends with result size = ${result.size()}"
+		return result
 	}
 	
 	def handleException(Exception e) {

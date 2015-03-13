@@ -1,5 +1,7 @@
 package com.doozi.scorena.tournament
 
+import grails.converters.JSON
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +10,7 @@ import com.doozi.scorena.*
 import com.doozi.scorena.score.*
 import com.doozi.scorena.transaction.LeagueTypeEnum
 
+import org.codehaus.groovy.grails.web.json.JSONArray
 import org.springframework.transaction.annotation.Transactional
 
 @Transactional
@@ -141,48 +144,27 @@ class TournamentService {
 		
 		return tournamentList
 	}
-	
-	Map getWorldCupTournament(userId){
-		Tournament t = Tournament.findByType("worldcup")
-		Map tournament = [:]
-		int enrollmentStatus = 0
 
-		if (userId != null){
-			Enrollment eRecord = Enrollment.find("from Enrollment as e where e.account.userId=? and e.tournament.id=?", [userId, t.id])
-			if (eRecord != null){
-				enrollmentStatus = 1
-			}
-		}
-		
-		if (t){
-		
-			tournament = [title: t.title, content: t.content, prize:t.prize, tournamentId:t.id, tournamentStatus:t.status, enrollmentStatus:enrollmentStatus,
-				startDate: t.startDate.format("yyyy-MM-dd z"), expireDate: t.expireDate.format("yyyy-MM-dd z")]		
-		}
-		return tournament
-	}
-	
-	Map getWorldCupTournament(){
-		return getWorldCupTournament(null)
-	}
-	
-	
+
+
 	
 	def listTournamentEnrollment(String userId){
 		log.info "TournamentService::listEnrolledTournaments() begins with userId = ${userId}"
-		List<Tournament> enrolledTournamentList = listTournament(userId, EnrollmentStatusEnum.ENROLLED)
-		log.info "TournamentService::listEnrolledTournaments() end with enrolledTournamentList size = ${enrolledTournamentList.size()}"
+		def enrolledTournamentList = listTournament(userId, EnrollmentStatusEnum.ENROLLED)
+		enrolledTournamentList = getTournamentMetaData(enrolledTournamentList, userId)
+		log.info "TournamentService::listEnrolledTournaments() end with enrolledTournamentListAsMap size = ${enrolledTournamentList.size()}"
 		return enrolledTournamentList
 	}
 	
 	def listTournamentInvitation(String userId){
 		log.info "TournamentService::listTournamentInvitation() begins with userId = ${userId}"
 		List<Tournament> tournamentInvitationList = listTournament(userId, EnrollmentStatusEnum.INVITED)
+		tournamentInvitationList = getTournamentMetaData(tournamentInvitationList, userId)
 		log.info "TournamentService::listTournamentInvitation() end with tournamentInvitationList size = ${tournamentInvitationList.size()}"
 		return tournamentInvitationList
 	}
 	
-	List<Tournament> listTournament(String userId, EnrollmentStatusEnum enrollmentStatus){
+	def listTournament(String userId, EnrollmentStatusEnum enrollmentStatus){
 		return Tournament.findAll ("from Tournament as t where t in (select e.tournament from Enrollment as e where e.account.userId = (:userId) and e.enrollmentStatus = (:enrollmentStatus))",
 			[userId: userId, enrollmentStatus:enrollmentStatus])
 	}
@@ -190,15 +172,17 @@ class TournamentService {
 	def searchTournament(String keywords){
 		log.info "TournamentService::createTournament() begins"
 		def t = Tournament.createCriteria()
-		List<Tournament> tournamentResults = t.list {
+		List<Tournament> tournamentList = t.list {
 			like("title", "%${keywords}%")
 			ne("tournamentStatus", TournamentStatusEnum.EXPIRED)
 		}
-		log.info "TournamentService::createTournament() end"
+		log.info "TournamentService::createTournament() end with result size = ${tournamentList.size()}"
+		
+		def tournamentResults = getTournamentMetaData(tournamentList)
 		return tournamentResults		
 	}
 	
-	def inviteToTournament(long tournamentId, List invitingUserIds){
+	def inviteToTournament(String userId, long tournamentId, List invitingUserIds){
 		Tournament tournament = Tournament.get(tournamentId)
 		if (!tournament){
 			throw new RuntimeException("tournament does not exist")
@@ -206,6 +190,7 @@ class TournamentService {
 		if (invitingUserIds.size() > 0){			
 			Date today = new Date()			
 			List<Account> invitingUsers = Account.findAll("from Account as a where a.userId in (:userIds)", [userIds: invitingUserIds])
+			Account inviter = Account.findByUserId(userId)
 			log.info "invitingUsers=${invitingUsers}"
 			for (Account invitingUser: invitingUsers){
 				Enrollment enrollRecord = new Enrollment(enrollmentDate: null, createdAt: today, updatedAt: today, enrollmentStatus:EnrollmentStatusEnum.INVITED, enrollmentType:EnrollmentTypeEnum.PLAYER)
@@ -260,7 +245,7 @@ class TournamentService {
 		
 		if (invitingUserIds.size() > 0){
 			List<Account> invitingUsers = Account.findAll("from Account as a where a.userId in (:userIds)", [userIds: invitingUserIds])
-			log.info "invitingUsers=${invitingUsers}"
+			Account inviter = Account.findByUserId(ownerUserId)			
 			for (Account invitingUser: invitingUsers){
 				Enrollment enrollRecord = new Enrollment(enrollmentDate: null, createdAt: today, updatedAt: today, enrollmentStatus:EnrollmentStatusEnum.INVITED, enrollmentType:EnrollmentTypeEnum.PLAYER)
 				tournament.addToEnrollment(enrollRecord)
@@ -329,5 +314,47 @@ class TournamentService {
 			UserProfileUserIdAsKeyMap.put(userProfile.objectId, userProfile)
 		}
 		return UserProfileUserIdAsKeyMap
+	}
+	
+	private List getTournamentMetaData(def enrolledTournamentList){
+		return getTournamentMetaData(enrolledTournamentList, null)
+	}
+	
+	private List getTournamentMetaData(def enrolledTournamentList, String userId){
+		
+		for (Tournament t : enrolledTournamentList){
+//			def ranking = scoreRankingService.getRankingByTournament(t.id)
+//			for (Map userRank: ranking.rankScores){
+//				if (userRank.userId == userId){
+//					t.userRank = userRank.rank
+//				}
+//			
+//			}
+			int numberEnrollment = 0
+			t.numberEnrollment = 0
+			
+			for (Enrollment e : t.enrollment){
+//				if (e.enrollmentType == EnrollmentTypeEnum.OWNER){
+//					List userProfileResults = parseService.retrieveUserList([e.account.userId]).results
+//					if (userProfileResults.size() > 0){
+//						Map userProfile = userProfileResults[0]
+//						t.ownerPictureUrl = userProfile.pictureURL
+//						t.ownerAvatarCode = userProfile.avatarCode
+//					}
+//				}
+				if (e.enrollmentStatus == EnrollmentStatusEnum.ENROLLED){
+					numberEnrollment++
+				}
+			}
+			Random random = new Random()
+			if (random.nextInt(2) == 1){
+				t.ownerPictureUrl = "https://s3-us-west-2.amazonaws.com/userprofilepickture/003profile.png"
+			}else{
+				t.ownerAvatarCode = "avatar_006"
+			}
+			t.numberEnrollment = numberEnrollment
+			
+		}
+		return enrolledTournamentList
 	}
 }

@@ -5,6 +5,7 @@ import com.doozi.scorena.controllerservice.*
 import com.doozi.scorena.score.*
 import com.doozi.scorena.transaction.BetTransaction
 import com.doozi.scorena.transaction.PayoutTransaction
+import com.doozi.scorena.FriendSystem
 
 
 import org.springframework.transaction.annotation.Transactional
@@ -25,6 +26,7 @@ class GameUserInfoService {
 		Map userinfo=[:]
 		userinfo.placedBet = getPlacedBet(userBetsInTheGame)
 		userinfo.userWager = getWagerInGame(userBetsInTheGame)
+		userinfo.followingNumPeople = getFollowingNumInAGame(userId, gameId)
 		
 		
 		log.info "getUpcomingGamesUserInfo(): ends with userinfo = ${userinfo}"
@@ -37,6 +39,7 @@ class GameUserInfoService {
 		
 		Map userinfo=[:]
 		userinfo.placedBet = getPlacedBet(userBetsInTheGame)
+		userinfo.followingNumPeople = getFollowingNumInAGame(userId, game.gameId)
 		
 		if (userinfo.placedBet && scoreTransactions.size() == 0){
 			
@@ -121,5 +124,17 @@ class GameUserInfoService {
 			}
 		}
 		return userBetsInGame
+	}
+	
+	private int getFollowingNumInAGame(String userId, String gameId){
+		//select count(*) as followingNumInAGame from `friend_system`where user_id=13 and `following_id` in (Select account_id from `abstract_transaction` where event_key='l.uefa.org.champions-2014-e.1886830')
+		List followingNumInAGameResult = FriendSystem.executeQuery("SELECT count(*) FROM FriendSystem as f where f.user.userId = (:userId) and " + 
+			"f.following in (select account from BetTransaction as b where b.eventKey = (:gameId))", [userId: userId, gameId: gameId])
+		
+		if (followingNumInAGameResult.size() == 1)
+			return followingNumInAGameResult[0]
+		else
+			return 0
+
 	}
 }

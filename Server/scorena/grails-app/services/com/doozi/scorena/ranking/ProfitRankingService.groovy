@@ -113,6 +113,11 @@ class ProfitRankingService {
 		return scoreRankingService.constructRankingWithFollowingIndicatorResponse(userId, gameRanking)
 	}
 	
+	List getFollowingGameRanking(String gameId, String userId){
+		List<Map> gameRanking = getGameRanking(gameId)
+		return scoreRankingService.constructFollowingRankingResponse(userId, gameRanking)
+	}
+	
 	List getGameRanking(String gameId){
 		log.info "getGameRankin(): begins with gameId = ${gameId}"
 		

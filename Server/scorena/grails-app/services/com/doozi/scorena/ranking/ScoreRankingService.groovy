@@ -185,6 +185,20 @@ class ScoreRankingService {
 		log.info "constructRankingWithFollowingIndicatorResponse() ends"
 		return rankingResponse
 	}
+	
+	List constructFollowingRankingResponse(String userId, List rankingResponse){
+		log.info "constructRankingWithFollowingIndicatorResponse() begins with userId=${userId}"
+		Map followingUserIdMap = friendSystemService.listFollowingUserIdInMap(userId)
+		List newRankingResponse = []
+		for (userRank in rankingResponse){
+			if (followingUserIdMap.containsKey(userRank.userId)){
+				userRank.isFollowing = true
+				newRankingResponse.add(userRank)
+			}
+		}
+		log.info "constructRankingWithFollowingIndicatorResponse() ends"
+		return newRankingResponse
+	}
 
 	// returns user ranking map
 	private Map getAccountInfoMap(String userId, long score, int rank){

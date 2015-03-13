@@ -114,22 +114,6 @@ class GameController {
 		render games as JSON
 	}
 	
-	def getGameRanking(){
-		if (params.gameId){
-			def gameRanking
-			if (params.userId == null)
-				gameRanking = profitRankingService.getGameRanking(params.gameId)
-			else
-				gameRanking = profitRankingService.getGameRanking(params.gameId, params.userId)
-			render gameRanking as JSON
-		}else{
-			response.status = 404
-			def result = [error: "invalid parameters"]
-			render result as JSON
-			log.error "getGameRanking(): result = ${result}"
-		}
-	}
-	
 	def handleException(Exception e) {
 		response.status = 500
 		render e.toString()

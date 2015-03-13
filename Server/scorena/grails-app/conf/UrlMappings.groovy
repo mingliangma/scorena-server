@@ -84,8 +84,12 @@ class UrlMappings {
 			action = [GET:"getGame"]
 		}
 		
-		"/v1/sports/$sportType/leagues/$leagueType/games/$gameId?/ranking"(controller:"game"){
+		"/v1/sports/$sportType/leagues/$leagueType/games/$gameId?/ranking"(controller:"ranking"){
 			action = [GET:"getGameRanking"]
+		}
+		
+		"/v1/sports/$sportType/leagues/$leagueType/games/$gameId?/followingRanking"(controller:"ranking"){
+			action = [GET:"getFollowingGameRanking"]
 		}
 		
 		"/v1/sports/$sportType/leagues/$leagueType/games/$gameId?/qs"(controller:"question"){

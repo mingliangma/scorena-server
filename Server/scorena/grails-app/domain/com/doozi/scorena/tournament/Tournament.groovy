@@ -11,27 +11,38 @@ class Tournament {
 	Date startDate
 	Date expireDate
 	
+	String userRank
+	String ownerPictureUrl
+	String ownerAvatarCode
+	int numberEnrollment
+	
 	static hasMany = [enrollment: Enrollment, subscribedLeagues: SubscribedLeague]
 	
     static constraints = {
 		description nullable: true
     }
 	
-	static marshalling={
-		shouldOutputIdentifier false
-		shouldOutputVersion false
-		shouldOutputClass false
-		deep 'enrollment', 'subscribedLeagues'
-		serializer{  // cusomtize the name output to all caps for our 'special report'
-			tournamentType { value, json ->
-					json.value("${value.tournamentType.toString()}")
-				}
-			tournamentStatus { value, json ->
-				json.value("${value.tournamentStatus.toString()}")
-			}
-		}
-		virtual{     // add a virtual property, in this case a date/time stamp
-			tournamentId { value, json -> json.value("${value.id}") }
-		}
-	}
+	static transients = ['userRank', 'ownerPictureUrl', 'ownerAvatarCode', 'numberEnrollment']
+	
+//	static marshalling={
+//		shouldOutputIdentifier false
+//		shouldOutputVersion false
+//		shouldOutputClass false
+//		deep 'subscribedLeagues'
+////		ignore "enrollment"
+//		serializer{  // cusomtize the name output to all caps for our 'special report'
+//			tournamentType { value, json ->
+//					json.value("${value.tournamentType.toString()}")
+//				}
+//			tournamentStatus { value, json ->
+//				json.value("${value.tournamentStatus.toString()}")
+//			}
+//		}
+//		virtual{     // add a virtual property, in this case a date/time stamp
+//			tournamentId { value, json -> json.value("${value.id}") }
+////			userRank { value, json -> json.value("") }
+////			playerPitureUrl { value, json -> json.value("") }
+////			avatarCode { value, json -> json.value("") }
+//		}
+//	}
 }
