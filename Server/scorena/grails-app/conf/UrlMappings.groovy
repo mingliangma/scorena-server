@@ -182,7 +182,7 @@ class UrlMappings {
 		}
 		
 		"/v1/tournament/enroll/$tournamentId?"(controller:"tournament"){
-			action = [GET:"enrollTournament"]
+			action = [POST:"enrollTournament"]
 		}
 		
 		"/v1/tournament/list"(controller:"tournament"){
