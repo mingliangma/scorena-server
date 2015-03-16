@@ -20,133 +20,6 @@ class TournamentService {
 	def parseService   
 	def scoreRankingService
 	
-	Map getTournamentRanking(String tournamentId){
-		def userRankingWorldCup = UserRankingWCTournament.findAll("from UserRankingWCTournament UserRankingWCT order by UserRankingWCT.netGain desc, UserRankingWCT.currentBalance desc")
-
-		List rankingResultWorldCup =[]
-
-		
-		int rankingWorldCupSize = userRankingWorldCup.size()
-
-		List userIdList = []
-		Map userIdMap = [:]
-		
-		
-		for (int i=0; i<rankingWorldCupSize; i++){
-			UserRankingWCTournament rankEntry = userRankingWorldCup.get(i)
-			Account userAccount = Account.get(rankEntry.id)
-			rankingResultWorldCup.add(getAccountInfoMap(userAccount.userId, userAccount.username, rankEntry.netGain,i+1))
-			if (!userIdMap.containsKey(userAccount.userId)){
-				userIdMap.put(userAccount.userId, "")
-				userIdList
-			}
-		}
-		
-		Map userProfileResults = parseService.retrieveUserList(userIdMap)
-		Map UserProfileUserIdAsKeyMap = getUserProfileUserIdAsKeyMap(userProfileResults.results)
-		
-		for (Map rankingAllEntry: rankingResultWorldCup){
-			String accountUserId = rankingAllEntry.userId
-			Map userProfile = UserProfileUserIdAsKeyMap.get(accountUserId)
-
-			rankingAllEntry.pictureURL = ""
-			
-			if (userProfile != null){
-				if (userProfile.display_name != null && userProfile.display_name != "")
-					rankingAllEntry.username = userProfile.display_name
-			
-				if (userProfile.pictureURL != null && userProfile.pictureURL != "")
-					rankingAllEntry.pictureURL = userProfile.pictureURL
-			}
-			
-		}
-		
-		return [rank: rankingResultWorldCup]
-	}
-	
-	def enroll(String userId, String tournamentId) {
-		println "tournamentId: "+tournamentId
-		Tournament tournament = Tournament.get(tournamentId.toInteger())
-		
-		if (tournament == null){
-			return [code: 500, error: "Invalid Tournament ID"]
-		}
-		
-		Account account = Account.findByUserId(userId)
-		
-		if (account == null){
-			return [code: 500, error: "The user account doesn not exist"]
-		}
-		
-		Enrollment eRecord = Enrollment.find("from Enrollment as e where e.account.userId=? and e.tournament.id=?", [userId, tournament.id])
-		
-		if (eRecord != null){
-			return [:]
-		}
-		
-		Enrollment enrollRecord = new Enrollment(enrollmentDate: new Date())
-		
-		tournament.addToEnrollment(enrollRecord)
-		account.addToEnrollment(enrollRecord)
-		
-		if (!tournament.save(failOnError:true)){
-			String errorMessage=""
-			tournament.errors.each{
-				println it
-				errorMessage = errorMessage + " " + it
-			}
-			return [code: 500, error: errorMessage]
-		}
-		
-		if (!account.save(failOnError:true)){
-			String errorMessage=""
-			account.errors.each{
-				println it
-				errorMessage = errorMessage + " " + it
-			}
-			return [code: 500, error: errorMessage]
-		}
-		return [enrollmentDate: helperService.getOutputDateFormat(enrollRecord.enrollmentDate)]
-    }
-	
-	Map joinTournament(String userId, String tournamentId){
-		Map enrollResult = enroll(userId, tournamentId)
-		if (enrollResult.error){
-			return enrollResult
-		}
-		
-		Map tournamentRankingResult = getTournamentRanking(tournamentId)
-		return tournamentRankingResult
-		
-	}
-	
-	List listTournaments(userId){
-		List tournamentObjects = Tournament.findAll()
-		List tournamentList = []
-		
-		for (Tournament t: tournamentObjects){
-			Map tournament = [:]
-
-			int enrollmentStatus = 0
-
-			if (userId != null){
-
-				Enrollment eRecord = Enrollment.find("from Enrollment as e where e.account.userId=? and e.tournament.id=?", [userId, t.id])
-				if (eRecord != null){
-					enrollmentStatus = 1
-				}
-			}
-			
-			tournament = [title: t.title, content: t.content, prize:t.prize, tournamentId:t.id, tournamentStatus:t.status, enrollmentStatus:enrollmentStatus, 
-				startDate: t.startDate.format("yyyy-MM-dd z"), expireDate: t.expireDate.format("yyyy-MM-dd z")]
-			tournamentList.add(tournament)
-		}
-		
-		return tournamentList
-	}
-
-
-
 	
 	def listTournamentEnrollment(String userId){
 		log.info "TournamentService::listEnrolledTournaments() begins with userId = ${userId}"
@@ -187,7 +60,7 @@ class TournamentService {
 		if (!tournament){
 			throw new RuntimeException("tournament does not exist")
 		}
-		if (invitingUserIds.size() > 0){			
+		if (invitingUserIds.size() > 0){
 			Date today = new Date()			
 			List<Account> invitingUsers = Account.findAll("from Account as a where a.userId in (:userIds)", [userIds: invitingUserIds])
 			Account inviter = Account.findByUserId(userId)
@@ -220,7 +93,8 @@ class TournamentService {
 		return tournament
 	}
 	
-	def createTournament(String ownerUserId, String title, String description, List<LeagueTypeEnum> subscribedLeagues, String startDateStr, String expireDateStr, List invitingUserIds){
+	def createTournament(String ownerUserId, String title, String description, List<LeagueTypeEnum> subscribedLeagues, String startDateStr, String expireDateStr, List invitingUserIds,
+		String ownerPictureUrl, String ownerAvatarCode){
 		log.info "TournamentService::createTournament()"
 		Date startDate = helperService.parseDateFromString(startDateStr)
 		Date expireDate = helperService.parseDateFromString(expireDateStr)
@@ -231,7 +105,7 @@ class TournamentService {
 		}
 				
 		def tournament = new Tournament(title:title, description:description, tournamentType: TournamentTypeEnum.PRIVATE_POOL, tournamentStatus: TournamentStatusEnum.NEW, 
-			startDate:startDate, expireDate:expireDate)
+			startDate:startDate, expireDate:expireDate, ownerPictureUrl:ownerPictureUrl, ownerAvatarCode:ownerAvatarCode)
 		for (LeagueTypeEnum l : subscribedLeagues){
 			tournament.addToSubscribedLeagues(new SubscribedLeague(leagueName: l))
 		}
@@ -245,7 +119,7 @@ class TournamentService {
 		
 		if (invitingUserIds.size() > 0){
 			List<Account> invitingUsers = Account.findAll("from Account as a where a.userId in (:userIds)", [userIds: invitingUserIds])
-			Account inviter = Account.findByUserId(ownerUserId)			
+			println "invitingUsers size: "+invitingUsers.size()
 			for (Account invitingUser: invitingUsers){
 				Enrollment enrollRecord = new Enrollment(enrollmentDate: null, createdAt: today, updatedAt: today, enrollmentStatus:EnrollmentStatusEnum.INVITED, enrollmentType:EnrollmentTypeEnum.PLAYER)
 				tournament.addToEnrollment(enrollRecord)
@@ -320,8 +194,7 @@ class TournamentService {
 		return getTournamentMetaData(enrolledTournamentList, null)
 	}
 	
-	private List getTournamentMetaData(def enrolledTournamentList, String userId){
-		
+	private List getTournamentMetaData(List enrolledTournamentList, String userId){
 		for (Tournament t : enrolledTournamentList){
 //			def ranking = scoreRankingService.getRankingByTournament(t.id)
 //			for (Map userRank: ranking.rankScores){
@@ -333,25 +206,12 @@ class TournamentService {
 			int numberEnrollment = 0
 			t.numberEnrollment = 0
 			
-			for (Enrollment e : t.enrollment){
-//				if (e.enrollmentType == EnrollmentTypeEnum.OWNER){
-//					List userProfileResults = parseService.retrieveUserList([e.account.userId]).results
-//					if (userProfileResults.size() > 0){
-//						Map userProfile = userProfileResults[0]
-//						t.ownerPictureUrl = userProfile.pictureURL
-//						t.ownerAvatarCode = userProfile.avatarCode
-//					}
-//				}
+			for (Enrollment e : t.enrollment){				
 				if (e.enrollmentStatus == EnrollmentStatusEnum.ENROLLED){
 					numberEnrollment++
 				}
 			}
-			Random random = new Random()
-			if (random.nextInt(2) == 1){
-				t.ownerPictureUrl = "https://s3-us-west-2.amazonaws.com/userprofilepickture/003profile.png"
-			}else{
-				t.ownerAvatarCode = "avatar_006"
-			}
+
 			t.numberEnrollment = numberEnrollment
 			
 		}

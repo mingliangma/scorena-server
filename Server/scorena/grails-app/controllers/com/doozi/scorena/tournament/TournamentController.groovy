@@ -79,7 +79,7 @@ class TournamentController {
 		}
 		
 		def createTournamentResult = tournamentService.createTournament(validation.objectId, request.JSON.title, request.JSON.description, subscribedLeagues, request.JSON.startDate, 
-			request.JSON.expireDate, request.JSON.invitingUserIds)
+			request.JSON.expireDate, request.JSON.invitingUserIds, validation.pictureURL, validation.avatarCode)
 		
 		def result = constructListTournamentResponse(createTournamentResult)
 		render result as JSON
