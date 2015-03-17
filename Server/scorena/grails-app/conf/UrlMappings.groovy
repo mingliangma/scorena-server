@@ -217,6 +217,10 @@ class UrlMappings {
 			action = [GET:"getExistingComments", POST:"writeComments"]
 		}
 		
+		"/v1/users/$userId?/connections"(controller:"friendSystem") {
+			action = [GET:"listConnections"]
+		}
+		
 		"/v1/users/$userId?/followers"(controller:"friendSystem") {
 			action = [GET:"listFollowers"]
 		}
@@ -224,6 +228,7 @@ class UrlMappings {
 		"/v1/users/$userId?/followings"(controller:"friendSystem") {
 			action = [GET:"listFollowings", POST:"followRequest"]
 		}
+		
 		
 		"/v1/users/$userId?/isfollowing/$followingUserId?"(controller:"friendSystem") {
 			action = [GET:"isFollowing"]

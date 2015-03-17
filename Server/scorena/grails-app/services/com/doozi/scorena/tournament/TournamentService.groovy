@@ -1,6 +1,9 @@
 package com.doozi.scorena.tournament
 
+import grails.async.Promise
+import static grails.async.Promises.*
 import grails.converters.JSON
+import grails.plugins.rest.client.RestBuilder
 
 import java.util.Date;
 import java.util.List;
@@ -19,6 +22,7 @@ class TournamentService {
 	def userService 
 	def parseService   
 	def scoreRankingService
+	def pushService
 	
 	
 	def listTournamentEnrollment(String userId){
@@ -55,12 +59,13 @@ class TournamentService {
 		return tournamentResults		
 	}
 	
-	def inviteToTournament(String userId, long tournamentId, List invitingUserIds){
+	def inviteToTournament(String userId, String displayName, long tournamentId, List invitingUserIds){
 		Tournament tournament = Tournament.get(tournamentId)
 		if (!tournament){
 			throw new RuntimeException("tournament does not exist")
 		}
 		if (invitingUserIds.size() > 0){
+			def rest = new RestBuilder()
 			Date today = new Date()			
 			List<Account> invitingUsers = Account.findAll("from Account as a where a.userId in (:userIds)", [userIds: invitingUserIds])
 			Account inviter = Account.findByUserId(userId)
@@ -71,6 +76,13 @@ class TournamentService {
 				invitingUser.addToEnrollment(enrollRecord)
 				invitingUser.save()
 				tournament.save()
+				Promise p = task {
+					String message = "${displayName} is inviting you to a tournament"
+					pushService.tournamentInvitationNotification(rest,tournament.id, invitingUser.userId, message)
+				}
+				p.onComplete { result ->
+					println "Tournament invitation notification promise with tournamentId ${tournament.id} returned $result"
+				}			
 			}
 		}
 		return tournament
@@ -93,8 +105,8 @@ class TournamentService {
 		return tournament
 	}
 	
-	def createTournament(String ownerUserId, String title, String description, List<LeagueTypeEnum> subscribedLeagues, String startDateStr, String expireDateStr, List invitingUserIds,
-		String ownerPictureUrl, String ownerAvatarCode){
+	def createTournament(String ownerUserId, String title, String description, List<LeagueTypeEnum> subscribedLeagues, String startDateStr, 
+		String expireDateStr, List invitingUserIds, String ownerPictureUrl, String ownerAvatarCode, String ownerDisplayName){
 		log.info "TournamentService::createTournament()"
 		Date startDate = helperService.parseDateFromString(startDateStr)
 		Date expireDate = helperService.parseDateFromString(expireDateStr)
@@ -105,7 +117,7 @@ class TournamentService {
 		}
 				
 		def tournament = new Tournament(title:title, description:description, tournamentType: TournamentTypeEnum.PRIVATE_POOL, tournamentStatus: TournamentStatusEnum.NEW, 
-			startDate:startDate, expireDate:expireDate, ownerPictureUrl:ownerPictureUrl, ownerAvatarCode:ownerAvatarCode)
+			startDate:startDate, expireDate:expireDate, ownerPictureUrl:ownerPictureUrl, ownerAvatarCode:ownerAvatarCode, ownerDisplayName:ownerDisplayName, createdAt: new Date())
 		for (LeagueTypeEnum l : subscribedLeagues){
 			tournament.addToSubscribedLeagues(new SubscribedLeague(leagueName: l))
 		}
@@ -137,7 +149,7 @@ class TournamentService {
 		return scoreRankingService.getRankingByTournament(tournamentId)
 	}
 	
-	def acceptTournamentInvitation(String userId, long tournamentId){
+	def acceptTournamentInvitation(String userId, String displayName, long tournamentId){
 		log.info "TournamentService::acceptTournamentInvitation() begins with userId = ${userId}, tournamentId = ${tournamentId}"
 		Enrollment userEnrollment = Enrollment.find ("from Enrollment as e where e.tournament.id = (:tournamentId) and e.account.userId = (:userId) and e.enrollmentStatus = (:enrollmentStatus)", 
 			[tournamentId: tournamentId, userId: userId, enrollmentStatus:EnrollmentStatusEnum.INVITED])
@@ -147,6 +159,17 @@ class TournamentService {
 			userEnrollment.enrollmentDate = now
 			userEnrollment.updatedAt = now
 			userEnrollment.save()
+			
+			Promise p = task {
+				Enrollment ownerEnrollment = Enrollment.find ("from Enrollment as e where e.tournament.id = (:tournamentId) and e.enrollmentType = (:enrollmentType)",
+					[tournamentId: tournamentId, enrollmentType:EnrollmentTypeEnum.OWNER])
+				String message = "${displayName} joined ${userEnrollment.tournament.title} tournament"
+				pushService.tournamentInvitationNotification(new RestBuilder(),tournamentId, ownerEnrollment.account.userId, message)
+			}
+			p.onComplete { result ->
+				println "Accept tournament notification promise with tournamentId ${tournamentId} returned $result"
+			}
+			
 			return userEnrollment
 		}else{
 			return null
@@ -196,13 +219,7 @@ class TournamentService {
 	
 	private List getTournamentMetaData(List enrolledTournamentList, String userId){
 		for (Tournament t : enrolledTournamentList){
-//			def ranking = scoreRankingService.getRankingByTournament(t.id)
-//			for (Map userRank: ranking.rankScores){
-//				if (userRank.userId == userId){
-//					t.userRank = userRank.rank
-//				}
-//			
-//			}
+			t.userRank = scoreRankingService.getRankNumberByTournamentAndUser(t.id, userId)
 			int numberEnrollment = 0
 			t.numberEnrollment = 0
 			

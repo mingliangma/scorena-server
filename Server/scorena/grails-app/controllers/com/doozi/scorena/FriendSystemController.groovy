@@ -115,6 +115,34 @@ class FriendSystemController {
 		return
 	}
 	
+	def listConnections(){
+		log.info "listConnections(): begins..."
+		
+		String userId = params.userId
+		List connections
+		Map connectionsMap
+		
+		if(!userId) {
+			response.status = 404
+			def resp = [
+				code: 101,
+				error: "invalid userID!"
+				]
+			render resp as JSON
+			log.error "listFriends(): resp = ${resp}"
+			return
+		}
+		
+		connections = friendSystemService.listConnections(userId)
+		connectionsMap = [connections:connections]
+		
+		render connectionsMap as JSON
+		
+		log.info "listConnections(): ends"
+		
+		return
+	}
+	
 	def isFollowing(){
 		log.info "isFollowing(): begins..."
 		
@@ -140,6 +168,7 @@ class FriendSystemController {
 		
 		return
 	}
+	
 	
 //	def friendRequest() {
 //		log.info "friendRequest(): begins..."

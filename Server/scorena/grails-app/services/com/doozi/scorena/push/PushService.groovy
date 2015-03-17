@@ -127,168 +127,215 @@ class PushService {
 		return resp.json.toString()
 	}
 	
- def endOfGamePush(def rest,String eventKey,String eventStatus, String userId, String msg)
- {
-	 log.info "endOfGamePush(): begins with rest = ${rest},eventKey = ${eventKey},  eventStatus = ${eventStatus} , userId = ${userId}, msg = ${msg}"
-	 
-	 def parseConfig = grailsApplication.config.parse	 
-	 def userParam = ["userId": (userId)]
-//	 def chanParam = ["channels":['$in':[(eventKey)]]]
-	 def alertParam = ["alert": (msg),"gameKey":(eventKey),"gameStatus":(eventStatus), "pushType":"result"]
-	 def resp = rest.post("https://api.parse.com/1/push")
+	 def endOfGamePush(def rest,String eventKey,String eventStatus, String userId, String msg)
 	 {
-		 header "X-Parse-Application-Id", parseConfig.parseApplicationId
-		 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
-		 contentType "application/json"
-		 json{
-			 data = alertParam
-			 where = userParam
-			 }	 
-	 }
-	 
-	 def result = resp.json.toString()
-	 log.info "endOfGamePush(): ends with result = ${result}"
-	 
-	 return resp.json.toString()
- }
- 
- 
- def customQuestionPush(def rest,String eventKey, String eventStatus ,String msg)
- {
-	 log.info "customQuestionPush(): begins with rest = ${rest}, eventKey = ${eventKey},  eventStatus = ${eventStatus} , msg = ${msg}"
-	 
-	 def parseConfig = grailsApplication.config.parse
-	 def chanParam = ["channels":['$in':[(eventKey)]]]
-	 def alertParam = ["alert": (msg),"gameKey":(eventKey),"gameStatus":(eventStatus),"pushType":"question"]
-	 def resp = rest.post("https://api.parse.com/1/push")
-	 {
-		 header "X-Parse-Application-Id", parseConfig.parseApplicationId
-		 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
-		 contentType "application/json"
-		 json{
-			 data = alertParam
-			 where = chanParam
-			 }
-	 }
-	 
-	 def result = resp.json.toString()
-	 log.info "customQuestionPush(): ends with result = ${result}"
-	 
-	 return resp.json.toString()
- }
- 
- def sendFollowPush(def rest, String followingId, String followerId, String msg)
- {
-	 log.info "sendFollowPush(): begins with rest = ${rest}, followingId = ${followingId}, followerId = ${followerId} ,msg = ${msg}"
-	 
-	 def parseConfig = grailsApplication.config.parse
-	 def userParam = ["userId": (followingId)]
-	 def alertParam = ["alert": (msg),"followerId":(followerId),"pushType":"userProfile"]
-	 def resp = rest.post("https://api.parse.com/1/push")
-	 {
-		 header "X-Parse-Application-Id", parseConfig.parseApplicationId
-		 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
-		 contentType "application/json"
-		 json{
-			 data = alertParam
-			 where = userParam
-			 }
-	 }
-	 
-	 def result = resp.json.toString()
-	 log.info "sendFollowPush(): ends with result = ${result}"
-	 
-	 return resp.json.toString()
- }
- 
- def userCommentPush(def rest,String userList, String eventKey, String eventStatus ,String qId, String msg)
- {
-	 log.info "usrCommentPush(): begins with rest = ${rest}, userList = ${userList}, eventKey = ${eventKey}, eventStatus = ${eventStatus} ,qId = ${qId} , msg = ${msg}"
-	 
-	 def parseConfig = grailsApplication.config.parse
-	 def userParam  = ["questions":['$in':[(qId.toInteger())]]]
-	 def alertParam = ["alert": (msg),"gameKey":(eventKey),"gameStatus":(eventStatus), "questionKey":(qId), "pushType":"comment"]
-	 def resp = rest.post("https://api.parse.com/1/push")
-	 {
-		 header "X-Parse-Application-Id", parseConfig.parseApplicationId
-		 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
-		 contentType "application/json"
-		 json{
-			 data = alertParam
-			 where = userParam
-			 }
-	 
-
-	 }
-	 
-	 def result = resp.json.toString()
-	 log.info "usrCommentPush(): ends with result = ${result}"
-	 
-	 return resp.json.toString()
- }
- 
- public void sendEndGamePush(Map userTotalGameProfit, Map gameIdToGameInfoMap)
- {
-	 log.info "sendEndGamePush(): begins and "+gameIdToGameInfoMap.size()+" games will be pushed"
-	 def rest = new RestBuilder()
-
-	 //userTotalGamesProfit = [gameId : [userId: game profit]]
-	 Set gameIds =  userTotalGameProfit.keySet()
-	 for (String gameId: gameIds){
-		 Map userAGameProfit = userTotalGameProfit[gameId]
-		 String status = gameIdToGameInfoMap[gameId].gameStatus
-		 println("status - " + status)
+		 log.info "endOfGamePush(): begins with rest = ${rest},eventKey = ${eventKey},  eventStatus = ${eventStatus} , userId = ${userId}, msg = ${msg}"
 		 
-		 String awayTeam = gameIdToGameInfoMap[gameId].away.teamname
-		 String homeTeam = gameIdToGameInfoMap[gameId].home.teamname
-		 String[] userIdKeys = userAGameProfit.keySet()
- 
-		 for (String userID: userIdKeys )
+		 def parseConfig = grailsApplication.config.parse	 
+		 def userParam = ["userId": (userId)]
+	//	 def chanParam = ["channels":['$in':[(eventKey)]]]
+		 def alertParam = ["alert": (msg),"gameKey":(eventKey),"gameStatus":(eventStatus), "pushType":"result"]
+		 def resp = rest.post("https://api.parse.com/1/push")
 		 {
-			 int gameProfit = userAGameProfit[userID]
-				 String msg = ""
-				 if ( gameProfit > 0)
-				 {
-					 msg = "Congratulations! You have won " + gameProfit +" Coins in game "+ awayTeam +" vs "+ homeTeam
-				 }
-				 
-				 else if (gameProfit == 0)
-				 {
-					 msg = "Sorry, you did not win any Coins in game "+ awayTeam +" vs "+ homeTeam
-				 }
-				 
-				 else
-				 {
-					 msg = "Sorry, You have lost "+ Math.abs(gameProfit) +" Coins in game "+ awayTeam +" vs "+ homeTeam
-				 }
-				 
-				 // sends end of game push to user with amount of coins won or lost
-				 def payoutPush = endOfGamePush(rest,gameId, status ,userID, msg)
-			  
+			 header "X-Parse-Application-Id", parseConfig.parseApplicationId
+			 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
+			 contentType "application/json"
+			 json{
+				 data = alertParam
+				 where = userParam
+				 }	 
 		 }
+		 
+		 def result = resp.json.toString()
+		 log.info "endOfGamePush(): ends with result = ${result}"
+		 
+		 return resp.json.toString()
 	 }
-	 log.info "sendEndGamePush(): ends"
- }
  
- public void registerUserToGameChannel(String userId, String eventKey){
-	 log.info "registerUserToGameChannel(): begins userId=${userId} eventKey=${eventKey}"
-	 // gets the users decvice installation ID by username
-	 List objectIDs = getInstallationByUserID(userId)
  
-	 
-	 if ( objectIDs != null || objectIDs != "" )
+	 def customQuestionPush(def rest,String eventKey, String eventStatus ,String msg)
 	 {
-		 // preps event key for pars channel. parse does not allow for  '.' in a channel name, replaces it with a "_"
-		 String parse_channel = eventKey.replace(".","_")
+		 log.info "customQuestionPush(): begins with rest = ${rest}, eventKey = ${eventKey},  eventStatus = ${eventStatus} , msg = ${msg}"
 		 
-		 
-		 for (String objectId: objectIDs)
+		 def parseConfig = grailsApplication.config.parse
+		 def chanParam = ["channels":['$in':[(eventKey)]]]
+		 def alertParam = ["alert": (msg),"gameKey":(eventKey),"gameStatus":(eventStatus),"pushType":"question"]
+		 def resp = rest.post("https://api.parse.com/1/push")
 		 {
-		 // Registers user device into push channel for game event key
-		 def test = updateGameChannel(new RestBuilder(), objectId, parse_channel)
+			 header "X-Parse-Application-Id", parseConfig.parseApplicationId
+			 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
+			 contentType "application/json"
+			 json{
+				 data = alertParam
+				 where = chanParam
+				 }
 		 }
+		 
+		 def result = resp.json.toString()
+		 log.info "customQuestionPush(): ends with result = ${result}"
+		 
+		 return resp.json.toString()
 	 }
-	 log.info "registerUserToGameChannel(): ends"
- }
  
+	 def sendFollowPush(def rest, String followingId, String followerId, String msg)
+	 {
+		 log.info "sendFollowPush(): begins with rest = ${rest}, followingId = ${followingId}, followerId = ${followerId} ,msg = ${msg}"
+		 
+		 def parseConfig = grailsApplication.config.parse
+		 def userParam = ["userId": (followingId)]
+		 def alertParam = ["alert": (msg),"followerId":(followerId),"pushType":"userProfile"]
+		 def resp = rest.post("https://api.parse.com/1/push")
+		 {
+			 header "X-Parse-Application-Id", parseConfig.parseApplicationId
+			 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
+			 contentType "application/json"
+			 json{
+				 data = alertParam
+				 where = userParam
+				 }
+		 }
+		 
+		 def result = resp.json.toString()
+		 log.info "sendFollowPush(): ends with result = ${result}"
+		 
+		 return resp.json.toString()
+	 }
+ 
+	 def userCommentPush(def rest,String userList, String eventKey, String eventStatus ,String qId, String msg)
+	 {
+		 log.info "usrCommentPush(): begins with rest = ${rest}, userList = ${userList}, eventKey = ${eventKey}, eventStatus = ${eventStatus} ,qId = ${qId} , msg = ${msg}"
+		 
+		 def parseConfig = grailsApplication.config.parse
+		 def userParam  = ["questions":['$in':[(qId.toInteger())]]]
+		 def alertParam = ["alert": (msg),"gameKey":(eventKey),"gameStatus":(eventStatus), "questionKey":(qId), "pushType":"comment"]
+		 def resp = rest.post("https://api.parse.com/1/push")
+		 {
+			 header "X-Parse-Application-Id", parseConfig.parseApplicationId
+			 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
+			 contentType "application/json"
+			 json{
+				 data = alertParam
+				 where = userParam
+				 }
+		 
+	
+		 }
+		 
+		 def result = resp.json.toString()
+		 log.info "usrCommentPush(): ends with result = ${result}"
+		 
+		 return resp.json.toString()
+	 }
+ 
+	 public void sendEndGamePush(Map userTotalGameProfit, Map gameIdToGameInfoMap)
+	 {
+		 log.info "sendEndGamePush(): begins and "+gameIdToGameInfoMap.size()+" games will be pushed"
+		 def rest = new RestBuilder()
+	
+		 //userTotalGamesProfit = [gameId : [userId: game profit]]
+		 Set gameIds =  userTotalGameProfit.keySet()
+		 for (String gameId: gameIds){
+			 Map userAGameProfit = userTotalGameProfit[gameId]
+			 String status = gameIdToGameInfoMap[gameId].gameStatus
+			 println("status - " + status)
+			 
+			 String awayTeam = gameIdToGameInfoMap[gameId].away.teamname
+			 String homeTeam = gameIdToGameInfoMap[gameId].home.teamname
+			 String[] userIdKeys = userAGameProfit.keySet()
+	 
+			 for (String userID: userIdKeys )
+			 {
+				 int gameProfit = userAGameProfit[userID]
+					 String msg = ""
+					 if ( gameProfit > 0)
+					 {
+						 msg = "Congratulations! You have won " + gameProfit +" Coins in game "+ awayTeam +" vs "+ homeTeam
+					 }
+					 
+					 else if (gameProfit == 0)
+					 {
+						 msg = "Sorry, you did not win any Coins in game "+ awayTeam +" vs "+ homeTeam
+					 }
+					 
+					 else
+					 {
+						 msg = "Sorry, You have lost "+ Math.abs(gameProfit) +" Coins in game "+ awayTeam +" vs "+ homeTeam
+					 }
+					 
+					 // sends end of game push to user with amount of coins won or lost
+					 def payoutPush = endOfGamePush(rest,gameId, status ,userID, msg)
+				  
+			 }
+		 }
+		 log.info "sendEndGamePush(): ends"
+	 }
+ 
+	 public void registerUserToGameChannel(String userId, String eventKey){
+		 log.info "registerUserToGameChannel(): begins userId=${userId} eventKey=${eventKey}"
+		 // gets the users decvice installation ID by username
+		 List objectIDs = getInstallationByUserID(userId)
+	 
+		 
+		 if ( objectIDs != null || objectIDs != "" )
+		 {
+			 // preps event key for pars channel. parse does not allow for  '.' in a channel name, replaces it with a "_"
+			 String parse_channel = eventKey.replace(".","_")
+			 
+			 
+			 for (String objectId: objectIDs)
+			 {
+			 // Registers user device into push channel for game event key
+			 def test = updateGameChannel(new RestBuilder(), objectId, parse_channel)
+			 }
+		 }
+		 log.info "registerUserToGameChannel(): ends"
+	 }
+ 
+	 def tournamentInvitationNotification(def rest,long tournamentId, String userId, String msg)
+	 {
+		 log.info "tournamentInvitationNotification(): begins with rest = ${rest},tournamentId = ${tournamentId}, userId = ${userId}, msg = ${msg}"
+		 
+		 def parseConfig = grailsApplication.config.parse
+		 def userParam = ["userId": (userId)]
+		 def alertParam = ["alert": (msg),"tournamentId":(tournamentId), "pushType":"tournamentInvitation"]
+		 def resp = rest.post("https://api.parse.com/1/push")
+		 {
+			 header "X-Parse-Application-Id", parseConfig.parseApplicationId
+			 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
+			 contentType "application/json"
+			 json{
+				 data = alertParam
+				 where = userParam
+				 }
+		 }
+		 
+		 def result = resp.json.toString()
+		 log.info "tournamentInvitationNotification(): ends with result = ${result}"
+		 
+		 return resp.json.toString()
+	 }
+	 
+	 def acceptTournamentNotification(def rest,long tournamentId, String userId, String msg)
+	 {
+		 log.info "tournamentInvitationNotification(): begins with rest = ${rest},tournamentId = ${tournamentId}, userId = ${userId}, msg = ${msg}"
+		 
+		 def parseConfig = grailsApplication.config.parse
+		 def userParam = ["userId": (userId)]
+		 def alertParam = ["alert": (msg),"tournamentId":(tournamentId), "pushType":"acceptTournament"]
+		 def resp = rest.post("https://api.parse.com/1/push")
+		 {
+			 header "X-Parse-Application-Id", parseConfig.parseApplicationId
+			 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
+			 contentType "application/json"
+			 json{
+				 data = alertParam
+				 where = userParam
+				 }
+		 }
+		 
+		 def result = resp.json.toString()
+		 log.info "tournamentInvitationNotification(): ends with result = ${result}"
+		 
+		 return resp.json.toString()
+	 }
 }

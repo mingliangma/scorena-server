@@ -79,7 +79,7 @@ class TournamentController {
 		}
 		
 		def createTournamentResult = tournamentService.createTournament(validation.objectId, request.JSON.title, request.JSON.description, subscribedLeagues, request.JSON.startDate, 
-			request.JSON.expireDate, request.JSON.invitingUserIds, validation.pictureURL, validation.avatarCode)
+			request.JSON.expireDate, request.JSON.invitingUserIds, validation.pictureURL, validation.avatarCode, validation.display_name)
 		
 		def result = constructListTournamentResponse(createTournamentResult)
 		render result as JSON
@@ -127,7 +127,7 @@ class TournamentController {
 			return
 		}
 		
-		def tournament = tournamentService.inviteToTournament(validation.objectId, params.tournamentId.toLong(), request.JSON.invitingUserIds)
+		def tournament = tournamentService.inviteToTournament(validation.objectId, validation.display_name, params.tournamentId.toLong(), request.JSON.invitingUserIds)
 		def result = constructListTournamentResponse(tournament)
 		
 		render result as JSON
@@ -168,7 +168,7 @@ class TournamentController {
 			return
 		}
 		
-		def tournamentInvitations = tournamentService.acceptTournamentInvitation(validation.objectId, params.tournamentId.toLong())
+		def tournamentInvitations = tournamentService.acceptTournamentInvitation(validation.objectId, validation.display_name, params.tournamentId.toLong())
 		if (tournamentInvitations){
 			render tournamentInvitations as JSON
 		}else{
@@ -386,6 +386,14 @@ class TournamentController {
 		List result = []
 		
 		for (Tournament t : enrolledTournamentList){
+			TournamentStatusEnum tStatus
+			Date now = new Date()
+			if (t.startDate > now)
+				tStatus = TournamentStatusEnum.NEW
+			else if (t.startDate <= now && now < t.expireDate )
+				tStatus = TournamentStatusEnum.ACTIVE
+			else
+				tStatus = TournamentStatusEnum.EXPIRED
 			Map tournamentMap =
 			[
 				"tournamentId" : t.id,
@@ -399,7 +407,9 @@ class TournamentController {
 				"expireDate" : t.expireDate,
 				"startDate" : t.startDate,
 				"ownerAvatarCode" : t.ownerAvatarCode,
-				"userRank" : t.userRank
+				"userRank" : t.userRank,
+				"ownerDisplayName" : t.ownerDisplayName,
+				"tournamentStatus" : tStatus.toString()
 			  ]
 			result.add(tournamentMap)
 		}

@@ -10,11 +10,13 @@ class Tournament {
 	Collection subscribedLeagues // Since uniqueness and order aren't managed by Hibernate, adding to or removing from collections mapped as a Bag don't trigger a load of all existing instances from the database, so this approach will perform better and require less memory than using a Set or a List.
 	Date startDate
 	Date expireDate
+	Date createdAt
 	String ownerPictureUrl
 	String ownerAvatarCode
+	String ownerDisplayName
 	
 	//non-persistence properties
-	String userRank
+	int userRank
 	int numberEnrollment
 	
 	static hasMany = [enrollment: Enrollment, subscribedLeagues: SubscribedLeague]
