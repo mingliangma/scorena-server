@@ -167,6 +167,28 @@ class ScoreRankingService {
 		return constructScoresRankingResponse(scoreRanking,null,null, RANKING_TYPE_TOURNAMENT)
 	}
 	
+	int getRankNumberByTournamentAndUser(long tournamentId, String userId)
+	{
+		List scoreRanking = getRanking(RANKING_TYPE_TOURNAMENT, null, null, null, tournamentId)
+		
+		List rankingResultAll =[]
+		int rankingAllSize = scoreRanking.size()
+
+		//userIdMap is used to contain all the user Ids from both weekly and all ranking.
+		//The variable is later used to retrieve displayName and pictureURL from Parse
+		Map userIdMap = [:]
+		
+		for (int i=0; i<rankingAllSize; i++){
+			List rankEntry = scoreRanking[i]
+			
+			if (rankEntry[USERID_RANKING_QUERY_INDEX] == userId){
+				return i+1
+			}
+		}
+		
+		return -1
+	}
+	
 	Map constructRankingWithFollowingIndicatorResponse(String userId, Map rankingResponse, String rankListKey){
 		rankingResponse[rankListKey] = constructRankingWithFollowingIndicatorResponse(userId, rankingResponse[rankListKey])
 		return rankingResponse
@@ -193,6 +215,9 @@ class ScoreRankingService {
 		for (userRank in rankingResponse){
 			if (followingUserIdMap.containsKey(userRank.userId)){
 				userRank.isFollowing = true
+				newRankingResponse.add(userRank)
+			}else if (followingUserIdMap.containsKey(userId)){
+				userRank.isFollowing = false
 				newRankingResponse.add(userRank)
 			}
 		}
