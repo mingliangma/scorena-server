@@ -159,12 +159,14 @@ class TournamentService {
 			userEnrollment.enrollmentDate = now
 			userEnrollment.updatedAt = now
 			userEnrollment.save()
-			
+			Enrollment ownerEnrollment = Enrollment.find ("from Enrollment as e where e.tournament.id = (:tournamentId) and e.enrollmentType = (:enrollmentType)",
+				[tournamentId: tournamentId, enrollmentType:EnrollmentTypeEnum.OWNER])
+			String ownerUserId = ownerEnrollment.account.userId
 			Promise p = task {
-				Enrollment ownerEnrollment = Enrollment.find ("from Enrollment as e where e.tournament.id = (:tournamentId) and e.enrollmentType = (:enrollmentType)",
-					[tournamentId: tournamentId, enrollmentType:EnrollmentTypeEnum.OWNER])
+				
 				String message = "${displayName} joined ${userEnrollment.tournament.title} tournament"
-				pushService.tournamentInvitationNotification(new RestBuilder(),tournamentId, ownerEnrollment.account.userId, message)
+				println "Notification Message: ${message}"
+				pushService.acceptTournamentNotification(new RestBuilder(),tournamentId, ownerUserId, message)
 			}
 			p.onComplete { result ->
 				println "Accept tournament notification promise with tournamentId ${tournamentId} returned $result"
@@ -174,7 +176,7 @@ class TournamentService {
 		}else{
 			return null
 		}
-		log.info "TournamentService::listTournamentInvitation() end"
+		log.info "TournamentService::acceptTournamentInvitation() end"
 		
 	}
 	

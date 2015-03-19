@@ -216,7 +216,7 @@ class ScoreRankingService {
 			if (followingUserIdMap.containsKey(userRank.userId)){
 				userRank.isFollowing = true
 				newRankingResponse.add(userRank)
-			}else if (followingUserIdMap.containsKey(userId)){
+			}else if (userRank.userId == userId){
 				userRank.isFollowing = false
 				newRankingResponse.add(userRank)
 			}

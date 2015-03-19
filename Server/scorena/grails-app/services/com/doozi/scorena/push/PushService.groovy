@@ -317,7 +317,7 @@ class PushService {
 	 
 	 def acceptTournamentNotification(def rest,long tournamentId, String userId, String msg)
 	 {
-		 log.info "tournamentInvitationNotification(): begins with rest = ${rest},tournamentId = ${tournamentId}, userId = ${userId}, msg = ${msg}"
+		 log.info "acceptTournamentNotification(): begins with rest = ${rest},tournamentId = ${tournamentId}, userId = ${userId}, msg = ${msg}"
 		 
 		 def parseConfig = grailsApplication.config.parse
 		 def userParam = ["userId": (userId)]
@@ -334,7 +334,7 @@ class PushService {
 		 }
 		 
 		 def result = resp.json.toString()
-		 log.info "tournamentInvitationNotification(): ends with result = ${result}"
+		 log.info "acceptTournamentNotification(): ends with result = ${result}"
 		 
 		 return resp.json.toString()
 	 }
