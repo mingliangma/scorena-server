@@ -1,6 +1,11 @@
 package com.doozi.scorena
 
+import java.util.Map;
+
+import grails.async.Promise
+import static grails.async.Promises.*
 import grails.converters.JSON
+import grails.plugins.rest.client.RestBuilder
 
 
 // v1/sports/userprofile/{UserType or Status}/events
@@ -18,6 +23,9 @@ class UserController {
 	def userService
 	def profitRankingService
 	def userHistoryService
+	def tournamentService
+	def friendSystemService
+	def parseService
 	
 	def list(){
 		def user="this is testing user"
@@ -36,7 +44,21 @@ class UserController {
 			return
 		}
 		
-		Map result = userService.createSocialNetworkUser(request.JSON.sessionToken)
+		RestBuilder rest = new RestBuilder()
+		boolean isNewUser = false
+		Map userProfile = getUserProfileBySessionToken(rest, request.JSON.sessionToken)
+		if (userProfile.code){
+			response.status = 404
+			render userProfile as JSON
+			log.error "socialNetworkUserPostSetup(): result = ${userProfile}"
+			return 
+		}
+		
+		def account = Account.findByUserId(userProfile.objectId)
+		if (account == null){
+			isNewUser = true
+		}
+		Map result = userService.createSocialNetworkUser(userProfile, rest)
 
 		if (result.code){
 			response.status = 404
@@ -44,9 +66,22 @@ class UserController {
 			log.error "socialNetworkUserPostSetup(): result = ${result}"
 			return 
 		}
+		
 		response.status = 201
 		render result as JSON
 		log.info "socialNetworkUserPostSetup(): ends with result = ${result}"
+		
+		if (isNewUser){
+			tournamentService.inviteToPrizeTournament([result.userId])
+			Account me = Account.findByUserId(result.userId)
+			if (Account.exists(30))
+				friendSystemService.followAUser(me, Account.get(30))
+			if (Account.exists(33))
+				friendSystemService.followAUser(me, Account.get(33))
+			if (Account.exists(52))
+				friendSystemService.followAUser(me, Account.get(52))
+		}
+			
 	}
 	
 	//curl -i -v -X POST -H "Content-Type: application/json" -d '{"username":"candiceli", "email":"candi@gmail.com", "password":"asdfasdf", "gender":"female", "region":"Toronto"}' localhost:8080/scorena/v1/users/new
@@ -75,6 +110,14 @@ class UserController {
 		response.status = 201
 		render resp as JSON
 		log.info "createNewUser(): ends with resp = ${resp}"
+		tournamentService.inviteToPrizeTournament([resp.userId])
+		Account me = Account.findByUserId(resp.userId)
+		if (Account.exists(30))
+			friendSystemService.followAUser(me, Account.get(30))
+		if (Account.exists(33))
+			friendSystemService.followAUser(me, Account.get(33))
+		if (Account.exists(52))
+			friendSystemService.followAUser(me, Account.get(52))
 	}
 	
 	//curl -v -X GET  -G --data-urlencode 'username=Ming' --data-urlencode 'password=11111111' localhost:8080/scorena/v1/login
@@ -353,6 +396,19 @@ class UserController {
 		log.info "getUserHistoryQuestions(): ends with userHistoryQuestions = ${userHistoryQuestions}"
 		
 		return
+	}
+	
+	private Map getUserProfileBySessionToken(RestBuilder rest, String sessionToken){
+		def resp = parseService.validateSession(rest, sessionToken)
+		if (resp.status != 200){
+			def result = [
+				code:resp.json.code,
+				error:resp.json.error
+			]
+			log.error "getUserProfileBySessionToken(): ${result}"
+			return result
+		}
+		return resp.json
 	}
 	
 	def handleException(Exception e) {
