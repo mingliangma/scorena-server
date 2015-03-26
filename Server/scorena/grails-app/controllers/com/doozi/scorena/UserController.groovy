@@ -1,5 +1,7 @@
 package com.doozi.scorena
 
+import grails.async.Promise
+import static grails.async.Promises.*
 import grails.converters.JSON
 
 
@@ -18,6 +20,8 @@ class UserController {
 	def userService
 	def profitRankingService
 	def userHistoryService
+	def tournamentService
+	def friendSystemService
 	
 	def list(){
 		def user="this is testing user"
@@ -75,6 +79,14 @@ class UserController {
 		response.status = 201
 		render resp as JSON
 		log.info "createNewUser(): ends with resp = ${resp}"
+		tournamentService.inviteToPrizeTournament([resp.userId])
+		Account me = Account.findByUserId(resp.userId)
+		if (Account.exists(30))
+			friendSystemService.followAUser(me, Account.get(30))
+		if (Account.exists(33))
+			friendSystemService.followAUser(me, Account.get(33))
+		if (Account.exists(52))
+			friendSystemService.followAUser(me, Account.get(52))
 	}
 	
 	//curl -v -X GET  -G --data-urlencode 'username=Ming' --data-urlencode 'password=11111111' localhost:8080/scorena/v1/login
