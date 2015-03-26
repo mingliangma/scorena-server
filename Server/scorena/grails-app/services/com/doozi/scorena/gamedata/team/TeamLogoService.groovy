@@ -255,6 +255,8 @@ class TeamLogoService {
 	public static final String NBA_TEAMNAME = 'NBA'
 	public static final String YES_TEAMNAME = 'Yes'
 	public static final String NO_TEAMNAME = 'No'
+	public static final String ACCEPT_TEAMNAME = 'Accept'
+	public static final String IGNORE_TEAMNAME = 'Ignore'
 	public static final String ABOVE3_TEAMNAME = '3 or above'
 	public static final String BELOW2_TEAMNAME = '2 or below'
 	public static final String ABOVE200_TEAMNAME = '200 or above'
@@ -266,6 +268,10 @@ class TeamLogoService {
 			case YES_TEAMNAME.toLowerCase():
 				return YES_LOGO_URL
 			case NO_TEAMNAME.toLowerCase():
+				return NO_LOGO_URL
+			case ACCEPT_TEAMNAME.toLowerCase():
+				return YES_LOGO_URL
+			case IGNORE_TEAMNAME.toLowerCase():
 				return NO_LOGO_URL
 			case ABOVE3_TEAMNAME.toLowerCase():
 				return ABOVE3_LOGO_URL

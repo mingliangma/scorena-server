@@ -1,6 +1,8 @@
 package com.doozi.scorena.innersocialnetwork
 
 import org.springframework.transaction.annotation.Transactional
+import grails.async.Promise
+import static grails.async.Promises.*
 
 import com.doozi.scorena.Account
 import com.doozi.scorena.FriendSystem
@@ -65,8 +67,17 @@ class FriendSystemService {
 					
 					def follower = parseService.retrieveUser(rest, meAccount.userId)
 					def followerData = follower.json
-					String msg = followerData.display_name.toString() + " is now following you on Scorena."
-					pushService.sendFollowPush(rest,followingAccount.userId,meAccount.userId,msg)
+					
+					
+					
+					Promise p = task {
+						String msg = followerData.display_name.toString() + " is now following you on Scorena."
+						pushService.sendFollowPush(rest,followingAccount.userId,meAccount.userId,msg)
+					}
+					p.onComplete { result ->
+						println "follow a user invitation notification promise returned $result"
+					}
+					
 				}
 			}
 			else {

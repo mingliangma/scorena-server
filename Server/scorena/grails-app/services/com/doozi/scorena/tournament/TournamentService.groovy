@@ -5,6 +5,7 @@ import static grails.async.Promises.*
 import grails.converters.JSON
 import grails.plugins.rest.client.RestBuilder
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +89,40 @@ class TournamentService {
 		return tournament
 	}
 	
+	def inviteToPrizeTournament(List invitingUserIds){
+		log.info "TournamentService::inviteToPrizeTournament() begins with invitingUserIds = ${invitingUserIds}"
+		Date today = new Date()
+		Tournament tournament = Tournament.find("from Tournament as t where t.tournamentType = (:prizeTournament) and t.expireDate > (:todayDate)", 
+			[prizeTournament: TournamentTypeEnum.PRIZE_POOL, todayDate: today])
+		log.info "tournament"
+		if (!tournament){
+			log.info "no tournament found"
+			return			
+		}
+		
+		log.info "tournament found"
+		if (invitingUserIds.size() > 0){
+			def rest = new RestBuilder()
+			List<Account> invitingUsers = Account.findAll("from Account as a where a.userId in (:userIds)", [userIds: invitingUserIds])
+			log.info "invitingUsers=${invitingUsers}"
+			for (Account invitingUser: invitingUsers){
+				Enrollment enrollRecord = new Enrollment(enrollmentDate: null, createdAt: today, updatedAt: today, enrollmentStatus:EnrollmentStatusEnum.INVITED, enrollmentType:EnrollmentTypeEnum.PLAYER)
+				tournament.addToEnrollment(enrollRecord)
+				invitingUser.addToEnrollment(enrollRecord)
+				invitingUser.save()
+				tournament.save()
+				Promise p = task {
+					String message = "Scorena is inviting you to a tournament"
+					pushService.tournamentInvitationNotification(rest,tournament.id, invitingUser.userId, message)
+				}
+				p.onComplete { result ->
+					println "Tournament invitation notification promise with tournamentId ${tournament.id} returned $result"
+				}
+			}
+		}
+		return tournament
+	}
+	
 	def enrollTournament(String userId, long tournamentId){
 		Tournament tournament = Tournament.get(tournamentId)
 		if (!tournament){
@@ -162,11 +197,21 @@ class TournamentService {
 			Enrollment ownerEnrollment = Enrollment.find ("from Enrollment as e where e.tournament.id = (:tournamentId) and e.enrollmentType = (:enrollmentType)",
 				[tournamentId: tournamentId, enrollmentType:EnrollmentTypeEnum.OWNER])
 			String ownerUserId = ownerEnrollment.account.userId
-			Promise p = task {
-				
+			Tournament t = ownerEnrollment.tournament
+			String title = t.title
+			String description = t.description
+			Date startDate = t.startDate
+			Date expireDate = t.expireDate
+			List subscribedLeagues = []
+
+			for(SubscribedLeague sl:t.subscribedLeagues){
+				subscribedLeagues.add(sl.leagueName)
+			}
+			
+			Promise p = task {				
 				String message = "${displayName} joined ${userEnrollment.tournament.title} tournament"
 				println "Notification Message: ${message}"
-				pushService.acceptTournamentNotification(new RestBuilder(),tournamentId, ownerUserId, message)
+				pushService.acceptTournamentNotification(new RestBuilder(),tournamentId, ownerUserId, message, title, description, startDate, expireDate, subscribedLeagues.toString())
 			}
 			p.onComplete { result ->
 				println "Accept tournament notification promise with tournamentId ${tournamentId} returned $result"
@@ -220,6 +265,12 @@ class TournamentService {
 	}
 	
 	private List getTournamentMetaData(List enrolledTournamentList, String userId){
+		List newTournaments = []
+		List activeTournaments = []
+		List expiredTournaments = []
+		List allTournaments = []
+		Date today = new Date()
+		log.info("enrolledTournamentList: "+ enrolledTournamentList)
 		for (Tournament t : enrolledTournamentList){
 			t.userRank = scoreRankingService.getRankNumberByTournamentAndUser(t.id, userId)
 			int numberEnrollment = 0
@@ -232,8 +283,21 @@ class TournamentService {
 			}
 
 			t.numberEnrollment = numberEnrollment
-			
+			if (t.startDate > today)
+				newTournaments.add(t)
+			else if (t.startDate <= today && t.expireDate > today)
+				activeTournaments.add(t)
+			else
+				expiredTournaments.add(t)
+				
 		}
-		return enrolledTournamentList
+		if (!activeTournaments.isEmpty())
+			allTournaments.addAll(activeTournaments)
+		if (!newTournaments.isEmpty())
+			allTournaments.addAll(newTournaments)
+		if (!expiredTournaments.isEmpty())
+			allTournaments.addAll(expiredTournaments)
+		log.info("allTournaments: "+ allTournaments)
+		return allTournaments
 	}
 }

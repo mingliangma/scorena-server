@@ -341,13 +341,14 @@ class PushService {
 		 return resp.json.toString()
 	 }
 	 
-	 def acceptTournamentNotification(def rest,long tournamentId, String userId, String msg)
+	 def acceptTournamentNotification(def rest,long tournamentId, String userId, String msg, String title,String description,Date startDate,Date expireDate,String subscribedLeagues)
 	 {
-		 log.info "acceptTournamentNotification(): begins with rest = ${rest},tournamentId = ${tournamentId}, userId = ${userId}, msg = ${msg}"
+		 log.info "acceptTournamentNotification(): begins with rest = ${rest},tournamentId = ${tournamentId}, userId = ${userId}, subscribedLeagues = ${subscribedLeagues} , title = ${title} , description = ${description}"
 		 
 		 def parseConfig = grailsApplication.config.parse
-		 def userParam = ["userId": (userId)]
-		 def alertParam = ["alert": (msg),"tournamentId":(tournamentId), "pushType":"acceptTournament"]
+		 def userParam = ["userId": (userId) ]
+		 def alertParam = ["alert": (msg),"tournamentId":(tournamentId) ,"subscribedLeagues":(subscribedLeagues), 
+			 "title":(title) ,"description":(description) ,"startDate":(startDate) ,"expireDate":(expireDate), "pushType":"acceptTournament"]
 		 def resp = rest.post("https://api.parse.com/1/push")
 		 {
 			 header "X-Parse-Application-Id", parseConfig.parseApplicationId

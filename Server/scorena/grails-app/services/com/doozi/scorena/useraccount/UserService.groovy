@@ -78,16 +78,11 @@ class UserService {
 		return [username: userAccount.username, userId: userAccount.userId, currentBalance: userAccount.currentBalance, newCoinsAmount: FREE_COIN_AMOUNT]
 	}
 	
-	def createSocialNetworkUser(String sessionToken){
-		log.info "createSocialNetworkUser(): begins with sessionToken = ${sessionToken}"
+	def createSocialNetworkUser(Map userProfile, RestBuilder rest){
+		log.info "createSocialNetworkUser(): begins with userProfile = ${userProfile}"
 		
 		int currentBalance = SOCIALNETWORK_INITIAL_BALANCE
-		RestBuilder rest = new RestBuilder()
-		
-		Map userProfile = getUserProfileBySessionToken(rest, sessionToken)
-		if (userProfile.code){
-			return userProfile
-		}
+
 		
 		def account = Account.findByUserId(userProfile.objectId)
 		
@@ -111,9 +106,7 @@ class UserService {
 			currentBalance = account.currentBalance
 		}
 		
-
-		
-		def result = userProfileMapRender(sessionToken, currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name, 
+		def result = userProfileMapRender(userProfile.sessionToken, currentBalance, userProfile.createdAt, userProfile.username, userProfile.display_name, 
 		userProfile.objectId, "", "", userProfile.email, userProfile.pictureURL, userProfile.avatarCode)
 		
 		log.info "createSocialNetworkUser(): ends"
