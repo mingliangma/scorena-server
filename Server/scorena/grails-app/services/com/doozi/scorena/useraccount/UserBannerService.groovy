@@ -129,7 +129,7 @@ class UserBannerService {
 	private List<UserBannerNP> getPastUserBanners(String userId)
 	{
 		List<UserBannerNP> bannerListResult = []
-		List<UserBanner> userBanners = UserBanner.findAll("from UserBanner as s where s.account.userId ='"+userId+"'")
+		List<UserBanner> userBanners = UserBanner.findAll("from UserBanner as s where s.account.userId ='"+userId+"' order by s.created_at desc ")
 		
 		userBanners.each{
 			bannerListResult.add(new UserBannerNP(rank:it.rank, league:it.league.name(), bannerDateString:it.bannerDateString, type:PAST_MONTH_BANNER ))
