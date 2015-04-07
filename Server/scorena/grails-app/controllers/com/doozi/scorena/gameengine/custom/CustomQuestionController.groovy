@@ -1,5 +1,8 @@
 package com.doozi.scorena.gameengine.custom
 
+import grails.async.Promise
+import static grails.async.Promises.*
+
 import grails.converters.JSON
 
 class CustomQuestionController {
@@ -36,13 +39,24 @@ class CustomQuestionController {
 		def result = customQuestionService.createCustomQuestion(request.JSON.eventId.toString(), request.JSON.qContent.toString(),
 			 request.JSON.pick1.toString() , request.JSON.pick2.toString())
 		
-		if (result!=[:]){
+		println "result.questionId="+result.questionContentId
+		
+		if (!result.questionContentId){
 			println "failed with message: "+result.get("error")
 			response.status = 404
 			render result as JSON
 			log.error "createCustomQuestion(): result = ${result}"
 			return
+		}		
+		
+		Promise p = task {
+			customQuestionService.simulateBetCustomQuestion(request.JSON.eventId.toString(), result.questionContentId)
 		}
+		p.onComplete { cresult ->
+			println "simulateBetCustomQuestion completed and returned $cresult"
+		}
+		
+		
 		println "success"
 		response.status = 201
 		render [:] as JSON

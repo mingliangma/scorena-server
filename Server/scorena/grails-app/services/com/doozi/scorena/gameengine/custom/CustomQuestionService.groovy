@@ -4,6 +4,8 @@ import com.doozi.scorena.Pool
 import com.doozi.scorena.Question
 import com.doozi.scorena.QuestionContent
 import com.mysql.jdbc.log.Log;
+import com.doozi.scorena.utils.*
+import com.doozi.scorena.Account
 
 import grails.plugins.rest.client.RestBuilder
 import org.springframework.transaction.annotation.Transactional
@@ -13,6 +15,7 @@ class CustomQuestionService {
 	
 	def pushService
 	def gameService
+	def simulateBetService
 	
 	def createCustomQuestion(String eventId, String content, String pick1, String pick2){
 		def rest = new RestBuilder()
@@ -30,7 +33,8 @@ class CustomQuestionService {
 			log.error "createCustomQuestion(): create question failed"
 			return [error: "create question failed"]
 		}
-		
+		println "quesiton content id="+qc.id
+		println "quesiton  id="+question.id
 		log.info "createCustomQuestion(): ends"
 		def game = gameService.getGame(question.eventKey)
 		String status = game.gameStatus
@@ -38,7 +42,7 @@ class CustomQuestionService {
 		String message = content + " "+pick1 + " or " + pick2
 		pushService.customQuestionPush(rest, parse_channel,status, message)
 		
-		return [:]
+		return [questionContentId:qc.id]
 	}
 	
     def createCustomQuestionContent(String content) {
@@ -90,7 +94,20 @@ class CustomQuestionService {
 		}
 	}
 	
-	
+	def simulateBetCustomQuestion(String eventKey, long quesitonContentId){
+		log.info "simulateBetCustomQuestion(): begins with quesitonContentId: "+quesitonContentId + " and eventKey = "+eventKey
+		Question q = Question.find("from Question as q where eventKey=? and q.questionContent.id=?", [eventKey, quesitonContentId])
+
+		List accounts = Account.findAll("from Account as a where a.accountType=? and a.currentBalance>?", [AccountType.TEST, 100])
+		double m = (Math.ceil(accounts.size()/2))
+		List pick1Accounts = accounts.subList(0, (int) Math.ceil(accounts.size()/2))
+		List pick2Accounts = accounts.subList((int) Math.ceil(accounts.size()/2), accounts.size())
+
+		Random r = new Random()
+		simulateBetService.simulateBetOnAQuestion(q, pick1Accounts, r, 1, true)
+		simulateBetService.simulateBetOnAQuestion(q, pick2Accounts, r, 2, true)
+		log.info "simulateBetCustomQuestion(): ends"
+	}
 	
 		
 }

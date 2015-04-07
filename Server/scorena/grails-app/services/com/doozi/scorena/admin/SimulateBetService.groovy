@@ -28,38 +28,45 @@ class SimulateBetService {
 			for (Question q: questions){
 
 				long questionId = q.id
-				
-				for (Account account: accounts){
-					if (random.nextInt(2) != 1){
-						continue
-					}
-					
-					int _wager =  (random.nextInt(6)+1)*20
-					int _pick
-					
-					if (account.currentBalance < _wager ){
-						continue
-					}
-					
-					if (random.nextInt(2)==0){
-						_pick=1
-					}else{
-						_pick=2
-					}
-					
-					def result = betTransactionService.createBetTrans(_wager,_pick, account.userId, questionId)
-					if (result == [:]){
-						betCounter++
-						println "SimulateBetService:simulateBetUpcoming():: successfully bet. userId="+account.username+" questionId="+questionId
-					}else{
-						println "SimulateBetService:simulateBetUpcoming():: bet failed. "+result
-					}
-						
-				}
+				betCounter =+ simulateBetOnAQuestion(q, accounts, random)
 			}
 		}
 		
 		log.info "simulateBetUpcoming(): ends"
+		return betCounter
+	}
+	
+	def simulateBetOnAQuestion(Question q, def accounts, Random random){
+		int pick
+		if (random.nextInt(2)==0){
+			pick=1
+		}else{
+			pick=2
+		}
+		return simulateBetOnAQuestion(q, accounts, random, pick, false)
+	}
+	
+	def simulateBetOnAQuestion(Question q, def accounts, Random random, int pick, boolean isAllTestUsers){
+		log.info "simulateBetOnAQuestion() starts with questionId="+q.id
+		long questionId = q.id
+		int betCounter = 0
+		for (Account account: accounts){
+			if (!isAllTestUsers){
+				if (random.nextInt(2) != 1){
+					continue
+				}
+			}
+			
+			int _wager =  (random.nextInt(6)+1)*20
+			
+			if (account.currentBalance < _wager ){
+				continue
+			}	
+			
+			betTransactionService.createBetTrans(_wager,pick, account.userId, questionId)	
+			betCounter++
+		}
+		log.info "simulateBetOnAQuestion() ends"
 		return betCounter
 	}
 }
