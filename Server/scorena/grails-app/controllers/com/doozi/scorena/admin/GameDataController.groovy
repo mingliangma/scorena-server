@@ -1,4 +1,6 @@
 package com.doozi.scorena.admin
+import java.util.Date;
+
 import com.doozi.scorena.CustomGame
 import com.doozi.scorena.sportsdata.NbaGames;
 import com.doozi.scorena.sportsdata.NbaTeams;
@@ -7,16 +9,28 @@ import com.doozi.scorena.gamedata.userinput.GameDataInputStatsNba
 import com.doozi.scorena.gamedata.useroutput.basketball.GameDataEventStatsNba
 import com.doozi.scorena.gamedata.useroutput.basketball.GameDataLastMeetingNba
 import com.doozi.scorena.gamedata.useroutput.basketball.GameDataNbaOutput
+import com.doozi.scorena.gamedata.useroutput.basketball.GameDataTeamStatsNba
 import com.mysql.jdbc.log.Log;
 
 import grails.converters.JSON
 import groovy.time.TimeCategory
 
-class TestServiceMethodController {
+class GameDataController {
 	def gameDataDbInputStatsNbaService
+	def GameDataUtilsStatsNbaService
+	def helperService
+	
+	//fetch nba playoffs schedule
+	def fetchNBAPlayoffsSchedule(){
+		
+		int newGameCounter = gameDataDbInputStatsNbaService.updateSchedule()
+		def result = [newGameCounter: newGameCounter]
+		render result as JSON
+	}
+	
 	
 	//match scorena team id to Stats.Nba.com team id
-    def testTeamData() { 
+    def matchScorenaTeamIdToStatsNBATeamId() { 
 		
 		println "test starts"
 		int i = 80
@@ -63,7 +77,7 @@ class TestServiceMethodController {
 	}
 	
 	//match scorena game id to Stats.nba.com game id
-	def testGameData() {
+	def matchScorenaGameIdToStatsNBAGameId() {
 		int i = 0
 		boolean stay = true
 		while(stay){
@@ -136,10 +150,10 @@ class TestServiceMethodController {
 	def updateScore(){
 		gameDataDbInputStatsNbaService.updateScore()		
 	}
-	def handleException(Exception e) {
-		response.status = 500
-		render e.toString()
-		log.error "${e.toString()}", e
-		return
-	}
+//	def handleException(Exception e) {
+//		response.status = 500
+//		render e.toString()
+//		log.error "${e.toString()}", e
+//		return
+//	}
 }

@@ -41,6 +41,29 @@ class HelperService {
 	}
 	
 	
+	/**
+	 * @param date: game date with format yyyy/MM/dd, eg. "2015/04/15"
+	 * @param time: game time with format K:mm a z, eg. "7:00 pm ET"
+	 * @return UTC datetime
+	 */
+	def parseDateTimeFromString(String date, String time){
+		log.info "parseDateTimeFromString(): begins with date = ${date}, time = ${time}"
+		
+		Boolean isGameDateInDayLightTime = TimeZone.getTimeZone("US/Alaska").inDaylightTime( new Date().parse("yyyy/MM/dd", date) );
+		if (isGameDateInDayLightTime){
+			time = time.replaceAll("ET", "EDT")
+			time = time.replaceAll("pm", "PM")
+			time = time.replaceAll("am", "AM")
+		}else{
+			time = time.replaceAll("ET", "EST")
+			time = time.replaceAll("pm", "PM")
+			time = time.replaceAll("am", "AM")
+		}
+		String datetimeString = date+ " "+ time
+		def newerdate = new Date().parse("yyyy/MM/dd h:mm a z", datetimeString)
+		log.info "parseDateTimeFromString(): returns date = ${newerdate}"
+		return newerdate
+	}
 	Date getFirstDateOfCurrentWeek(){
 		Calendar c1 = Calendar.getInstance();   // this takes current date
 		c1.clear(Calendar.MINUTE);

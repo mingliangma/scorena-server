@@ -1,5 +1,6 @@
 package com.doozi.scorena.gamedata.dbinput
 
+import groovy.time.TimeCategory
 import org.springframework.transaction.annotation.Transactional
 import com.doozi.scorena.gamedata.userinput.GameDataInputStatsNba
 import com.doozi.scorena.gamedata.useroutput.basketball.GameDataEventStatsNba
@@ -13,6 +14,8 @@ import com.doozi.scorena.gamedata.userinput.GameDataInputStatsNba
 @Transactional
 class GameDataDbInputStatsNbaService {
 	def gameDataUtilsStatsNbaService
+	def helperService
+	def customGameService
     def updateScore() {
 
 			GameDataInputStatsNba gameDataInputStatsNba = new GameDataInputStatsNba();
@@ -61,4 +64,91 @@ class GameDataDbInputStatsNbaService {
 			}
 
     }
+	
+	def updateSchedule(){
+		
+		def gameDate = new Date()
+		use( TimeCategory ) {
+			gameDate = gameDate - 8.hours // adjust to EST (-5 hours) and -3
+		}
+		String gameDateString = gameDate.format('MM/dd/yyyy')
+		
+		int i = 0
+		boolean stay = true
+		int newGameCounter = 0
+		
+		while(stay){
+			GameDataInputStatsNba gameDataInputStatsNba = new GameDataInputStatsNba(gameDateString,  Integer.toString(i));
+			GameDataNbaOutput gameDateNbaOutput = GameDataAdapter.get_gameDataAdapterInstance().retrieveGameData(gameDataInputStatsNba);
+			
+			gameDateNbaOutput._eventListStatsNba.each {
+				GameDataEventStatsNba event = it.value
+				
+				
+				
+				String homeFullName
+				String homeTeamKey
+				String awayFullName
+				String awayTeamKey
+				Date startDateTime
+				Date lastUpdate = new Date()
+				String eventKey = "nba2014-"+event._gameId
+				String statsNbaGameId = event._gameId
+				String eventStatus = gameDataUtilsStatsNbaService.toScorenaEventStatus(event._gameEventStatusId.toInteger())
+				String score = ""
+				String fieldGoalsPercentage = ""
+				String freeThrowPercentage = ""
+				String threePointersPercentage = ""
+				String assists = ""
+				String rebounds = ""
+				String turnovers = ""
+				
+				if (event._gameEventStatusText.equalsIgnoreCase("TBD")){
+					println "TBD"
+					return
+				}else{
+					startDateTime = helperService.parseDateTimeFromString(event._gameDate, event._gameEventStatusText)
+				}
+
+				if (!NbaGames.findByStatsNbaGameId(statsNbaGameId).is(null))
+					return
+				
+				NbaTeams homeTeam = NbaTeams.findByStatsNbaTeamId(event._homeTeamId)
+				NbaTeams awayTeam = NbaTeams.findByStatsNbaTeamId(event._awayTeamId)
+				
+				homeFullName = homeTeam.teamName
+				homeTeamKey = homeTeam.scorenaTeamId
+				awayFullName = awayTeam.teamName
+				awayTeamKey = awayTeam.scorenaTeamId
+				
+				NbaGames homeGame = new NbaGames(eventKey: eventKey, statsNbaGameId:statsNbaGameId, eventStatus: eventStatus,
+					startDateTime:startDateTime, lastUpdate:lastUpdate, alignment: "home", fullName:homeFullName,
+					teamKey:homeTeamKey)
+				NbaGames awayGame = new NbaGames(eventKey: eventKey, statsNbaGameId:statsNbaGameId, eventStatus: eventStatus,
+					startDateTime:startDateTime, lastUpdate:lastUpdate, alignment: "away", fullName:awayFullName,
+					teamKey:awayTeamKey)
+				
+				homeGame.save()
+				awayGame.save()
+				
+				if (!homeGame.save()) {
+					homeGame.errors.each {
+						println it
+					}
+				}
+				if (!awayGame.save()) {
+					awayGame.errors.each {
+						println it
+					}
+				}
+				newGameCounter++
+			}
+			
+			
+			i++
+			if (i >= customGameService.UPCOMING_DATE_RANGE)
+				stay = false
+		}
+		return newGameCounter
+	}
 }

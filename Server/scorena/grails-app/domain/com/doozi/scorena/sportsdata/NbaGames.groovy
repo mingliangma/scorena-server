@@ -26,7 +26,13 @@ class NbaGames implements Serializable{
 	}
 	
 	static constraints = {
-		score nullable: true		
+		score nullable: true	
+		fieldGoalsPercentage nullable: true
+		freeThrowPercentage nullable: true
+		threePointersPercentage nullable: true
+		assists nullable: true
+		rebounds nullable: true
+		turnovers nullable: true
 	}
 
 }

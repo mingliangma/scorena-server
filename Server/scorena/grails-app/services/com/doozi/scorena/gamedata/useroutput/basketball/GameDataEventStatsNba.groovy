@@ -11,5 +11,6 @@ class GameDataEventStatsNba {
 	private String _livePeriod;
 	private String _gameDate;
 	private GameDataLastMeetingNba _lastMeetingEvent
+	//_teamListStatsNba = [teamId: GameDataTeamStatsNba]
 	private Map<String, GameDataTeamStatsNba> _teamListStatsNba = [:]
 }

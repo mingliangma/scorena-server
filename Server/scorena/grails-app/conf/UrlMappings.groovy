@@ -234,8 +234,12 @@ class UrlMappings {
 			action = [GET:"isFollowing"]
 		}
 		
-		"/v1/test"(controller:"testServiceMethod") {
+		"/v1/gameData/updatescore"(controller:"gameData") {
 			action = [GET:"updateScore"]
+		}
+		
+		"/v1/gameData/updateschedule"(controller:"gameData") {
+			action = [GET:"fetchNBAPlayoffsSchedule"]
 		}
 
 		"/v1/admin/cq"(view:"/CustomQuestionWebsite")
