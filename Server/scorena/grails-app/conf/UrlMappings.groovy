@@ -241,7 +241,15 @@ class UrlMappings {
 		"/v1/gameData/updateschedule"(controller:"gameData") {
 			action = [GET:"fetchNBAPlayoffsSchedule"]
 		}
+		
+		"/v1/versionstatus/android"(controller:"AppVersionStatus") {
+			action = [GET:"getAndroidCurrentVersion"]
+		}
 
+		"/v1/versionstatus/android/set"(controller:"AppVersionStatus") {
+			action = [GET:"setAndroidCurrentVersion"]
+		}
+		
 		"/v1/admin/cq"(view:"/CustomQuestionWebsite")
 		
 		"/v1/admin/qr"(view:"/CustomQuestionResultWebsite")

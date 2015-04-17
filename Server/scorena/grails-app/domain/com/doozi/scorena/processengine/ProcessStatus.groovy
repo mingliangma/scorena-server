@@ -55,6 +55,10 @@ class ProcessStatus {
 		println "processStatus="+sProcess.processStatus
 		sProcess.processStatus = ProcessStatusEnum.STOPPED
 		sProcess.updatedAt = new Date()
-		sProcess.save()
+		if (!sProcess.save()) {
+			sProcess.errors.each {
+				println it
+			}
+		}
 	}
 }

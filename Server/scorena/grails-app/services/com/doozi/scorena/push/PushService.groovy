@@ -242,34 +242,34 @@ class PushService {
 			 
 			 String awayTeam = gameIdToGameInfoMap[gameId].away.teamname
 			 String homeTeam = gameIdToGameInfoMap[gameId].home.teamname
-			// String[] userIdKeys = userAGameProfit.keySet()
+			 String[] userIdKeys = userAGameProfit.keySet()
 			 
-			 List userRanks = profitRankingService.getGameRanking(gameId)
+//			 List userRanks = profitRankingService.getGameRanking(gameId)
+//			 
+//			 for (Map rank: userRanks)
+//			 {
+//				 String msg = ""
+//				 switch (rank.rank)
+//				 {
+//					 case 1:
+//						 msg ="You have ranked: " + rank.rank + "st in game "+ awayTeam +" vs "+ homeTeam
+//						 break;
+//					 case 2:
+//						 msg ="You have ranked: " + rank.rank + "nd in game "+ awayTeam +" vs "+ homeTeam
+//						 break;
+//					 case 3:
+//						 msg ="You have ranked: " + rank.rank + "rd in game "+ awayTeam +" vs "+ homeTeam
+//						 break;
+//					default:
+//						msg ="You have ranked: " + rank.rank + "th in game "+ awayTeam +" vs "+ homeTeam
+//						break;	 
+//				 }
+//				 
+//				 println(rank.userId + " " + msg)
+//				 def payoutPush = endOfGamePush(rest,gameId, status ,rank.userId, msg)
+//			 }
 			 
-			 for (Map rank: userRanks)
-			 {
-				 String msg = ""
-				 switch (rank.rank)
-				 {
-					 case 1:
-						 msg ="You have ranked: " + rank.rank + "st in game "+ awayTeam +" vs "+ homeTeam
-						 break;
-					 case 2:
-						 msg ="You have ranked: " + rank.rank + "nd in game "+ awayTeam +" vs "+ homeTeam
-						 break;
-					 case 3:
-						 msg ="You have ranked: " + rank.rank + "rd in game "+ awayTeam +" vs "+ homeTeam
-						 break;
-					default:
-						msg ="You have ranked: " + rank.rank + "th in game "+ awayTeam +" vs "+ homeTeam
-						break;	 
-				 }
-				 
-				 println(rank.userId + " " + msg)
-				 def payoutPush = endOfGamePush(rest,gameId, status ,rank.userId, msg)
-			 }
-			 
-			/* for (String userID: userIdKeys )
+			for (String userID: userIdKeys )
 			 {
 				 int gameProfit = userAGameProfit[userID]
 					 String msg = ""
@@ -291,7 +291,7 @@ class PushService {
 					 // sends end of game push to user with amount of coins won or lost
 					 def payoutPush = endOfGamePush(rest,gameId, status ,userID, msg)
 				  
-			 }*/
+			 }
 		 }
 		 log.info "sendEndGamePush(): ends"
 	 }
