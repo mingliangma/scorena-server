@@ -73,7 +73,7 @@ class GameDataDbInputStatsNbaService {
 		}
 		String gameDateString = gameDate.format('MM/dd/yyyy')
 		
-		int i = 0
+		int i = 1
 		boolean stay = true
 		int newGameCounter = 0
 		
@@ -108,6 +108,9 @@ class GameDataDbInputStatsNbaService {
 					return
 				}else{
 					startDateTime = helperService.parseDateTimeFromString(event._gameDate, event._gameEventStatusText)
+					if (startDateTime == null){
+						return
+					}
 				}
 
 				if (!NbaGames.findByStatsNbaGameId(statsNbaGameId).is(null))

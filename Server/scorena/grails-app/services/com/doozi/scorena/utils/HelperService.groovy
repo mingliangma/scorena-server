@@ -48,7 +48,9 @@ class HelperService {
 	 */
 	def parseDateTimeFromString(String date, String time){
 		log.info "parseDateTimeFromString(): begins with date = ${date}, time = ${time}"
-		
+		if (!time.contains("am") && !time.contains("pm")){
+			return null
+		}
 		Boolean isGameDateInDayLightTime = TimeZone.getTimeZone("US/Alaska").inDaylightTime( new Date().parse("yyyy/MM/dd", date) );
 		if (isGameDateInDayLightTime){
 			time = time.replaceAll("ET", "EDT")
