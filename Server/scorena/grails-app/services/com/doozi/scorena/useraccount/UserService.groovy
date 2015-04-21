@@ -78,6 +78,23 @@ class UserService {
 		return [username: userAccount.username, userId: userAccount.userId, currentBalance: userAccount.currentBalance, newCoinsAmount: FREE_COIN_AMOUNT]
 	}
 	
+	private def addFBFriends(Map userProfile){
+		//automatically add facebook friends to scorena friend system
+		if (userProfile.fbFriends){
+			def tips = []
+			List facebookFriendUserIdList = getFacebookFrdsUserId((List)userProfile.fbFriends)
+			def currentUserId = userProfile.objectId
+			for(String facebookFriendUserId: facebookFriendUserIdList) {
+				tips = friendSystemService.addFacebookFriend(currentUserId, facebookFriendUserId)
+			}
+			println "tips:" + tips
+		}
+	}
+	
+	private def addTwitterFriends(Map userProfile){
+		
+	}
+	
 	def createSocialNetworkUser(Map userProfile, RestBuilder rest){
 		log.info "createSocialNetworkUser(): begins with userProfile = ${userProfile}"
 		
@@ -92,16 +109,17 @@ class UserService {
 				return accountCreationResult
 			}
 			
-			//automatically add facebook friends to scorena friend system
-			if (userProfile.fbFriends){
-				def tips = []
-				List facebookFriendUserIdList = getFacebookFrdsUserId((List)userProfile.fbFriends)
-				def currentUserId = userProfile.objectId
-				for(String facebookFriendUserId: facebookFriendUserIdList) {
-					tips = friendSystemService.addFacebookFriend(currentUserId, facebookFriendUserId)
+			String[] snTypes = userProfile.authData.keySet()
+			println "snTypes: "+snTypes[0].toUpperCase()
+			if (snTypes.size() ==1){
+				if (snTypes[0].toUpperCase() == SocialNetworkTypeEnum.FACEBOOK){
+					addFBFriends(userProfile)
+				}else if (snTypes[0].toUpperCase() == SocialNetworkTypeEnum.TWITTER){
+					
 				}
-				println "tips:" + tips
 			}
+
+
 		}else{
 			currentBalance = account.currentBalance
 		}
