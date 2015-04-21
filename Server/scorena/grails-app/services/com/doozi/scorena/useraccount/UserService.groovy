@@ -99,29 +99,32 @@ class UserService {
 		log.info "createSocialNetworkUser(): begins with userProfile = ${userProfile}"
 		
 		int currentBalance = SOCIALNETWORK_INITIAL_BALANCE
-
+		int accountType = 1
+		
+		String[] snTypes = userProfile.authData.keySet()
+		println "snTypes: "+snTypes
+		if (snTypes.size() ==1){
+			if (snTypes[0].toUpperCase() == SocialNetworkTypeEnum.FACEBOOK.toString()){
+				accountType = AccountType.FACEBOOK_USER
+			}else if (snTypes[0].toUpperCase() == SocialNetworkTypeEnum.TWITTER.toString()){
+				accountType = AccountType.TWITTER_USER
+			}
+		}
 		
 		def account = Account.findByUserId(userProfile.objectId)
 		
 		if (account == null){
 			Map accountCreationResult = createUserAccount(rest, userProfile.objectId, userProfile.username, 
 				SOCIALNETWORK_INITIAL_BALANCE, SOCIALNETWORK_INITIAL_BALANCE, userProfile.sessionToken, 
-				AccountType.FACEBOOK_USER, userProfile.display_name, userProfile.avatarCode, userProfile.pictureURL)
+				accountType, userProfile.display_name, userProfile.avatarCode, userProfile.pictureURL)
+			
 			if (accountCreationResult!=[:]){
 				return accountCreationResult
 			}
 			
-			String[] snTypes = userProfile.authData.keySet()
-			println "snTypes: "+snTypes[0].toUpperCase()
-			if (snTypes.size() ==1){
-				if (snTypes[0].toUpperCase() == SocialNetworkTypeEnum.FACEBOOK){
-					addFBFriends(userProfile)
-				}else if (snTypes[0].toUpperCase() == SocialNetworkTypeEnum.TWITTER){
-					
-				}
+			if (accountType == AccountType.FACEBOOK_USER){
+				addFBFriends(userProfile)
 			}
-
-
 		}else{
 			currentBalance = account.currentBalance
 		}
