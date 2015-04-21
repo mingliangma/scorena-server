@@ -2,11 +2,12 @@ package com.doozi.scorena.status
 
 class AppVersionStatus {
 	ClientTypeEnum clientType
-	String currentVersion
+	String versionName
+	int versionCode
 	String content
 	VersionStatusEnum versionStatus
 	
     static constraints = {
-		currentVersion unique: true
+		versionCode unique: true
     }
 }
