@@ -12,12 +12,18 @@ class Account {
 	int currentScore
 	int previousScore
 	
+	String displayName
+	String avatarCode
+	String pictureUrl
+	
 	
 	//static belongsTo = [user: User]
 	static hasMany = [enrollment: Enrollment, trans: AbstractTransaction, score: AbstractScore, banner:UserBanner]
 
 	static constraints = {
 		userId unqiue: true
+		avatarCode nullable: true
+		pictureUrl nullable: true
 	}
 	
 	static mapping = {	

@@ -1,11 +1,17 @@
 package com.doozi.scorena.innersocialnetwork
 
+import java.util.Map;
+
 import org.springframework.transaction.annotation.Transactional
+
+
 import grails.async.Promise
 import static grails.async.Promises.*
 
 import com.doozi.scorena.Account
 import com.doozi.scorena.FriendSystem
+import com.doozi.scorena.useraccount.model.UserData
+
 import grails.plugins.rest.client.RestBuilder
 
 @Transactional
@@ -103,7 +109,7 @@ class FriendSystemService {
 		log.info "listFollowers(): begins with userId = ${userId}"
 		
 		if (userId==null || userId==""){
-			log.error "listFriends(): null userId"
+			log.error "listFollowers(): null userId"
 			return []
 		}
 		List<Map> allFriendProfileList = []
@@ -119,21 +125,15 @@ class FriendSystemService {
 		return allFriendProfileList
 	}
 	
-	List listFollowings(userId) {
+	List<Map> listFollowings(userId) {
 		log.info "listFollowings(): begins with userId = ${userId}"
 		
 		if (userId==null || userId==""){
-			log.error "listFriends(): null userId"
+			log.error "listFollowings(): null userId"
 			return []
 		}
-		List<Map> allFriendProfileList = []
-		List allFriendList = listConnectionsUserids(CONNECTION_TYPE_FOLLOWING, userId)
-		
-		int allFriendListSize = allFriendList.size()
-		if (allFriendListSize != 0) {
-			allFriendProfileList = getUserProfile(allFriendList)
-		}
-		
+		List<UserData> allFriendUserDataList = listConnectionsUseridsAndBalance(CONNECTION_TYPE_FOLLOWING, userId)
+		List<Map> allFriendProfileList = userProfileListRender(allFriendUserDataList)
 		log.info "listFollowings(): ends with allFriendProfileList = ${allFriendProfileList}"
 		
 		return allFriendProfileList
@@ -143,7 +143,7 @@ class FriendSystemService {
 		log.info "listAllConnections(): begins with userId = ${userId}"
 		
 		if (userId==null || userId==""){
-			log.error "listFriends(): null userId"
+			log.error "listConnections(): null userId"
 			return []
 		}
 		
@@ -263,7 +263,54 @@ class FriendSystemService {
 		return followerCounter[FOLLOWER_COUNTER_QUERY_INDEX]
 	}
 	
-	private List listConnectionsUserids(int connectionType, String userId){
+	private List<UserData> listConnectionsUseridsAndBalance(int connectionType, String userId){
+		log.info "listConnectionsUseridsAndBalance(): begins with userId = ${userId}, connectionType = ${connectionType}"
+		
+		final int USERID_INDEX=0
+		final int BALANCE_INDEX=1
+		final int AVATAR_INDEX=2
+		final int PICURL_INDEX=3
+		final int DISPLAYNAME_INDEX=4
+		
+		if (userId==null || userId==""){
+			log.error "listFriendUserIds(): null userId"
+			return []
+		}
+		
+		Account user = Account.findByUserId(userId)
+		
+		//SQL Query find friend in FriendSystem where status=1
+		String query = ""
+		switch(connectionType){
+			case CONNECTION_TYPE_FOLLOWING:
+				query = "SELECT following.userId, following.currentBalance, following.avatarCode, "+
+				"following.pictureUrl, following.displayName FROM FriendSystem WHERE user=?"
+				break
+			case CONNECTION_TYPE_FOLLOWER:
+				query = "SELECT user.userId, user.currentBalance, user.avatarCode, "+
+				"user.pictureUrl, user.displayName FROM FriendSystem WHERE following=?"
+				break
+		}
+		
+		List<UserData> UserIdBalanceList = []
+		
+		if(user != null) {
+			//find all follower of user by SQL Query
+			def friendsResult = FriendSystem.executeQuery(query,[user])
+			for(int i=0;i<friendsResult.size();i++) {
+				
+				def c = friendsResult[i]
+				UserIdBalanceList.add(new UserData(c[USERID_INDEX], c[BALANCE_INDEX], 
+					c[AVATAR_INDEX], c[PICURL_INDEX], c[DISPLAYNAME_INDEX]))
+			}
+		}
+		
+		log.info "listConnectionsUseridsAndBalance(): ends"
+		
+		return UserIdBalanceList
+	}
+	
+	private List<String> listConnectionsUserids(int connectionType, String userId){
 		log.info "listConnections(): begins with userId = ${userId}, connectionType = ${connectionType}"
 		
 		if (userId==null || userId==""){
@@ -299,6 +346,22 @@ class FriendSystemService {
 		log.info "listConnections(): ends"
 		
 		return UserIdList
+	}
+	
+	private List<Map> userProfileListRender(List<UserData> userDataList){
+				
+		List<Map> userProfileList = []
+		
+		for (UserData u: userDataList){ 
+			userProfileList.add([
+				name:u.getDisplayName(),
+				currentBalance:u.getCurrentBalance(),
+				userId: u.getUserId(),
+				pictureURL: u.getPictureUrl(),
+				avatarCode: u.getAvatarCode()
+			])
+		}
+		return userProfileList
 	}
 	
 	private List<Map> getUserProfile (List userIdList) {

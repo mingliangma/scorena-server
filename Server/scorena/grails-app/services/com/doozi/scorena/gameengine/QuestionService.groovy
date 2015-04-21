@@ -11,6 +11,7 @@ import com.doozi.scorena.transaction.PayoutTransaction;
 import com.doozi.scorena.utils.*
 import com.doozi.scorena.processengine.*
 import com.doozi.scorena.transaction.LeagueTypeEnum;
+import com.doozi.scorena.useraccount.model.UserData
 
 
 import grails.plugins.rest.client.RestBuilder
@@ -146,14 +147,9 @@ class QuestionService {
 			}
 
 			if (questionPoolInfo.getHighestBetUserId() != null){ 	 //no friends are playing, use highest bet user	
-				def resp = parseService.retrieveUser(rest, questionPoolInfo.getHighestBetUserId())
-				if (resp.status == 200){
-					playerPictureUrl = resp.json.pictureURL
-					
-					if (resp.json.containsKey("avatarCode"))
-					playerAvatarCode = resp.json.avatarCode
-					
-				}
+
+				playerPictureUrl = questionPoolInfo.getHighestBetPictureUrl()
+				playerAvatarCode = questionPoolInfo.getHighestBetAvatarCode()			
 				playerBetAmount = questionPoolInfo.getHighestBetAmount()
 				playerPick = questionPoolInfo.getHighestBetPick() == 1 ? q.pick1 : q.pick2
 			}

@@ -91,7 +91,7 @@ class FriendSystemController {
 		log.info "listFollowings(): begins..."
 		
 		String userId = params.userId
-		List followings
+		List<Map> followings
 		Map followingsMap
 		
 		if(!userId) {

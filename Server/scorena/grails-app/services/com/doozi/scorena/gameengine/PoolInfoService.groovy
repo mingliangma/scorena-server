@@ -41,6 +41,8 @@ class PoolInfoService {
 		int highestBet
 		int highestBetPick
 		String highestBetUserId = null
+		String highestBetPictureUrl
+		String highestBetAvatarCode
 		
 		String highestFriendPickUserId=""
 		int highestFriendBetAmount = 0
@@ -68,7 +70,10 @@ class PoolInfoService {
 			if (bet.transactionAmount > highestBet){
 				highestBet = bet.transactionAmount
 				highestBetUserId = bet.account.userId
+				highestBetPictureUrl = bet.account.pictureUrl
+				highestBetAvatarCode = bet.account.avatarCode
 				highestBetPick = bet.pick
+				
 			}
 		}
 		questionPoolInfo.setBetTransList(betTransList)
@@ -80,6 +85,8 @@ class PoolInfoService {
 			questionPoolInfo.setHighestBetAmount(highestBet)
 			questionPoolInfo.setHighestBetUserId(highestBetUserId)
 			questionPoolInfo.setHighestBetPick(highestBetPick)
+			questionPoolInfo.setHighestBetAvatarCode(highestBetAvatarCode)
+			questionPoolInfo.setHighestBetPictureUrl(highestBetPictureUrl)
 		}
 		if (friendExist){
 			questionPoolInfo.setFriendBetAmount(highestFriendBetAmount)

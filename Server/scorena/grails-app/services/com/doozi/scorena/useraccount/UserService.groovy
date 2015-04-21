@@ -104,7 +104,9 @@ class UserService {
 		def account = Account.findByUserId(userProfile.objectId)
 		
 		if (account == null){
-			Map accountCreationResult = createUserAccount(rest, userProfile.objectId, userProfile.username, SOCIALNETWORK_INITIAL_BALANCE, SOCIALNETWORK_INITIAL_BALANCE, userProfile.sessionToken, AccountType.FACEBOOK_USER)
+			Map accountCreationResult = createUserAccount(rest, userProfile.objectId, userProfile.username, 
+				SOCIALNETWORK_INITIAL_BALANCE, SOCIALNETWORK_INITIAL_BALANCE, userProfile.sessionToken, 
+				AccountType.FACEBOOK_USER, userProfile.display_name, userProfile.avatarCode, userProfile.pictureURL)
 			if (accountCreationResult!=[:]){
 				return accountCreationResult
 			}
@@ -133,22 +135,22 @@ class UserService {
 	}
 			
 	def createUser(String username, String email, String password, String avatarCode, String gender, String region){
-		return createUser(username.toLowerCase(), email, password, gender, region, AccountType.USER, "", "",avatarCode)
+		String usernameLowerCase = username.toLowerCase().trim()
+		return createUser(usernameLowerCase, usernameLowerCase, email, password, gender, region, AccountType.USER, "", "",avatarCode)
 	}
 	
 	def createTestUser(String username, String email, String password, String gender, String region, String pictureURL, String facebookId){
-		return createUser(username.toLowerCase(), email, password, gender, region, AccountType.TEST, pictureURL, facebookId, "")
+		String usernameLowerCase = username.toLowerCase().trim()
+		return createUser(usernameLowerCase, usernameLowerCase, email, password, gender, region, AccountType.TEST, pictureURL, facebookId, "")
 	}
 			
-	def createUser(String username, String email, String password, String gender, String region, int accountType, String pictureURL, String facebookId, String avatarCode){
+	def createUser(String username, String displayName, String email, String password, String gender, String region,
+		 int accountType, String pictureURL, String facebookId, String avatarCode){
 		log.info "createUser(): begins..."
-		println "UserService::createUser(): username="+username+"  email="+email + " facebookId="+facebookId
 		int currentBalance = INITIAL_BALANCE
-		String usernameLowerCase = username.toLowerCase().trim()
-		String displayName = usernameLowerCase
 		RestBuilder rest = new RestBuilder()
 		
-		Map userProfile =  createUserProfile(rest, usernameLowerCase, email, password, gender, region, displayName, pictureURL, facebookId, avatarCode)
+		Map userProfile =  createUserProfile(rest, username, email, password, gender, region, displayName, pictureURL, facebookId, avatarCode)
 		if (userProfile.code){
 			return userProfile
 		}
@@ -156,7 +158,8 @@ class UserService {
 		println "user profile created successfully"		
 		log.info "createUser(): user profile created successfully"
 		
-		Map accountCreationResult = createUserAccount(rest, userProfile.objectId, username, INITIAL_BALANCE, PREVIOUS_BALANCE, userProfile.sessionToken, accountType)
+		Map accountCreationResult = createUserAccount(rest, userProfile.objectId, username, INITIAL_BALANCE, PREVIOUS_BALANCE, 
+			userProfile.sessionToken, accountType, displayName, avatarCode, pictureURL)
 		if (accountCreationResult!=[:]){
 			return accountCreationResult
 		}
@@ -484,8 +487,10 @@ class UserService {
 	 * @param accountType
 	 * @return returns empty map upon successful
 	 */
-	private Map createUserAccount(RestBuilder rest, String userId, String username, int initialBalance, int previousBalance, String sessionToken, int accountType){
-		log.info "createUserAccount(): begins..."
+	private Map createUserAccount(RestBuilder rest, String userId, String username, 
+		int initialBalance, int previousBalance, String sessionToken,
+		 int accountType, String displayName, String avatarCode, String pictureUrl){
+		log.info "createUserAccount(): begins with displayName=${displayName}, avatarCode=${avatarCode}, pictureUrl=${pictureUrl}"
 		
 		def userAccount = Account.findByUserId(userId)
 		if (userAccount){
@@ -496,8 +501,12 @@ class UserService {
 			log.error "createUserAccount(): ${result}"
 			return result
 		}
-		def account = new Account(userId:userId, username:username, currentBalance:initialBalance,previousBalance:previousBalance, accountType: accountType)
-		def openAccountTransaction = new OpenAccountTransaction(transactionAmount: initialBalance, createdAt: new Date(), accountType: accountType)
+		def account = new Account(userId:userId, username:username, currentBalance:initialBalance, 
+			previousBalance:previousBalance, accountType: accountType, displayName: displayName, 
+			avatarCode: avatarCode, pictureUrl: pictureUrl)
+		
+		def openAccountTransaction = new OpenAccountTransaction(transactionAmount: initialBalance, 
+			createdAt: new Date(), accountType: accountType)
 		
 		account.addToTrans(openAccountTransaction)
 		
@@ -548,10 +557,12 @@ class UserService {
 		return [:]
 	}
 
-	private Map createUserProfile(RestBuilder rest, String username, String email, String password, String gender, String region, String displayName, String pictureURL, String facebookId, String avatarCode){
+	private Map createUserProfile(RestBuilder rest, String username, String email, String password, 
+		String gender, String region, String displayName, String pictureURL, String facebookId, String avatarCode){
 		log.info "createUserProfile(): begins..."
 			
-		def resp = parseService.createUser(rest, username, email, password, gender, region, displayName, pictureURL, facebookId, avatarCode)
+		def resp = parseService.createUser(rest, username, email, password, gender, region, 
+			displayName, pictureURL, facebookId, avatarCode)
 		
 		if (resp.status != 201){
 			def result = [
@@ -589,41 +600,75 @@ class UserService {
 		return inWager
 	}
 	
-	def updateUserProfile(String sessionToken, String userId, JSON updateUserData){
-		def rest = new RestBuilder()
-		def resp = parseService.updateUser(rest, sessionToken, userId, updateUserData)
-		def parseResp = userRetreive(rest,userId)
+	def updateUserProfile(String sessionToken, String userId, Map updateUserData){
 		
-		if (parseResp.code){
-			return parseResp
-		}
-		
-		def account = Account.findByUserId(parseResp.objectId)
+		Account account = Account.findByUserId(userId)
 		
 		if (!account){
 			log.error "login(): user account does not exist"
 			return [code:500, error:"user account does not exist"]
 		}
 		
-		def result = userProfileMapRender(sessionToken, account.currentBalance, parseResp.createdAt, parseResp.username, parseResp.display_name,
-				parseResp.objectId, "", "", parseResp.email, parseResp.pictureURL, parseResp.avatarCode)
+		def rest = new RestBuilder()
+		def resp = parseService.updateUser(rest, sessionToken, userId, updateUserData as JSON)
+		def parseResp = userRetreive(rest,userId)
+		
+		if (parseResp.code){
+			return parseResp
+		}
+		
+		if (updateUserData.avatarCode)
+			account.setAvatarCode(updateUserData.avatarCode)
+			
+		if (updateUserData.pictureUrl)
+			account.setPictureUrl(updateUserData.pictureUrl)
+			
+		account.save()
+		
+		def result = userProfileMapRender(sessionToken, account.currentBalance, parseResp.createdAt, 
+			parseResp.username, parseResp.display_name, parseResp.objectId, "", "", parseResp.email, 
+			parseResp.pictureURL, parseResp.avatarCode)
 		
 		return result
 	}
-	
-//	private Map getUserProfileBySessionToken_tempFix(RestBuilder rest, String sessionToken){
-//		def resp = parseService.validateSessionT3(rest, sessionToken)
-//		if (resp.status != 200){
-//			def result = [
-//				code:resp.json.code,
-//				error:resp.json.error
-//			]
-//			return result
-//		}
-//		Map userProfileT3 = resp.json
-//		println userProfileT3
-//		Map userProfile = parseService.retrieveUserByDisplayName(userProfileT3.display_name)
-//		println userProfile.results[0]
-//		return userProfile.results[0]
-//	}
+
+	def syncParseUserProfile(){
+		log.info "syncParseUserProfile() begins"
+		String query = "SELECT userId from Account"
+		List<String> userIdList = Account.executeQuery(query)
+		Map userProfileResults = parseService.retrieveUserList(userIdList)
+		if (userProfileResults.error){
+			println "Error: FriendSystemService::getUserProfile(): in retrieving user "+userProfileResults.error
+			log.error "getUserProfile(): in retrieving user ${userProfileResults.error}"
+			return userProfileResults
+		}
+		
+		List userProfileResultList = userProfileResults.results
+		
+		for (Map userProfile: userProfileResultList){
+			String userId = userProfile.objectId
+			Account user = Account.findByUserId(userId)
+			if (user == null) {
+				log.error "getUserProfile(): invalid userId!"
+				return ["Error: invalid userId!(FriendSystemService::getUserProfile)"]
+			}
+			
+			String displayName = userProfile.display_name
+			String avatarCode = userProfile.avatarCode
+			String pictureUrl = userProfile.pictureURL
+			
+			log.info "displayName = ${displayName}"
+			log.info "avatarCode = ${displayName}"
+			log.info "pictureUrl = ${displayName}"
+			log.info "============================"
+			
+			user.setDisplayName(displayName)
+			user.setAvatarCode(avatarCode)
+			user.setPictureUrl(pictureUrl)
+			
+			user.save()
+		}
+		return ["success": "true"]
+		log.info "syncParseUserProfile() ends"
+	}
 }

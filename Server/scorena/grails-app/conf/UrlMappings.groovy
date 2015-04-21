@@ -250,6 +250,10 @@ class UrlMappings {
 			action = [GET:"setAndroidCurrentVersion"]
 		}
 		
+		"/v1/syncuser"(controller:"User") {
+			action = [GET:"syncParseUserProfile"]
+		}
+		
 		"/v1/admin/cq"(view:"/CustomQuestionWebsite")
 		
 		"/v1/admin/qr"(view:"/CustomQuestionResultWebsite")

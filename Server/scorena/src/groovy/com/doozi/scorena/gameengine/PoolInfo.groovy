@@ -7,9 +7,13 @@ class PoolInfo {
 	int pick2Amount = 0
 	int pick1NumPeople = 0
 	int pick2NumPeople = 0
+	
 	int highestBetAmount 
 	int highestBetPick 
-	String highestBetUserId 
+	String highestBetUserId
+	String highestBetPictureUrl
+	String highestBetAvatarCode
+	
 	boolean friendsExist = false 
 	int friendBetAmount 
 	int friendBetPick 

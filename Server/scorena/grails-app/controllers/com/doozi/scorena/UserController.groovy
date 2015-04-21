@@ -252,7 +252,7 @@ class UserController {
 			return
 		}
 		
-		def resp = userService.updateUserProfile(sessionToken, params.userId.toString(), request.JSON as JSON)
+		def resp = userService.updateUserProfile(sessionToken, params.userId.toString(), request.JSON)
 		
 		if (resp.code){
 			response.status =400
@@ -409,6 +409,11 @@ class UserController {
 			return result
 		}
 		return resp.json
+	}
+	
+	def syncParseUserProfile(){
+		def result = userService.syncParseUserProfile()
+		render result as JSON
 	}
 	
 	def handleException(Exception e) {
