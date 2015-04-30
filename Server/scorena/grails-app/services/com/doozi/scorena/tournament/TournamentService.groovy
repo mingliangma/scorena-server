@@ -75,15 +75,24 @@ class TournamentService {
 				Enrollment enrollRecord = new Enrollment(enrollmentDate: null, createdAt: today, updatedAt: today, enrollmentStatus:EnrollmentStatusEnum.INVITED, enrollmentType:EnrollmentTypeEnum.PLAYER)
 				tournament.addToEnrollment(enrollRecord)
 				invitingUser.addToEnrollment(enrollRecord)
-				invitingUser.save()
-				tournament.save()
-				Promise p = task {
-					String message = "${displayName} is inviting you to a tournament"
-					pushService.tournamentInvitationNotification(rest,tournament.id, invitingUser.userId, message)
+				if (!invitingUser.save()) {
+					invitingUser.errors.each {
+						println it
+					}
 				}
-				p.onComplete { result ->
-					println "Tournament invitation notification promise with tournamentId ${tournament.id} returned $result"
-				}			
+				if (!tournament.save()) {
+					tournament.errors.each {
+						println it
+					}
+				}else{
+					Promise p = task {
+						String message = "${displayName} is inviting you to a tournament"
+						pushService.tournamentInvitationNotification(rest,tournament.id, invitingUser.userId, message)
+					}
+					p.onComplete { result ->
+						println "Tournament invitation notification promise with tournamentId ${tournament.id} returned $result"
+					}	
+				}		
 			}
 		}
 		return tournament
