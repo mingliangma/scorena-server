@@ -7,7 +7,8 @@ import com.doozi.scorena.Question;
 import com.doozi.scorena.transaction.BetTransaction
 import com.doozi.scorena.transaction.PayoutTransaction
 import com.doozi.scorena.utils.*
-
+import grails.async.Promise
+import static grails.async.Promises.*
 import org.hibernate.criterion.CriteriaSpecification
 
 import grails.plugins.rest.client.RestBuilder
@@ -82,29 +83,18 @@ class BetTransactionService {
 				return [code:202, error: "createBetTran error: "+errorMessage]
 			}
 			lockedAccount.save(flush: true)					
-			question.save(flush: true)
+			if (question.save(flush: true)){
+				Promise p = task {
+					registerPushChannel(lockedAccount, question, rest)
+			   }
+			   p.onComplete { result ->
+				   println "${lockedAccount.username} successfully registered to push channel ${question.eventKey}"
+			   }
+			}
 			
 			log.info "createBetTran successful: userId=${userId} currentBalance=${lockedAccount.currentBalance} currentBalance=${lockedAccount.previousBalance}" 
 
-			if (lockedAccount.accountType == AccountType.USER || lockedAccount.accountType == AccountType.FACEBOOK_USER){
-			
-				// gets the users decvice installation ID by username
-				List objectIDs = pushService.getInstallationByUserID(lockedAccount.userId)
-			
-				
-				if ( objectIDs != null || objectIDs != "" )
-				{
-					// preps event key for pars channel. parse does not allow for  '.' in a channel name, replaces it with a "_"
-					String parse_channel = question.eventKey.replace(".","_")
-					
-					
-					for (String objectId: objectIDs)
-					{
-					// Registers user device into push channel for game event key
-					def test = pushService.updateGameChannel(rest, objectId, parse_channel)
-					}
-				}
-			}
+
 		}catch(org.springframework.dao.CannotAcquireLockException e){
 			println "createBetTrans(): CannotAcquireLockException ERROR: "+e.message
 			log.error "createBetTrans(): ${e.message}"
@@ -132,6 +122,28 @@ class BetTransactionService {
 		log.info "createBetTrans(): ends"
 		return [:]
 	}	
+	
+	private def registerPushChannel(Account lockedAccount, Question question, def rest){
+		if (lockedAccount.accountType == AccountType.USER || lockedAccount.accountType == AccountType.FACEBOOK_USER || lockedAccount.accountType == AccountType.TWITTER_USER){
+			
+				// gets the users decvice installation ID by username
+				List objectIDs = pushService.getInstallationByUserID(lockedAccount.userId)
+			
+				
+				if ( objectIDs != null || objectIDs != "" )
+				{
+					// preps event key for pars channel. parse does not allow for  '.' in a channel name, replaces it with a "_"
+					String parse_channel = question.eventKey.replace(".","_")
+					
+					
+					for (String objectId: objectIDs)
+					{
+					// Registers user device into push channel for game event key
+					def test = pushService.updateGameChannel(rest, objectId, parse_channel)
+					}
+				}
+			}
+	}
 	
 	BetTransaction getBetByQuestionIdAndUserId(def qId, def userId){
 		return BetTransaction.find("from BetTransaction as b where b.question.id=? and b.account.userId=?", [qId, userId])
