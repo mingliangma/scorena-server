@@ -9,6 +9,7 @@ import org.apache.http.util.EntityUtils;
 
 import com.doozi.scorena.transaction.PayoutTransaction
 import com.doozi.scorena.transaction.AbstractTransaction
+import com.doozi.scorena.*;
 
 import org.apache.http.HttpResponse
 import org.apache.http.client.HttpClient
@@ -16,6 +17,7 @@ import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.DefaultHttpClient
 import org.codehaus.groovy.grails.web.json.JSONObject
 import org.springframework.transaction.annotation.Transactional
+import com.doozi.scorena.transaction.LeagueTypeEnum
 
 @Transactional
 class PushService {
@@ -176,6 +178,52 @@ class PushService {
 		 log.info "customQuestionPush(): ends with result = ${result}"
 		 
 		 return resp.json.toString()
+	 }
+	 
+	 def questionPushTargetUserId(def rest, List<String> userIds, String eventKey, String eventStatus, String msg){
+		 log.info "questionPushTargetUserId(): begins with rest = ${rest}, eventKey = ${eventKey},  eventStatus = ${eventStatus} , msg = ${msg}"
+		 
+		 def parseConfig = grailsApplication.config.parse
+		 def userParam = ["userId": ['$in':userIds]]
+		 def alertParam = ["alert": (msg),"gameKey":(eventKey),"gameStatus":(eventStatus),"pushType":"question"]
+		 def resp = rest.post("https://api.parse.com/1/push")
+		 {
+			 header "X-Parse-Application-Id", parseConfig.parseApplicationId
+			 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
+			 contentType "application/json"
+			 json{
+				 data = alertParam
+				 where = userParam
+				 }
+		 }
+		 
+		 def result = resp.json.toString()
+		 log.info "questionPushTargetUserId(): ends with result = ${result}"
+		 
+		 return resp.json.toString()
+	 }
+	 
+	 def inactiveUsersReminder(){
+		 
+		 List<String> inactiveUserIds = Account.executeQuery("select userId from Account as a where  a.id > 30 and a.id not in "+ 
+			 "(select t.account.id from BetTransaction as t where t.createdAt > ? group by t.account.id)", [new Date() -3])
+		 
+		 List<Map> upcomingNBAGames = gameService.listUpcomingGamesData("", LeagueTypeEnum.NBA.toString())
+		 if (upcomingNBAGames.size() > 0){
+			 def rest = new RestBuilder()
+			 Map upcomingNBAGame = upcomingNBAGames.get(0)
+			 List<Question> questions = Question.findAllByEventKey(upcomingNBAGame.gameId)
+			 if (questions.size() > 3){
+				Question q = questions.last()
+				String message = q.questionContent.content + " "+q.pick1 + " or " + q.pick2
+				questionPushTargetUserId(rest, inactiveUserIds, upcomingNBAGame.gameId, upcomingNBAGame.gameStatus, message)
+			 }else{
+			 	Question q = questions.first()
+				 String message = q.questionContent.content + " "+q.pick1 + " or " + q.pick2
+				 questionPushTargetUserId(rest, inactiveUserIds, upcomingNBAGame.gameId, upcomingNBAGame.gameStatus, message)
+			 }
+		 }
+		 
 	 }
  
 	 def sendFollowPush(def rest, String followingId, String followerId, String msg)
@@ -365,4 +413,6 @@ class PushService {
 		 
 		 return resp.json.toString()
 	 }
+	 
+	
 }
