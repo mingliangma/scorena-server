@@ -10,13 +10,13 @@ class UpdateScheduleJob {
     }
 
     def execute() {
-		println grails.util.Environment.current
-		if (grails.util.Environment.current ==  "production"){
+		
+		if (grails.util.Environment.current == grails.util.Environment.PRODUCTION){
 			println "UpdateScheduleJob trigged at " + new Date()
 			gameDataDbInputStatsNbaService.updateSchedule()
 			println "UpdateScheduleJob completed"
 		}else{
-			println "update schedule job cancelled. Server environment is not production. at" + new Date()
+			println "update schedule job cancelled. Server environment is not production. at " + new Date()
 		}
     }
 }
