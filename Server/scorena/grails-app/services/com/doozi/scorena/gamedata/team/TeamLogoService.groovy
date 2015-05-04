@@ -146,6 +146,12 @@ class TeamLogoService {
 	public static final String KYLEKOVER_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA_Player/kyle_korver.png'
 	public static final String CHRISTPAUL_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/NBA_Player/ChristPaul.png'
 	
+	public static final String Mayweather_LOGO_URL = 'https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTYC_YPhSZ1g2Bt0PB8XhmJ7GawUZjhywhaMM2hZUD54lGJZ8jh9w'
+	public static final String Pacquiao_LOGO_URL = 'http://amazingnews.ph/wp-content/uploads/2015/04/Sports-icons-that-favor-Manny-Pacquiao.jpg'
+	
+	public static final String FloydMayweather = "Floyd Mayweather"
+	public static final String MannyPacquiao = "Manny Pacquiao"
+	
 	public static final String YES_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/yes_icon.png'
 	public static final String NO_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/no_icon.png'
 	public static final String ABOVE3_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/3above.png'
@@ -285,6 +291,11 @@ class TeamLogoService {
 				return DEREKROSE_LOGO_URL
 			case JAMESHARDEN_TEAMNAME.toLowerCase():
 				return JAMESHARDEN_LOGO_URL
+				
+			case FloydMayweather.toLowerCase():
+				return Mayweather_LOGO_URL
+			case MannyPacquiao.toLowerCase():
+				return Pacquiao_LOGO_URL
 			
 			case STEPHCURRY_TEAMNAME.toLowerCase():
 				return STEPHCURRY_LOGO_URL

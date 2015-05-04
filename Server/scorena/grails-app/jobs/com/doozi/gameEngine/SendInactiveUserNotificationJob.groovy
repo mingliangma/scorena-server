@@ -6,7 +6,7 @@ class SendInactiveUserNotificationJob {
     def pushService
 	
     static triggers = {
-		cron name:'sendInactiveUserNotificationTrigger', startDelay:50000, cronExpression: '0 21 * * * ?' //every day at 9pm utc
+		cron name:'sendInactiveUserNotificationTrigger', startDelay:50000, cronExpression: '0 0 21 * * ?' //every day at 9pm utc
     }
 
     def execute() {
