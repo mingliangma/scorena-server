@@ -25,6 +25,7 @@ class PushService {
 	def grailsApplication
 	def gameService
 	def profitRankingService
+	def helperService
 	
     def updateGameChannel(def rest, String objectID, String eventKey)
 	{
@@ -113,12 +114,14 @@ class PushService {
 		
 		def chanParam = ["channels":['$in':[(eventKey)]]] 
 		def alertParam = ["alert": (msg)]
+		def expireParam = helperService.setPushExpireTime(1)
 		def resp = rest.post("https://api.parse.com/1/push")
 		{
 			header 	"X-Parse-Application-Id", parseConfig.parseApplicationId
 			header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
 			contentType "application/json"
 			json{
+				expiration_time = expireParam
 				data = alertParam
 				where = chanParam
 				}
@@ -136,6 +139,7 @@ class PushService {
 		 
 		 def parseConfig = grailsApplication.config.parse	 
 		 def userParam = ["userId": (userId)]
+		 def expireParam = helperService.setPushExpireTime(24)
 	//	 def chanParam = ["channels":['$in':[(eventKey)]]]
 		 def alertParam = ["alert": (msg),"gameKey":(eventKey),"gameStatus":(eventStatus), "pushType":"result"]
 		 def resp = rest.post("https://api.parse.com/1/push")
@@ -144,6 +148,7 @@ class PushService {
 			 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
 			 contentType "application/json"
 			 json{
+				 expiration_time = expireParam
 				 data = alertParam
 				 where = userParam
 				 }	 
@@ -161,6 +166,7 @@ class PushService {
 		 log.info "customQuestionPush(): begins with rest = ${rest}, eventKey = ${eventKey},  eventStatus = ${eventStatus} , msg = ${msg}"
 		 
 		 def parseConfig = grailsApplication.config.parse
+		 def expireParam = helperService.setPushExpireTime(24)
 		 def chanParam = ["channels":['$in':[(eventKey)]]]
 		 def alertParam = ["alert": (msg),"gameKey":(eventKey),"gameStatus":(eventStatus),"pushType":"question"]
 		 def resp = rest.post("https://api.parse.com/1/push")
@@ -169,6 +175,7 @@ class PushService {
 			 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
 			 contentType "application/json"
 			 json{
+				 expiration_time = expireParam
 				 data = alertParam
 				 where = chanParam
 				 }
@@ -185,6 +192,7 @@ class PushService {
 		 
 		 def parseConfig = grailsApplication.config.parse
 		 def userParam = ["userId": ['$in':userIds]]
+		 def expireParam = helperService.setPushExpireTime(48)
 		 def alertParam = ["alert": (msg),"gameKey":(eventKey),"gameStatus":(eventStatus),"pushType":"question"]
 		 def resp = rest.post("https://api.parse.com/1/push")
 		 {
@@ -192,6 +200,7 @@ class PushService {
 			 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
 			 contentType "application/json"
 			 json{
+				 expiration_time = expireParam
 				 data = alertParam
 				 where = userParam
 				 }
@@ -231,6 +240,7 @@ class PushService {
 		 log.info "sendFollowPush(): begins with rest = ${rest}, followingId = ${followingId}, followerId = ${followerId} ,msg = ${msg}"
 		 
 		 def parseConfig = grailsApplication.config.parse
+		 def expireParam = helperService.setPushExpireTime(24)
 		 def userParam = ["userId": (followingId)]
 		 def alertParam = ["alert": (msg),"followerId":(followerId),"pushType":"userProfile"]
 		 def resp = rest.post("https://api.parse.com/1/push")
@@ -239,6 +249,7 @@ class PushService {
 			 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
 			 contentType "application/json"
 			 json{
+				 expiration_time = expireParam
 				 data = alertParam
 				 where = userParam
 				 }
@@ -255,6 +266,7 @@ class PushService {
 		 log.info "usrCommentPush(): begins with rest = ${rest}, userList = ${userList}, eventKey = ${eventKey}, eventStatus = ${eventStatus} ,qId = ${qId} , msg = ${msg}"
 		 
 		 def parseConfig = grailsApplication.config.parse
+		 def expireParam = helperService.setPushExpireTime(24)
 		 def userParam  = ["questions":['$in':[(qId.toInteger())]]]
 		 def alertParam = ["alert": (msg),"gameKey":(eventKey),"gameStatus":(eventStatus), "questionKey":(qId), "pushType":"comment"]
 		 def resp = rest.post("https://api.parse.com/1/push")
@@ -263,6 +275,7 @@ class PushService {
 			 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
 			 contentType "application/json"
 			 json{
+				 expiration_time = expireParam
 				 data = alertParam
 				 where = userParam
 				 }
@@ -272,7 +285,7 @@ class PushService {
 		 
 		 def result = resp.json.toString()
 		 log.info "usrCommentPush(): ends with result = ${result}"
-		 
+
 		 return resp.json.toString()
 	 }
  
@@ -370,6 +383,7 @@ class PushService {
 		 log.info "tournamentInvitationNotification(): begins with rest = ${rest},tournamentId = ${tournamentId}, userId = ${userId}, msg = ${msg}"
 		 
 		 def parseConfig = grailsApplication.config.parse
+		 def expireParam = helperService.setPushExpireTime(24)
 		 def userParam = ["userId": (userId)]
 		 def alertParam = ["alert": (msg),"tournamentId":(tournamentId), "pushType":"tournamentInvitation"]
 		 def resp = rest.post("https://api.parse.com/1/push")
@@ -378,6 +392,7 @@ class PushService {
 			 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
 			 contentType "application/json"
 			 json{
+				 expiration_time = expireParam
 				 data = alertParam
 				 where = userParam
 				 }
@@ -385,7 +400,7 @@ class PushService {
 		 
 		 def result = resp.json.toString()
 		 log.info "tournamentInvitationNotification(): ends with result = ${result}"
-		 
+
 		 return resp.json.toString()
 	 }
 	 
@@ -394,6 +409,7 @@ class PushService {
 		 log.info "acceptTournamentNotification(): begins with rest = ${rest},tournamentId = ${tournamentId}, userId = ${userId}, subscribedLeagues = ${subscribedLeagues} , title = ${title} , description = ${description}"
 		 
 		 def parseConfig = grailsApplication.config.parse
+		 def expireParam = helperService.setPushExpireTime(24)
 		 def userParam = ["userId": (userId) ]
 		 def alertParam = ["alert": (msg),"tournamentId":(tournamentId) ,"subscribedLeagues":(subscribedLeagues), 
 			 "title":(title) ,"description":(description) ,"startDate":(startDate) ,"expireDate":(expireDate), "pushType":"acceptTournament"]
@@ -403,6 +419,7 @@ class PushService {
 			 header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
 			 contentType "application/json"
 			 json{
+				 expiration_time = expireParam
 				 data = alertParam
 				 where = userParam
 				 }
