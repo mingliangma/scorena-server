@@ -547,25 +547,35 @@ class BootStrap {
 		String _gender = "male"
 		String _region = "Japan"
 		Random random = new Random()
-		for(int i = 0; i<pictureURLs.size()/3; i++){
-			String _email = _displayNames[i]+random.nextInt(100000)+"@scorena.ca"
-			String pictureURL = ""
-			if (i<pictureURLs.size()){
-				pictureURL = pictureURLs[i]
-			}
-			
-			int facebookId = 100000+i
-			def resp = userService.createTestUser(_displayNames[i], _email, _password, _gender, _region, pictureURL, facebookId.toString())
+//		for(int i = 0; i<pictureURLs.size()/3; i++){
+//			String _email = _displayNames[i]+random.nextInt(100000)+"@scorena.ca"
+//			String pictureURL = ""
+//			if (i<pictureURLs.size()){
+//				pictureURL = pictureURLs[i]
+//			}
+//			
+//			int facebookId = 100000+i
+//			def resp = userService.createTestUser(_displayNames[i], _email, _password, _gender, _region, pictureURL, facebookId.toString())
+//		}
+		
+		String dislayNamePrefix = "user"
+		for(int i = 0; i<500; i++){
+			String displayName = dislayNamePrefix+random.nextInt(100000)
+			String _email = displayName+"@scorena.ca"
+			String pictureURL = ""			
+			int facebookId = 200000+i
+			def resp = userService.createTestUser(displayName, _email, _password, _gender, _region, pictureURL, facebookId.toString())
+		}
+	}
+	
+	def addAllFriends(){
+		Account user = Account.get(1)
+		List<Account> users = Account.findAll("from Account as a where a.id > 40 and a.id < 200")
+		for (Account u: users){
+			friendSystemService.addFacebookFriend(user.userId, u.userId)
+			Thread.sleep(100)
 		}
 		
-//		String dislayNamePrefix = "user"
-//		for(int i = 0; i<500; i++){
-//			String displayName = dislayNamePrefix+random.nextInt(100000)
-//			String _email = displayName+"@scorena.ca"
-//			String pictureURL = ""			
-//			int facebookId = 100000+i
-//			def resp = userService.createTestUser(displayName, _email, _password, _gender, _region, pictureURL, facebookId.toString())
-//		}
 	}
 	
 	def addFriends(){
