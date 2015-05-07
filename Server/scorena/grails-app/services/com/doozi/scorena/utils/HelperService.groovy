@@ -39,6 +39,18 @@ class HelperService {
 		def now = new Date()
 		return now
 	}
+	/**
+	 * 
+	 * @param hours: amount of hours push notification is to be kept alive when not delivered to user
+	 * @return Unix epoch time of push expire time
+	 */
+	def setPushExpireTime(int hours)
+	{
+		long hour = 3600 * 1000
+		Date sendTime = getUTCCuurentTime()
+		Date expireTime = new Date(sendTime.getTime() + hours * hour)
+		return expireTime
+	}
 	
 	
 	/**
