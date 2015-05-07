@@ -69,6 +69,9 @@ class BootStrap {
 					createQuestions()
 				}
 
+				createTestUsers()
+				addAllFriends()
+				
 				if (!Account.count()){
 					createUsers()
 					simulateBetUpcoming()
