@@ -19,7 +19,7 @@ class FriendSystemService {
 	
 	def helperService
 	def parseService
-	def pushService
+	def notificationService
 	def rest = new RestBuilder()
 	
 	final int USERID_QUERY_INDEX = 0
@@ -77,8 +77,8 @@ class FriendSystemService {
 					
 					
 					Promise p = task {
-						String msg = followerData.display_name.toString() + " is now following you on Scorena."
-						pushService.sendFollowPush(rest,followingAccount.userId,meAccount.userId,msg)
+						
+						notificationService.newFollowNotification(followingAccount.userId,meAccount.userId,followerData.display_name)
 					}
 					p.onComplete { result ->
 						println "follow a user invitation notification promise returned $result"

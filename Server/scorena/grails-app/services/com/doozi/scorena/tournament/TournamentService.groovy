@@ -24,6 +24,7 @@ class TournamentService {
 	def parseService   
 	def scoreRankingService
 	def pushService
+	def notificationService
 	
 	
 	def listTournamentEnrollment(String userId){
@@ -86,8 +87,7 @@ class TournamentService {
 					}
 				}else{
 					Promise p = task {
-						String message = "${displayName} is inviting you to a tournament"
-						pushService.tournamentInvitationNotification(rest,tournament.id, invitingUser.userId, message)
+						notificationService.tournamentInvitationNotification(tournamentId, invitingUserIds[0], displayName)
 					}
 					p.onComplete { result ->
 						println "Tournament invitation notification promise with tournamentId ${tournament.id} returned $result"
@@ -133,8 +133,7 @@ class TournamentService {
 				}else{
 				
 					Promise p = task {
-						String message = "Scorena is inviting you to a tournament"
-						pushService.tournamentInvitationNotification(rest,tournament.id, invitingUser.userId, message)
+						notificationService.tournamentInvitationNotification(tournament.id, invitingUser.userId, "Scorena")						
 					}
 					p.onComplete { result ->
 						println "Tournament invitation notification promise with tournamentId ${tournament.id} returned $result"
@@ -208,6 +207,7 @@ class TournamentService {
 	
 	def acceptTournamentInvitation(String userId, String displayName, long tournamentId){
 		log.info "TournamentService::acceptTournamentInvitation() begins with userId = ${userId}, tournamentId = ${tournamentId}"
+		
 		Enrollment userEnrollment = Enrollment.find ("from Enrollment as e where e.tournament.id = (:tournamentId) and e.account.userId = (:userId) and e.enrollmentStatus = (:enrollmentStatus)", 
 			[tournamentId: tournamentId, userId: userId, enrollmentStatus:EnrollmentStatusEnum.INVITED])
 		if (userEnrollment){
@@ -216,24 +216,11 @@ class TournamentService {
 			userEnrollment.enrollmentDate = now
 			userEnrollment.updatedAt = now
 			userEnrollment.save()
-			Enrollment ownerEnrollment = Enrollment.find ("from Enrollment as e where e.tournament.id = (:tournamentId) and e.enrollmentType = (:enrollmentType)",
-				[tournamentId: tournamentId, enrollmentType:EnrollmentTypeEnum.OWNER])
-			String ownerUserId = ownerEnrollment.account.userId
-			Tournament t = ownerEnrollment.tournament
-			String title = t.title
-			String description = t.description
-			Date startDate = t.startDate
-			Date expireDate = t.expireDate
-			List subscribedLeagues = []
-
-			for(SubscribedLeague sl:t.subscribedLeagues){
-				subscribedLeagues.add(sl.leagueName)
-			}
 			
 			Promise p = task {				
 				String message = "${displayName} joined ${userEnrollment.tournament.title} tournament"
 				println "Notification Message: ${message}"
-				pushService.acceptTournamentNotification(new RestBuilder(),tournamentId, ownerUserId, message, title, description, startDate, expireDate, subscribedLeagues.toString())
+				notificationService.tournamentAcceptanceNotification(tournamentId, userEnrollment, displayName)
 			}
 			p.onComplete { result ->
 				println "Accept tournament notification promise with tournamentId ${tournamentId} returned $result"

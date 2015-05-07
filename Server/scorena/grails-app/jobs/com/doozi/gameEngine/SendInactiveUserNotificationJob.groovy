@@ -3,7 +3,7 @@ package com.doozi.gameEngine
 
 
 class SendInactiveUserNotificationJob {
-    def pushService
+    def notificationService
 	
     static triggers = {
 		cron name:'sendInactiveUserNotificationTrigger', startDelay:50000, cronExpression: '0 0 21 * * ?' //every day at 9pm utc
@@ -13,7 +13,7 @@ class SendInactiveUserNotificationJob {
 		
 		if (grails.util.Environment.current == grails.util.Environment.PRODUCTION){
 			println "SendInactiveUserNotificationJob trigged at " + new Date()
-			pushService.inactiveUsersReminder()
+			notificationService.inactiveUsersReminder()
 			println "SendInactiveUserNotificationJob completed"
 		}else{
 			println "SendInactiveUserNotificationJob cancelled. Server environment is not production. at " + new Date()

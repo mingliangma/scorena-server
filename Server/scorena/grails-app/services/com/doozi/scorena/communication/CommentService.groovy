@@ -27,6 +27,7 @@ class CommentService {
 	def betTransactionService
 	def pushService
 	def gameService
+	def notificationService
 	def rest = new RestBuilder()
 	
 	/**
@@ -94,7 +95,7 @@ class CommentService {
 	 * @return List of comments:[body,userId,userName,timeCreated]
 	 */
 	@Transactional
-	List writeComments(userId,message,qId){
+	List writeComments(userId,message,qId, displayName){
 
 		log.info "writeComments(): begins with userId = ${userId}, qId = ${qId}, message = ${message}"
 
@@ -104,21 +105,7 @@ class CommentService {
 		boolean isValidUserId = false
 		def errorMessage
 
-		def friends = friendSystemService.listFollowers(userId)
-		def userList = betTransactionService.listAllBetsByQId(q.id)
-		def game = gameService.getGame(q.eventKey)
-		def userInstallation = parseService.retrieveUser(rest, userId)
-		def userData = userInstallation.json
-		
-		String status = game.gameStatus
-		String home = game.home.teamname
-		String away = game.away.teamname
 
-		System.out.println(status)
-		
-		String msg = userData.display_name.toString() + " has just commented on the "+ away +" vs "+ home+" game."
-
-		ArrayList pushUsers = new ArrayList()
 		
 		if (q==null){
 			errorMessage = "invalid question ID"
@@ -143,45 +130,8 @@ class CommentService {
 		}
 
 		if(isValidUserId){
-			q.addComment(user, message)
-			if (userList != [])
-			{
-				for(BetTransaction action:userList )
-				{
-					pushUsers.add(action.account.userId)
-				}
-				
-				/*
-				if (!friends.empty)
-				{
-					for(FriendSystem friend: friends)
-					{
-						if (!pushUsers.contains(friend.userId) && friend.userId != null)
-						{
-							pushUsers.add(friend.userId)
-						}
-					}
-				} */
-			}
-			
-		/*	else
-			{
-				if (!friends.empty)
-				{
-					for(FriendSystem friend: friends)
-					{
-						if (!pushUsers.contains(friend.userId) && friend.userId != null)
-						{
-							pushUsers.add(friend.userId)
-						}
-					}
-				}
-			} */
-			
-			if (!pushUsers.empty)
-			{
-				pushService.userCommentPush(rest,pushUsers.toString(), q.eventKey, status,qId,msg )
-			}
+			q.addComment(user, message)	
+			notificationService.newCommentNotification(userId, displayName, qId, q.eventKey)			
 		}
 
 		commentsList = getExistingComments(qId)

@@ -2,12 +2,13 @@ package com.doozi.scorena
 
 import grails.converters.JSON
 import grails.plugins.rest.client.RestBuilder
-
+import grails.async.Promise
+import static grails.async.Promises.*
 
 class BetController {
 	def betTransactionService
 	def userService
-	def pushService
+	def notificationService
     
 	def placeBet() { 
 		log.info "placeBet(): begins..."
@@ -34,7 +35,18 @@ class BetController {
 		//place user's bet
 		Map result = betTransactionService.createBetTrans(request.JSON.wager.toInteger(), request.JSON.pick.toInteger(), validation.objectId , 
 			request.JSON.questionId.toInteger())
-		
+				
+		if (result == [:]){
+						
+			Promise p = task {
+				
+				notificationService.friendBetReminder(validation.objectId, request.JSON.wager.toInteger(),
+					 request.JSON.pick.toInteger(), request.JSON.questionId.toLong())
+			}
+			p.onComplete { cresult ->
+				println "friendBetReminder completed and returned $cresult"
+			}
+		}
 		
 		if (result==[:]){			
 			def resp = [date:new Date()]

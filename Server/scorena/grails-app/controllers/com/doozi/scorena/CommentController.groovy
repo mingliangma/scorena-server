@@ -67,7 +67,7 @@ class CommentController {
 		
 		//add comments to the question
 		String userId = validation.objectId
-		commentsList=commentService.writeComments(userId, request.JSON.message, qId)
+		commentsList=commentService.writeComments(userId, request.JSON.message, qId, validation.display_name)
 		commentsMap=[comments:commentsList]
 		
 		log.info "writeComments(): ends with commentsMap = ${commentsMap}"

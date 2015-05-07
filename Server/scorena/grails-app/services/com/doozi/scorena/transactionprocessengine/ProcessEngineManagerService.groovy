@@ -9,7 +9,7 @@ class ProcessEngineManagerService {
 	def processEngineImplService
 	def sportsDataService
 	def customGameService
-	def pushService
+	def notificationService
 	
     def startProcessEngine() {
 		log.info "startProcessEngine(): begins with " + new Date()
@@ -23,7 +23,7 @@ class ProcessEngineManagerService {
 		Map processResult = processEngineImplService.processNewGamesPayout()
 		processEngineImplService.processNewGamesScore()
 		def gameRecordsProcessed = processResult.gameRecordsProcessed
-		pushService.sendEndGamePush(processResult.userTotalGamesProfit, processResult.gameIdToGameInfoMap)
+		notificationService.gameResultNotification(processResult.userTotalGamesProfit, processResult.gameIdToGameInfoMap)
 		
 		def result = [gameRecordAdded:gameRecordAdded, gameRecordsProcessed:gameRecordsProcessed]
 		log.info "startProcessEngine(): result = ${result}"

@@ -160,6 +160,10 @@ class BetTransactionService {
 		return BetTransaction.findAll("from BetTransaction as b where b.question.id=?", [qId], [cache: true])
 	}
 	
+	List<BetTransaction> listAllBetUserIdsByQId(long qId){
+		return BetTransaction.executeQuery("SELECT b.account.userId from BetTransaction as b where b.question.id=?", [qId], [cache: true])
+	}
+	
 	List<BetTransaction> listAllBetsByPickAndQId(def qId, int pick){
 		return BetTransaction.findAll("from BetTransaction as b where b.question.id=? and b.pick=?", [qId, pick])
 	}
