@@ -57,7 +57,7 @@ class NotificationService {
 					pushUsers.add(userId)
 			}
 			def rest = new RestBuilder()
-			pushService.userCommentPush(rest, pushUsers.toString(), eventKey,status, questionId.toString(), msg )
+			pushService.userCommentPush(rest, pushUsers, eventKey,status, questionId.toString(), msg )
 			storeNotification(pushUsers, msg, NotificationTypeEnum.NEW_COMMENT, eventKey, questionId)
 		}
 	}

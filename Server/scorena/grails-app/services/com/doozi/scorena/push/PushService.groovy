@@ -232,12 +232,12 @@ class PushService {
 		return resp.json.toString()
 	}
 
-	def userCommentPush(def rest,String userList, String eventKey, String eventStatus ,String qId, String msg)
+	def userCommentPush(def rest, List<String> userIds, String eventKey, String eventStatus ,String qId, String msg)
 	{
-		log.info "usrCommentPush(): begins with rest = ${rest}, userList = ${userList}, eventKey = ${eventKey}, eventStatus = ${eventStatus} ,qId = ${qId} , msg = ${msg}"
+		log.info "usrCommentPush(): begins with rest = ${rest}, userList = ${userIds}, eventKey = ${eventKey}, eventStatus = ${eventStatus} ,qId = ${qId} , msg = ${msg}"
 
 		def parseConfig = grailsApplication.config.parse
-		def userParam  = ["questions":['$in':[(qId.toInteger())]]]
+		def userParam  = ["userId": ['$in':userIds]]
 		def alertParam = ["alert": (msg),"gameKey":(eventKey),"gameStatus":(eventStatus), "questionKey":(qId), "pushType":"comment"]
 		def resp = rest.post("https://api.parse.com/1/push")
 		{
