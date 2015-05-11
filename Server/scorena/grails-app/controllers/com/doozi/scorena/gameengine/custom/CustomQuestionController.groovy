@@ -48,13 +48,13 @@ class CustomQuestionController {
 			log.error "createCustomQuestion(): result = ${result}"
 			return
 		}		
-		
-		Promise p = task {
-			customQuestionService.simulateBetCustomQuestion(request.JSON.eventId.toString(), result.questionContentId)
-		}
-		p.onComplete { cresult ->
-			println "simulateBetCustomQuestion completed and returned $cresult"
-		}
+		customQuestionService.simulateBetCustomQuestion(request.JSON.eventId.toString(), result.questionContentId)
+//		Promise p = task {
+//			customQuestionService.simulateBetCustomQuestion(request.JSON.eventId.toString(), result.questionContentId)
+//		}
+//		p.onComplete { cresult ->
+//			println "simulateBetCustomQuestion completed and returned $cresult"
+//		}
 		
 		
 		println "success"
