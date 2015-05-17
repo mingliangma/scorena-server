@@ -37,13 +37,37 @@ class SimulateBetService {
 	}
 	
 	def simulateBetOnAQuestion(Question q, def accounts, Random random){
-		int pick
-		if (random.nextInt(2)==0){
-			pick=1
-		}else{
-			pick=2
+
+		return simulateBetOnAQuestion(q, accounts, random, false)
+	}
+	
+	def simulateBetOnAQuestion(Question q, def accounts, Random random, boolean isAllTestUsers){
+		log.info "simulateBetOnAQuestion() starts with questionId="+q.id
+		long questionId = q.id
+		int betCounter = 0
+		for (Account account: accounts){
+			if (!isAllTestUsers){
+				if (random.nextInt(2) != 1){
+					continue
+				}
+			}
+			
+			int _wager =  (random.nextInt(6)+1)*20
+			
+			if (account.currentBalance < _wager ){
+				continue
+			}
+			int pick
+			if (random.nextInt(2)==0){
+				pick=1
+			}else{
+				pick=2
+			}
+			betTransactionService.createBetTrans(_wager,pick, account.userId, questionId)
+			betCounter++
 		}
-		return simulateBetOnAQuestion(q, accounts, random, pick, false)
+		log.info "simulateBetOnAQuestion() ends"
+		return betCounter
 	}
 	
 	def simulateBetOnAQuestion(Question q, def accounts, Random random, int pick, boolean isAllTestUsers){
