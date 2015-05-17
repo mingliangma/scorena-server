@@ -114,9 +114,15 @@ class UserService {
 		def account = Account.findByUserId(userProfile.objectId)
 		
 		if (account == null){
+			
+			String displayName = ""
+			if (userProfile.display_name){
+				displayName = userProfile.display_name
+			}
+						
 			Map accountCreationResult = createUserAccount(rest, userProfile.objectId, userProfile.username, 
 				SOCIALNETWORK_INITIAL_BALANCE, SOCIALNETWORK_INITIAL_BALANCE, userProfile.sessionToken, 
-				accountType, userProfile.display_name, userProfile.avatarCode, userProfile.pictureURL)
+				accountType, displayName, userProfile.avatarCode, userProfile.pictureURL)
 			
 			if (accountCreationResult!=[:]){
 				return accountCreationResult

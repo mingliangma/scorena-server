@@ -24,6 +24,7 @@ class Account {
 		userId unqiue: true
 		avatarCode nullable: true
 		pictureUrl nullable: true
+		displayName nullable: true
 	}
 	
 	static mapping = {	
