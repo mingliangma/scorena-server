@@ -49,6 +49,10 @@ class GameService {
 		
 		List upcomingGames = []
 		List upcomingCustomGames = []
+		List upcomingChampGames = []
+		List upcomingTennisGames = []
+		List upcomingMLBGames = []
+		List upcomingNBADraftGames = []
 
 		if (leagueType.toUpperCase() == LeagueTypeEnum.NBA.toString()){
 			
@@ -60,16 +64,36 @@ class GameService {
 			
 		}else if (leagueType.toUpperCase() == LeagueTypeEnum.CHAMP.toString()){
 		
-			upcomingGames = sportsDataService.getAllUpcomingGames(leagueType)
+			upcomingGames = sportsDataService.getAllUpcomingChampionGames()
+			
+		}else if (leagueType.toUpperCase() == LeagueTypeEnum.MLB.toString()){
+		
+			upcomingGames = sportsDataService.getAllUpcomingMLBGames()
+			
+		}else if (leagueType.toUpperCase() == LeagueTypeEnum.FRENCHOPEN.toString()){
+		
+			upcomingGames = sportsDataService.getAllUpcomingTennisGames()
+			
+		}else if (leagueType.toUpperCase() == LeagueTypeEnum.NBADRAFT.toString()){
+		
+			upcomingGames = sportsDataService.getAllUpcomingNBADraftGames()
 			
 		}else{
 			upcomingCustomGames = customGameService.getAllUpcomingGames()
 			upcomingGames = sportsDataService.getAllUpcomingGames()
+			upcomingChampGames = sportsDataService.getAllUpcomingChampionGames()
+			upcomingTennisGames = sportsDataService.getAllUpcomingTennisGames()
+			upcomingMLBGames = sportsDataService.getAllUpcomingMLBGames()
+			upcomingNBADraftGames = sportsDataService.getAllUpcomingNBADraftGames()
 		}
 		
 		List upcomingGamesResult=[]
 		upcomingGamesResult.addAll(upcomingGames)
 		upcomingGamesResult.addAll(upcomingCustomGames)
+		upcomingGamesResult.addAll(upcomingChampGames)
+		upcomingGamesResult.addAll(upcomingTennisGames)
+		upcomingGamesResult.addAll(upcomingMLBGames)
+		upcomingGamesResult.addAll(upcomingNBADraftGames)
 		
 		
 		log.info "listUpcomingGamesData(): ends"
@@ -109,6 +133,10 @@ class GameService {
 		
 		List pastGames = []
 		List pastCustomGames = []
+		List pastChampGames = []
+		List pastTennisGames = []
+		List pastMLBGames = []
+		List pastNBADraftGames = []
 
 		if (leagueType.toUpperCase() == LeagueTypeEnum.NBA.toString()){
 			
@@ -120,17 +148,37 @@ class GameService {
 			
 		}else if (leagueType.toUpperCase() == LeagueTypeEnum.CHAMP.toString()){
 		
-			pastGames = sportsDataService.getAllPastGames(leagueType)
+			pastGames = sportsDataService.getAllPastChampionGames()
+			
+		}else if (leagueType.toUpperCase() == LeagueTypeEnum.MLB.toString()){
+		
+			pastGames = sportsDataService.getAllPastMLBGames()
+			
+		}else if (leagueType.toUpperCase() == LeagueTypeEnum.FRENCHOPEN.toString()){
+		
+			pastGames = sportsDataService.getAllPastTennisGames()
+			
+		}else if (leagueType.toUpperCase() == LeagueTypeEnum.NBADRAFT.toString()){
+		
+			pastGames = sportsDataService.getAllPastNBADraftGames()
 			
 		}else{
 			pastCustomGames = customGameService.getAllPastGames()
 			pastGames = sportsDataService.getAllPastGames()
+			pastChampGames = sportsDataService.getAllPastChampionGames()
+			pastTennisGames = sportsDataService.getAllPastTennisGames()
+			pastMLBGames = sportsDataService.getAllPastMLBGames()
+			pastNBADraftGames = sportsDataService.getAllPastNBADraftGames()
 		}
 		
 		
 		List pastGamesResult=[]	
 		pastGamesResult.addAll(pastCustomGames)
 		pastGamesResult.addAll(pastGames)
+		pastGamesResult.addAll(pastChampGames)
+		pastGamesResult.addAll(pastTennisGames)
+		pastGamesResult.addAll(pastMLBGames)
+		pastGamesResult.addAll(pastNBADraftGames)
 		
 		log.info "listPastGamesData(): ends "
 		
@@ -200,10 +248,18 @@ class GameService {
 	}
 	
 	Map getGame(String gameId){
-		println "leaguePrefix="+gameId.startsWith(sportsDataService.getLeaguePrefixFromLeagueEnum(LeagueTypeEnum.NBA))	
-		if (gameId.startsWith(customGameService.CUSTOM_EVENT_PREFIX) || 
+
+		if (gameId.startsWith(sportsDataService.getLeaguePrefixFromLeagueEnum(LeagueTypeEnum.NBADRAFT)))
+			return sportsDataService.getNBADraftGame(gameId)
+		else if (gameId.startsWith(customGameService.CUSTOM_EVENT_PREFIX) || 
 			gameId.startsWith(sportsDataService.getLeaguePrefixFromLeagueEnum(LeagueTypeEnum.NBA)))
 			return customGameService.getGame(gameId)
+		else if (gameId.startsWith(sportsDataService.getLeaguePrefixFromLeagueEnum(LeagueTypeEnum.MLB)))
+			return sportsDataService.getMLBGame(gameId)
+		else if (gameId.startsWith(sportsDataService.getLeaguePrefixFromLeagueEnum(LeagueTypeEnum.FRENCHOPEN)))
+			return sportsDataService.getTennisGame(gameId)
+		else if (gameId.startsWith(sportsDataService.getLeaguePrefixFromLeagueEnum(LeagueTypeEnum.CHAMP)))
+			return sportsDataService.getChampionGame(gameId)
 		else	
 			return sportsDataService.getGame(gameId)
 		

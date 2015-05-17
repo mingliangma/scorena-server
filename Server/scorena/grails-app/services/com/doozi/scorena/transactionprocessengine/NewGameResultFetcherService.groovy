@@ -19,16 +19,11 @@ class NewGameResultFetcherService {
 	 * 
 	 * @return the number of game payout records added to the GameProcessRecord table that need to be processed
 	 */
-	def getUnprocessedPastGame(List pastGames, List pastCustomGames){
-		log.info "getUnprocessedPastGame(): begins with pastGames = ${pastGames}, pastCustomGames = ${pastCustomGames}"
-		println "NewGameResultFetcherService::getUnprocessedPastGame(): starts"
-		
-		List allPastGames = []
-		allPastGames.addAll(pastCustomGames)
-		allPastGames.addAll(pastGames)
+	def getUnprocessedPastGame(List allPastGames){
+		log.info "getUnprocessedPastGame(): begins with "+allPastGames
 		
 		//Compare the pastGames and pastCustomGames list and calculate the earliest date of a game that is in both list.
-		Date ealiestGameDate = calculateEarliestGameDate(pastGames, pastCustomGames)		
+		Date ealiestGameDate = calculateEarliestGameDate(allPastGames)		
 		
 		//get all Game process records that are greater than ealiestGameDate
 		List processGameRecords = GameProcessRecord.findAllByStartDateTimeGreaterThanEquals(ealiestGameDate-2)
@@ -87,6 +82,35 @@ class NewGameResultFetcherService {
 			ealiestGameDate = earliestPastCustomGameDate
 		}else{
 			ealiestGameDate = earliestPastGameDate
+		}
+		
+		log.info "calculateEarliestGameDate(): ends with ealiestGameDate = ${ealiestGameDate}"
+		
+		return ealiestGameDate
+	}
+	
+	/**
+	 * Compare the pastGames and pastCustomGames list and calculate the earliest date of a game that is in both list.
+	 * @param pastGames
+	 * @param pastCustomGames
+	 * @return earliest game date
+	 */
+	private Date calculateEarliestGameDate(List pastGames){
+		log.info "calculateEarliestGameDate(): begins with pastGames = ${pastGames}"
+		
+		Date ealiestGameDate = null
+		
+		for (Map game: pastGames){
+			
+			if (ealiestGameDate == null){
+				ealiestGameDate = helperService.parseDateAndTimeFromString(game.date)
+			}
+			
+			Date gameDate = helperService.parseDateAndTimeFromString(game.date)
+			
+			if (gameDate < ealiestGameDate){
+				ealiestGameDate = gameDate
+			}
 		}
 		
 		log.info "calculateEarliestGameDate(): ends with ealiestGameDate = ${ealiestGameDate}"

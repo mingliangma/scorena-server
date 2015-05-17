@@ -48,7 +48,7 @@ class CustomQuestionService {
     def createCustomQuestionContent(String content) {
 		log.info "createCustomQuestionContent(): begins with content = ${content}"
 		
-		def qc = QuestionContent.findByContent(content)
+		def qc = QuestionContent.findByContentAndQuestionType(content, QuestionContent.CUSTOM)
 		if (qc){
 			println "question content already exists. return existing one"
 			log.info "createCustomQuestionContent(): question content already exists. return existing one"

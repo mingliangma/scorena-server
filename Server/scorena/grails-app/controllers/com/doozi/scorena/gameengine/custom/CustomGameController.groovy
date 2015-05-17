@@ -8,7 +8,7 @@ class CustomGameController {
 	def createCustomGame() { 
 		log.info "createCustomGame(): begins..."
 		
-		if ( !request.JSON.awayTeamName ||!request.JSON.homeTeamName || !request.JSON.startDateTimeInput){
+		if ( !request.JSON.awayTeamName ||!request.JSON.homeTeamName || !request.JSON.startDateTimeInput || !request.JSON.league){
 			response.status = 404
 			def result = [error: "invalid parameters"]
 			render result as JSON
@@ -32,8 +32,10 @@ class CustomGameController {
 			return
 		}
 		
+		
+		
 		def result = customGameService.createCustomGameByName(request.JSON.awayTeamName, request.JSON.homeTeamName, request.JSON.eventName,
-			 request.JSON.startDateTimeInput)
+			 request.JSON.startDateTimeInput, request.JSON.league)
 		
 		if (result.error){
 			println "failed with message: "+result.get("error")

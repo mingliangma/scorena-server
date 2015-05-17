@@ -97,30 +97,86 @@ class CustomGameService {
 		return pastGamesList
 	}
 	
-    def createCustomGameByName(String awayTeamName, String homeTeamName, String eventName, String startDateTimeInput) {
+    def createCustomGameByName(String awayTeamName, String homeTeamName, String eventName, String startDateTimeInput, String league) {
 		log.info "createCustomGameByName(): begins with awayTeamName = ${awayTeamName}, eventName = ${eventName}, startDateTimeInput = ${startDateTimeInput}"
 		
 		Random random = new Random()
 		
-		String awayTeamKey = CUSTOM_TEAM_PREFIX+(random.nextInt(1000000)).toString()
-		String homeTeamKey = CUSTOM_TEAM_PREFIX+(random.nextInt(1000000)).toString()
+		String awayTeamKey = league+CUSTOM_TEAM_PREFIX+(random.nextInt(1000000)).toString()
+		String homeTeamKey = league+CUSTOM_TEAM_PREFIX+(random.nextInt(1000000)).toString()
 		
-		println homeTeamKey
+		LeagueTypeEnum leagueType = sportsDataService.getLeagueEnumFromLeagueString(league)
+		
+		if (leagueType == null)
+			return [error: "league not supported"]
+		
+		
 		String eventKey = ""
 		if (eventName == null || eventName==""){
-			eventKey = sportsDataService.getLeaguePrefixFromLeagueEnum(LeagueTypeEnum.NBA)+CUSTOM_EVENT_PREFIX+(random.nextInt(1000000)).toString()
+			eventKey = sportsDataService.getLeaguePrefixFromLeagueEnum(leagueType)+CUSTOM_EVENT_PREFIX+(random.nextInt(1000000)).toString()
 		}else{
-			eventKey = sportsDataService.getLeaguePrefixFromLeagueEnum(LeagueTypeEnum.NBA)+CUSTOM_EVENT_PREFIX+eventName+"-"+(random.nextInt(1000000)).toString()
+			eventKey = sportsDataService.getLeaguePrefixFromLeagueEnum(leagueType)+CUSTOM_EVENT_PREFIX+eventName+"-"+(random.nextInt(1000000)).toString()
 		}
+		
 		
 		Date startDateTime = helperService.parseDateAndTimeFromString(startDateTimeInput)
 		Date lastUpdate = new Date()
-		
-		def cgHome = new CustomGame(fullName: homeTeamName, teamKey: homeTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey, 
-			alignment: ALIGNMENT_HOME, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, league: LeagueTypeEnum.NBA)
-		
-		def cgAway = new CustomGame(fullName: awayTeamName, teamKey: awayTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey,
-			alignment: ALIGNMENT_AWAY, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, league: LeagueTypeEnum.NBA)
+		def cgHome
+		def cgAway
+		if (leagueType == LeagueTypeEnum.NBA){
+			
+			cgHome = new CustomGame(fullName: homeTeamName, teamKey: homeTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey, 
+				alignment: ALIGNMENT_HOME, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, league: LeagueTypeEnum.NBA)
+			
+			cgAway = new CustomGame(fullName: awayTeamName, teamKey: awayTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey,
+				alignment: ALIGNMENT_AWAY, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, league: LeagueTypeEnum.NBA)
+			
+			
+		}else if (leagueType == LeagueTypeEnum.MLB){
+			
+			cgHome = new GameBaseball(fullName: homeTeamName, teamKey: homeTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey,
+				alignment: ALIGNMENT_HOME, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, 
+				league: LeagueTypeEnum.MLB, autoQuestionCreation: false)
+			
+			cgAway = new GameBaseball(fullName: awayTeamName, teamKey: awayTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey,
+				alignment: ALIGNMENT_AWAY, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, 
+				league: LeagueTypeEnum.MLB, , autoQuestionCreation: false)
+			
+			
+		}else if (leagueType == LeagueTypeEnum.FRENCHOPEN){
+			cgHome = new GameTennis(fullName: homeTeamName, teamKey: homeTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey,
+				alignment: ALIGNMENT_HOME, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, 
+				league: LeagueTypeEnum.FRENCHOPEN, autoQuestionCreation: false)
+			
+			
+			cgAway = new GameTennis(fullName: awayTeamName, teamKey: awayTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey,
+				alignment: ALIGNMENT_AWAY, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, 
+				league: LeagueTypeEnum.FRENCHOPEN, autoQuestionCreation: false)
+			
+			
+		}else if (leagueType == LeagueTypeEnum.NBADRAFT){
+			cgHome = new GameNBADraft(fullName: homeTeamName, teamKey: homeTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey,
+				alignment: ALIGNMENT_HOME, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, 
+				league: LeagueTypeEnum.NBADRAFT, autoQuestionCreation: false)
+			
+			cgAway = new GameNBADraft(fullName: awayTeamName, teamKey: awayTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey,
+				alignment: ALIGNMENT_AWAY, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, 
+				league: LeagueTypeEnum.NBADRAFT, autoQuestionCreation: false)
+			
+			
+		}else if (leagueType == LeagueTypeEnum.CHAMP){
+			cgHome = new GameSoccer(fullName: homeTeamName, teamKey: homeTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey,
+				alignment: ALIGNMENT_HOME, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, 
+				league: LeagueTypeEnum.CHAMP, autoQuestionCreation: false)
+			
+			cgAway = new GameSoccer(fullName: awayTeamName, teamKey: awayTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey,
+				alignment: ALIGNMENT_AWAY, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, 
+				league: LeagueTypeEnum.CHAMP, autoQuestionCreation: false)
+			
+			
+		}else{
+			return [error: "league not supported"]
+		}
 		
 		if (cgHome.save() && cgAway.save()){
 			System.out.println("Custom Game Created successfully saved")

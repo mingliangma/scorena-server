@@ -18,8 +18,20 @@ class ProcessEngineManagerService {
 		//Get past games from both sports DB game table and Scorena DB custom game table
 		List pastGames = sportsDataService.getAllPastGames()
 		List pastCustomGames = customGameService.getAllPastGames()
+		List pastTennisGames = sportsDataService.getAllPastTennisGames()
+		List pastMLBGames = sportsDataService.getAllPastMLBGames()
+		List pastNBADraftGames = sportsDataService.getAllPastNBADraftGames()
+		List pastChampGames = sportsDataService.getAllPastChampionGames()
 		
-		def gameRecordAdded = newGameResultFetcherService.getUnprocessedPastGame(pastGames, pastCustomGames)
+		List allPastGames = []
+		allPastGames.addAll(pastCustomGames)
+		allPastGames.addAll(pastGames)
+		allPastGames.addAll(pastTennisGames)
+		allPastGames.addAll(pastMLBGames)
+		allPastGames.addAll(pastNBADraftGames)
+		allPastGames.addAll(pastChampGames)
+		
+		def gameRecordAdded = newGameResultFetcherService.getUnprocessedPastGame(allPastGames)
 		Map processResult = processEngineImplService.processNewGamesPayout()
 		processEngineImplService.processNewGamesScore()
 		def gameRecordsProcessed = processResult.gameRecordsProcessed

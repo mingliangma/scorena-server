@@ -128,6 +128,7 @@ class ProcessEngineImplService {
 						errorExists = true;
 						userTotalGamesProfit.remove(gameId)
 						log.error "processNewGamePayout():: ERROR is ${e.message}"
+						println e.printStackTrace()
 						throw new RuntimeException("processNewGamePayout():: ERROR is ${e.message}")
 						break
 					}
@@ -152,6 +153,11 @@ class ProcessEngineImplService {
 	@Transactional
 	private boolean isReadyToProcess(List<Question> questions, Map game){
 		log.info "isReadyToProcess(): begins..."		
+		
+		if (questions.size() <= 0){
+			log.info "isReadyToProcess(): returned false because no question is available"
+			return false
+		}
 		
 		if (game.gameStatus == null || game.gameStatus.trim() != sportsDataService.POSTEVENT_NAME){
 			println "ProcessEngineImplService:isReadyToProcess():: returned false because game status is either null or preevent. gameStatus="+game.gameStatus"/"+sportsDataService.POSTEVENT_NAME
