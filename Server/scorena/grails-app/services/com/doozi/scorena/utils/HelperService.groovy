@@ -78,6 +78,27 @@ class HelperService {
 		log.info "parseDateTimeFromString(): returns date = ${newerdate}"
 		return newerdate
 	}
+	
+	def parseDateTimeFromString(String date){
+		log.info "parseDateTimeFromString(): begins with date = ${date}"
+
+		Boolean isGameDateInDayLightTime = TimeZone.getTimeZone("US/Alaska").inDaylightTime( new Date().parse("yyyy/MM/dd", date) );
+		if (isGameDateInDayLightTime){
+			date = date.replaceAll("ET", "EDT")
+			date = date.replaceAll("pm", "PM")
+			date = date.replaceAll("am", "AM")
+		}else{
+			date = date.replaceAll("ET", "EST")
+			date = date.replaceAll("pm", "PM")
+			date = date.replaceAll("am", "AM")
+		}
+
+		def newerdate = new Date().parse("yyyy/MM/dd h:mm a z", date)
+		log.info "parseDateTimeFromString(): returns date = ${newerdate}"
+		return newerdate
+	}
+	
+	
 	Date getFirstDateOfCurrentWeek(){
 		Calendar c1 = Calendar.getInstance();   // this takes current date
 		c1.clear(Calendar.MINUTE);

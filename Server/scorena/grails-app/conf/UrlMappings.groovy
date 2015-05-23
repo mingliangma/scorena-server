@@ -254,6 +254,14 @@ class UrlMappings {
 			action = [GET:"syncParseUserProfile"]
 		}
 		
+		"/v1/gameData/mlb/updateteam"(controller:"gameData") {
+			action = [GET:"updateMlbTeam"]
+		}
+		
+//		"/v1/gameData/mlb/updateschedule"(controller:"gameData") {
+//			action = [GET:"updateMlbSchedule"]
+//		}
+		
 		"/v1/admin/cq"(view:"/CustomQuestionWebsite")
 		
 		"/v1/admin/qr"(view:"/CustomQuestionResultWebsite")

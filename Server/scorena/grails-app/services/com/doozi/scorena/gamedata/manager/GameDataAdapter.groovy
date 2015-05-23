@@ -4,6 +4,7 @@
 package com.doozi.scorena.gamedata.manager;
 
 import com.doozi.scorena.gamedata.userinput.GameDataInputDeluxe;
+import com.doozi.scorena.gamedata.userinput.GameDataInputMlb
 import com.doozi.scorena.gamedata.userinput.GameDataInputStatsNba
 import com.doozi.scorena.gamedata.userinput.GameDataInputXmlSoccer;
 import com.doozi.scorena.gamedata.userinput.GameDataInputXmlTeam;
@@ -22,6 +23,7 @@ public class GameDataAdapter implements IGameDataAdapter {
 	private GameDataManagerXmlTeam _gameDataManagerXmlTeam = GameDataManagerXmlTeam.get_gameDataManagerXmlTeamInstance();
 	private GameDataManagerDeluxe _gameDataManagerDeluxe = GameDataManagerDeluxe.get_gameDataManagerDeluxeInstance();
 	private GameDataManagerStatsNba _gameDataManagerStatsNba = GameDataManagerStatsNba.get_gameDataManagerStatsNbaInstance();
+	private GameDataManagerMlb _gameDataManagerMlb = GameDataManagerMlb.get_gameDataManagerMlbInstance();
 	
 	/**
 	 * 
@@ -53,6 +55,10 @@ public class GameDataAdapter implements IGameDataAdapter {
 		else if (gameDataInput instanceof GameDataInputStatsNba)
 		{
 			return _gameDataManagerStatsNba.retrieveGameData((GameDataInputStatsNba)gameDataInput);
+		}
+		else if (gameDataInput instanceof GameDataInputMlb)
+		{
+			return _gameDataManagerMlb.retrieveGameData((GameDataInputMlb)gameDataInput);
 		}
 		else
 		{

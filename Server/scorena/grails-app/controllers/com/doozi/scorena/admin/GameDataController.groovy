@@ -19,7 +19,21 @@ class GameDataController {
 	def gameDataDbInputStatsNbaService
 	def GameDataUtilsStatsNbaService
 	def helperService
-
+	def gameDataDbInputMlbService
+	
+	
+	def updateMlbTeam(){
+		gameDataDbInputMlbService.updateTeamInfo()
+		def result = [isCompleted: true]
+		render result as JSON
+	}
+	
+//	def updateMlbSchedule(){
+//		gameDataDbInputMlbService.updateSchedule()
+//		def result = [isCompleted: true]
+//		render result as JSON
+//	}
+	
 	
 	//fetch nba playoffs schedule
 	def fetchNBAPlayoffsSchedule(){

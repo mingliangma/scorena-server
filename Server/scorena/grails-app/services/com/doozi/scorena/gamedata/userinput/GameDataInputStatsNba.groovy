@@ -16,7 +16,7 @@ class GameDataInputStatsNba implements IGameDataInput{
 		_dayOffSet = GameDataConstantsStatsNba.defaultDayOffsetValue
 		_leagueID = GameDataConstantsStatsNba.defaultLeagueIDValue
 		
-		def gameDate = new Date()
+		Date gameDate = new Date()
 		use( TimeCategory ) {
 			gameDate = gameDate - 8.hours // adjust to EST (-5 hours) and -3
 		}

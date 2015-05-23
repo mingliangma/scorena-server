@@ -6,8 +6,11 @@ package com.doozi.scorena.gamedata.testdriver;
 import com.doozi.scorena.CustomGame
 import com.doozi.scorena.gamedata.helper.GameDataConstantsXmlSoccer;
 import com.doozi.scorena.gamedata.manager.GameDataAdapter;
+import com.doozi.scorena.gamedata.userinput.GameDataInputMlb
 import com.doozi.scorena.gamedata.userinput.GameDataInputStatsNba
 import com.doozi.scorena.gamedata.userinput.GameDataInputXmlSoccer;
+import com.doozi.scorena.gamedata.useroutput.baseball.GameDataEventMlb
+import com.doozi.scorena.gamedata.useroutput.baseball.GameDataOutputMlb
 import com.doozi.scorena.gamedata.useroutput.basketball.GameDataEventStatsNba
 import com.doozi.scorena.gamedata.useroutput.basketball.GameDataLastMeetingNba
 import com.doozi.scorena.gamedata.useroutput.basketball.GameDataNbaOutput
@@ -30,9 +33,25 @@ public class GameDataTestDriver {
 	}
 
 	public static void main(String[] args) throws Exception
-	{
-		GameDataInputStatsNba gameDataInputStatsNba = new GameDataInputStatsNba();
-		GameDataNbaOutput gameDateNbaOutput = GameDataAdapter.get_gameDataAdapterInstance().retrieveGameData(gameDataInputStatsNba);
+	{		
+		GameDataInputMlb gameDataInputMlb = new GameDataInputMlb(1)		
+		GameDataOutputMlb gameDataOutputMlb = GameDataAdapter.get_gameDataAdapterInstance().retrieveGameData(gameDataInputMlb);
+		gameDataOutputMlb._eventListMlb.each{
+			GameDataEventMlb g = it.value
+			println "_gameId=" + g._gameId
+			println "_gameEventStatusId=" + g._gameEventStatusId
+			println "_gameEventStatusText=" + g._gameEventStatusText
+			println "_homeTeamId=" + g._homeTeamId
+			println "_awayTeamId=" + g._awayTeamId
+			println "_gameDate=" + g._gameDate
+			println "_gameDateTime" + g._gameDateTime
+			println "================================================="
+		}
+	}
+	
+	public testMlbGameData(){
+//		GameDataInputMlb gameDataInputMlb = new GameDataInputMlb()
+//		GameDataOutputMlb GameDataOutputMlb = GameDataAdapter.get_gameDataAdapterInstance().retrieveGameData(gameDataInputMlb)
 	}
 	
 	public testGameData(){
