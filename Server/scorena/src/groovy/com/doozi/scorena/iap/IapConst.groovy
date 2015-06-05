@@ -19,15 +19,30 @@ class IapConst {
 	public static final String IOS_Production = "https://buy.itunes.apple.com/verifyReceipt"
 	
 	// Public Key for the iap test app in google play store
-	String alpha_pk = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgaqpbpd5ObvkEcDMJZDYNe97sD9JoMteu0eXFbBKL8WsQi9Nb9mg2z481DMqtXMSN1TM1RVUKex2JuNata4M3C8hm53glrmTx1Xcns9nEJvHJkY3lr2ajwb5AMb/bKzbIhmAhQghSydfCpTxt+y+/Tj3Z+W8h0ZML6AH3TgmzVrLZy8npyVh13rpsB7Ca8Hj+omwpCMLtk2ucpCeThWz74ww8lkfCmnurMBmopadl1zpqsn+Kb6qcQXc6ZMnE2h1oeTBSvtzk3OtvoCCywdXsHcOjc0JRIQhSxhG2Hj8hh1wuEQqMB79hiqqflWaGphRltwgtc0QG8IvbW53UG46+QIDAQAB"
-	// TODO: replace with real public key for Scorena app
-	String pk = ""
+	static final String COM_WINGO_SCORENA_PK = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgaqpbpd5ObvkEcDMJZDYNe97sD9JoMteu0eXFbBKL8WsQi9Nb9mg2z481DMqtXMSN1TM1RVUKex2JuNata4M3C8hm53glrmTx1Xcns9nEJvHJkY3lr2ajwb5AMb/bKzbIhmAhQghSydfCpTxt+y+/Tj3Z+W8h0ZML6AH3TgmzVrLZy8npyVh13rpsB7Ca8Hj+omwpCMLtk2ucpCeThWz74ww8lkfCmnurMBmopadl1zpqsn+Kb6qcQXc6ZMnE2h1oeTBSvtzk3OtvoCCywdXsHcOjc0JRIQhSxhG2Hj8hh1wuEQqMB79hiqqflWaGphRltwgtc0QG8IvbW53UG46+QIDAQAB"
+	static final String NGO_SCORENA_NBADRAFT_PK = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp0uL/MWqOTTZzfCuWmOuDPFADqR6Pxsxpz5pblZYSlW66kh1PNy5rwhzV9oufPKX8iKy1VpsldLMbjt+++PrFbGN6qTpCSPy0+Ot5uPCrwzcUQcIQgi0bd7qLx+Ywpizx+i+AxXg1M511iXFQTZjGT1FUj3BPS3w9MTUY/VMhMaPApko05ILbhal8I0pffWkREI3pWZDVS9iDN+p0Y4YyMWoxm2KIp+UO05hXbTPSDX1GXFLxL6T+2eFbzHH+XMgtfOGAKX6zgj4imK/OlWgALfXzyjPjw4M0gtGb8INJaiECIie7SlkFlUVPsWEHoOQOCIB8oq8Fzfl7wfNz59YHwIDAQAB"
+	static final String COM_WINGO_SCORENA_FRENCHOPEN_PK = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvYWTHI3oOVSUEv/1rCwW5Fq5xwa4fXQni4IDoaM989LABf3g3ur1sAyj5/mvZKVC1dkBczMLgEUH7J510kqHKEtZaUm28tbUiGCFsw7mZHl5xUtFasPLFzv1S8DrRrGWnP2jwqUw+ByWZWU+AiDOireZkPB3JuEoeFrJErMn9RpTeZBaUvDfC16kuzo37JZDYX3xeIZ/qNbUQngCQKkqw1BLI8udpeARYPeZ03l+ea5l77RxEwivxJOJ/Xzbhdo4fATK/UPYauAIkzDVdwq3cVGJhui6gOyWN0uslj1hDMSbX/H+T/Vjvl3Q0nR0h9q1vn3TnfBQoTRNcWJ1XviGgwIDAQAB"
+	
+	//Scorena Android app package names
+	static final String COM_WINGO_SCORENA = "com.wingo.scorena"
+	static final String COM_WINGO_SCORENA_NBADRAFT = "com.wingo.scorena.nbadraft"
+	static final String COM_WINGO_SCORENA_FRENCHOPEN = "com.wingo.scorena.frenchopen"
 	
 	// returns android app public key
-	public String getPk()
+	public String getPk(String packageName)
 	{
-		
-		return alpha_pk
+		println packageName
+		println COM_WINGO_SCORENA_FRENCHOPEN
+		switch (packageName){
+			case COM_WINGO_SCORENA:
+				return COM_WINGO_SCORENA_PK
+			case COM_WINGO_SCORENA_NBADRAFT:
+				return NGO_SCORENA_NBADRAFT_PK
+			case COM_WINGO_SCORENA_FRENCHOPEN:
+				return COM_WINGO_SCORENA_FRENCHOPEN_PK
+			default:
+				return null
+		}
 		
 	}
 	

@@ -204,7 +204,7 @@ class IAPService {
 	 */
 	def verifyPurchase(String client_nonce, String signature, String app_data, String dev_key )
 	{
-		log.error "verifyPurchase(): begins with client_nonce = ${client_nonce}, signature = ${signature}, app_data = ${app_data}, dev_key = ${dev_key}"
+		log.info "verifyPurchase(): begins with client_nonce = ${client_nonce}, signature = ${signature}, app_data = ${app_data}, dev_key = ${dev_key}"
 		
 		// iap class constants
 		IapConst iap = new IapConst()
@@ -213,13 +213,17 @@ class IAPService {
 		if (nonce_list.contains(client_nonce))
 		{	
 			// gets app public key		
-			String Pk = iap.getPk()
+			
 
 			JSONObject receipt = new JSONObject(app_data)			
+			
+			log.info "receipt: "+receipt.toString()
 			
 			String orderID = receipt.get("orderId")
 			String productID = receipt.get("productId")
 			String payload = receipt.get("developerPayload")
+			String packageName = receipt.get("packageName")
+			String Pk = iap.getPk(packageName)
 			
 			// checks to see if developer payload in app_data matches dev payload sent in google purchase request
 			if (dev_key.equals(payload))
@@ -238,7 +242,7 @@ class IAPService {
 						// adds order id to transaction list
 						transaction_list.add(orderID)
 						System.out.println("google play receipt is valid")
-						log.error "verifyPurchase(): Status: 0, Process: Security-Verify, Message: google play receipt is valid"
+						log.info "verifyPurchase(): Status: 0, Process: Security-Verify, Message: google play receipt is valid"
 						return [Status:"0",Process:"Security-Verify", Message:"Valid receipt"] 
 					}
 					
