@@ -2,16 +2,16 @@ package com.doozi.scorena.gamedata.useroutput.baseball
 
 class GameDataHomeRunPlayer {
 	
-	String playerId
-	String NameDisplayRoster
-	String firstName
-	String lastName
-	String playerNumber
+	String _playerId
+	String _nameDisplayRoster
+	String _firstName
+	String _lastName
+	String _playerNumber
 	
-	String teamCode
-	String homeRunYtd
-	String homeRun
-	String inning
-	String runners
+	String _teamCode
+	int _homeRunYtd
+	int _homeRun
+	int _inning
+	int _runners
 	
 }

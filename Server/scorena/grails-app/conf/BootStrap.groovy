@@ -22,10 +22,14 @@ class BootStrap {
 					bootstrapQuestionContent()
 				}
 				 
+				if (!QuestionContent.findByQuestionType(QuestionContent.BASEBALL_TEAM_HIT_MORE_HR)){
+					bootstrapBaseballQuestionContent()
+				}
+				 
 				if (!Question.count()) {
 					createQuestions()					
 				}
-				
+								
 				if (!Account.count()){
 					createTestUsers()
 					addFriends()
@@ -43,6 +47,10 @@ class BootStrap {
 		 		if (!QuestionContent.count()) {
 					bootstrapQuestionContent()
 				}
+				 
+				 if (!QuestionContent.findByQuestionType(QuestionContent.BASEBALL_TEAM_HIT_MORE_HR)){
+					 bootstrapBaseballQuestionContent()
+				 }
 				 
 				if (!Question.count()) {
 					createQuestions()					
@@ -110,12 +118,15 @@ class BootStrap {
 				if (!Question.count()) {
 					createQuestions()					
 				}
+				
+				if (!QuestionContent.findByQuestionType(QuestionContent.BASEBALL_TEAM_HIT_MORE_HR)){
+					bootstrapBaseballQuestionContent()
+				}
 
 				if (!Account.count()){
 					createTestUsers()
 					addFriends()
 					simulateBetUpcoming()
-					simulateBetPast()
 				}
 				println "bootstrap ended"
 				}
@@ -141,6 +152,116 @@ class BootStrap {
 		println "createCustomQuestions()::pastGames: "+pastGames.size()
 		for (def game: pastGames){
 			customQuestionService.createCustomQuestion(game.gameId, "Joseph will be naked at the party?", "hell yes", "of course")
+		}
+	}
+	
+	def bootstrapBaseballQuestionContent(){
+		def qc1 = new QuestionContent(questionType: QuestionContent.BASEBALL_TEAM_HIT_MORE_HR, content: "Which team will hit more HR?", sport: "baseball")
+		if (qc1.save()){
+			System.out.println("game successfully saved")
+		}else{
+			System.out.println("game save failed")
+			qc1.errors.each{
+				println it
+			}
+		}
+		
+		qc1 = new QuestionContent(questionType: QuestionContent.BASEBALL_PLAYER_HIT_FIRST_HR, content: "Who will hit a HR first?", sport: "baseball")
+		if (qc1.save()){
+			System.out.println("game successfully saved")
+		}else{
+			System.out.println("game save failed")
+			qc1.errors.each{
+				println it
+			}
+		}
+		
+		String indicator = 3
+		qc1 = new QuestionContent(questionType: QuestionContent.BASEBALL_TF_TOTAL_HR_HIGHER_THAN, content: "Will total HR higher than ${indicator}?", sport: "baseball",
+			 indicator1: indicator)
+		if (qc1.save()){
+			System.out.println("game successfully saved")
+		}else{
+			System.out.println("game save failed")
+			qc1.errors.each{
+				println it
+			}
+		}
+		
+		indicator = 5
+		qc1 = new QuestionContent(questionType: QuestionContent.BASEBALL_TF_HR_BEFORE_INNING, content: "Will there be a HR before ${indicator}th inning?", sport: "baseball",
+			 indicator1: indicator)
+		if (qc1.save()){
+			System.out.println("game successfully saved")
+		}else{
+			System.out.println("game save failed")
+			qc1.errors.each{
+				println it
+			}
+		}
+		
+		indicator = 4
+		qc1 = new QuestionContent(questionType: QuestionContent.BASEBALL_TF_HR_BEFORE_INNING, content: "Will there be a HR before ${indicator}th inning?", sport: "baseball",
+			 indicator1: indicator)
+		if (qc1.save()){
+			System.out.println("game successfully saved")
+		}else{
+			System.out.println("game save failed")
+			qc1.errors.each{
+				println it
+			}
+		}
+		
+		indicator = 3
+		qc1 = new QuestionContent(questionType: QuestionContent.BASEBALL_TF_HR_BEFORE_INNING, content: "Will there be a HR before ${indicator}rd inning?", sport: "baseball",
+			 indicator1: indicator)
+		if (qc1.save()){
+			System.out.println("game successfully saved")
+		}else{
+			System.out.println("game save failed")
+			qc1.errors.each{
+				println it
+			}
+		}
+		
+		qc1 = new QuestionContent(questionType: QuestionContent.BASEBALL_TF_SB, content: "Will there be stolen base?", sport: "baseball")
+		if (qc1.save()){
+			System.out.println("game successfully saved")
+		}else{
+			System.out.println("game save failed")
+			qc1.errors.each{
+				println it
+			}
+		}
+		
+		qc1 = new QuestionContent(questionType: QuestionContent.BASEBALL_TF_EXTRAINNING, content: "Will there be extra-innings?", sport: "baseball")
+		if (qc1.save()){
+			System.out.println("game successfully saved")
+		}else{
+			System.out.println("game save failed")
+			qc1.errors.each{
+				println it
+			}
+		}
+		
+		qc1 = new QuestionContent(questionType: QuestionContent.BASEBALL_TEAM_MORE_HIT, content: "Which team will have more hits?", sport: "baseball")
+		if (qc1.save()){
+			System.out.println("game successfully saved")
+		}else{
+			System.out.println("game save failed")
+			qc1.errors.each{
+				println it
+			}
+		}
+		
+		qc1 = new QuestionContent(questionType: QuestionContent.BASEBALL_TEAM_MORE_SO, content: "Which team will have more strike outs?", sport: "baseball")
+		if (qc1.save()){
+			System.out.println("game successfully saved")
+		}else{
+			System.out.println("game save failed")
+			qc1.errors.each{
+				println it
+			}
 		}
 	}
 	
@@ -335,7 +456,7 @@ class BootStrap {
 			println "============simulateBetPast() starts==============="
 			Random random = new Random()
 			def accounts = Account.findAll()
-			def pastGames = gameService.listPastGamesData("all", "nba")
+			def pastGames = gameService.listPastGamesData("all", "mlb")
 			for (int i=0; i < pastGames.size(); i++){
 				
 				if (random.nextInt(2) == 1){
@@ -547,25 +668,25 @@ class BootStrap {
 		String _gender = "male"
 		String _region = "Japan"
 		Random random = new Random()
-//		for(int i = 0; i<pictureURLs.size()/3; i++){
-//			String _email = _displayNames[i]+random.nextInt(100000)+"@scorena.ca"
-//			String pictureURL = ""
-//			if (i<pictureURLs.size()){
-//				pictureURL = pictureURLs[i]
-//			}
-//			
-//			int facebookId = 100000+i
-//			def resp = userService.createTestUser(_displayNames[i], _email, _password, _gender, _region, pictureURL, facebookId.toString())
-//		}
-		
-		String dislayNamePrefix = "user"
-		for(int i = 0; i<500; i++){
-			String displayName = dislayNamePrefix+random.nextInt(100000)
-			String _email = displayName+"@scorena.ca"
-			String pictureURL = ""			
-			int facebookId = 200000+i
-			def resp = userService.createTestUser(displayName, _email, _password, _gender, _region, pictureURL, facebookId.toString())
+		for(int i = 0; i<pictureURLs.size()/3; i++){
+			String _email = _displayNames[i]+random.nextInt(100000)+"@scorena.ca"
+			String pictureURL = ""
+			if (i<pictureURLs.size()){
+				pictureURL = pictureURLs[i]
+			}
+			
+			int facebookId = 100000+i
+			def resp = userService.createTestUser(_displayNames[i], _email, _password, _gender, _region, pictureURL, facebookId.toString())
 		}
+		
+//		String dislayNamePrefix = "user"
+//		for(int i = 0; i<500; i++){
+//			String displayName = dislayNamePrefix+random.nextInt(100000)
+//			String _email = displayName+"@scorena.ca"
+//			String pictureURL = ""			
+//			int facebookId = 200000+i
+//			def resp = userService.createTestUser(displayName, _email, _password, _gender, _region, pictureURL, facebookId.toString())
+//		}
 	}
 	
 	def addAllFriends(){

@@ -15,4 +15,13 @@ class GameDataEventMlb {
 	private Map<String, GameDataTeamMlb> _teamListMlb = [:]
 	private List<GameDataHomeRunPlayer> _homeRunPlayerList = []	//home_runs.player
 	
+	static final String STATUS_PREVIEW = "Preview"
+	static final String STATUS_PREGAME = "Pre-Game"
+	static final String STATUS_WARMUP = "Warmup"
+	static final String STATUS_DELAYEDSTART = "Delayed Start"
+	static final String STATUS_POSTPONED = "Postponed"
+	static final String STATUS_INPROGRESS = "In Progress"
+	static final String STATUS_GAMEOVER = "Game Over"
+	static final String STATUS_FINAL = "Final" 
+
 }

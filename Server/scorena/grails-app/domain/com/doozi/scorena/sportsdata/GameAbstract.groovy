@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.doozi.scorena.transaction.LeagueTypeEnum;
 
-class GameAbstract {
+abstract class GameAbstract {
 
 	String eventKey
 	String fullName

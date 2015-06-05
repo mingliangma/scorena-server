@@ -1,6 +1,7 @@
 package com.doozi.scorena.gameengine.custom
 
 import com.doozi.scorena.CustomGame
+import com.doozi.scorena.enums.EventTypeEnum;
 import com.doozi.scorena.sportsdata.*
 import com.doozi.scorena.gameengine.GameService;
 import com.doozi.scorena.transaction.LeagueTypeEnum
@@ -13,7 +14,7 @@ class CustomGameService {
 	public static final String CUSTOM_EVENT_PREFIX = "customevent-"
 	public static final String ALIGNMENT_AWAY = "away"
 	public static final String ALIGNMENT_HOME = "home"
-	static int UPCOMING_DATE_RANGE = 7
+	static int UPCOMING_DATE_RANGE = 9
 	static int PAST_DATE_RANGE = 7
 	
 	def helperService
@@ -125,51 +126,51 @@ class CustomGameService {
 		def cgAway
 		if (leagueType == LeagueTypeEnum.NBA){
 			
-			cgHome = new CustomGame(fullName: homeTeamName, teamKey: homeTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey, 
+			cgHome = new CustomGame(fullName: homeTeamName, teamKey: homeTeamKey, eventStatus: EventTypeEnum.PREEVENT.toString(), eventKey:eventKey, 
 				alignment: ALIGNMENT_HOME, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, league: LeagueTypeEnum.NBA)
 			
-			cgAway = new CustomGame(fullName: awayTeamName, teamKey: awayTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey,
+			cgAway = new CustomGame(fullName: awayTeamName, teamKey: awayTeamKey, eventStatus: EventTypeEnum.PREEVENT.toString(), eventKey:eventKey,
 				alignment: ALIGNMENT_AWAY, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, league: LeagueTypeEnum.NBA)
 			
 			
 		}else if (leagueType == LeagueTypeEnum.MLB){
 			
-			cgHome = new GameBaseball(fullName: homeTeamName, teamKey: homeTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey,
+			cgHome = new GameBaseball(fullName: homeTeamName, teamKey: homeTeamKey, eventStatus: EventTypeEnum.PREEVENT.toString(), eventKey:eventKey,
 				alignment: ALIGNMENT_HOME, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, 
 				league: LeagueTypeEnum.MLB, autoQuestionCreation: false)
 			
-			cgAway = new GameBaseball(fullName: awayTeamName, teamKey: awayTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey,
+			cgAway = new GameBaseball(fullName: awayTeamName, teamKey: awayTeamKey, eventStatus: EventTypeEnum.PREEVENT.toString(), eventKey:eventKey,
 				alignment: ALIGNMENT_AWAY, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, 
 				league: LeagueTypeEnum.MLB, , autoQuestionCreation: false)
 			
 			
 		}else if (leagueType == LeagueTypeEnum.FRENCHOPEN){
-			cgHome = new GameTennis(fullName: homeTeamName, teamKey: homeTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey,
+			cgHome = new GameTennis(fullName: homeTeamName, teamKey: homeTeamKey, eventStatus: EventTypeEnum.PREEVENT.toString(), eventKey:eventKey,
 				alignment: ALIGNMENT_HOME, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, 
 				league: LeagueTypeEnum.FRENCHOPEN, autoQuestionCreation: false)
 			
 			
-			cgAway = new GameTennis(fullName: awayTeamName, teamKey: awayTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey,
+			cgAway = new GameTennis(fullName: awayTeamName, teamKey: awayTeamKey, eventStatus: EventTypeEnum.PREEVENT.toString(), eventKey:eventKey,
 				alignment: ALIGNMENT_AWAY, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, 
 				league: LeagueTypeEnum.FRENCHOPEN, autoQuestionCreation: false)
 			
 			
 		}else if (leagueType == LeagueTypeEnum.NBADRAFT){
-			cgHome = new GameNBADraft(fullName: homeTeamName, teamKey: homeTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey,
+			cgHome = new GameNbaDraft(fullName: homeTeamName, teamKey: homeTeamKey, eventStatus: EventTypeEnum.PREEVENT.toString(), eventKey:eventKey,
 				alignment: ALIGNMENT_HOME, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, 
 				league: LeagueTypeEnum.NBADRAFT, autoQuestionCreation: false)
 			
-			cgAway = new GameNBADraft(fullName: awayTeamName, teamKey: awayTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey,
+			cgAway = new GameNbaDraft(fullName: awayTeamName, teamKey: awayTeamKey, eventStatus: EventTypeEnum.PREEVENT.toString(), eventKey:eventKey,
 				alignment: ALIGNMENT_AWAY, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, 
 				league: LeagueTypeEnum.NBADRAFT, autoQuestionCreation: false)
 			
 			
 		}else if (leagueType == LeagueTypeEnum.CHAMP){
-			cgHome = new GameSoccer(fullName: homeTeamName, teamKey: homeTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey,
+			cgHome = new GameSoccer(fullName: homeTeamName, teamKey: homeTeamKey, eventStatus: EventTypeEnum.PREEVENT.toString(), eventKey:eventKey,
 				alignment: ALIGNMENT_HOME, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, 
 				league: LeagueTypeEnum.CHAMP, autoQuestionCreation: false)
 			
-			cgAway = new GameSoccer(fullName: awayTeamName, teamKey: awayTeamKey, eventStatus: gameService.PREEVENT, eventKey:eventKey,
+			cgAway = new GameSoccer(fullName: awayTeamName, teamKey: awayTeamKey, eventStatus: EventTypeEnum.PREEVENT.toString(), eventKey:eventKey,
 				alignment: ALIGNMENT_AWAY, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, 
 				league: LeagueTypeEnum.CHAMP, autoQuestionCreation: false)
 			
@@ -182,7 +183,7 @@ class CustomGameService {
 			System.out.println("Custom Game Created successfully saved")
 			log.info "createCustomGameByName(): Custom Game Created successfully saved"
 			return [awayTeamName:awayTeamName, awayTeamKey:awayTeamKey, homeTeamName:homeTeamName, homeTeamKey:homeTeamKey, eventId:eventKey, 
-				eventStatus:gameService.PREEVENT, startDateTime:helperService.setUTCFormat(startDateTime)]
+				eventStatus:EventTypeEnum.PREEVENT.toString(), startDateTime:helperService.setUTCFormat(startDateTime)]
 		}else{
 			System.out.println("game save failed")
 			
@@ -212,7 +213,7 @@ class CustomGameService {
 //			return [error: "The event does not contain the given question ID"]
 //			
 //		
-//		if (status!=null && status!="" && (status==gameService.PREEVENT ||status==gameService.POSTEVENT ||status==gameService.MIDEVENT ||status==gameService.INTERMISSION)){
+//		if (status!=null && status!="" && (status==EventTypeEnum.PREEVENT.toString() ||status==gameService.POSTEVENT ||status==gameService.MIDEVENT ||status==gameService.INTERMISSION)){
 //			
 //		}
 //	}

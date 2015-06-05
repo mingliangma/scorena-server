@@ -1,6 +1,7 @@
 package com.doozi.scorena.transaction
 
 import java.util.Date;
+import com.doozi.scorena.enums.EventTypeEnum;
 
 import com.doozi.scorena.Account;
 import com.doozi.scorena.Question;
@@ -292,7 +293,7 @@ class BetTransactionService {
 			return [code:202, error: "the bet transaction already exsists"]
 		}
 		
-		if (game.gameStatus != sportsDataService.PREEVENT_NAME){
+		if (game.gameStatus != EventTypeEnum.PREEVENT.toString()){
 			log.error "validateBetTrans(): the match is already started. All pool is closed"
 			return [code:202, error: "the match is already started. All pool is closed"]
 		}

@@ -16,7 +16,7 @@ class GameDataInputMlb implements IGameDataInput {
 	public GameDataInputMlb(int offset){
 		Date gameDate = new Date()
 		use( TimeCategory ) {
-			gameDate = gameDate - 8.hours // adjust to EST (-5 hours) and -3
+			gameDate = gameDate - 10.hours // adjust to EST (-5 hours) and -5
 		}
 		
 		gameDate = gameDate.plus(offset)

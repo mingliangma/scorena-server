@@ -1,10 +1,12 @@
 package com.doozi.scorena.gameengine
 
 import com.doozi.scorena.Account
+import com.doozi.scorena.enums.EventTypeEnum;
 import com.doozi.scorena.Pool
 import com.doozi.scorena.Question;
 import com.doozi.scorena.QuestionContent
 import com.doozi.scorena.gamedata.*
+import com.doozi.scorena.sportsdata.*
 import com.doozi.scorena.gamedata.dboutput.SportsDataService;
 import com.doozi.scorena.transaction.BetTransaction
 import com.doozi.scorena.transaction.PayoutTransaction;
@@ -77,6 +79,8 @@ class QuestionService {
 		List resultList = []		
 		def questions = listQuestions(eventKey)
 		def game = gameService.getGame(eventKey)
+		
+		log.info "game="+game
 		List<PayoutTransaction> userPayouts = payoutTansactionService.listPayoutTransByGameIdAndUserId(eventKey, userId)
 		List<BetTransaction> userBets = betTransactionService.listBetsByUserIdAndGameId(eventKey, userId)
 		List<Map> userFriendsList = friendSystemService.listFollowings(userId)
@@ -112,7 +116,7 @@ class QuestionService {
 			def pick2PayoutMultiple = questionPoolUtilService.calculatePick2PayoutMultiple(questionPoolInfo)		
 
 			Boolean isGameProcessed = false
-			if (game.gameStatus.trim() == "post-event"){
+			if (game.gameStatus.trim() == EventTypeEnum.POSTEVENT.toString()){
 				GameProcessRecord processRecord = GameProcessRecord.findByEventKey(game.gameId)
 				if (processRecord && processRecord.transProcessStatus == TransactionProcessStatusEnum.PROCESSED 
 					&& processRecord.scoreProcessStatus == ScoreProcessStatusEnum.PROCESSED){
@@ -161,8 +165,8 @@ class QuestionService {
 				content: questionContent.content,
 				pick1: q.pick1,
 				pick2: q.pick2,
-				pick1LogoUrl: teamLogoService.getTeamLogo(q.pick1.trim()),
-				pick2LogoUrl: teamLogoService.getTeamLogo(q.pick2.trim()),
+				pick1LogoUrl: teamLogoService.getTeamLogo(q.pick1.trim(), q.eventKey),
+				pick2LogoUrl: teamLogoService.getTeamLogo(q.pick2.trim(), q.eventKey),
 				userInfo:userInfo,
 				winnerPick:winnerPick,
 				playerBetAmount: playerBetAmount, //the question preview player bet amount
@@ -214,7 +218,7 @@ class QuestionService {
 		Map game = gameService.getGame(q.eventKey)
 		Map questionDetails = [:]
 		
-		if (game.gameStatus.trim() == "post-event"){
+		if (game.gameStatus.trim() == EventTypeEnum.POSTEVENT.toString()){
 			questionDetails = getPostEventQuestion(q, userId, game)
 		}else{
 			questionDetails = getPreEventQuestion(q, userId)
@@ -231,12 +235,13 @@ class QuestionService {
 		
 		int questionsCreated = 0
 //		List upcomingGames = []
-		List upcomingGames = gameService.listUpcomingNonCustomGames()
+//		List upcomingGames = gameService.listUpcomingNonCustomGames()
+		List upcomingGames = gameService.listUpcomingGamesData("all", "all")
 //		List upcomingGamesNBA = gameService.listUpcomingGamesData("all", "nba")
 //		upcomingGames.addAll(upcomingGamesSoccer)
 //		upcomingGames.addAll(upcomingGamesNBA)
 		
-		
+		println "upcomingGames.size()="+upcomingGames.size()
 		for (int i=0; i < upcomingGames.size(); i++){
 
 			def game = upcomingGames.get(i)			
@@ -251,6 +256,8 @@ class QuestionService {
 		
 		return questionsCreated
 	}
+	
+
 	
 	@Transactional
 	int populateQuestions(String away, String home, String eventId){
@@ -362,6 +369,10 @@ class QuestionService {
 				}
 			}
 		
+		}else if (sportsDataService.getLeagueCodeFromEventKey(eventId) == LeagueTypeEnum.MLB){
+			
+			questionCreated += populateMlbQuestions(away, home, eventId)
+		
 		}
 		
 
@@ -373,7 +384,216 @@ class QuestionService {
 		return questionCreated
 	}
 	
+	int populateMlbQuestions(String away, String home, String eventId){
+		int questionCreated = 0
+		questionCreated += populateMlbTeamHitMoreHomeRun(away, home, eventId)
+		questionCreated += populateMlbPlayerHitHomeRun(away, home, eventId)
+		questionCreated += populateMlbTeamHaveMoreHits(away, home, eventId)
+		questionCreated += populateMlbTeamHaveMoreStrikeOuts(away, home, eventId)
+		questionCreated += populateMlbTotalHRHigherThan(eventId)
+		questionCreated += populateMlbHRBeforeInning(eventId)
+		questionCreated += populateMlbWillThereBeStolenBases(eventId)
+		questionCreated += populateMlbWillThereBeExtraInning(eventId)
+		
+		return questionCreated
+		
+//		Random random = new Random()		
+//		while (questionCreated < 3){
+//			int indicator = random.nextInt(6)
+//			questionCreated += populateMlbTeamHitMoreHomeRun(away, home, eventId)
+//		}
+	}
+	
+	private int populateMlbPlayerHitHomeRun(String away, String home, String eventId){
+				
+		final int minHomeRunYtd = 10
+		int questionCreated = 0
+		
+		String teamCodeQuery = "select teamAbbreviation from TeamBaseball where clubName = (:clubName)"
+		
+		GameBaseballHomeRun homeHR = GameBaseballHomeRun.find("from GameBaseballHomeRun as hr where "+
+			"hr.teamCode = (${teamCodeQuery}) and " +
+			"hr.homeRunYtd = (select max(homeRunYtd) from GameBaseballHomeRun where teamCode = (${teamCodeQuery}))",
+			[clubName: home])
+		
+		GameBaseballHomeRun awayHR = GameBaseballHomeRun.find("from GameBaseballHomeRun as hr where "+
+			"hr.teamCode = (${teamCodeQuery}) and " +
+			"hr.homeRunYtd = (select max(homeRunYtd) from GameBaseballHomeRun where teamCode = (${teamCodeQuery}))",
+			[clubName: away])
+		
+		QuestionContent qc
+		Question q
+		
+		if (homeHR.homeRunYtd >= minHomeRunYtd && awayHR.homeRunYtd >= minHomeRunYtd ){
+			qc = QuestionContent.findByQuestionType(QuestionContent.BASEBALL_PLAYER_HIT_FIRST_HR)
+			q = new Question(eventKey: eventId, pick1: homeHR.nameDisplayRoster, pick2: awayHR.nameDisplayRoster, pool: new Pool(minBet: 5))
+			qc.addToQuestion(q)
 
+		}else if (homeHR.homeRunYtd >= minHomeRunYtd){
+			qc = new QuestionContent(questionType: QuestionContent.BASEBALL_TF_PLAYER_HIT_HR, 
+				content: "Will ${homeHR.nameDisplayRoster} hit a HR?", sport: "baseball", playerIndicator: homeHR.playerId)
+			
+			q = new Question(eventKey: eventId, pick1: "Yes", pick2: "No", pool: new Pool(minBet: 5))
+			qc.addToQuestion(q)
+		}else if (awayHR.homeRunYtd >= minHomeRunYtd){
+			qc = new QuestionContent(questionType: QuestionContent.BASEBALL_TF_PLAYER_HIT_HR,
+				content: "Will ${awayHR.nameDisplayRoster} hit a HR?", sport: "baseball", playerIndicator: awayHR.playerId)
+			
+			q = new Question(eventKey: eventId, pick1: "Yes", pick2: "No", pool: new Pool(minBet: 5))
+			qc.addToQuestion(q)
+		}else{
+			return 	questionCreated
+		}
+		
+		if (qc.save(failOnError:true) && q.save(failOnError:true)){
+			log.info "populateQuestions(): game successfully saved"
+			questionCreated = 1
+		}else{
+			log.error "populateQuestions(): game save failed"
+			qc.errors.each{
+				println it
+			}
+			
+			q.errors.each{
+				println it
+			}
+		}
+
+		return questionCreated
+	}
+	
+	private int populateMlbTeamHitMoreHomeRun(String away, String home, String eventId){
+		
+		int questionCreated = 0
+		QuestionContent homerunQC = QuestionContent.findByQuestionType(QuestionContent.BASEBALL_TEAM_HIT_MORE_HR)
+		def q = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
+		homerunQC.addToQuestion(q)
+		if (homerunQC.save(failOnError:true)){			
+			log.info "populateQuestions(): game successfully saved"
+			questionCreated = 1
+		}else{
+			log.error "populateQuestions(): game save failed"
+			homerunQC.errors.each{
+				println it
+			}
+		}
+		return questionCreated
+	}
+	
+	private int populateMlbTeamHaveMoreHits(String away, String home, String eventId){
+		
+		int questionCreated = 0
+		QuestionContent homerunQC = QuestionContent.findByQuestionType(QuestionContent.BASEBALL_TEAM_MORE_HIT)
+		def q = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
+		homerunQC.addToQuestion(q)
+		if (homerunQC.save(failOnError:true)){
+			log.info "populateQuestions(): game successfully saved"
+			questionCreated = 1
+		}else{
+			log.error "populateQuestions(): game save failed"
+			homerunQC.errors.each{
+				println it
+			}
+		}
+		return questionCreated
+	}
+	
+	private int populateMlbTeamHaveMoreStrikeOuts(String away, String home, String eventId){
+		
+		int questionCreated = 0
+		QuestionContent homerunQC = QuestionContent.findByQuestionType(QuestionContent.BASEBALL_TEAM_MORE_SO)
+		def q = new Question(eventKey: eventId, pick1: home, pick2: away, pool: new Pool(minBet: 5))
+		homerunQC.addToQuestion(q)
+		if (homerunQC.save(failOnError:true)){
+			log.info "populateQuestions(): game successfully saved"
+			questionCreated = 1
+		}else{
+			log.error "populateQuestions(): game save failed"
+			homerunQC.errors.each{
+				println it
+			}
+		}
+		return questionCreated
+	}
+	
+	private int populateMlbTotalHRHigherThan(String eventId){
+		
+		int questionCreated = 0		
+		
+		QuestionContent qc = QuestionContent.findByQuestionType(QuestionContent.BASEBALL_TF_TOTAL_HR_HIGHER_THAN)
+		def q = new Question(eventKey: eventId, pick1: "Yes", pick2: "No", pool: new Pool(minBet: 5))
+		qc.addToQuestion(q)
+		if (qc.save(failOnError:true)){
+			log.info "populateQuestions(): game successfully saved"
+			questionCreated = 1
+		}else{
+			log.error "populateQuestions(): game save failed"
+			qc.errors.each{
+				println it
+			}
+		}
+		return questionCreated
+	}
+	
+	private int populateMlbHRBeforeInning(String eventId){
+		
+		int questionCreated = 0
+		Random random = new Random()
+		int indicator = random.nextInt(2) + 3
+		
+		
+		QuestionContent qc = QuestionContent.findByQuestionTypeAndIndicator1(QuestionContent.BASEBALL_TF_HR_BEFORE_INNING, indicator.toString())
+		def q = new Question(eventKey: eventId, pick1: "Yes", pick2: "No", pool: new Pool(minBet: 5))
+		qc.addToQuestion(q)
+		if (qc.save(failOnError:true)){
+			log.info "populateQuestions(): game successfully saved"
+			questionCreated = 1
+		}else{
+			log.error "populateQuestions(): game save failed"
+			qc.errors.each{
+				println it
+			}
+		}
+		return questionCreated
+	}
+	
+	private int populateMlbWillThereBeStolenBases(String eventId){
+		
+		int questionCreated = 0
+		
+		QuestionContent qc = QuestionContent.findByQuestionType(QuestionContent.BASEBALL_TF_SB)
+		def q = new Question(eventKey: eventId, pick1: "Yes", pick2: "No", pool: new Pool(minBet: 5))
+		qc.addToQuestion(q)
+		if (qc.save(failOnError:true)){
+			log.info "populateQuestions(): game successfully saved"
+			questionCreated = 1
+		}else{
+			log.error "populateQuestions(): game save failed"
+			qc.errors.each{
+				println it
+			}
+		}
+		return questionCreated
+	}
+	
+	private int populateMlbWillThereBeExtraInning(String eventId){
+		
+		int questionCreated = 0
+		
+		QuestionContent qc = QuestionContent.findByQuestionType(QuestionContent.BASEBALL_TF_EXTRAINNING)
+		def q = new Question(eventKey: eventId, pick1: "Yes", pick2: "No", pool: new Pool(minBet: 5))
+		qc.addToQuestion(q)
+		if (qc.save(failOnError:true)){
+			log.info "populateQuestions(): game successfully saved"
+			questionCreated = 1
+		}else{
+			log.error "populateQuestions(): game save failed"
+			qc.errors.each{
+				println it
+			}
+		}
+		return questionCreated
+	}
 	
 	/**
 	 * @param q: Question Object that is being requested
@@ -415,7 +635,7 @@ class QuestionService {
 		List<BetTransaction> betTransList = betTransactionService.listAllBetsByQId(q.id)
 		int winnerPick = -1
 		Boolean isGameProcessed = false
-		if (game.gameStatus.trim() == "post-event"){
+		if (game.gameStatus.trim() == EventTypeEnum.POSTEVENT.toString()){
 			GameProcessRecord processRecord = GameProcessRecord.findByEventKey(game.gameId)
 			if (processRecord && processRecord.transProcessStatus == TransactionProcessStatusEnum.PROCESSED
 				&& processRecord.scoreProcessStatus == ScoreProcessStatusEnum.PROCESSED){
@@ -511,8 +731,8 @@ class QuestionService {
 			content: q.questionContent.content,
 			pick1: q.pick1,
 			pick2: q.pick2,
-			pick1LogoUrl: teamLogoService.getTeamLogo(q.pick1.trim()),
-			pick2LogoUrl: teamLogoService.getTeamLogo(q.pick2.trim()),
+			pick1LogoUrl: teamLogoService.getTeamLogo(q.pick1.trim(), q.eventKey),
+			pick2LogoUrl: teamLogoService.getTeamLogo(q.pick2.trim(), q.eventKey),
 			winnerPick: winnerPick,
 			userInfo: userInfo,
 			pool: [
@@ -602,9 +822,9 @@ class QuestionService {
 			questionId: q.id,
 			content: q.questionContent.content,
 			pick1: q.pick1,
-			pick1LogoUrl: teamLogoService.getTeamLogo(q.pick1.trim()),
+			pick1LogoUrl: teamLogoService.getTeamLogo(q.pick1.trim(), q.eventKey),
 			pick2: q.pick2,
-			pick2LogoUrl: teamLogoService.getTeamLogo(q.pick2.trim()),
+			pick2LogoUrl: teamLogoService.getTeamLogo(q.pick2.trim(), q.eventKey),
 			lastUpdate: "",
 			userInfo:userInfo,
 			pool: [
@@ -669,7 +889,7 @@ class QuestionService {
 				
 				
 			def game = gameService.getGame(question[eventKeyIndex])				
-			if (game.gameStatus == SportsDataService.PREEVENT_NAME){
+			if (game.gameStatus == EventTypeEnum.PREEVENT.toString()){
 				preeventQuestions.add([gameId:question[eventKeyIndex], questionId: question[quesitonIdIndex]])
 			}					
 			

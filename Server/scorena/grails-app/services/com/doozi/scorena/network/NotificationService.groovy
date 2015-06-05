@@ -1,6 +1,7 @@
 package com.doozi.scorena.network
 
 import grails.plugins.rest.client.RestBuilder
+import com.doozi.scorena.enums.EventTypeEnum;
 
 import java.util.Date;
 import java.util.List;
@@ -248,7 +249,7 @@ class NotificationService {
 		log.info "friendBetReminder(): message = "+message
 
 		def rest = new RestBuilder()
-		pushService.questionPushTargetUserId(rest, usersToBeNotified, q.eventKey, gameService.PREEVENT, message)
+		pushService.questionPushTargetUserId(rest, usersToBeNotified, q.eventKey, EventTypeEnum.POSTEVENT.toString(), message)
 		storeNotification(usersToBeNotified, message, NotificationTypeEnum.FRIENDBET, q.eventKey, q.id.toString())
 		log.info "friendBetReminder(): ends"
 		return  usersToBeNotified

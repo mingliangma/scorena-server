@@ -5,7 +5,7 @@ import grails.converters.JSON
 
 // /v1/sports/soccer/premier/questions
 //GET	-gameID
-
+import com.doozi.scorena.sportsdata.*
 
 
 class QuestionController {
@@ -58,6 +58,7 @@ class QuestionController {
 	
 	def createQuestions(){
 		log.info "createQuestions(): begins..."
+		
 		
 		def questionCreationResult = questionService.createQuestions()
 		Map result = [questionCreated: questionCreationResult]

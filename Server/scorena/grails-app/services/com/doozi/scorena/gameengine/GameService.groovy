@@ -6,6 +6,7 @@ import com.doozi.scorena.score.AbstractScore
 import com.doozi.scorena.transaction.BetTransaction
 import com.doozi.scorena.transaction.LeagueTypeEnum
 import com.doozi.scorena.processengine.*
+import com.doozi.scorena.enums.EventTypeEnum;
 
 import org.springframework.transaction.annotation.Transactional
 
@@ -23,11 +24,6 @@ class GameService {
 	def scoreService
 	def parseService
 	def profitRankingService
-	
-	public static final String POSTEVENT = "post-event"
-	public static final String PREEVENT = "pre-event"
-	public static final String INTERMISSION = "intermission"
-	public static final String MIDEVENT = "mid-event"
 	
 	List listUpcomingNonCustomGames(){
 		log.info "listUpcomingNonCustomGames(): begins..."
@@ -53,7 +49,7 @@ class GameService {
 		List upcomingTennisGames = []
 		List upcomingMLBGames = []
 		List upcomingNBADraftGames = []
-
+		
 		if (leagueType.toUpperCase() == LeagueTypeEnum.NBA.toString()){
 			
 			upcomingCustomGames = customGameService.getAllUpcomingGames()
@@ -71,7 +67,6 @@ class GameService {
 			upcomingGames = sportsDataService.getAllUpcomingMLBGames()
 			
 		}else if (leagueType.toUpperCase() == LeagueTypeEnum.FRENCHOPEN.toString()){
-		
 			upcomingGames = sportsDataService.getAllUpcomingTennisGames()
 			
 		}else if (leagueType.toUpperCase() == LeagueTypeEnum.NBADRAFT.toString()){
@@ -79,12 +74,12 @@ class GameService {
 			upcomingGames = sportsDataService.getAllUpcomingNBADraftGames()
 			
 		}else{
-			upcomingCustomGames = customGameService.getAllUpcomingGames()
-			upcomingGames = sportsDataService.getAllUpcomingGames()
 			upcomingChampGames = sportsDataService.getAllUpcomingChampionGames()
 			upcomingTennisGames = sportsDataService.getAllUpcomingTennisGames()
 			upcomingMLBGames = sportsDataService.getAllUpcomingMLBGames()
 			upcomingNBADraftGames = sportsDataService.getAllUpcomingNBADraftGames()
+			upcomingCustomGames = customGameService.getAllUpcomingGames()
+			upcomingGames = sportsDataService.getAllUpcomingGames()
 		}
 		
 		List upcomingGamesResult=[]
@@ -198,7 +193,7 @@ class GameService {
 		}
 		 		
 		for (def pastGame: pastGamesResult){
-			if (pastGame.gameStatus != "post-event"){
+			if (pastGame.gameStatus != EventTypeEnum.POSTEVENT.toString()){
 				println "gameService::listPastGames():wrong event: "+ pastGame
 				log.error "wrong event:" + pastGame
 			}
@@ -230,7 +225,7 @@ class GameService {
 			pastGame.isGameProcessed = isGameProcessed
 		}
 		
-		log.info "listPastGames(): ends"
+		log.info "listPastGames(): ends. game size="+pastGamesResult.size()
 		
 		return pastGamesResult
 	}

@@ -11,6 +11,7 @@ import com.doozi.scorena.gamedata.useroutput.basketball.GameDataLastMeetingNba
 import com.doozi.scorena.gamedata.useroutput.basketball.GameDataNbaOutput
 import com.doozi.scorena.gamedata.useroutput.basketball.GameDataTeamStatsNba
 import com.mysql.jdbc.log.Log;
+import com.doozi.scorena.transaction.LeagueTypeEnum
 
 import grails.converters.JSON
 import groovy.time.TimeCategory
@@ -22,19 +23,31 @@ class GameDataController {
 	def gameDataDbInputMlbService
 	
 	
+	def getSupportedLeagues(){
+		def result = [leagues: [LeagueTypeEnum.EPL.toString(),
+			LeagueTypeEnum.NBA.toString(),
+			LeagueTypeEnum.NBADRAFT.toString(),
+			LeagueTypeEnum.FRENCHOPEN.toString() ]]
+		render result as JSON
+	}
+	
 	def updateMlbTeam(){
 		gameDataDbInputMlbService.updateTeamInfo()
 		def result = [isCompleted: true]
 		render result as JSON
 	}
 	
-//	def updateMlbSchedule(){
-//		gameDataDbInputMlbService.updateSchedule()
-//		def result = [isCompleted: true]
-//		render result as JSON
-//	}
+	def updateMlbSchedule(){
+		gameDataDbInputMlbService.updateSchedule()
+		def result = [isCompleted: true]
+		render result as JSON
+	}
 	
-	
+	def updateMlbScore(){
+		gameDataDbInputMlbService.updateScore()
+		def result = [isCompleted: true]
+		render result as JSON
+	}
 	//fetch nba playoffs schedule
 	def fetchNBAPlayoffsSchedule(){
 		

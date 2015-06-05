@@ -115,7 +115,7 @@ class GameController {
 	}
 	
 	def handleException(Exception e) {
-		ProcessStatus.transactionProcessStopped()
+//		ProcessStatus.transactionProcessStopped()
 		response.status = 500
 		render e.toString()
 		log.error "${e.toString()}", e

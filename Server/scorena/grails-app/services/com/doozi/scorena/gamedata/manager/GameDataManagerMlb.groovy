@@ -62,30 +62,30 @@ class GameDataManagerMlb implements IGameDataManager{
 				
 				if (homeRunPlayerList.getClass() == org.codehaus.groovy.grails.web.json.JSONObject){
 					GameDataHomeRunPlayer hrp = new GameDataHomeRunPlayer()
-					hrp.playerId = homeRunPlayerList.get("id")
-					hrp.NameDisplayRoster = homeRunPlayerList.get("name_display_roster")
-					hrp.firstName = homeRunPlayerList.get("first")
-					hrp.lastName = homeRunPlayerList.get("last")
-					hrp.playerNumber = homeRunPlayerList.get("number")
-					hrp.teamCode = homeRunPlayerList.get("team_code")
-					hrp.homeRunYtd = homeRunPlayerList.get("std_hr")
-					hrp.homeRun = homeRunPlayerList.get("hr")
-					hrp.inning = homeRunPlayerList.get("inning")
-					hrp.runners = homeRunPlayerList.get("runners")
+					hrp._playerId = homeRunPlayerList.get("id")
+					hrp._nameDisplayRoster = homeRunPlayerList.get("name_display_roster")
+					hrp._firstName = homeRunPlayerList.get("first")
+					hrp._lastName = homeRunPlayerList.get("last")
+					hrp._playerNumber = homeRunPlayerList.get("number")
+					hrp._teamCode = homeRunPlayerList.get("team_code")
+					hrp._homeRunYtd = homeRunPlayerList.get("std_hr").toInteger()
+					hrp._homeRun = homeRunPlayerList.get("hr").toInteger()
+					hrp._inning = homeRunPlayerList.get("inning").toInteger()
+					hrp._runners = homeRunPlayerList.get("runners").toInteger()
 					gameDataEventMlb._homeRunPlayerList.add(hrp)
 				}else{
 					for (def hrPlayer: homeRunPlayerList){
 						GameDataHomeRunPlayer hrp = new GameDataHomeRunPlayer()
-						hrp.playerId = hrPlayer.get("id")
-						hrp.NameDisplayRoster = hrPlayer.get("name_display_roster")
-						hrp.firstName = hrPlayer.get("first")
-						hrp.lastName = hrPlayer.get("last")
-						hrp.playerNumber = hrPlayer.get("number")
-						hrp.teamCode = hrPlayer.get("team_code")
-						hrp.homeRunYtd = hrPlayer.get("std_hr")
-						hrp.homeRun = hrPlayer.get("hr")
-						hrp.inning = hrPlayer.get("inning")
-						hrp.runners = hrPlayer.get("runners")
+						hrp._playerId = hrPlayer.get("id")
+						hrp._nameDisplayRoster = hrPlayer.get("name_display_roster")
+						hrp._firstName = hrPlayer.get("first")
+						hrp._lastName = hrPlayer.get("last")
+						hrp._playerNumber = hrPlayer.get("number")
+						hrp._teamCode = hrPlayer.get("team_code")
+						hrp._homeRunYtd = hrPlayer.get("std_hr").toInteger()
+						hrp._homeRun = hrPlayer.get("hr").toInteger()
+						hrp._inning = hrPlayer.get("inning").toInteger()
+						hrp._runners = hrPlayer.get("runners").toInteger()
 						gameDataEventMlb._homeRunPlayerList.add(hrp)
 					}
 				}
@@ -120,13 +120,26 @@ class GameDataManagerMlb implements IGameDataManager{
 				homeTeam._hits = g.linescore.h.home
 				
 				if (g.linescore.inning.getClass() == org.codehaus.groovy.grails.web.json.JSONObject){
-					homeTeam._inningList.add(g.linescore.inning.home)
+					if (g.linescore.inning.home && g.linescore.inning.away){
+						homeTeam._inningList.add(g.linescore.inning.home)
+					}
 				}else{
 					List<Map> inningList = g.linescore.inning
+					int i = 0
 					for (Map inning: inningList){
-						homeTeam._inningList.add(inning.home)
+						if (i == inningList.size()-1 && inning.home == null){
+							homeTeam._inningList.add("X")
+						}else{							
+							if (inning.home == ""){
+								homeTeam._inningList.add("0")
+							}else{
+								homeTeam._inningList.add(inning.home)
+							}
+						}
+						i++
 					}
 				}
+				
 			}
 			
 			GameDataTeamMlb awayTeam = new GameDataTeamMlb()
@@ -136,7 +149,7 @@ class GameDataManagerMlb implements IGameDataManager{
 			awayTeam._clubName = g.away_team_name
 			awayTeam._win = g.away_win
 			awayTeam._loss = g.away_loss
-			awayTeam._allignment = "home"
+			awayTeam._allignment = "away"
 			
 			if (g.away_probable_pitcher){
 				awayTeam._probablePitcherNameDisplayRoster = g.away_probable_pitcher.name_display_roster
@@ -157,14 +170,29 @@ class GameDataManagerMlb implements IGameDataManager{
 				awayTeam._stolenBases = g.linescore.sb.away
 				awayTeam._hits = g.linescore.h.away
 				
+				
 				if (g.linescore.inning.getClass() == org.codehaus.groovy.grails.web.json.JSONObject){
-					awayTeam._inningList.add(g.linescore.inning.away)
-				}else{
-					List<Map> inningList = g.linescore.inning
-					for (Map inning: inningList){
-						awayTeam._inningList.add(inning.away)
+					if (g.linescore.inning.home && g.linescore.inning.away){
+						awayTeam._inningList.add(g.linescore.inning.away)
 					}
+				}else{
+					List<Map> inningList = g.linescore.inning					
+					int i = 0
+					for (Map inning: inningList){
+						if (i == inningList.size()-1 && inning.away == null){
+							awayTeam._inningList.add("X")
+						}else{
+							if (inning.away == ""){
+								awayTeam._inningList.add("0")
+							}else{
+								awayTeam._inningList.add(inning.away)
+							}
+						}
+						i++
+					}
+					
 				}
+				
 			}
 			
 			

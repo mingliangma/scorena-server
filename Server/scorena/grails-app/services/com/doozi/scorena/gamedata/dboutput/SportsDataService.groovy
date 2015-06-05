@@ -1,6 +1,7 @@
 package com.doozi.scorena.gamedata.dboutput
 import com.doozi.scorena.sportsdata.*;
 import com.doozi.scorena.transaction.LeagueTypeEnum;
+import com.doozi.scorena.enums.EventTypeEnum;
 
 import org.springframework.transaction.annotation.Transactional
 
@@ -23,12 +24,6 @@ class SportsDataService {
 	final static int INTERMISSION = 2
 	final static int MIDEVENT = 1
 	final static int ALLEVENT = 4
-	
-	final static String PREEVENT_NAME = "pre-event"
-	final static String POSTEVENT_NAME = "post-event"
-	final static String INTERMISSION_NAME = "intermission"
-	final static String MIDEVENT_NAME = "mid-event"
-	
 	
 	static int UPCOMING_DATE_RANGE = 14
 	static int PAST_DATE_RANGE = 14
@@ -163,7 +158,7 @@ class SportsDataService {
 		def c = ScorenaAllGames.createCriteria()
 		def upcomingGames = c.list {
 			between("startDateTime", todayDate-1, upcomingDate)
-			ne("eventStatus", "post-event")
+			ne("eventStatus", EventTypeEnum.POSTEVENT.toString())
 			order("startDateTime", "asc")
 			projections {
 				distinct "eventKey"
@@ -178,11 +173,10 @@ class SportsDataService {
 		
 		def todayDate = new Date()		
 		def upcomingDate = todayDate + UPCOMING_DATE_RANGE;
-//		def upcomingGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime<? and g.startDateTime>? and g.eventStatus<>'post-event' order by g.startDateTime", [upcomingDate, todayDate-1])
 		def c = ScorenaAllGames.createCriteria()
 		def upcomingGames = c.list {
 			between("startDateTime", todayDate-1, upcomingDate)
-			ne("eventStatus", "post-event")
+			ne("eventStatus", EventTypeEnum.POSTEVENT.toString())
 		    order("startDateTime", "asc")
 		}
 		def upcomingGamesMap = [:]
@@ -198,11 +192,10 @@ class SportsDataService {
 		
 		def todayDate = new Date()
 		def upcomingDate = todayDate + UPCOMING_DATE_RANGE;
-//		def upcomingGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime<? and g.startDateTime>? and g.eventStatus<>'post-event' order by g.startDateTime", [upcomingDate, todayDate-1])
 		def c = ScorenaAllGames.createCriteria()
 		def upcomingGames = c.list {
 			between("startDateTime", todayDate-1, upcomingDate)
-			ne("eventStatus", "post-event")
+			ne("eventStatus", EventTypeEnum.POSTEVENT.toString())
 			order("startDateTime", "asc")
 			ilike("eventKey", getLeaguePrefixFromLeagueEnum(getLeagueEnumFromLeagueString(leagueType))+"%")
 		}
@@ -222,7 +215,7 @@ class SportsDataService {
 		def c = GameTennis.createCriteria()
 		def upcomingGames = c.list {
 			between("startDateTime", todayDate-1, upcomingDate)
-			ne("eventStatus", "post-event")
+			ne("eventStatus", EventTypeEnum.POSTEVENT.toString())
 			order("startDateTime", "asc")
 		}
 		def upcomingGamesMap = [:]
@@ -241,13 +234,16 @@ class SportsDataService {
 		def c = GameBaseball.createCriteria()
 		def upcomingGames = c.list {
 			between("startDateTime", todayDate-1, upcomingDate)
-			ne("eventStatus", "post-event")
+			ne("eventStatus", EventTypeEnum.POSTEVENT.toString())
 			order("startDateTime", "asc")
+			maxResults(20)
 		}
 		def upcomingGamesMap = [:]
+		
+		println "upcomingGamesList size = "+upcomingGames.size()
 		List upcomingGamesList = constructGameList(upcomingGames, PREEVENT, todayDate)
 		
-		log.debug "getAllUpcomingGames(): ends"
+		log.debug "getAllUpcomingGames(): ends with size="+upcomingGamesList.size()
 		
 		return upcomingGamesList
 	}
@@ -257,10 +253,10 @@ class SportsDataService {
 		
 		def todayDate = new Date()
 		def upcomingDate = todayDate + UPCOMING_DATE_RANGE;
-		def c = GameNBADraft.createCriteria()
+		def c = GameNbaDraft.createCriteria()
 		def upcomingGames = c.list {
 			between("startDateTime", todayDate-1, upcomingDate)
-			ne("eventStatus", "post-event")
+			ne("eventStatus", EventTypeEnum.POSTEVENT.toString())
 			order("startDateTime", "asc")
 		}
 		def upcomingGamesMap = [:]
@@ -279,7 +275,26 @@ class SportsDataService {
 		def c = GameSoccer.createCriteria()
 		def upcomingGames = c.list {
 			between("startDateTime", todayDate-1, upcomingDate)
-			ne("eventStatus", "post-event")
+			ne("eventStatus", EventTypeEnum.POSTEVENT.toString())
+			order("startDateTime", "asc")
+		}
+		def upcomingGamesMap = [:]
+		List upcomingGamesList = constructGameList(upcomingGames, PREEVENT, todayDate)
+		
+		log.debug "getAllUpcomingGames(): ends"
+		
+		return upcomingGamesList
+	}
+	
+	def getAllUpcomingAbstractGames(){
+		log.debug "getAllUpcomingAbstractGames(): begins..."
+		
+		def todayDate = new Date()
+		def upcomingDate = todayDate + UPCOMING_DATE_RANGE;
+		def c = GameAbstract.createCriteria()
+		def upcomingGames = c.list {
+			between("startDateTime", todayDate-1, upcomingDate)
+			ne("eventStatus", EventTypeEnum.POSTEVENT.toString())
 			order("startDateTime", "asc")
 		}
 		def upcomingGamesMap = [:]
@@ -295,12 +310,11 @@ class SportsDataService {
 		
 		def todayDate = new Date()
 		def pastDate = todayDate - PAST_DATE_RANGE;
-//		def pastGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime>? and g.startDateTime<?and g.eventStatus='post-event'", [pastDate, todayDate+1])
 		
 		def c = ScorenaAllGames.createCriteria()
 		def pastGames = c.list {
 			between("startDateTime", pastDate, todayDate+1)
-			eq("eventStatus", "post-event")
+			eq("eventStatus", EventTypeEnum.POSTEVENT.toString())
 			order("startDateTime", "desc")
 		}
 		
@@ -320,7 +334,7 @@ class SportsDataService {
 		def c = ScorenaAllGames.createCriteria()
 		def pastGames = c.list {
 			between("startDateTime", pastDate, todayDate+1)
-			eq("eventStatus", "post-event")
+			eq("eventStatus", EventTypeEnum.POSTEVENT.toString())
 			order("startDateTime", "desc")
 			ilike("eventKey", getLeaguePrefixFromLeagueEnum(getLeagueEnumFromLeagueString(leagueType))+"%")
 		}
@@ -337,12 +351,11 @@ class SportsDataService {
 		
 		def todayDate = new Date()
 		def pastDate = todayDate - PAST_DATE_RANGE;
-//		def pastGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime>? and g.startDateTime<?and g.eventStatus='post-event'", [pastDate, todayDate+1])
 		
 		def c = GameTennis.createCriteria()
 		def pastGames = c.list {
 			between("startDateTime", pastDate, todayDate+1)
-			eq("eventStatus", "post-event")
+			eq("eventStatus", EventTypeEnum.POSTEVENT.toString())
 			order("startDateTime", "desc")
 		}
 		
@@ -358,13 +371,13 @@ class SportsDataService {
 		
 		def todayDate = new Date()
 		def pastDate = todayDate - PAST_DATE_RANGE;
-//		def pastGames = ScorenaAllGames.findAll("from ScorenaAllGames as g where g.startDateTime>? and g.startDateTime<?and g.eventStatus='post-event'", [pastDate, todayDate+1])
 		
 		def c = GameBaseball.createCriteria()
 		def pastGames = c.list {
 			between("startDateTime", pastDate, todayDate+1)
-			eq("eventStatus", "post-event")
+			eq("eventStatus", EventTypeEnum.POSTEVENT.toString())
 			order("startDateTime", "desc")
+			maxResults(30)
 		}
 		
 		List pastGamesList = constructGameList(pastGames, POSTEVENT, todayDate)
@@ -380,10 +393,10 @@ class SportsDataService {
 		def todayDate = new Date()
 		def pastDate = todayDate - PAST_DATE_RANGE;
 		
-		def c = GameNBADraft.createCriteria()
+		def c = GameNbaDraft.createCriteria()
 		def pastGames = c.list {
 			between("startDateTime", pastDate, todayDate+1)
-			eq("eventStatus", "post-event")
+			eq("eventStatus", EventTypeEnum.POSTEVENT.toString())
 			order("startDateTime", "desc")
 		}
 		
@@ -403,7 +416,27 @@ class SportsDataService {
 		def c = GameSoccer.createCriteria()
 		def pastGames = c.list {
 			between("startDateTime", pastDate, todayDate+1)
-			eq("eventStatus", "post-event")
+			eq("eventStatus", EventTypeEnum.POSTEVENT.toString())
+			order("startDateTime", "desc")
+		}
+		
+		List pastGamesList = constructGameList(pastGames, POSTEVENT, todayDate)
+		
+		log.debug "getAllPastGames(): ends"
+		
+		return pastGamesList
+	}
+	
+	List getAllPastAbstractGames(){
+		log.debug "getAllPastGames(): begins..."
+		
+		def todayDate = new Date()
+		def pastDate = todayDate - PAST_DATE_RANGE;
+		
+		def c = GameAbstract.createCriteria()
+		def pastGames = c.list {
+			between("startDateTime", pastDate, todayDate+1)
+			eq("eventStatus", EventTypeEnum.POSTEVENT.toString())
 			order("startDateTime", "desc")
 		}
 		
@@ -468,7 +501,7 @@ class SportsDataService {
 	Map getNBADraftGame(def eventKey){
 		log.debug "getNBADraftGame(): begins with eventKey = ${eventKey}"
 		
-		def c = GameNBADraft.createCriteria()
+		def c = GameNbaDraft.createCriteria()
 		def games = c.list {
 			eq("eventKey", eventKey)
 		}
@@ -505,8 +538,7 @@ class SportsDataService {
 	 * @return
 	 */
 	List constructGameList(def games, int eventType, def todayDate){
-		int gameListSize = games.size()
-		log.debug "constructGameList(): begins with games = ${games}, eventType = ${eventType}, todayDate = ${todayDate}"
+		log.info "constructGameList(): begins with games = ${games}, eventType = ${eventType}, todayDate = ${todayDate}"
 		
 		Map gamesMap = [:]
 		List gamesList = []
@@ -525,7 +557,7 @@ class SportsDataService {
 			
 			if (eventType == PREEVENT || eventType == MIDEVENT || eventType == INTERMISSION){
 				if (todayDate > matchDate){
-					if (game.eventStatus == "pre-event"){						
+					if (game.eventStatus == EventTypeEnum.PREEVENT.toString()){						
 						log.error "constructGameList(): gameStatus should not be pre-event!"
 						log.debug "constructGameList(): gameEvent: "+ game.eventKey
 						log.debug "constructGameList(): eventStatus: " +game.eventStatus
@@ -536,14 +568,30 @@ class SportsDataService {
 					}
 				}
 			}
+			
 			if (eventType == POSTEVENT){
-				if (game.eventStatus != "post-event"){
+				if (game.eventStatus != EventTypeEnum.POSTEVENT.toString()){
 					log.error "constructGameList(): wrong event: "+ game.eventKey
 					log.debug "constructGameList(): eventStatus: " +game.eventStatus
 					log.debug "constructGameList(): score: " +game.score
 					log.debug "constructGameList(): team: " +gameFullName
 				}
 			}
+			
+			Map teamInfoMap = [
+				"teamname":gameFullName,
+				"score":score,
+				"teamLogoUrl": teamLogoService.getTeamLogo(gameFullName, eventKey)
+			  ]
+			
+			if (game.class == com.doozi.scorena.sportsdata.NbaGames){
+				teamInfoMap['basketballStats'] = constructBasketballStats(game)
+			}else if (game.class == com.doozi.scorena.sportsdata.GameBaseball){
+				teamInfoMap['baseballStats'] = constructBaseballStats((GameBaseball) game)
+			}
+			
+			
+			
 			if (!gamesMapValue){
 				Map	gameInfo = [
 						"leagueName": getLeagueNameFromEventKey(eventKey),
@@ -552,83 +600,13 @@ class SportsDataService {
 						"type":"soccer",
 						"gameStatus":game.eventStatus,
 						"date": helperService.setUTCFormat(game.startDateTime),
-						(game.alignment):[
-							"teamname":gameFullName,
-							"score":score,
-							"teamLogoUrl": teamLogoService.getTeamLogo(gameFullName)
-						]
+						(game.alignment):teamInfoMap
 				]
-				if (LeagueTypeEnum.NBA == getLeagueCodeFromEventKey(eventKey)){
-					
-					gameInfo[game.alignment].fieldGoalPct=0
-					gameInfo[game.alignment].freeThrowPct=0
-					gameInfo[game.alignment].threePointersPct=0
-					gameInfo[game.alignment].rebounds=0
-					gameInfo[game.alignment].assists=0
-					gameInfo[game.alignment].turnovers=0
-					
-					if (game.class == com.doozi.scorena.sportsdata.NbaGames){
-						gameInfo[game.alignment].fieldGoalPct=game.fieldGoalsPercentage
-						gameInfo[game.alignment].freeThrowPct=game.freeThrowPercentage
-						gameInfo[game.alignment].threePointersPct=game.threePointersPercentage
-						gameInfo[game.alignment].rebounds=game.rebounds
-						gameInfo[game.alignment].assists=game.assists
-						gameInfo[game.alignment].turnovers=game.turnovers
-					}
-	
-				}
-				
 				gamesMap.putAt(eventKey, gameInfo)
 			}else{
-			
-				if (gamesMapValue.gameStatus != game.eventStatus){
-					log.error "constructGameList(): gameStatus does not match!"
-					log.debug "constructGameList(): First set data: "+gamesMapValue
-					log.debug "constructGameList(): second set data: "+ game.eventStatus
-				}
-			
-				if (!gamesMapValue.away){
-					gamesMapValue.away = ["teamname":gameFullName, "score":score, "teamLogoUrl": teamLogoService.getTeamLogo(gameFullName)]
-					if (LeagueTypeEnum.NBA == getLeagueCodeFromEventKey(eventKey)){
-						gamesMapValue.away.fieldGoalPct=0
-						gamesMapValue.away.freeThrowPct=0
-						gamesMapValue.away.threePointersPct=0
-						gamesMapValue.away.rebounds=0
-						gamesMapValue.away.assists=0
-						gamesMapValue.away.turnovers=0
-						
-						if (game.class == com.doozi.scorena.sportsdata.NbaGames){
-							gamesMapValue.away.fieldGoalPct=game.fieldGoalsPercentage
-							gamesMapValue.away.freeThrowPct=game.freeThrowPercentage
-							gamesMapValue.away.threePointersPct=game.threePointersPercentage
-							gamesMapValue.away.rebounds=game.rebounds
-							gamesMapValue.away.assists=game.assists
-							gamesMapValue.away.turnovers=game.turnovers
-						}
-					}
-				}else{
-					gamesMapValue.home = ["teamname":gameFullName, "score":game.score, "teamLogoUrl": teamLogoService.getTeamLogo(gameFullName)]
-					if (LeagueTypeEnum.NBA == getLeagueCodeFromEventKey(eventKey)){
-						
-						gamesMapValue.home.fieldGoalPct=0
-						gamesMapValue.home.freeThrowPct=0
-						gamesMapValue.home.threePointersPct=0
-						gamesMapValue.home.rebounds=0
-						gamesMapValue.home.assists=0
-						gamesMapValue.home.turnovers=0						
-						
-						if (game.class == com.doozi.scorena.sportsdata.NbaGames){
-							gamesMapValue.home.fieldGoalPct=game.fieldGoalsPercentage
-							gamesMapValue.home.freeThrowPct=game.freeThrowPercentage
-							gamesMapValue.home.threePointersPct=game.threePointersPercentage
-							gamesMapValue.home.rebounds=game.rebounds
-							gamesMapValue.home.assists=game.assists
-							gamesMapValue.home.turnovers=game.turnovers
-						}
-					}
-				}
-				gamesList.add(gamesMapValue)
 				
+				gamesMapValue[game.alignment] = teamInfoMap				
+				gamesList.add(gamesMapValue)
 			}
 		}
 		
@@ -636,5 +614,36 @@ class SportsDataService {
 		
 		return gamesList
 		
+	}
+	
+	Map constructBaseballStats(GameBaseball game){
+		Map baseballStats = [
+			"probablePitcherNameDisplayRoster":game.probablePitcherNameDisplayRoster,
+			"probablePitcherWins":game.probablePitcherWins,
+			"probablePitcherLosses":game.probablePitcherLosses,
+			"probablePitcherERA":game.probablePitcherERA,
+			"errorsCount":game.errorsCount,
+			"strikeOuts":game.strikeOuts,
+			"runsScored":game.runsScored,
+			"stolenBases":game.stolenBases,
+			"hits":game.hits,
+			"innings":game.innings,
+			"homeRun":game.homeRun
+			]
+	}
+	
+	Map constructBasketballStats(def game){
+		Map nbaStats = [:]
+		if (game.class == com.doozi.scorena.sportsdata.NbaGames){
+			nbaStats = [
+				"fieldGoalPct":game.fieldGoalsPercentage,
+				"freeThrowPct":game.freeThrowPercentage,
+				"threePointersPct":game.threePointersPercentage,
+				"rebounds":game.rebounds,
+				"assists":game.assists,
+				"turnovers":game.turnovers
+				]
+		}
+		return nbaStats
 	}
 }

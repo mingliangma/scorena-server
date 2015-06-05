@@ -258,9 +258,17 @@ class UrlMappings {
 			action = [GET:"updateMlbTeam"]
 		}
 		
-//		"/v1/gameData/mlb/updateschedule"(controller:"gameData") {
-//			action = [GET:"updateMlbSchedule"]
-//		}
+		"/v1/gameData/mlb/updateschedule"(controller:"gameData") {
+			action = [GET:"updateMlbSchedule"]
+		}
+		
+		"/v1/gameData/mlb/updatescore"(controller:"gameData") {
+			action = [GET:"updateMlbScore"]
+		}
+		
+		"/v1/league"(controller:"gameData"){
+			action = [GET:"getSupportedLeagues"]
+		}
 		
 		"/v1/admin/cq"(view:"/CustomQuestionWebsite")
 		

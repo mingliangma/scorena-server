@@ -2,23 +2,26 @@ package com.doozi.scorena.sportsdata
 
 class GameBaseballHomeRun {
 	
+	String eventKey
 	String playerId
-	String NameDisplayRoster
+	String nameDisplayRoster
 	String firstName
 	String lastName
 	String playerNumber
 	
 	String teamCode
-	String homeRunYtd
-	String homeRun
-	String inning
-	String runners
+	int homeRunYtd
+	int homeRun
+	int inning
+	int runners
 	
-	static belongsTo = [gameBaseball: GameBaseball]
     static constraints = {
+		eventKey (unique: ['playerId'])
     }
 	
 	static mapping = {
 		datasource 'sportsData'
 	}
+	
+	
 }

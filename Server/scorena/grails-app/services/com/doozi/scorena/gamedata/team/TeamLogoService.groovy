@@ -1,10 +1,14 @@
 package com.doozi.scorena.gamedata.team
 
+import com.doozi.scorena.transaction.LeagueTypeEnum
 import org.springframework.transaction.annotation.Transactional
-
+import com.doozi.scorena.sportsdata.*
+import com.doozi.scorena.gamedata.dboutput.*
 
 class TeamLogoService {
-
+	static transactional = false
+	
+	def sportsDataHelperService
 	
 	public static final String ALGERIA_TEAMID = "o.fifa.com-t.78"
 	public static final String ARGENTINA_TEAMID = "o.fifa.com-t.623"
@@ -268,7 +272,60 @@ class TeamLogoService {
 	public static final String ABOVE200_TEAMNAME = '200 or above'
 	public static final String BELOW199_TEAMNAME = '199 or below'
 	
-    String getTeamLogo(String teamName) {
+	
+	String getTeamLogo(String teamName, String eventKey){
+		
+		LeagueTypeEnum league = sportsDataHelperService.getLeagueCodeFromEventKey(eventKey)
+		
+		if (league == LeagueTypeEnum.NBA || league == LeagueTypeEnum.EPL){
+			String customLogo = getNbaEplTeamLogo(teamName)
+			if (customLogo){
+				return customLogo
+			}else{
+				return DEFAULT_LOGO_URL
+			}
+		}else if (league == LeagueTypeEnum.MLB){
+			TeamBaseball teamB = TeamBaseball.findByClubName(teamName)
+			if (teamB){
+				return teamB.teamLogoUrl
+			}
+			
+			String customLogo = getNbaEplTeamLogo(teamName)
+			if (customLogo){
+				return customLogo
+			}
+			
+			PickLogo logo = PickLogo.findByPickName(teamName)
+			if (logo){
+				return logo.pickLogoUrl
+			}else{
+				return DEFAULT_LOGO_URL
+			}
+						
+		}else if (league == LeagueTypeEnum.NBADRAFT){
+			String customLogo = getNbaEplTeamLogo(teamName)
+			if (customLogo){
+				return customLogo
+			}
+			
+			PickLogo logo = PickLogo.findByPickName(teamName)
+			if (logo){
+				return logo.pickLogoUrl
+			}else{
+				return DEFAULT_LOGO_URL
+			}
+		}else{
+			PickLogo logo = PickLogo.findByPickName(teamName)
+			if (logo){
+				return logo.pickLogoUrl
+			}else{
+				return DEFAULT_LOGO_URL
+			}
+		}
+		
+	}
+	
+    String getNbaEplTeamLogo(String teamName) {
 		
 		switch (teamName.toLowerCase()){
 			case YES_TEAMNAME.toLowerCase():
@@ -489,7 +546,7 @@ class TeamLogoService {
 			case EAST_ALLSTARS_TEAMNAME.toLowerCase():
 				return EAST_ALLSTARS_TEAMNAME_LOGO_URL
 			default:
-				return DEFAULT_LOGO_URL
+				return null
 		}
 		
 
