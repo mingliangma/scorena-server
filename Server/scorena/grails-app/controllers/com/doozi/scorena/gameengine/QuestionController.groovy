@@ -1,4 +1,4 @@
-package com.doozi.scorena
+package com.doozi.scorena.gameengine
 
 import grails.converters.JSON
 

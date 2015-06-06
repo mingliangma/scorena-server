@@ -1,5 +1,7 @@
 package com.doozi.scorena
 
+import com.doozi.scorena.user.UserBannerController;
+
 import grails.test.mixin.TestFor
 import spock.lang.Specification
 

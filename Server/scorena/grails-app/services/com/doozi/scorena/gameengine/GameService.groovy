@@ -114,6 +114,9 @@ class GameService {
 			if (userId != null){
 				List<BetTransaction> userBetsInTheGame = getUserBetsFromGame(userId, allBetsInGame)
 				upcomingGame.userInfo = gameUserInfoService.getUpcomingGamesUserInfo(upcomingGame.gameId, userBetsInTheGame, userId)
+				upcomingGame.challenge=[inbox: [[userId:"e2ljE7VofD", pictureURL: "https://s3-us-west-2.amazonaws.com/userprofilepickture/007profile.png", name:"rocketsforever"]], 
+					outbox:[[userId:"1MGdPOPwLp", pictureURL: "https://s3-us-west-2.amazonaws.com/userprofilepickture/000profile.png", name:"kylestinson"]], 
+					active:[[userId:"F9JN6GRgRL", pictureURL: "https://s3-us-west-2.amazonaws.com/userprofilepickture/011profile.png", name:"redfans"]]]				
 			}
 			
 		}

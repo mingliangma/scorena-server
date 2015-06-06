@@ -1,6 +1,8 @@
-package com.doozi.scorena
+package com.doozi.scorena.user
 
 import java.util.Map;
+
+import com.doozi.scorena.Account;
 
 import grails.async.Promise
 import static grails.async.Promises.*

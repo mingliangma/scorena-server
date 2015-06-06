@@ -1,4 +1,4 @@
-package com.doozi.scorena
+package com.doozi.scorena.user
 
 import java.util.List;
 import com.doozi.scorena.useraccount.UserBannerNP

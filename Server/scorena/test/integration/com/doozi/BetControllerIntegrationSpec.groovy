@@ -1,8 +1,8 @@
 package com.doozi
 
 import com.doozi.scorena.Account;
-import com.doozi.scorena.BetController;
-import com.doozi.scorena.UserController;
+import com.doozi.scorena.transaction.BetController;
+import com.doozi.scorena.user.UserController;
 import com.doozi.scorena.utils.HelperService;
 
 import grails.plugins.rest.client.RestBuilder

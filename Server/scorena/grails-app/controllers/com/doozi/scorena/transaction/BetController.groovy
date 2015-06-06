@@ -1,4 +1,4 @@
-package com.doozi.scorena
+package com.doozi.scorena.transaction
 
 import grails.converters.JSON
 import grails.plugins.rest.client.RestBuilder

@@ -1,4 +1,4 @@
-package com.doozi.scorena
+package com.doozi.scorena.user
 
 class AccountController {
 //	static scaffold = true
