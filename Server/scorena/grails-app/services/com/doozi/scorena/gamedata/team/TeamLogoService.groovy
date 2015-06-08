@@ -281,9 +281,15 @@ class TeamLogoService {
 			String customLogo = getNbaEplTeamLogo(teamName)
 			if (customLogo){
 				return customLogo
+			}
+
+			PickLogo logo = PickLogo.findByPickName(teamName)
+			if (logo){
+				return logo.pickLogoUrl
 			}else{
 				return DEFAULT_LOGO_URL
 			}
+			
 		}else if (league == LeagueTypeEnum.MLB){
 			TeamBaseball teamB = TeamBaseball.findByClubName(teamName)
 			if (teamB){
