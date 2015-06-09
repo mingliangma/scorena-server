@@ -266,6 +266,18 @@ class UrlMappings {
 			action = [GET:"updateMlbScore"]
 		}
 		
+		"/v1/challenges/new"(controller:"challenge") {
+			action = [POST:"createChallenge"]
+		}
+		
+		"/v1/challenges/accept"(controller:"challenge") {
+			action = [POST:"acceptChallenge"]
+		}
+		
+		"/v1/challenges"(controller:"challenge") {
+			action = [GET:"listChallenge"]
+		}
+		
 		"/v1/league"(controller:"gameData"){
 			action = [GET:"getSupportedLeagues"]
 		}

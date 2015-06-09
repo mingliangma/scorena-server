@@ -236,7 +236,7 @@ class SportsDataService {
 			between("startDateTime", todayDate-1, upcomingDate)
 			ne("eventStatus", EventTypeEnum.POSTEVENT.toString())
 			order("startDateTime", "asc")
-			maxResults(20)
+			maxResults(30)
 		}
 		def upcomingGamesMap = [:]
 		
@@ -377,7 +377,7 @@ class SportsDataService {
 			between("startDateTime", pastDate, todayDate+1)
 			eq("eventStatus", EventTypeEnum.POSTEVENT.toString())
 			order("startDateTime", "desc")
-			maxResults(30)
+			maxResults(40)
 		}
 		
 		List pastGamesList = constructGameList(pastGames, POSTEVENT, todayDate)

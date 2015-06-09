@@ -1,12 +1,14 @@
 package com.doozi.scorena.gameengine
 
+import com.doozi.scorena.Account
 import com.doozi.scorena.Question;
 import com.doozi.scorena.processengine.GameProcessRecord
 import com.doozi.scorena.score.AbstractScore
 import com.doozi.scorena.transaction.BetTransaction
 import com.doozi.scorena.transaction.LeagueTypeEnum
 import com.doozi.scorena.processengine.*
-import com.doozi.scorena.enums.EventTypeEnum;
+import com.doozi.scorena.enums.*;
+import com.doozi.scorena.challenge.*
 
 import org.springframework.transaction.annotation.Transactional
 
@@ -24,6 +26,7 @@ class GameService {
 	def scoreService
 	def parseService
 	def profitRankingService
+	def challengeService
 	
 	List listUpcomingNonCustomGames(){
 		log.info "listUpcomingNonCustomGames(): begins..."
@@ -113,10 +116,11 @@ class GameService {
 			upcomingGame.numPeople = getNumUsersInGame(allBetsInGame)
 			if (userId != null){
 				List<BetTransaction> userBetsInTheGame = getUserBetsFromGame(userId, allBetsInGame)
-				upcomingGame.userInfo = gameUserInfoService.getUpcomingGamesUserInfo(upcomingGame.gameId, userBetsInTheGame, userId)
-				upcomingGame.challenge=[inbox: [[userId:"e2ljE7VofD", pictureURL: "https://s3-us-west-2.amazonaws.com/userprofilepickture/007profile.png", name:"rocketsforever"]], 
-					outbox:[[userId:"1MGdPOPwLp", pictureURL: "https://s3-us-west-2.amazonaws.com/userprofilepickture/000profile.png", name:"kylestinson"]], 
-					active:[[userId:"F9JN6GRgRL", pictureURL: "https://s3-us-west-2.amazonaws.com/userprofilepickture/011profile.png", name:"redfans"]]]				
+				upcomingGame.userInfo = gameUserInfoService.getUpcomingGamesUserInfo(upcomingGame.gameId, 
+					userBetsInTheGame, userId)
+				
+				upcomingGame.challenge = challengeService.constructGameListChallengesResponse(upcomingGame.gameId, userId)
+				
 			}
 			
 		}
@@ -125,6 +129,8 @@ class GameService {
 		
 		return upcomingGamesResult
 	}
+	
+	
 	
 	def listPastGamesData(String sportType, String leagueType){
 		log.info "listPastGamesData(): begins with sportType = ${sportType}, leagueType = ${leagueType}"
@@ -217,6 +223,8 @@ class GameService {
 				
 				List<BetTransaction> userBetsInTheGame = getUserBetsFromGame(userId, allBetsInGame)				
 				pastGame.userInfo=gameUserInfoService.getPastGamesUserInfo(pastGame, userBetsInTheGame, userId, userGameScores)
+				
+				pastGame.challenge = challengeService.constructGameListChallengesResponse(pastGame.gameId, userId)
 			}
 			
 			Boolean isGameProcessed = false
@@ -309,4 +317,6 @@ class GameService {
 		}
 		return null
 	}
+	
+
 }
