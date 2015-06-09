@@ -93,6 +93,15 @@ class ProcessEngineImplService {
 			
 			
 			List<Question> questions = questionService.listQuestions(gameProcessRecord.eventKey)
+			
+			if (questions.size() == 0){
+				gameProcessRecord.transProcessStatus = TransactionProcessStatusEnum.PROCESSED
+				gameProcessRecord.lastUpdate = new Date()
+				gameProcessRecord.save()
+				gameRecordsProcessed++
+				continue
+			}
+			
 			if (isReadyToProcess(questions, game) == true){
 				boolean errorExists = false;
 				String gameId = game.gameId
