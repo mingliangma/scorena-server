@@ -4,7 +4,7 @@ dataSource
 {
     pooled = true
     driverClassName = "com.mysql.jdbc.Driver"
-	dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+	dialect = "com.domain.mysql.dialect.MySQLUTF8InnoDBDialect"
 }
 
 dataSource_sportsData 
