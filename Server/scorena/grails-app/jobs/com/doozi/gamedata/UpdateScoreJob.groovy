@@ -15,10 +15,11 @@ class UpdateScoreJob {
 		if (grails.util.Environment.current == grails.util.Environment.PRODUCTION){
 			println "UpdateScoreJob trigged at " + new Date()
 			gameDataDbInputStatsNbaService.updateScore()
+			gameDataDbInputMlbService.updateScore()
 			println "UpdateScoreJob completed"
 		}else{
 			println "update score job cancelled. Server environment is not production. at " + new Date()
 		}
-		gameDataDbInputMlbService.updateScore()
+		
     }
 }
