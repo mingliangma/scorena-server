@@ -1,5 +1,5 @@
 package com.doozi.scorena.enums
 
-public enum ChallengerWinEnum {
+public enum ChallengeResultStatusEnum {
 	ERROR, PENDING, WIN, LOSS, TIE
 }

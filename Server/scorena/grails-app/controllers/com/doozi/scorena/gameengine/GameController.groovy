@@ -108,6 +108,12 @@ class GameController {
 		}
 		render result as JSON
 	}
+	
+	def fixprocess(){
+		processEngineManagerService.processNBAFinalGames()
+		Map result = [message: "complete"]	
+		render result as JSON
+	}
 
 	def testGames(){
 		def games = sportsDataService.getAllUpcomingGames()

@@ -102,9 +102,10 @@ class GameService {
 	List listUpcomingGames(def userId, String sportType, String leagueType){
 		log.info "listUpcomingGames(): begins with userId = ${userId}, sportType = ${sportType}, leagueType = ${leagueType}"
 				
-		List upcomingGamesResult=listUpcomingGamesData(sportType, leagueType)		
+		List upcomingGamesResult=listUpcomingGamesData(sportType, leagueType)				
 		List upcomingGameIds = getGameIdsFromGameData(upcomingGamesResult)
 		
+		println 1
 		List<BetTransaction> betsInUpcomingGames = []
 		if (upcomingGameIds!=[]){
 			betsInUpcomingGames = betTransactionService.listBetTransByGameIds(upcomingGameIds)
@@ -272,10 +273,12 @@ class GameService {
 	}
 	
 	public List<String> getGameIdsFromGameData(List games){
+		println "getGameIdsFromGameData() begins"
 		List gameIds = []
 		for (Map game: games){
 			gameIds.add(game.gameId)
 		}
+		println "getGameIdsFromGameData() ends"
 		return gameIds
 	}
 	

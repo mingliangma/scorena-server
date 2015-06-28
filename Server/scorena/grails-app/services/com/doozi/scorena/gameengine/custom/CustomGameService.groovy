@@ -70,7 +70,10 @@ class CustomGameService {
 		List upcomingGames=[]
 		upcomingGames.addAll(upcomingCustomGames)
 		upcomingGames.addAll(upcomingOriginalGames)		
-		log.info "upcomingGames: "+upcomingGames
+		
+		upcomingGames.sort {
+			it.startDateTime
+		}
 		
 		List upcomingGamesList = sportsDataService.constructGameList(upcomingGames, sportsDataService.PREEVENT, todayDate)
 		
@@ -83,13 +86,20 @@ class CustomGameService {
 		log.info "getAllPastGames(): begins..."
 		
 		def todayDate = new Date()
-		def pastDate = todayDate - PAST_DATE_RANGE;
-		def pastOriginalGames = NbaGames.findAll("from NbaGames as g where g.startDateTime>? and g.startDateTime<? and g.eventStatus='post-event' order by g.startDateTime desc", [pastDate, todayDate+1])
+		def pastDate = todayDate - PAST_DATE_RANGE-30;
+		def pastDate2 = todayDate - PAST_DATE_RANGE;
+		def pastOriginalGames = NbaGames.findAll("from NbaGames as g where g.startDateTime>? and g.startDateTime<? and g.eventStatus='post-event' order by g.startDateTime desc", [pastDate, todayDate+1], [max: 30])
 		def pastCustomGames = CustomGame.findAll("from CustomGame as g where g.startDateTime>? and g.startDateTime<? and g.eventStatus='post-event' and g.league=? order by g.startDateTime desc", [pastDate, todayDate+1, LeagueTypeEnum.NBA])
+		
+		
 		
 		List pastGames=[]
 		pastGames.addAll(pastCustomGames)
 		pastGames.addAll(pastOriginalGames)
+		
+		pastGames.sort {
+			a,b-> b.startDateTime<=>a.startDateTime
+		}
 		
 		List pastGamesList = sportsDataService.constructGameList(pastGames, sportsDataService.POSTEVENT, todayDate)		
 		

@@ -11,16 +11,20 @@ class SimulateBetJob {
 	}
 
 	def execute() {
-		println "simulateBetUpcoming trigged at " + new Date()
-		boolean isReadyProcess = processStatusService.isReadyToProcess("cron job simulate bet")
-		if (isReadyProcess){
-			println "simulate Bet started"
-			def result = simulateBetService.simulateBetUpcoming()
-			processStatusService.processCompleted()
-			println "simulateBetUpcoming completed"
-		}else{
-			println "other process is running"
-		}
+//		if (grails.util.Environment.current.getName() == "productioncronjobs" || grails.util.Environment.current.getName() == "awsdev"){
+			println "simulateBetUpcoming trigged at " + new Date()
+			boolean isReadyProcess = processStatusService.isReadyToProcess("cron job simulate bet")
+			if (isReadyProcess){
+				println "simulate Bet started"
+				def result = simulateBetService.simulateBetUpcoming()
+				processStatusService.processCompleted()
+				println "simulateBetUpcoming completed"
+			}else{
+				println "other process is running"
+			}
+//		}else{
+//			println "update schedule job cancelled. Server environment is not productioncronjobs. at " + new Date()
+//		}
 		
 //		println "simulateComment trigged at " + new Date()
 //		simulateCommentService.simulateComment()

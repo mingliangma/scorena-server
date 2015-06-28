@@ -65,8 +65,6 @@ grails {
         }
     }
 }
-
-
  
 grails.converters.encoding = "UTF-8"
 // scaffolding templates configuration
@@ -85,7 +83,7 @@ grails.web.disable.multipart=false
 grails.exceptionresolver.params.exclude = ['password']
 
 // configure auto-caching of queries by default (if false you can cache individual queries with 'cache: true')
-grails.hibernate.cache.queries = false
+//grails.hibernate.cache.queries = false
 
 
 

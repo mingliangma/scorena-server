@@ -90,9 +90,40 @@ class NotificationService {
 		
 		String message = "${displayName} joined ${title} tournament"
 
-		pushService.acceptTournamentNotification(new RestBuilder(),tournamentId, ownerUserId, message, title, description, startDate, expireDate, subscribedLeagues.toString())
+		pushService.acceptTournamentNotification(new RestBuilder(),tournamentId, ownerUserId, message, title, description, 
+			startDate, expireDate, subscribedLeagues.toString())
 		storeTournamentNotification([ownerUserId], message, NotificationTypeEnum.TOURNAMENT_ACCEPTANCE, tournamentId.toString())
 	}
+	
+	def challengeInvitationNotification(long challengeId, String challengeeUserId, String challengerDisplayName, 
+		String eventKey){
+		log.info "challengeInvitationNotification() begins with challengeId=${challengeId}, " +
+		"challengeeUserId=${challengeeUserId}, challengerDisplayName=${challengerDisplayName}"
+		
+		Map game = gameService.getGame(eventKey)
+		
+		String homeTeam = game.home.teamname
+		String awayTeam = game.away.teamname
+		
+		def rest =  new RestBuilder()
+		String message = "${challengerDisplayName} just challenged you in the game ${homeTeam} vs ${awayTeam}. "+
+		"Think you can beat ${challengerDisplayName}?"
+		pushService.challengeInvitationNotification(rest,challengeId, challengeeUserId, message)
+
+		storeChallengeNotification([challengeeUserId], message, NotificationTypeEnum.CHALLENGE_INVITATION, challengeId.toString())
+	}
+	
+	def challengeAcceptanceNotification(long challengeId, String challengerUserId, String challengeeDisplayName
+		, String homeTeam, String awayTeam){
+		log.info "challengeAcceptanceNotification() begins with challengeId=${challengeId}, " +
+		"challengerUserId=${challengerUserId}, challengeeDisplayName=${challengeeDisplayName}"
+
+		String message = "${challengeeDisplayName} accepted your challenge in the game ${homeTeam} vs ${awayTeam}. Game is on!"
+
+		pushService.acceptChallengeNotification(new RestBuilder(),challengeId, challengerUserId, message)
+		storeChallengeNotification([challengerUserId], message, NotificationTypeEnum.CHALLENGE_ACCEPTANCE, challengeId.toString())
+	}
+	
 	
 	public void gameResultNotification(Map userTotalGameProfit, Map gameIdToGameInfoMap)
 	{
@@ -255,28 +286,28 @@ class NotificationService {
 		return  usersToBeNotified
 	}
 
-	private def storeNotification(List<String> userIds, String message, NotificationTypeEnum notificationType, String eventKey, String questionId, String tournamentId){
+	private def storeNotification(List<String> userIds, String message, NotificationTypeEnum notificationType, 
+		String eventKey, String questionId, String tournamentId, String challengeId){
 		log.info "storeNotification(): begins with userIds=${userIds}, message=${message}, notificationType=${notificationType}, eventKey=${eventKey}"
 		Date createdAt = new Date()
 		for (String userId: userIds){
 			println "userId:"+userId
 			Notification n = new Notification(userId: userId, message:message, notificationType:notificationType, eventKey:eventKey, 
-				createdAt:createdAt, questionId:questionId, tournamentId:tournamentId)
+				createdAt:createdAt, questionId:questionId, tournamentId:tournamentId, challengeId:challengeId)
 			
 			println "Notification"
 			if (!n.save()) {
-				n.errors.each {
-					println it
-				}
 				Notification n1 = new Notification(userId: userId, message:message, notificationType:notificationType, eventKey:eventKey,
-					createdAt:createdAt, questionId:questionId, tournamentId:tournamentId)
+					createdAt:createdAt, questionId:questionId, tournamentId:tournamentId, challengeId:challengeId)
 				if (!n1.save()) {
 					n1.errors.each {
 						println it
 					}
 					
+				}else{
+					println "success"
 				}
-				println "failed"
+				
 			}else{
 				println "success"
 			}
@@ -284,42 +315,23 @@ class NotificationService {
 		log.info "storeNotification(): ends"
 	}
 	
+	private def storeChallengeNotification(List<String> userIds, String message, NotificationTypeEnum notificationType, String challengeId){
+		storeNotification(userIds, message, notificationType, null, null, null, challengeId)
+	}
+	
 	private def storeTournamentNotification(List<String> userIds, String message, NotificationTypeEnum notificationType, String tournamentId){
-		storeNotification(userIds, message, notificationType, null, null, tournamentId)
+		storeNotification(userIds, message, notificationType, null, null, tournamentId, null)
 	}
 	
 	private def storeNewFollowNotification(String followingAccountUserId, String msg){		
-		storeNotification([followingAccountUserId], msg, NotificationTypeEnum.NEW_FOLLOW, null, null, null)
-//		println "userId:"+userId
-//		println "Notification"
-//		Date createdAt = new Date()
-//		Notification n = new Notification(userId: followingAccountUserId, message:msg, notificationType:NotificationTypeEnum.NEW_FOLLOW,
-//			createdAt:createdAt)
-//		
-//		println "Notification"
-//		if (!n.save()) {
-//			n.errors.each {
-//				println it
-//			}
-//			Notification n1 =  new Notification(userId: followingAccountUserId, message:msg, notificationType:NotificationTypeEnum.NEW_FOLLOW,
-//			createdAt:createdAt)
-//			if (!n1.save()) {
-//				n1.errors.each {
-//					println it
-//				}
-//				
-//			}
-//			println "failed"
-//		}else{
-//			println "success"
-//		}
+		storeNotification([followingAccountUserId], msg, NotificationTypeEnum.NEW_FOLLOW, null, null, null, null)
 	}
 	
 	private def storeNotification(List<String> userIds, String message, NotificationTypeEnum notificationType, String eventKey){
-		storeNotification(userIds, message, notificationType, eventKey, null, null)	
+		storeNotification(userIds, message, notificationType, eventKey, null, null, null)	
 	}
 	
 	private def storeNotification(List<String> userIds, String message, NotificationTypeEnum notificationType, String eventKey, String questionId){
-		storeNotification(userIds, message, notificationType, eventKey, questionId, null)
+		storeNotification(userIds, message, notificationType, eventKey, questionId, null, null)
 	}
 }

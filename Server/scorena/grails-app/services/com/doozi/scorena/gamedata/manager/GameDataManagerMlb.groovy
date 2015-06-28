@@ -50,7 +50,10 @@ class GameDataManagerMlb implements IGameDataManager{
 			GameDataEventMlb gameDataEventMlb = new GameDataEventMlb() 
 			
 			gameDataEventMlb._gameDate = g.original_date
-			gameDataEventMlb._gameDateTime = g.time_date + " " + g.ampm + " " + g.time_zone
+			
+			if (g.time_date)
+				gameDataEventMlb._gameDateTime = g.time_date + " " + g.ampm + " " + g.time_zone
+			
 			gameDataEventMlb._gameId = g.id
 			gameDataEventMlb._gameEventStatusText = g.status.status
 			gameDataEventMlb._homeTeamId = g.home_team_id

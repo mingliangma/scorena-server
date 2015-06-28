@@ -52,8 +52,7 @@ class GameUserInfoService {
 			
 			
 		} else if (userinfo.placedBet && scoreTransactions.size() > 0){
-//			userinfo.gameProfit = getProfitInGame(game, userId, userBetsInTheGame)	
-			userinfo.gameProfit = PayoutTransaction.executeQuery("select sum(p.profit) from PayoutTransaction as p where p.eventKey=? and p.account.userId=?)",[game.gameId, userId])[0]
+			userinfo.gameProfit = getUserGameProfit(game.gameId, userId)
 			userinfo.badgeScore = -1
 			userinfo.rank = -1
 			userinfo.badge = ""
@@ -90,14 +89,19 @@ class GameUserInfoService {
 		return userinfo
 	}
 	
-	private int getProfitInGame(Map game, String userId, List userBetsInTheGame){
-		int profitAmount = 0
-		
-		for (BetTransaction bet: userBetsInTheGame){
-			profitAmount += questionUserInfoService.getProfitInQuestion(game, bet)
+	int getUserGameProfit(String gameId, String userId){
+		List profitList = PayoutTransaction.executeQuery("select sum(p.profit) from PayoutTransaction as p where p.eventKey=? and p.account.userId=?)",[gameId, userId])
+		println "getUserGameProfit(): profitList="+profitList
+		if (profitList.size() > 0){
+			if (profitList[0] == null){
+				return 0
+			}else{
+				return profitList[0]
+			}
+		}else{
+			return 0
 		}
-		return profitAmount
-	}
+	} 
 	
 	private int getWagerInGame(List<BetTransaction> userBetsInTheGame){
 		int wagerInGame = 0

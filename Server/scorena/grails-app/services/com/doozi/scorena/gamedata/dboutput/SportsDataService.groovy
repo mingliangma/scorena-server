@@ -235,8 +235,9 @@ class SportsDataService {
 		def upcomingGames = c.list {
 			between("startDateTime", todayDate-1, upcomingDate)
 			ne("eventStatus", EventTypeEnum.POSTEVENT.toString())
+			ne("eventStatus", EventTypeEnum.POSTPONED.toString())
 			order("startDateTime", "asc")
-			maxResults(30)
+			maxResults(20)
 		}
 		def upcomingGamesMap = [:]
 		
@@ -252,12 +253,13 @@ class SportsDataService {
 		log.debug "getAllUpcomingGames(): begins..."
 		
 		def todayDate = new Date()
-		def upcomingDate = todayDate + UPCOMING_DATE_RANGE;
+		def upcomingDate = todayDate + UPCOMING_DATE_RANGE + 60;
 		def c = GameNbaDraft.createCriteria()
 		def upcomingGames = c.list {
 			between("startDateTime", todayDate-1, upcomingDate)
 			ne("eventStatus", EventTypeEnum.POSTEVENT.toString())
 			order("startDateTime", "asc")
+			maxResults(30)
 		}
 		def upcomingGamesMap = [:]
 		List upcomingGamesList = constructGameList(upcomingGames, PREEVENT, todayDate)
@@ -329,7 +331,7 @@ class SportsDataService {
 		log.debug "getAllPastGames(): begins with leagueType = ${leagueType}"
 		
 		def todayDate = new Date()
-		def pastDate = todayDate - PAST_DATE_RANGE;
+		def pastDate = todayDate - PAST_DATE_RANGE - 40;
 		
 		def c = ScorenaAllGames.createCriteria()
 		def pastGames = c.list {
@@ -337,6 +339,7 @@ class SportsDataService {
 			eq("eventStatus", EventTypeEnum.POSTEVENT.toString())
 			order("startDateTime", "desc")
 			ilike("eventKey", getLeaguePrefixFromLeagueEnum(getLeagueEnumFromLeagueString(leagueType))+"%")
+			maxResults(40)
 		}
 		
 		List pastGamesList = constructGameList(pastGames, POSTEVENT, todayDate)

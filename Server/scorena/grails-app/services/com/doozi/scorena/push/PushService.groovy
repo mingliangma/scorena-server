@@ -319,6 +319,58 @@ def expireParam = helperService.setPushExpireTime(24)
 
 		return resp.json.toString()
 	}
+	
+	def challengeInvitationNotification(def rest,long challengeId, String userId, String msg)
+	{
+		log.info "challengeInvitationNotification(): begins with rest = ${rest},challengeId = ${challengeId}, userId = ${userId}, msg = ${msg}"
+
+		def parseConfig = grailsApplication.config.parse
+		def userParam = ["userId": (userId)]
+		def expireParam = helperService.setPushExpireTime(24)
+		def alertParam = ["alert": (msg),"challengeId":(challengeId), "pushType":"challengeInvitation"]
+		def resp = rest.post("https://api.parse.com/1/push")
+		{
+			header "X-Parse-Application-Id", parseConfig.parseApplicationId
+			header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
+			contentType "application/json"
+			json{
+				expiration_time = expireParam
+				data = alertParam
+				where = userParam
+			}
+		}
+
+		def result = resp.json.toString()
+		log.info "challengeInvitationNotification(): ends with result = ${result}"
+
+		return resp.json.toString()
+	}
+	
+	def acceptChallengeNotification(def rest,long challengeId, String userId, String msg)
+	{
+		log.info "acceptTournamentNotification(): begins with rest = ${rest},challengeId = ${challengeId}, userId = ${userId}"
+
+		def parseConfig = grailsApplication.config.parse
+		def userParam = ["userId": (userId) ]
+		def expireParam = helperService.setPushExpireTime(24)
+		def alertParam = ["alert": (msg),"tournamentId":(challengeId), "pushType":"acceptChallenge"]
+		def resp = rest.post("https://api.parse.com/1/push")
+		{
+			header "X-Parse-Application-Id", parseConfig.parseApplicationId
+			header	"X-Parse-REST-API-Key", parseConfig.parseRestApiKey
+			contentType "application/json"
+			json{
+				expiration_time = expireParam
+				data = alertParam
+				where = userParam
+			}
+		}
+
+		def result = resp.json.toString()
+		log.info "acceptTournamentNotification(): ends with result = ${result}"
+
+		return resp.json.toString()
+	}
 
 	def acceptTournamentNotification(def rest,long tournamentId, String userId, String msg, String title,String description,Date startDate,Date expireDate,String subscribedLeagues)
 	{

@@ -11,12 +11,12 @@ class SendInactiveUserNotificationJob {
 
     def execute() {
 		
-		if (grails.util.Environment.current == grails.util.Environment.PRODUCTION){
+//		if (grails.util.Environment.current.getName() == "productioncronjobs"){
 			println "SendInactiveUserNotificationJob trigged at " + new Date()
 			notificationService.inactiveUsersReminder()
 			println "SendInactiveUserNotificationJob completed"
-		}else{
-			println "SendInactiveUserNotificationJob cancelled. Server environment is not production. at " + new Date()
-		}
+//		}else{
+//			println "SendInactiveUserNotificationJob cancelled. Server environment is not productioncronjobs. at " + new Date()
+//		}
     }
 }

@@ -117,7 +117,7 @@ class FriendSystemService {
 		
 		int allFriendListSize = allFriendList.size()
 		if (allFriendListSize != 0) {
-			allFriendProfileList = getUserProfile(allFriendList)
+			allFriendProfileList = getUserProfile(allFriendList, true)
 		}
 		
 		log.info "listFollowers(): ends with allFriendProfileList = ${allFriendProfileList}"
@@ -150,12 +150,25 @@ class FriendSystemService {
 		List<Map> allFriendProfileList = []
 		List allConnections = listConnectionsUserids(CONNECTION_TYPE_FOLLOWING, userId)
 		allConnections.addAll(listConnectionsUserids(CONNECTION_TYPE_FOLLOWER, userId))
+		
+		List<String> randomUserIdList =[]
+		if (allConnections.size() < 15){
+			int additionalRandomConnectionSize = 15 - allConnections.size()
+			long accountMinId = Account.count().longValue() - 50
+			randomUserIdList = Account.executeQuery("select a.userId from Account a where a.id > ?", [accountMinId], [max:10])			
+		}
 		List uniqueConnections = allConnections.unique()
 		
 		int allFriendListSize = uniqueConnections.size()
 		if (allFriendListSize > 0) {
-			allFriendProfileList = getUserProfile(uniqueConnections)
+			allFriendProfileList = getUserProfile(uniqueConnections, true)
 		}
+		if (randomUserIdList.size() > 0){
+			List<Map> randomUserProfileList = getUserProfile(randomUserIdList, false)
+			allFriendProfileList.addAll(randomUserProfileList)
+		}
+		
+		
 		return allFriendProfileList
 	}
 	
@@ -364,7 +377,7 @@ class FriendSystemService {
 		return userProfileList
 	}
 	
-	private List<Map> getUserProfile (List userIdList) {
+	private List<Map> getUserProfile (List userIdList, boolean isConnection) {
 		log.info "getUserProfile(): begins with userIdList = ${userIdList}"
 		
 		def userProfileList = []
@@ -388,7 +401,8 @@ class FriendSystemService {
 			}
 			int currentBalance = user.currentBalance
 			
-			def userDataMap = [userId:userProfile.objectId, pictureURL:userProfile.pictureURL, avatarCode:userProfile.avatarCode, name:userProfile.username, currentBalance:currentBalance]
+			def userDataMap = [userId:userProfile.objectId, pictureURL:userProfile.pictureURL, avatarCode:userProfile.avatarCode, 
+				name:userProfile.username, currentBalance:currentBalance, isConnection: isConnection]
 			
 			if (userProfile.display_name != null && userProfile.display_name != "")
 				userDataMap.name = userProfile.display_name

@@ -10,13 +10,13 @@ class Challenge {
 	String challengeeUserId
 	String eventKey
 	
-	ChallengerWinEnum isChallengerWin
+	ChallengeResultStatusEnum challengerResultStatus
 	
 	
     static constraints = {
     }
 	
 	static mapping = {
-		isChallengerWin defaultValue: ChallengerWinEnum.PENDING
+		challengerResultStatus defaultValue: ChallengeResultStatusEnum.PENDING
 	 }
 }

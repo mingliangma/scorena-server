@@ -220,6 +220,59 @@ environments
 		}
     }
 	
+	productioncronjobs
+	{
+		dataSource
+		{
+			dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
+			url =System.getProperty("JDBC_CONNECTION_STRING")
+			
+			properties
+			{
+			   //max connections is 310
+				initialSize=10
+			  maxActive=190
+			  maxIdle=110
+			  minIdle=30
+			   minEvictableIdleTimeMillis=55000
+			   timeBetweenEvictionRunsMillis=34000
+			   validationQuery="SELECT 1"
+			   validationInterval=30000
+			   testOnBorrow=true
+			   removeAbandoned="true"
+			   removeAbandonedTimeout=55
+			   abandonWhenPercentageFull=100
+			   jdbcInterceptors="ConnectionState"
+			}
+		}
+		
+		dataSource_sportsData
+		{
+			dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
+			url = "jdbc:mysql://xmlinstance.cce59dcpxmml.us-west-2.rds.amazonaws.com:3306/sportsdb?user=dooziadmin&password=dooziadmin"
+			pooled = true
+			driverClassName = "com.mysql.jdbc.Driver"
+			dialect = org.hibernate.dialect.MySQL5InnoDBDialect
+			
+			properties
+			{
+			   initialSize=10
+			   maxActive=190
+			   maxIdle=110
+			   minIdle=30
+			   minEvictableIdleTimeMillis=55000
+			   timeBetweenEvictionRunsMillis=34000
+			   validationQuery="SELECT 1"
+			   validationInterval=30000
+			   testOnBorrow=true
+			   removeAbandoned="true"
+			   removeAbandonedTimeout=55
+			   abandonWhenPercentageFull=100
+			   jdbcInterceptors="ConnectionState"
+			 }
+		}
+	}
+	
 	heng 
 	{
 		dataSource 

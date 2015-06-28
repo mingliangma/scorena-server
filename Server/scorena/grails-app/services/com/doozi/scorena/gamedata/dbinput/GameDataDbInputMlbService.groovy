@@ -90,7 +90,7 @@ class GameDataDbInputMlbService {
 		
 		boolean isAllTeamsStored = false
 		int offset = 0
-		while(offset > -9){
+		while(offset >= -1){
 			GameDataInputMlb gameDataInputMlb = new GameDataInputMlb(offset)
 			GameDataOutputMlb gameDataOutputMlb = GameDataAdapter.get_gameDataAdapterInstance().retrieveGameData(gameDataInputMlb);
 			
@@ -127,7 +127,7 @@ class GameDataDbInputMlbService {
 						game.eventKey = getScorenaEventKey(g._gameId)
 						game.eventKeyDup = getScorenaEventKey(g._gameId)
 						
-						if(g._gameEventStatusText == GameDataEventMlb.STATUS_POSTPONED){
+						if(g._gameDateTime && g._gameEventStatusText == GameDataEventMlb.STATUS_POSTPONED){
 							game.startDateTime = helperService.parseDateTimeFromString(g._gameDateTime)
 						}
 						

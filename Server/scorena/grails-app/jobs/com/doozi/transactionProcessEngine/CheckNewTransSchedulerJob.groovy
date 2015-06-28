@@ -12,15 +12,19 @@ class CheckNewTransSchedulerJob {
 	}
 
 	def execute() {	
-		println "new game result trigged at " + new Date()
-		boolean isReadyProcess = processStatusService.isReadyToProcess("cron job process payout")
-		if (isReadyProcess){
-			println "process game started"
-			def result = processEngineManagerService.startProcessEngine()
-			processStatusService.processCompleted()
-			println "processEngineManager result:"+result
-		}else{
-			println "other process is running"
-		}				
+//		if (grails.util.Environment.current.getName() == "productioncronjobs" || grails.util.Environment.current.getName() == "awsdev"){
+			println "new game result trigged at " + new Date()
+			boolean isReadyProcess = processStatusService.isReadyToProcess("cron job process payout")
+			if (isReadyProcess){
+				println "process game started"
+				def result = processEngineManagerService.startProcessEngine()
+				processStatusService.processCompleted()
+				println "processEngineManager result:"+result
+			}else{
+				println "other process is running"
+			}	
+//		}else{
+//		println "SendInactiveUserNotificationJob cancelled. Server environment is not productioncronjobs. at " + new Date()
+//		}
 	}
 }

@@ -112,6 +112,14 @@ class UrlMappings {
 			action = [GET:"processGame"]
 		}
 		
+		"/v1/sports/processfix"(controller:"game"){
+			action = [GET:"fixprocess"]
+		}
+		
+		"/v1/sports/processchallenge"(controller:"challenge"){
+			action = [GET:"processChallenge"]
+		}
+		
 		"/v1/sports/testgame"(controller:"game"){
 			action = [GET:"testGames"]
 		}
@@ -270,8 +278,20 @@ class UrlMappings {
 			action = [POST:"createChallenge"]
 		}
 		
+		"/v1/challenges/newrandom"(controller:"challenge") {
+			action = [POST:"createChallengeWithRandomPlayer"]
+		}
+		
+		"/v1/challenges/newbotrandom"(controller:"challenge") {
+			action = [GET:"createBotChallengeWithRandomPlayer"]
+		}
+		
 		"/v1/challenges/accept"(controller:"challenge") {
 			action = [POST:"acceptChallenge"]
+		}
+		
+		"/v1/challenges/ignore"(controller:"challenge") {
+			action = [POST:"ignoreChallenge"]
 		}
 		
 		"/v1/challenges"(controller:"challenge") {

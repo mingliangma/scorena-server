@@ -375,10 +375,6 @@ class QuestionService {
 		
 		}
 		
-
-		
-
-		
 		log.info "populateQuestions(): ends with questionCreated = ${questionCreated}"
 		
 		return questionCreated
@@ -386,22 +382,44 @@ class QuestionService {
 	
 	int populateMlbQuestions(String away, String home, String eventId){
 		int questionCreated = 0
-		questionCreated += populateMlbTeamHitMoreHomeRun(away, home, eventId)
-		questionCreated += populateMlbPlayerHitHomeRun(away, home, eventId)
-		questionCreated += populateMlbTeamHaveMoreHits(away, home, eventId)
-		questionCreated += populateMlbTeamHaveMoreStrikeOuts(away, home, eventId)
-		questionCreated += populateMlbTotalHRHigherThan(eventId)
-		questionCreated += populateMlbHRBeforeInning(eventId)
-		questionCreated += populateMlbWillThereBeStolenBases(eventId)
-		questionCreated += populateMlbWillThereBeExtraInning(eventId)
 		
+		Random random = new Random()
+		List randomIndicatorList = []
+		while(randomIndicatorList.size() <4){
+			int indicator = random.nextInt(8)
+			if (!randomIndicatorList.contains(indicator)){
+				randomIndicatorList.add(indicator)
+			}
+		}
+		for (int quesitonIndex: randomIndicatorList){
+			println "quesitonIndex:"+quesitonIndex
+			switch(quesitonIndex){
+				case 0:
+					questionCreated += populateMlbTeamHitMoreHomeRun(away, home, eventId)
+					break				
+				case 1:
+					questionCreated += populateMlbPlayerHitHomeRun(away, home, eventId)
+					break
+				case 2:
+					questionCreated += populateMlbTeamHaveMoreHits(away, home, eventId)
+					break
+				case 3:
+					questionCreated += populateMlbTeamHaveMoreStrikeOuts(away, home, eventId)
+					break
+				case 4:
+					questionCreated += populateMlbTotalHRHigherThan(eventId)
+					break
+				case 5:
+					questionCreated += populateMlbHRBeforeInning(eventId)
+					break
+				case 6:
+					questionCreated += populateMlbWillThereBeStolenBases(eventId)
+					break
+			}
+		}
+
 		return questionCreated
 		
-//		Random random = new Random()		
-//		while (questionCreated < 3){
-//			int indicator = random.nextInt(6)
-//			questionCreated += populateMlbTeamHitMoreHomeRun(away, home, eventId)
-//		}
 	}
 	
 	private int populateMlbPlayerHitHomeRun(String away, String home, String eventId){
