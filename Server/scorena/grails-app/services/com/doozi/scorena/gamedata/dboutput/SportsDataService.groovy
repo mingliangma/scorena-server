@@ -237,7 +237,7 @@ class SportsDataService {
 			ne("eventStatus", EventTypeEnum.POSTEVENT.toString())
 			ne("eventStatus", EventTypeEnum.POSTPONED.toString())
 			order("startDateTime", "asc")
-			maxResults(20)
+			maxResults(40)
 		}
 		def upcomingGamesMap = [:]
 		
