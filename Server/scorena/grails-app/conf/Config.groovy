@@ -172,7 +172,8 @@ log4j = {
 	
 	appenders {
 		console name: "stdout", layout: layout
-		rollingFile name: "stacktrace", maxFileSize: 1024, file: "/Users/mingliangma/grailsServerLogs/stacktrace.log"
+		rollingFile name: "stacktrace", maxFileSize: 1024, file: "/Users/Joel/Documents/Log/stacktrace.log"
+	//	rollingFile name: "stacktrace", maxFileSize: 1024, file: "/Users/mingliangma/grailsServerLogs/stacktrace.log"
 		environments {
 			thomas {
 				rollingFile name: "fileLog", layout: layout, maxFileSize: "100MB", file: "/tmp/logs/fileLog.log"

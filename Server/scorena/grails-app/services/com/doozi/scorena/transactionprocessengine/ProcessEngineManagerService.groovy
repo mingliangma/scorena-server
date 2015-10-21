@@ -24,6 +24,7 @@ class ProcessEngineManagerService {
 		List pastMLBGames = sportsDataService.getAllPastMLBGames()
 		List pastNBADraftGames = sportsDataService.getAllPastNBADraftGames()
 		List pastChampGames = sportsDataService.getAllPastChampionGames()
+		List pastCFLGames = sportsDataService.getAllPastCFLGames()
 		
 		List allPastGames = []
 		allPastGames.addAll(pastCustomGames)
@@ -32,6 +33,7 @@ class ProcessEngineManagerService {
 		allPastGames.addAll(pastMLBGames)
 		allPastGames.addAll(pastNBADraftGames)
 		allPastGames.addAll(pastChampGames)
+		allPastGames.addAll(pastCFLGames)
 		
 		def gameRecordAdded = newGameResultFetcherService.getUnprocessedPastGame(allPastGames)
 		Map processResult = processEngineImplService.processNewGamesPayout()

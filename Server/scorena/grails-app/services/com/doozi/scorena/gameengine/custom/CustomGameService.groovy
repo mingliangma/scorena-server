@@ -175,6 +175,16 @@ class CustomGameService {
 				league: LeagueTypeEnum.NBADRAFT, autoQuestionCreation: false)
 			
 			
+		}else if (leagueType == LeagueTypeEnum.CFL){
+			cgHome = new GameCFL(fullName: homeTeamName, teamKey: homeTeamKey, eventStatus: EventTypeEnum.PREEVENT.toString(), eventKey:eventKey,
+				alignment: ALIGNMENT_HOME, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, 
+				league: LeagueTypeEnum.CFL, autoQuestionCreation: false)
+			
+			cgAway = new GameCFL(fullName: awayTeamName, teamKey: awayTeamKey, eventStatus: EventTypeEnum.PREEVENT.toString(), eventKey:eventKey,
+				alignment: ALIGNMENT_AWAY, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, 
+				league: LeagueTypeEnum.CFL, autoQuestionCreation: false)
+			
+			
 		}else if (leagueType == LeagueTypeEnum.CHAMP){
 			cgHome = new GameSoccer(fullName: homeTeamName, teamKey: homeTeamKey, eventStatus: EventTypeEnum.PREEVENT.toString(), eventKey:eventKey,
 				alignment: ALIGNMENT_HOME, startDateTime: startDateTime, lastUpdate: lastUpdate, score: null, 

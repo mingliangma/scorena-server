@@ -16,6 +16,7 @@ class SportsDataService {
 	final static String WORLD_CUP = "l.fifaworldc"
 	final static String NBA = "nba"
 	final static String MLB = "mlb"
+	final static String CFL = "cfl"
 	final static String FRENCHOPEN = "frenchopen"
 	final static String NBADRAFT = "nbadraft"
 	
@@ -59,6 +60,8 @@ class SportsDataService {
 			return "French Open"
 		else if (eventKey.startsWith(NBADRAFT))
 			return "NBA Draft"
+		else if (eventKey.startsWith(CFL))
+			return "CFL"
 		else if (eventKey.startsWith(customGameService.CUSTOM_EVENT_PREFIX))
 			return "Launch Party"
 	}
@@ -85,7 +88,9 @@ class SportsDataService {
 		else if (eventKey.startsWith(MLB))
 			return LeagueTypeEnum.MLB
 		else if (eventKey.startsWith(FRENCHOPEN))
-			return LeagueTypeEnum.FRENCHOPEN		
+			return LeagueTypeEnum.FRENCHOPEN
+		else if (eventKey.startsWith(CFL))
+			return LeagueTypeEnum.CFL		
 		else if (eventKey.startsWith(customGameService.CUSTOM_EVENT_PREFIX))
 			return customGameService.CUSTOM_EVENT_PREFIX
 	}
@@ -113,6 +118,8 @@ class SportsDataService {
 			return LeagueTypeEnum.FRENCHOPEN
 		else if (leagueType.toUpperCase() == LeagueTypeEnum.NBADRAFT.toString())
 			return LeagueTypeEnum.NBADRAFT
+		else if (leagueType.toUpperCase() == LeagueTypeEnum.CFL.toString())
+			return LeagueTypeEnum.CFL
 	}
 	
 	public String getLeaguePrefixFromLeagueEnum(LeagueTypeEnum leagueTypeEnum){
@@ -138,6 +145,8 @@ class SportsDataService {
 			return FRENCHOPEN
 		else if (leagueTypeEnum == LeagueTypeEnum.NBADRAFT)
 			return NBADRAFT
+		else if (leagueTypeEnum == LeagueTypeEnum.CFL)
+			return CFL
 	}
 	
 	public isLeagueSupport(String league){
@@ -255,6 +264,26 @@ class SportsDataService {
 		def todayDate = new Date()
 		def upcomingDate = todayDate + UPCOMING_DATE_RANGE + 60;
 		def c = GameNbaDraft.createCriteria()
+		def upcomingGames = c.list {
+			between("startDateTime", todayDate-1, upcomingDate)
+			ne("eventStatus", EventTypeEnum.POSTEVENT.toString())
+			order("startDateTime", "asc")
+			maxResults(30)
+		}
+		def upcomingGamesMap = [:]
+		List upcomingGamesList = constructGameList(upcomingGames, PREEVENT, todayDate)
+		
+		log.debug "getAllUpcomingGames(): ends"
+		
+		return upcomingGamesList
+	}
+	
+	def getAllUpcomingCFLGames(){
+		log.debug "getAllUpcomingGames(): begins..."
+		
+		def todayDate = new Date()
+		def upcomingDate = todayDate + UPCOMING_DATE_RANGE + 60;
+		def c = GameCFL.createCriteria()
 		def upcomingGames = c.list {
 			between("startDateTime", todayDate-1, upcomingDate)
 			ne("eventStatus", EventTypeEnum.POSTEVENT.toString())
@@ -410,6 +439,26 @@ class SportsDataService {
 		return pastGamesList
 	}
 	
+	List getAllPastCFLGames() {
+		log.debug "getAllPastGames(): begins..."
+		
+		def todayDate = new Date()
+		def pastDate = todayDate - PAST_DATE_RANGE;
+		
+		def c = GameCFL.createCriteria()
+		def pastGames = c.list {
+			between("startDateTime", pastDate, todayDate+1)
+			eq("eventStatus", EventTypeEnum.POSTEVENT.toString())
+			order("startDateTime", "desc")
+		}
+		
+		List pastGamesList = constructGameList(pastGames, POSTEVENT, todayDate)
+		
+		log.debug "getAllPastGames(): ends"
+		
+		return pastGamesList
+	}
+	
 	List getAllPastChampionGames(){
 		log.debug "getAllPastGames(): begins..."
 		
@@ -515,6 +564,23 @@ class SportsDataService {
 			game = constructGameList(games, ALLEVENT, todayDate)[0]
 		
 		log.debug "getNBADraftGame(): ends"
+		return game
+	}
+	
+	Map getCFLGame (def eventKey){
+		log.debug "getCFLGame(): begins with eventKey = ${eventKey}"
+		
+		def c = GameCFL.createCriteria()
+		def games = c.list {
+			eq("eventKey", eventKey)
+		}
+		def todayDate = new Date()
+		
+		Map game = [:]
+		if (games.size() > 0)
+			game = constructGameList(games, ALLEVENT, todayDate)[0]
+		
+		log.debug "getCFLGame(): ends"
 		return game
 	}
 	

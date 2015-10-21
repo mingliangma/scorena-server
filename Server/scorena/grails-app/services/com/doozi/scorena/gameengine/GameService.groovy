@@ -52,6 +52,7 @@ class GameService {
 		List upcomingTennisGames = []
 		List upcomingMLBGames = []
 		List upcomingNBADraftGames = []
+		List upcomingCFLGames = []
 		
 		if (leagueType.toUpperCase() == LeagueTypeEnum.NBA.toString()){
 			
@@ -76,11 +77,16 @@ class GameService {
 		
 			upcomingGames = sportsDataService.getAllUpcomingNBADraftGames()
 			
+		}else if (leagueType.toUpperCase() == LeagueTypeEnum.CFL.toString()){
+		
+			upcomingGames = sportsDataService.getAllUpcomingCFLGames()
+			
 		}else{
 			upcomingChampGames = sportsDataService.getAllUpcomingChampionGames()
 			upcomingTennisGames = sportsDataService.getAllUpcomingTennisGames()
 			upcomingMLBGames = sportsDataService.getAllUpcomingMLBGames()
 			upcomingNBADraftGames = sportsDataService.getAllUpcomingNBADraftGames()
+			upcomingCFLGames = sportsDataService.getAllUpcomingCFLGames()
 			upcomingCustomGames = customGameService.getAllUpcomingGames()
 			upcomingGames = sportsDataService.getAllUpcomingGames()
 		}
@@ -92,6 +98,7 @@ class GameService {
 		upcomingGamesResult.addAll(upcomingTennisGames)
 		upcomingGamesResult.addAll(upcomingMLBGames)
 		upcomingGamesResult.addAll(upcomingNBADraftGames)
+		upcomingGamesResult.addAll(upcomingCFLGames)
 		
 		
 		log.info "listUpcomingGamesData(): ends"
@@ -142,6 +149,7 @@ class GameService {
 		List pastTennisGames = []
 		List pastMLBGames = []
 		List pastNBADraftGames = []
+		List pastCFLGames = []
 
 		if (leagueType.toUpperCase() == LeagueTypeEnum.NBA.toString()){
 			
@@ -167,6 +175,10 @@ class GameService {
 		
 			pastGames = sportsDataService.getAllPastNBADraftGames()
 			
+		}else if (leagueType.toUpperCase() == LeagueTypeEnum.CFL.toString()){
+		
+			pastGames = sportsDataService.getAllPastCFLGames()
+			
 		}else{
 			pastCustomGames = customGameService.getAllPastGames()
 			pastGames = sportsDataService.getAllPastGames()
@@ -174,6 +186,7 @@ class GameService {
 			pastTennisGames = sportsDataService.getAllPastTennisGames()
 			pastMLBGames = sportsDataService.getAllPastMLBGames()
 			pastNBADraftGames = sportsDataService.getAllPastNBADraftGames()
+			pastCFLGames = sportsDataService.getAllPastCFLGames()
 		}
 		
 		
@@ -184,6 +197,7 @@ class GameService {
 		pastGamesResult.addAll(pastTennisGames)
 		pastGamesResult.addAll(pastMLBGames)
 		pastGamesResult.addAll(pastNBADraftGames)
+		pastGamesResult.addAll(pastCFLGames)
 		
 		log.info "listPastGamesData(): ends "
 		
@@ -267,6 +281,8 @@ class GameService {
 			return sportsDataService.getTennisGame(gameId)
 		else if (gameId.startsWith(sportsDataService.getLeaguePrefixFromLeagueEnum(LeagueTypeEnum.CHAMP)))
 			return sportsDataService.getChampionGame(gameId)
+		else if (gameId.startsWith(sportsDataService.getLeaguePrefixFromLeagueEnum(LeagueTypeEnum.CFL)))
+			return sportsDataService.getCFLGame(gameId)
 		else	
 			return sportsDataService.getGame(gameId)
 		
