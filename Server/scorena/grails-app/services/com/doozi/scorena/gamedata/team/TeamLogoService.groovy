@@ -166,15 +166,15 @@ class TeamLogoService {
 	public static final String ROUGHRIDERS_TEAMNAME = "Saskatchewan"
 	public static final String BLUE_BOMBERS_TEAMNAME = "Winnipeg"
 	
-	public static final String BC_LIONS_LOGO_URL = "https://s3-us-west-2.amazonaws.com/teamlogo/CFL/BC+Lions.jpg"
-	public static final String ARGONAUTS_LOGO_URL= "https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Toronto+Argonauts.jpg"
-	public static final String ALOUETTES_LOGO_URL= "https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Montreal+Alouettes.jpg"
-	public static final String TIGER_CATS_LOGO_URL = "https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Hamilton+Tiger-Cats.jpg"
-	public static final String REDBLACKS_LOGO_URL = "https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Ottawa+RedBlacks.jpg"
-	public static final String STAMPEDERS_LOGO_URL = "https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Calgary+Stampeders.jpg"
-	public static final String ESKIMOS_LOGO_URL = "https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Edmonton+Eskimos.jpg"
-	public static final String ROUGHRIDERS_LOGO_URL = "https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Saskatchewan+Roughriders.jpg"
-	public static final String BLUE_BOMBERS_LOGO_URL = "https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Winnipeg+Blue+Bombers.jpg"
+	public static final String BC_LIONS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/CFL/BC+Lions.jpg'
+	public static final String ARGONAUTS_LOGO_URL= 'https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Toronto+Argonauts.jpg'
+	public static final String ALOUETTES_LOGO_URL= 'https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Montreal+Alouettes.jpg'
+	public static final String TIGER_CATS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Hamilton+Tiger-Cats.jpg'
+	public static final String REDBLACKS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Ottawa+RedBlacks.jpg'
+	public static final String STAMPEDERS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Calgary+Stampeders.jpg'
+	public static final String ESKIMOS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Edmonton+Eskimos.jpg'
+	public static final String ROUGHRIDERS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Saskatchewan+Roughriders.jpg'
+	public static final String BLUE_BOMBERS_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Winnipeg+Blue+Bombers.jpg'
 	
 	
 	public static final String YES_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/yes_icon.png'
@@ -298,7 +298,7 @@ class TeamLogoService {
 		
 		LeagueTypeEnum league = sportsDataHelperService.getLeagueCodeFromEventKey(eventKey)
 		
-		if (league == LeagueTypeEnum.NBA || league == LeagueTypeEnum.EPL || league == LeagueTypeEnum.CFL){
+		if (league == LeagueTypeEnum.NBA || league == LeagueTypeEnum.EPL){
 			String customLogo = getNbaEplTeamLogo(teamName)
 			if (customLogo){
 				return customLogo
@@ -330,6 +330,18 @@ class TeamLogoService {
 			}
 						
 		}else if (league == LeagueTypeEnum.NBADRAFT){
+			String customLogo = getNbaEplTeamLogo(teamName)
+			if (customLogo){
+				return customLogo
+			}
+			
+			PickLogo logo = PickLogo.findByPickName(teamName)
+			if (logo){
+				return logo.pickLogoUrl
+			}else{
+				return DEFAULT_LOGO_URL
+			}
+		} else if (league == LeagueTypeEnum.CFL){
 			String customLogo = getNbaEplTeamLogo(teamName)
 			if (customLogo){
 				return customLogo

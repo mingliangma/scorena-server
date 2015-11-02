@@ -17,6 +17,7 @@ class SportsDataHelperService {
 	final static String WORLD_CUP = "l.fifaworldc"
 	final static String NBA = "nba"
 	final static String MLB = "mlb"
+	final static String CFL = "cfl"
 	final static String FRENCHOPEN = "frenchopen"
 	final static String NBADRAFT = "nbadraft"
 	static final String CUSTOM_TEAM_PREFIX = "customteam-"
@@ -54,6 +55,8 @@ class SportsDataHelperService {
 			return "NBA"
 		else if (eventKey.startsWith(MLB))
 			return "MLB"
+		else if (eventKey.startsWith(CFL))
+			return "CFL"
 		else if (eventKey.startsWith(FRENCHOPEN))
 			return "French Open"
 		else if (eventKey.startsWith(NBADRAFT))
@@ -83,6 +86,8 @@ class SportsDataHelperService {
 			return LeagueTypeEnum.NBA
 		else if (eventKey.startsWith(MLB))
 			return LeagueTypeEnum.MLB
+		else if (eventKey.startsWith(CFL))
+			return LeagueTypeEnum.CFL
 		else if (eventKey.startsWith(FRENCHOPEN))
 			return LeagueTypeEnum.FRENCHOPEN		
 		else if (eventKey.startsWith(CUSTOM_EVENT_PREFIX))
@@ -108,6 +113,8 @@ class SportsDataHelperService {
 			return LeagueTypeEnum.NBA
 		else if (leagueType.toUpperCase() == LeagueTypeEnum.MLB.toString())
 			return LeagueTypeEnum.MLB
+		else if (leagueType.toUpperCase() == LeagueTypeEnum.CFL.toString())
+			return LeagueTypeEnum.CFL
 		else if (leagueType.toUpperCase() == LeagueTypeEnum.FRENCHOPEN.toString())
 			return LeagueTypeEnum.FRENCHOPEN
 		else if (leagueType.toUpperCase() == LeagueTypeEnum.NBADRAFT.toString())
@@ -133,6 +140,8 @@ class SportsDataHelperService {
 			return NBA
 		else if (leagueTypeEnum == LeagueTypeEnum.MLB)
 			return MLB
+		else if (leagueTypeEnum == LeagueTypeEnum.CFL)
+			return CFL
 		else if (leagueTypeEnum == LeagueTypeEnum.FRENCHOPEN)
 			return FRENCHOPEN
 		else if (leagueTypeEnum == LeagueTypeEnum.NBADRAFT)
