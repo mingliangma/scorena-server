@@ -156,6 +156,27 @@ class TeamLogoService {
 	public static final String FloydMayweather = "Floyd Mayweather"
 	public static final String MannyPacquiao = "Manny Pacquiao"
 	
+	public static final String BC_LIONS_TEAMNAME = "British Columbia"
+	public static final String ARGONAUTS_TEAMNAME = "Toronto"
+	public static final String ALOUETTES_TEAMNAME = "Montreal"
+	public static final String TIGER_CATS_TEAMNAME = "Hamilton"
+	public static final String REDBLACKS_TEAMNAME = "Ottawa"
+	public static final String STAMPEDERS_TEAMNAME = "Calgary"
+	public static final String ESKIMOS_TEAMNAME = "Edmonton"
+	public static final String ROUGHRIDERS_TEAMNAME = "Saskatchewan"
+	public static final String BLUE_BOMBERS_TEAMNAME = "Winnipeg"
+	
+	public static final String BC_LIONS_LOGO_URL = "https://s3-us-west-2.amazonaws.com/teamlogo/CFL/BC+Lions.jpg"
+	public static final String ARGONAUTS_LOGO_URL= "https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Toronto+Argonauts.jpg"
+	public static final String ALOUETTES_LOGO_URL= "https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Montreal+Alouettes.jpg"
+	public static final String TIGER_CATS_LOGO_URL = "https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Hamilton+Tiger-Cats.jpg"
+	public static final String REDBLACKS_LOGO_URL = "https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Ottawa+RedBlacks.jpg"
+	public static final String STAMPEDERS_LOGO_URL = "https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Calgary+Stampeders.jpg"
+	public static final String ESKIMOS_LOGO_URL = "https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Edmonton+Eskimos.jpg"
+	public static final String ROUGHRIDERS_LOGO_URL = "https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Saskatchewan+Roughriders.jpg"
+	public static final String BLUE_BOMBERS_LOGO_URL = "https://s3-us-west-2.amazonaws.com/teamlogo/CFL/Winnipeg+Blue+Bombers.jpg"
+	
+	
 	public static final String YES_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/yes_icon.png'
 	public static final String NO_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/no_icon.png'
 	public static final String ABOVE3_LOGO_URL = 'https://s3-us-west-2.amazonaws.com/genericlogo/3above.png'
@@ -277,7 +298,7 @@ class TeamLogoService {
 		
 		LeagueTypeEnum league = sportsDataHelperService.getLeagueCodeFromEventKey(eventKey)
 		
-		if (league == LeagueTypeEnum.NBA || league == LeagueTypeEnum.EPL){
+		if (league == LeagueTypeEnum.NBA || league == LeagueTypeEnum.EPL || league == LeagueTypeEnum.CFL){
 			String customLogo = getNbaEplTeamLogo(teamName)
 			if (customLogo){
 				return customLogo
@@ -359,6 +380,26 @@ class TeamLogoService {
 				return Mayweather_LOGO_URL
 			case MannyPacquiao.toLowerCase():
 				return Pacquiao_LOGO_URL
+				
+			case BC_LIONS_TEAMNAME.toLowerCase():
+				return BC_LIONS_LOGO_URL
+			case ARGONAUTS_TEAMNAME.toLowerCase():
+				return ARGONAUTS_LOGO_URL
+			case ALOUETTES_TEAMNAME.toLowerCase():
+				return ALOUETTES_LOGO_URL
+			case TIGER_CATS_TEAMNAME.toLowerCase():
+				return TIGER_CATS_LOGO_URL
+			case REDBLACKS_TEAMNAME.toLowerCase():
+				return REDBLACKS_LOGO_URL
+			case STAMPEDERS_TEAMNAME.toLowerCase():
+				return STAMPEDERS_LOGO_URL 
+			case ESKIMOS_TEAMNAME.toLowerCase():
+				return ESKIMOS_LOGO_URL
+			case ROUGHRIDERS_TEAMNAME.toLowerCase():
+				return ROUGHRIDERS_LOGO_URL
+			case BLUE_BOMBERS_TEAMNAME.toLowerCase():
+				return BLUE_BOMBERS_LOGO_URL
+				
 			
 			case STEPHCURRY_TEAMNAME.toLowerCase():
 				return STEPHCURRY_LOGO_URL

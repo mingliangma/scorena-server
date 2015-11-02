@@ -15,7 +15,7 @@ class UpdateScheduleJob {
 //		if (grails.util.Environment.current.getName() == "productioncronjobs"){
 			println "UpdateScheduleJob trigged at " + new Date()
 //			gameDataDbInputStatsNbaService.updateSchedule()
-			gameDataDbInputMlbService.updateSchedule()
+//			gameDataDbInputMlbService.updateSchedule()
 			println "UpdateScheduleJob completed"
 //		}else{
 //			println "update schedule job cancelled. Server environment is not productioncronjobs. at " + new Date()
