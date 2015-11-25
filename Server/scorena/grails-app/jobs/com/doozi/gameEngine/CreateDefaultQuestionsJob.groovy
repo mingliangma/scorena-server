@@ -13,9 +13,9 @@ class CreateDefaultQuestionsJob {
 
     def execute() {
 //		if (grails.util.Environment.current.getName() == "productioncronjobs" || grails.util.Environment.current.getName() == "awsdev"){
-			println "create Quesitons job triggered at "+new Date()
-	        questionService.createQuestions()
-			println "create Quesitons job ends"
+//			println "create Quesitons job triggered at "+new Date()
+//	        questionService.createQuestions()
+//			println "create Quesitons job ends"
 //		}else{
 //			println "update score job cancelled. Server environment is not productioncronjobs. at " + new Date()
 //		}
